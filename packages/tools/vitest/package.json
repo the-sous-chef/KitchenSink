@@ -1,0 +1,22 @@
+{
+    "name": "@kitchensink/vitest",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./vitest.config.d.ts",
+            "default": "./vitest.config.js"
+        },
+        "./*": {
+            "types": "./*.d.ts",
+            "default": "./*.js"
+        }
+    },
+    "peerDependencies": {
+        "vitest": "^4.0.0"
+    },
+    "lint-staged": {
+        "*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,html,yaml,yml}": "prettier --write"
+    }
+}

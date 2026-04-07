@@ -51,6 +51,11 @@ description: "Task list template for feature implementation"
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
+- [ ] T003a [P] Add workspace to root `package.json` workspaces array and wire Turbo tasks
+  (Constitution Principle V — monorepo governance)
+- [ ] T003b [P] Extend `@armoury/typescript`, `@armoury/eslint`, `@armoury/prettier`,
+  `@armoury/vitest` configs in new workspace `tsconfig.json`, `eslint.config.js`,
+  `prettier.config.js`, `vitest.config.ts` (Constitution Principle VI — shared tooling)
 
 ---
 
@@ -65,8 +70,11 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 Setup database schema and migrations framework
 - [ ] T005 [P] Implement authentication/authorization framework
 - [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
+- [ ] T007 Create base models/entities that all stories depend on — all interfaces/types MUST use
+  strict TypeScript with no `any`, ISO 8601 dates, and exported JSDoc comments
+  (Constitution Principles I & II)
+- [ ] T008 Configure error handling and logging infrastructure — each error class MUST extend
+  `Error` and expose a type guard `isXxxError` (Constitution Principle I)
 - [ ] T009 Setup environment configuration management
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -156,6 +164,23 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
+
+### Constitution Compliance Checklist (run before marking phase complete)
+
+- [ ] TXXX-I All new TypeScript compiles with `strict: true`; zero `any` outside test doubles;
+  custom errors extend `Error` and expose type guards. (Principle I)
+- [ ] TXXX-II All exported functions, interfaces, and types carry JSDoc with `@param`/`@returns`/
+  `@throws`; every source file has a module-level JSDoc summary. (Principle II)
+- [ ] TXXX-III All imports are aliased with `.js` extensions; no relative cross-workspace imports;
+  no `helpers/` directories introduced. (Principle III)
+- [ ] TXXX-IV Test files open with requirement-traceability plan comment; `getByRole`/`getByLabel`
+  used exclusively in Playwright; no `waitForTimeout`; global registries cleared in `beforeEach`.
+  (Principle IV)
+- [ ] TXXX-V Any new workspace is registered in root workspaces array and Turbo `turbo.json`;
+  tooling configs extend shared packages. (Principle V)
+- [ ] TXXX-VI `turbo run typecheck lint format:check test` all exit 0 locally before pushing. (Principle VI)
+- [ ] TXXX-VII All interactive elements have accessible names; design tokens used for color; no
+  hard-coded hex/oklch values in component styles. (Principle VII)
 
 ---
 

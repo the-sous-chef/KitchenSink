@@ -1,0 +1,36 @@
+{
+    "name": "kitchensink",
+    "type": "module",
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/the-sous-chef/KitchenSink.git"
+    },
+    "homepage": "https://github.com/the-sous-chef/KitchenSink#readme",
+    "bugs": {
+        "url": "https://github.com/the-sous-chef/KitchenSink/issues"
+    },
+    "engines": {
+        "node": ">=24.0.0"
+    },
+    "workspaces": [
+        "packages/tools/*"
+    ],
+    "scripts": {
+        "build": "turbo run build",
+        "test": "turbo run test",
+        "lint": "turbo run lint format:check",
+        "typecheck": "turbo run typecheck",
+        "format": "turbo run format",
+        "format:check": "turbo run format:check",
+        "prepare": "husky || true"
+    },
+    "devDependencies": {
+        "husky": "^9.1.7",
+        "lint-staged": "^16.3.2",
+        "turbo": "^2.0.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    }
+}

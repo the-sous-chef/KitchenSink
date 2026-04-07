@@ -80,6 +80,15 @@
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
   Fill them out with the right functional requirements.
+
+  Constitution reminders (Principles I–VII):
+  - All interfaces/types MUST use strict TypeScript; no `any` outside test doubles (Principle I)
+  - All exported symbols MUST carry JSDoc; braces required on all control structures (Principle II)
+  - New code MUST use aliased imports with .js extensions; no `helpers/` directories (Principle III)
+  - New UI elements MUST be queryable by role/label; no `data-testid` (Principles IV & VII)
+  - Any new workspace MUST extend shared tooling configs and be declared in Turbo (Principle V)
+  - Formatting and lint gates MUST remain green (Principle VI)
+  - Interactive elements MUST have accessible names; design tokens MUST be used for color (Principle VII)
 -->
 
 ### Functional Requirements
@@ -94,6 +103,15 @@
 
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+
+### Non-Functional Requirements *(constitution-derived)*
+
+- **NFR-001**: All TypeScript MUST compile with `strict: true`; no `any` used outside explicitly
+  marked test doubles. (Constitution Principle I)
+- **NFR-002**: All exported functions and interfaces MUST carry JSDoc documentation. (Principle II)
+- **NFR-003**: Any UI component MUST expose an accessible name queryable via `getByRole`/`getByLabel`
+  in Playwright tests. (Principles IV & VII)
+- **NFR-004**: Color MUST NOT be the sole conveyor of state; icon or text label pairing required. (Principle VII)
 
 ### Key Entities *(include if feature involves data)*
 

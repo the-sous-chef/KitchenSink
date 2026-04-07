@@ -31,7 +31,19 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify compliance with each KitchenSink Constitution principle before proceeding:
+
+| # | Principle | Status | Notes |
+|---|-----------|--------|-------|
+| I | **Correctness & Type Safety** — strict TS, no `any`, proper error types, ISO dates | ☐ Pass / ☐ N/A | |
+| II | **Readability & JSDoc** — JSDoc on all exports, braces, blank-line rules, named exports | ☐ Pass / ☐ N/A | |
+| III | **Code Organization & Imports** — aliased imports, `.js` extensions, `utils/`/`lib/`/`dal/` layout, no `helpers/` | ☐ Pass / ☐ N/A | |
+| IV | **Testing Discipline** — pyramid ratios, `getByRole`/`getByLabel` only, no `waitForTimeout`, test-plan comments | ☐ Pass / ☐ N/A | |
+| V | **Monorepo & Workspace Governance** — workspace registered, shared tooling extended, Turbo tasks declared, per-PR schema isolation | ☐ Pass / ☐ N/A | |
+| VI | **Formatting & Tooling** — Prettier/ESLint shared configs, git hooks active, CI gates passing, `generate:types` runs first | ☐ Pass / ☐ N/A | |
+| VII | **Accessibility & UX Consistency** — accessible names, design tokens, domain-grouped components, platform parity | ☐ Pass / ☐ N/A | |
+
+Any justified deviation MUST be documented in the **Complexity Tracking** table below.
 
 ## Project Structure
 

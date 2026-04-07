@@ -1,0 +1,19 @@
+{
+    "name": "@kitchensink/esbuild",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./*": "./*.js",
+        "./base": "./base.js",
+        "./library": "./library.js",
+        "./service": "./service.js"
+    },
+    "dependencies": {
+        "browserslist-to-esbuild": "^2.1.1",
+        "esbuild": "^0.27.3"
+    },
+    "lint-staged": {
+        "*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,html,yaml,yml}": "prettier --write"
+    }
+}
