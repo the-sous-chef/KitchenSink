@@ -10,7 +10,7 @@
 | Spec                                                            | Relationship                                                     |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — cooking mode renders Recipe instructions from 001 |
-| [003-auth0-user-auth](../003-auth0-user-auth/spec.md)           | **Required** — all features require authentication               |
+| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all features require authentication               |
 
 ## User Scenarios & Testing _(mandatory)_
 

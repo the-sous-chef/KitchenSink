@@ -10,7 +10,7 @@
 | Spec                                                            | Relationship                                                       |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — imports create Recipe entities defined in 001       |
-| [003-auth0-user-auth](../003-auth0-user-auth/spec.md)           | **Required** — all import actions require authentication           |
+| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all import actions require authentication           |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Referenced** — visibility rules differ for free vs premium users |
 
 ## User Scenarios & Testing _(mandatory)_

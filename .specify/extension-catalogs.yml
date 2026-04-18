@@ -1,0 +1,3 @@
+catalogs:
+  - community:
+      install_allowed: true

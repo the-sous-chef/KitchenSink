@@ -11,8 +11,8 @@ This is the **foundational spec** for the Sous Chef product. All other specs dep
 
 | Spec                                                        | Relationship                                                          |
 | ----------------------------------------------------------- | --------------------------------------------------------------------- |
-| [002-usda-food-data](../002-usda-food-data/spec.md)         | Provides the food/nutrition database backing FR-007 (ingredient data) |
-| [003-auth0-user-auth](../003-auth0-user-auth/spec.md)       | Provides authentication required by FR-045                            |
+| [003-usda-food-data](../003-usda-food-data/spec.md)         | Provides the food/nutrition database backing FR-007 (ingredient data) |
+| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)       | Provides authentication required by FR-045                            |
 | [004-recipe-importing](../004-recipe-importing/spec.md)     | Extends recipe creation with external source import                   |
 | [005-ai-integration](../005-ai-integration/spec.md)         | Extends recipe creation with AI generation                            |
 | [006-meal-planning](../006-meal-planning/spec.md)           | Consumes recipes for meal plan assignment                             |
@@ -95,9 +95,9 @@ A user wants to share a recipe they own with the community or with specific peop
 
 ### Key Entities
 
-- **User**: Represents a registered account holder. Has a subscription tier (free or premium), owns recipes, meal plans, nutrition plans, and grocery lists. Can configure AI provider credentials and manage external agent authorizations. _(Auth details: see [003-auth0-user-auth](../003-auth0-user-auth/spec.md))_
+- **User**: Represents a registered account holder. Has a subscription tier (free or premium), owns recipes, meal plans, nutrition plans, and grocery lists. Can configure AI provider credentials and manage external agent authorizations. _(Auth details: see [002-auth0-user-auth](../002-auth0-user-auth/spec.md))_
 - **Recipe**: The core data object. Has a title, description, ingredients, instructions (ordered steps), prep/cook/total time, servings, tags, photos, visibility (public/private), owner, and optional source attribution. Backed by real food data for nutritional information.
-- **Ingredient**: A reference to a real food item with nutritional data (calories, protein, carbs, fat per unit). Linked to recipes with a specific quantity and unit. _(Data source: see [002-usda-food-data](../002-usda-food-data/spec.md))_
+- **Ingredient**: A reference to a real food item with nutritional data (calories, protein, carbs, fat per unit). Linked to recipes with a specific quantity and unit. _(Data source: see [003-usda-food-data](../003-usda-food-data/spec.md))_
 
 ## Success Criteria _(mandatory)_
 

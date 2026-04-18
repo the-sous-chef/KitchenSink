@@ -10,7 +10,7 @@
 | Spec                                                            | Relationship                                                                                     |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — AI-generated recipes are stored as Recipe entities defined in 001                 |
-| [003-auth0-user-auth](../003-auth0-user-auth/spec.md)           | **Required** — all AI features require authentication; external agent OAuth builds on auth layer |
+| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all AI features require authentication; external agent OAuth builds on auth layer |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Referenced** — AI generation and instruction optimization are premium features                 |
 
 ## User Scenarios & Testing _(mandatory)_

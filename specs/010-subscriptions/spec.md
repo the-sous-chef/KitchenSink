@@ -9,7 +9,7 @@
 
 | Spec                                                            | Relationship                                                                                 |
 | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| [003-auth0-user-auth](../003-auth0-user-auth/spec.md)           | **Required** — subscription tier is a property of the authenticated user                     |
+| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — subscription tier is a property of the authenticated user                     |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Referenced** — gates private recipe visibility (FR-003)                                    |
 | [004-recipe-importing](../004-recipe-importing/spec.md)         | **Referenced** — gates clone-to-private for imported recipes (FR-011)                        |
 | [005-ai-integration](../005-ai-integration/spec.md)             | **Referenced** — gates AI generation and instruction optimization (FR-016, FR-019)           |
