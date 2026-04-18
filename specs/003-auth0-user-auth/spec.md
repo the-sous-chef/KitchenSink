@@ -5,6 +5,15 @@
 **Status**: Draft
 **Input**: User description: "Implement Auth0-based user authentication for the Sous Chef app across web (Next.js) and mobile (Expo) platforms. Users must log in via Auth0, with platform-specific flows (mobile shows auth screen automatically, web redirects to login page). Session persistence via refresh tokens. Users identified by auto-generated IDs synced to our database on signup. Profile page, account edit page, account deletion (cascading to Auth0), password reset, and MFA assignment via Auth0."
 
+## Dependencies
+
+| Spec                                                            | Relationship                                                                             |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Downstream** — 001 FR-045 requires authentication provided by this spec                |
+| [002-usda-food-data](../002-usda-food-data/spec.md)             | **Downstream** — 002 FR-035 uses the shared API Gateway authorizer provided by this spec |
+| [005-ai-integration](../005-ai-integration/spec.md)             | **Downstream** — external agent OAuth (FR-018) builds on the auth layer                  |
+| [010-subscriptions](../010-subscriptions/spec.md)               | **Downstream** — subscription tier is stored on the Account entity (FR-040–043)          |
+
 ## User Scenarios & Testing _(mandatory)_
 
 <!--

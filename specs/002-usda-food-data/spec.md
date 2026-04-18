@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: User description: "Integrate USDA FoodData Central as the primary food/nutrition database backing Sous Chef recipes, using the event-driven queue-based architecture (SQS + Lambda + token bucket) for rate-limited async data fetching."
 
+## Dependencies
+
+| Spec                                                            | Relationship                                                                                |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Downstream** — 001 FR-007 requires this spec's food/nutrition data for recipe ingredients |
+| [003-auth0-user-auth](../003-auth0-user-auth/spec.md)           | **Required** — FR-035 uses the shared API Gateway authorizer provided by 003                |
+| [006-meal-planning](../006-meal-planning/spec.md)               | **Downstream** — meal plan nutritional summaries (FR-024) depend on food data               |
+| [007-grocery-lists](../007-grocery-lists/spec.md)               | **Downstream** — ingredient identity and unit normalization for grocery aggregation         |
+| [009-nutrition-planning](../009-nutrition-planning/spec.md)     | **Downstream** — nutritional calculations (SC-010) depend on food data accuracy             |
+
 ## Clarifications
 
 ### Session 2026-04-14

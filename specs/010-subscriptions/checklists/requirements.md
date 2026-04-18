@@ -1,8 +1,7 @@
-# Specification Quality Checklist: Sous Chef - Recipe Management Core
+# Specification Quality Checklist: Subscriptions & Monetization
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-04-14
-**Validated**: 2026-04-15
+**Created**: 2026-04-15
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -25,14 +24,12 @@
 
 ## Feature Readiness
 
-- [x] All functional requirements (FR-001–FR-007b, FR-044–FR-045) have clear acceptance criteria
-- [x] User scenarios cover recipe CRUD (US1) and sharing/cloning (US2)
-- [x] Feature meets measurable outcomes defined in Success Criteria (SC-001, SC-005, SC-009)
+- [x] All functional requirements (FR-040–FR-043) have clear acceptance criteria
+- [x] User scenario covers free/premium tiers, gating, and subscription lifecycle
+- [x] Feature meets measurable outcomes defined in Success Criteria (SC-005, SC-006)
 - [x] No implementation details leak into specification
 
 ## Notes
 
 - All 16 checklist items passed validation on 2026-04-15
-- Scope reduced from 9 user stories / 45 FRs to 2 user stories / 11 FRs on 2026-04-14
-- US3–US9 and FR-008–FR-043 split into specs 004–010
 - Spec is ready for `/speckit.plan`
