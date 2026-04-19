@@ -43,8 +43,9 @@ extended by every workspace without weakening its flags.
   guarantee cross-platform serialization.
 - Prefer constants and enums over raw string/number literals; the `Platform` enum
   pattern is the canonical model.
-- Prefer pure functions that avoid side effects; isolate and explicitly document any
-  function that performs I/O, mutations, or external calls.
+- Functions MUST be pure unless they perform I/O, mutations, or external calls.
+  Impure functions MUST be explicitly isolated and documented with a `@sideEffect`
+  JSDoc tag. This is not a preference — it is a requirement.
 - Unused parameters MUST be prefixed with `_`; never delete a required parameter
   solely to silence a lint warning.
 
@@ -221,19 +222,25 @@ before a production deploy proceeds.
 ## Governance
 
 This constitution supersedes all prior informal conventions and any workspace-local
-style guides that conflict with it. Amendments require:
+style guides that conflict with it. The companion document
+[`docs/CODING_STANDARDS.md`](../../docs/CODING_STANDARDS.md) is the authoritative
+reference for tactical coding conventions (file naming, folder structure, import
+ordering, naming patterns). The constitution defines _what_ and _why_; Coding
+Standards defines _how_. Where they conflict, this constitution prevails.
+
+Amendments require:
 
 1. A written proposal documenting the principle being changed, the rationale, and
    the impact on existing code.
 2. Approval documented in the PR description or a linked issue.
 3. A migration plan for any existing code that violates the new constraint.
 4. A version increment following semantic versioning:
-   - **MAJOR**: removal or incompatible redefinition of an existing principle.
-   - **MINOR**: new principle or materially expanded guidance added.
-   - **PATCH**: clarification, wording correction, or non-semantic refinement.
+    - **MAJOR**: removal or incompatible redefinition of an existing principle.
+    - **MINOR**: new principle or materially expanded guidance added.
+    - **PATCH**: clarification, wording correction, or non-semantic refinement.
 
 All agents and reviewers MUST check this constitution before beginning any
 implementation. The plan template's **Constitution Check** gate MUST be completed
 before Phase 0 research and re-checked after Phase 1 design.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-06 | **Last Amended**: 2026-04-06
+**Version**: 1.1.0 | **Ratified**: 2026-04-06 | **Last Amended**: 2026-04-19
