@@ -56,7 +56,7 @@ fi
 # Matches lines like: | REQ-001 | Description text | ...
 declare -A req_descriptions
 while IFS= read -r line; do
-    if [[ "$line" =~ \|[[:space:]]*(REQ-([A-Z]+-)?[0-9]{3})[[:space:]]*\|[[:space:]]*([^|]+) ]]; then
+    if [[ "$line" =~ \|[[:space:]]*(REQ-([A-Z]+-)?[0-9]{3}[a-z]?)[[:space:]]*\|[[:space:]]*([^|]+) ]]; then
         req_id="${BASH_REMATCH[1]}"
         req_desc=$(echo "${BASH_REMATCH[3]}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
         req_descriptions["$req_id"]="$req_desc"
@@ -65,7 +65,7 @@ done < "$REQUIREMENTS"
 
 # Extract ATP sections: "#### Test Case: ATP-{CAT?-}NNN-X (Description)"
 declare -A atp_descriptions
-atp_regex='Test Case: (ATP-([A-Z]+-)?[0-9]{3}-[A-Z])[[:space:]]*\(([^)]+)\)'
+atp_regex='Test Case: (ATP-([A-Z]+-)?[0-9]{3}[a-z]?-[A-Z])[[:space:]]*\(([^)]+)\)'
 while IFS= read -r line; do
     if [[ "$line" =~ $atp_regex ]]; then
         atp_id="${BASH_REMATCH[1]}"
@@ -75,7 +75,7 @@ while IFS= read -r line; do
 done < "$ACCEPTANCE"
 
 # Extract SCN IDs (with optional category prefix)
-scn_ids=($(grep -oE 'SCN-([A-Z]+-)?[0-9]{3}-[A-Z][0-9]+' "$ACCEPTANCE" | sort -u))
+scn_ids=($(grep -oE 'SCN-([A-Z]+-)?[0-9]{3}[a-z]?-[A-Z][0-9]+' "$ACCEPTANCE" | sort -u))
 
 # Get sorted unique REQ IDs
 req_ids=($(echo "${!req_descriptions[@]}" | tr ' ' '\n' | sort))
@@ -978,7 +978,7 @@ DATE=$(date -u +"%Y-%m-%d")
             haz_escaped=$(echo "$haz" | sed 's/[.[\*^$()+?{|]/\\&/g')
             row=$(grep -E "^\|[[:space:]]*${haz_escaped}[[:space:]]*\|" "$HAZARD_ANALYSIS" 2>/dev/null || true)
             if [[ -n "$row" ]]; then
-                mit_refs=$(echo "$row" | awk -F'|' '{print $10}' | grep -oE '(REQ-([A-Z]+-)?[0-9]{3}|SYS-[0-9]{3})' || true)
+                mit_refs=$(echo "$row" | awk -F'|' '{print $10}' | grep -oE '(REQ-([A-Z]+-)?[0-9]{3}[a-z]?|SYS-[0-9]{3})' || true)
                 haz_mitigations["$haz"]="$mit_refs"
             fi
         done

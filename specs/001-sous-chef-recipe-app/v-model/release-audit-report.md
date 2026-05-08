@@ -2,14 +2,14 @@
 
 ## 1. Executive Summary
 
-**System**: Sous Chef Recipe App
-**Version**: 0.1.0-alpha
-**Git Tag**: (not specified) (commit 4fe5c02)
+**System**: (not specified)
+**Version**: (not specified)
+**Git Tag**: (not specified) (commit b56dc97)
 **Date**: 2026-05-08
 **Regulatory Context**: (not specified)
 
-71 requirements traced across 5 traceability matrices.
-1017 test scenarios: 0 passed, 0 failed, 0 skipped, 1017 untested.
+143 requirements traced across 5 traceability matrices.
+1644 test scenarios: 0 passed, 0 failed, 0 skipped, 1644 untested.
 72 hazards identified; 72 mitigated.
 0 anomalies detected: 0 waived, 0 blocking.
 
@@ -21,7 +21,7 @@
 | ------------------- | ---------------------- | ------- | ------------- | ------- |
 | Requirements        | requirements.md        | 4fe5c02 | 2026-05-07    | Present |
 | Acceptance Plan     | acceptance-plan.md     | 0c6bf9e | 2026-05-07    | Present |
-| System Design       | system-design.md       | 0c6bf9e | 2026-05-07    | Present |
+| System Design       | system-design.md       | b56dc97 | 2026-05-07    | Present |
 | System Test         | system-test.md         | 0c6bf9e | 2026-05-07    | Present |
 | Architecture Design | architecture-design.md | 0c6bf9e | 2026-05-07    | Present |
 | Integration Test    | integration-test.md    | 0c6bf9e | 2026-05-07    | Present |
@@ -35,550 +35,1103 @@
 
 ## Matrix A — Validation (User View)
 
-| Requirement ID | Requirement Description                                                                                                                                                                                                                                                                                                                                                          | Test Case ID (ATP) | Validation Condition                                     | Scenario ID (SCN) | Status      |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------- | ----------------- | ----------- |
-| **REQ-001**    | The system MUST allow an authenticated user to create a recipe with a title.                                                                                                                                                                                                                                                                                                     | ATP-001-A          | Authenticated create with title                          | SCN-001-A1        | ⬜ Untested |
-| **REQ-002**    | The system MUST allow an authenticated user to attach a description to a recipe on create or update.                                                                                                                                                                                                                                                                             | ATP-002-A          | Description persistence                                  | SCN-002-A1        | ⬜ Untested |
-| **REQ-004**    | The system MUST allow an authenticated user to attach an ordered list of step-by-step instructions to a recipe.                                                                                                                                                                                                                                                                  | ATP-004-A          | Instruction order retention                              | SCN-004-A1        | ⬜ Untested |
-| **REQ-005**    | The system MUST allow an authenticated user to record prep time, cook time, and total time on a recipe, each as a non-negative integer number of minutes.                                                                                                                                                                                                                        | ATP-005-A          | Accept non-negative integer minutes                      | SCN-005-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-005-B          | Reject negative minute values                            | SCN-005-B1        | ⬜ Untested |
-| **REQ-006**    | The system MUST allow an authenticated user to record a positive-integer servings count on a recipe.                                                                                                                                                                                                                                                                             | ATP-006-A          | Accept positive integer servings                         | SCN-006-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-006-B          | Reject zero or negative servings                         | SCN-006-B1        | ⬜ Untested |
-| **REQ-007**    | The system MUST allow an authenticated user to attach between 0 and 50 tags/categories to a recipe.                                                                                                                                                                                                                                                                              | ATP-007-A          | Attach zero or more tags                                 | SCN-007-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-007-A          | Attach zero or more tags                                 | SCN-007-A2        | ⬜ Untested |
-| **REQ-008**    | The system MUST allow an authenticated user to attach up to 10 photos to a single recipe.                                                                                                                                                                                                                                                                                        | ATP-008-A          | Allow exactly 10 photos                                  | SCN-008-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-008-B          | Reject 11th photo                                        | SCN-008-B1        | ⬜ Untested |
-| **REQ-009**    | The system MUST reject any individual recipe photo whose binary size exceeds 5 MB.                                                                                                                                                                                                                                                                                               | ATP-009-A          | Accept photo at 5 MB boundary                            | SCN-009-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-009-B          | Reject photo larger than 5 MB                            | SCN-009-B1        | ⬜ Untested |
-| **REQ-011**    | The client MUST validate each photo before transmission, rejecting any file whose size exceeds 5 MB.                                                                                                                                                                                                                                                                             | ATP-011-A          | Client accepts 5 MB file                                 | SCN-011-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-011-B          | Client rejects >5 MB file                                | SCN-011-B1        | ⬜ Untested |
-| **REQ-012**    | The client MUST validate each photo before transmission, rejecting any file whose MIME type is not in the allowlist `image/jpeg`, `image/png`, `image/webp`, `image/heic`, `image/heif`.                                                                                                                                                                                         | ATP-012-A          | Client accepts allowlisted MIME types                    | SCN-012-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-012-B          | Client rejects disallowed MIME type                      | SCN-012-B1        | ⬜ Untested |
-| **REQ-013**    | The server MUST re-validate each received photo by inspecting the file's magic bytes (not the client-supplied `Content-Type` header) and reject any file whose detected type is not in the allowlist `image/jpeg`, `image/png`, `image/webp`, `image/heic`, `image/heif`.                                                                                                        | ATP-013-A          | Server accepts allowlisted detected types                | SCN-013-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-013-B          | Server rejects disallowed detected type                  | SCN-013-B1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-013-C          | Server rejects spoofed Content-Type                      | SCN-013-C1        | ⬜ Untested |
-| **REQ-014**    | The system MUST surface a per-file upload/validation error to the user identifying which specific photo failed and why.                                                                                                                                                                                                                                                          | ATP-014-A          | Surface file-specific error and reason                   | SCN-014-A1        | ⬜ Untested |
-| **REQ-015**    | The system MUST allow each failed photo upload to be retried individually without requiring the user to re-save the recipe.                                                                                                                                                                                                                                                      | ATP-015-A          | Per-file retry without recipe re-save                    | SCN-015-A1        | ⬜ Untested |
-| **REQ-016**    | The system MUST NOT persist a reference to a photo on a recipe when that photo failed validation or upload.                                                                                                                                                                                                                                                                      | ATP-016-A          | Never persist failed photo reference                     | SCN-016-A1        | ⬜ Untested |
-| **REQ-017**    | The system MUST reject any attempt to edit or delete a recipe by a user other than the recipe's owner.                                                                                                                                                                                                                                                                           | ATP-017-A          | Reject non-owner edit                                    | SCN-017-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-017-B          | Reject non-owner delete                                  | SCN-017-B1        | ⬜ Untested |
-| **REQ-021**    | The system MUST default any newly created user-authored recipe to public visibility.                                                                                                                                                                                                                                                                                             | ATP-021-A          | New recipes default to public                            | SCN-021-A1        | ⬜ Untested |
-| **REQ-022**    | The system MUST allow a user holding an active premium subscription to set a recipe they own to private visibility.                                                                                                                                                                                                                                                              | ATP-022-A          | Allow private for active premium owner                   | SCN-022-A1        | ⬜ Untested |
-| **REQ-023**    | The system MUST reject any attempt by a free-tier user to set a recipe they own to private visibility.                                                                                                                                                                                                                                                                           | ATP-023-A          | Reject private visibility for free tier                  | SCN-023-A1        | ⬜ Untested |
-| **REQ-024**    | The system MUST allow any authenticated user to view any recipe whose visibility is public.                                                                                                                                                                                                                                                                                      | ATP-024-A          | Public recipe readable by any authenticated user         | SCN-024-A1        | ⬜ Untested |
-| **REQ-025**    | The system MUST allow any authenticated user to clone a public recipe into their own collection; the resulting clone is a new recipe whose owner is the cloning user.                                                                                                                                                                                                            | ATP-025-A          | Clone creates new owner-local recipe                     | SCN-025-A1        | ⬜ Untested |
-| **REQ-028**    | The system MUST classify an edit as "substantive" if and only if it modifies the recipe's ingredients or instructions; modifications confined to title, description, tags, or photos MUST NOT be classified as substantive.                                                                                                                                                      | ATP-028-A          | Classify ingredient/instruction changes as substantive   | SCN-028-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-028-B          | Do not classify metadata/photo-only edits as substantive | SCN-028-B1        | ⬜ Untested |
-| **REQ-029**    | The system MUST allow an authenticated user to search recipes by free-text keyword.                                                                                                                                                                                                                                                                                              | ATP-029-A          | Keyword search returns matching recipes                  | SCN-029-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-029-B          | Keyword search returns zero-result set for non-match     | SCN-029-B1        | ⬜ Untested |
-| **REQ-031**    | The system MUST resolve every ingredient linked to a real-food-database record to caloric and macronutrient (protein, carbohydrate, fat) values per unit.                                                                                                                                                                                                                        | ATP-031-A          | Nutrition resolution from linked food records            | SCN-031-A1        | ⬜ Untested |
-| **REQ-032**    | The system MUST allow a user to add a freeform ingredient (text name not matched to the food database) to a recipe and MUST flag such ingredients as "user-entered".                                                                                                                                                                                                             | ATP-032-A          | Save unmatched ingredient as user-entered                | SCN-032-A1        | ⬜ Untested |
-| **REQ-033**    | The system MUST allow a user to optionally supply manual nutrition values (calories, protein, carbs, fat) for any user-entered freeform ingredient.                                                                                                                                                                                                                              | ATP-033-A          | Persist optional manual nutrition fields                 | SCN-033-A1        | ⬜ Untested |
-| **REQ-034**    | The system MUST display a notice on any recipe containing at least one user-entered ingredient indicating that nutrition data is partially user-supplied.                                                                                                                                                                                                                        | ATP-034-A          | Display partial user-supplied nutrition notice           | SCN-034-A1        | ⬜ Untested |
-| **REQ-035**    | The system MUST create a new recipe version on every successful save and MUST retain the most recent 10 versions of each recipe in the database, queryable and restorable by the recipe's owner.                                                                                                                                                                                 | ATP-035-A          | Top-10 versions are queryable and restorable             | SCN-035-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-035-B          | 11th save evicts oldest DB version                       | SCN-035-B1        | ⬜ Untested |
-| **REQ-036**    | The system MUST archive every recipe version to S3 indefinitely.                                                                                                                                                                                                                                                                                                                 | ATP-036-A          | Archive each version to S3                               | SCN-036-A1        | ⬜ Untested |
-| **REQ-037**    | The system MUST return the save response to the client before initiating or confirming the S3 archive write, and MUST NOT propagate an S3 archive failure back to the save operation.                                                                                                                                                                                            | ATP-037-A          | Save completes without waiting for archive write         | SCN-037-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-037-B          | Save still succeeds when archive write fails             | SCN-037-B1        | ⬜ Untested |
-| **REQ-038**    | The system MUST perform every S3 version-archive write asynchronously, with automatic retry, and MUST forward archive payloads that exhaust retries to a dead-letter queue (DLQ).                                                                                                                                                                                                | ATP-038-A          | Retry transient archive failures                         | SCN-038-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-038-B          | Exhausted retries route payload to DLQ                   | SCN-038-B1        | ⬜ Untested |
-| **REQ-039**    | When an S3 version-archive write fails (transiently or finally), the system MUST persist the full version payload to the database as a `recipe_version_pending_archives` record so that automatic or operator-initiated retries can replay the exact failed payload.                                                                                                             | ATP-039-A          | Persist full payload to pending archive table on failure | SCN-039-A1        | ⬜ Untested |
-| **REQ-040**    | The system MUST delete a `recipe_version_pending_archives` record only after S3 confirms the corresponding archive write succeeded.                                                                                                                                                                                                                                              | ATP-040-A          | Delete pending row after confirmed success               | SCN-040-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-040-B          | Retain pending row when success not confirmed            | SCN-040-B1        | ⬜ Untested |
-| **REQ-041**    | The system MUST emit a structured CloudWatch alarm event on every S3 version-archive failure (transient or terminal), with minimum payload fields {recipeId, versionId, errorClass, attemptCount, timestamp}, routed to the operations-on-call PagerDuty service via the existing CloudWatch→SNS→PagerDuty integration; the failure MUST NOT be surfaced to the saving end-user. | ATP-041-A          | Emit alert for every archive failure                     | SCN-041-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-041-B          | Do not surface archive failure to saving end-user        | SCN-041-B1        | ⬜ Untested |
-| **REQ-043**    | When the system rejects a save due to a stale `version`, it MUST respond with HTTP 409 and a body whose schema includes both `serverVersion` (the server's current `version`) and `clientVersion` (the client's attempted `version`).                                                                                                                                            | ATP-043-A          | Conflict response includes server and client versions    | SCN-043-A1        | ⬜ Untested |
-| **REQ-044**    | On receipt of an HTTP 409 conflict response, the client MUST present a single side-by-side UI view displaying both the server version and the client's attempted version simultaneously.                                                                                                                                                                                         | ATP-044-A          | Display side-by-side versions after 409                  | SCN-044-A1        | ⬜ Untested |
-| **REQ-045**    | The conflict-resolution UI MUST offer the user exactly three choices: (a) keep the server version, (b) overwrite with the local version, or (c) merge field-by-field.                                                                                                                                                                                                            | ATP-045-A          | Present exactly three allowed choices                    | SCN-045-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-045-B          | Reject unsupported fourth resolution path                | SCN-045-B1        | ⬜ Untested |
-| **REQ-046**    | The system MUST NOT silently drop, auto-merge, or apply last-write-wins semantics to concurrent edits; every conflict MUST be surfaced to the user via REQ-044/REQ-045.                                                                                                                                                                                                          | ATP-046-A          | Conflict must always surface to user                     | SCN-046-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-046-B          | No automatic field merge without explicit user choice    | SCN-046-B1        | ⬜ Untested |
-| **REQ-047**    | The system MUST allow an authenticated user to create a recipe collection, naming it.                                                                                                                                                                                                                                                                                            | ATP-047-A          | Owner creates a collection with name                     | SCN-047-A1        | ⬜ Untested |
-| **REQ-048**    | The system MUST allow the owner of a collection to rename or delete that collection.                                                                                                                                                                                                                                                                                             | ATP-048-A          | Owner can rename collection                              | SCN-048-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-048-B          | Owner can delete collection                              | SCN-048-B1        | ⬜ Untested |
-| **REQ-049**    | The system MUST allow the owner of a collection to add or remove recipes from that collection, and MUST allow a single recipe to belong to multiple collections simultaneously.                                                                                                                                                                                                  | ATP-049-A          | Recipe can belong to multiple collections                | SCN-049-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-049-B          | Remove recipe from one collection only                   | SCN-049-B1        | ⬜ Untested |
-| **REQ-051**    | The system MUST allow any authenticated user to clone a public collection into their own account.                                                                                                                                                                                                                                                                                | ATP-051-A          | Public collection clone into requester account           | SCN-051-A1        | ⬜ Untested |
-| **REQ-052**    | When cloning a collection, the system MUST exclude from the clone any recipe in the source whose visibility prevents the cloning user from accessing it.                                                                                                                                                                                                                         | ATP-052-A          | Clone excludes inaccessible members                      | SCN-052-A1        | ⬜ Untested |
-| **REQ-053**    | A cloned collection MUST be a snapshot at clone time owned entirely by the cloning user; subsequent changes to the source collection MUST NOT propagate automatically.                                                                                                                                                                                                           | ATP-053-A          | Clone is snapshot at clone time                          | SCN-053-A1        | ⬜ Untested |
-| **REQ-054**    | The system MUST persist a `sourceCollectionId` reference on every cloned collection pointing to the source collection.                                                                                                                                                                                                                                                           | ATP-054-A          | Clone stores sourceCollectionId reference                | SCN-054-A1        | ⬜ Untested |
-| **REQ-056**    | The system MUST NOT cascade-delete recipes when a collection is deleted, and MUST NOT cascade-delete collections when a recipe is deleted.                                                                                                                                                                                                                                       | ATP-056-A          | Deleting collection does not delete recipes              | SCN-056-A1        | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-056-B          | Deleting recipe does not delete collections              | SCN-056-B1        | ⬜ Untested |
-| **REQ-057**    | The system MUST return a ranked list of matching ingredients from the real food database, with associated nutritional data, displayed within 300 ms of each keystroke, when the user has entered at least 2 characters into an ingredient name field.                                                                                                                            | ATP-057-A          | Typeahead suggestions include nutrition-backed matches   | SCN-057-A1        | ⬜ Untested |
-| **REQ-CN-002** | The friends system (QR codes, friend codes, friend requests, cross-platform discovery) MUST NOT be implemented in this feature.                                                                                                                                                                                                                                                  | ATP-CN-002-A       | Friends subsystem absent                                 | SCN-CN-002-A1     | ⬜ Untested |
-| **REQ-CN-003** | Recipes flagged as imported from a paid source (cookbook, subscription site) MUST NEVER be settable to public visibility, regardless of subscription tier or edit history.                                                                                                                                                                                                       | ATP-CN-003-A       | Reject public visibility for paid-source recipe always   | SCN-CN-003-A1     | ⬜ Untested |
-| **REQ-CN-005** | Recipes flagged as imported from a physical copy (photo/OCR) MUST default to private visibility on creation.                                                                                                                                                                                                                                                                     | ATP-CN-005-A       | Physical-copy import created as private by default       | SCN-CN-005-A1     | ⬜ Untested |
-| **REQ-IF-002** | The `POST /api/account/erasure` endpoint MUST return HTTP 410 (Gone) when the calling user already has a `completed` erasure job.                                                                                                                                                                                                                                                | ATP-IF-002-A       | Completed job yields Gone                                | SCN-IF-002-A1     | ⬜ Untested |
-| **REQ-IF-003** | The `POST /api/account/erasure` endpoint MUST enqueue a fresh erasure job and return HTTP 202 with the new job id when the calling user's most recent erasure job is in the `failed` state.                                                                                                                                                                                      | ATP-IF-003-A       | Failed state creates new job and returns HTTP 202        | SCN-IF-003-A1     | ⬜ Untested |
-| **REQ-NF-001** | Search and filter results over a collection of at least 20 recipes MUST be returned to the requesting client within 2.0 seconds (wall clock).                                                                                                                                                                                                                                    | ATP-NF-001-A       | 20-recipe search/filter response-time compliance         | SCN-NF-001-A1     | ⬜ Untested |
-| **REQ-NF-002** | Under the standard load condition defined in §Test Environment Conditions ("STD-LOAD-10K": 10,000 concurrent users), the p95 API response time MUST NOT exceed 500 ms.                                                                                                                                                                                                           | ATP-NF-002-A       | Load-test p95 latency threshold                          | SCN-NF-002-A1     | ⬜ Untested |
-| **REQ-NF-003** | A user starting from an empty recipe MUST be able to create a "complete recipe" (as defined in the Glossary) in under 5 minutes of elapsed time, verified via scripted scenario.                                                                                                                                                                                                 | ATP-NF-003-A       | Timed user demonstration                                 | SCN-NF-003-A1     | ⬜ Untested |
-| **REQ-NF-004** | Within their first calendar week, at least 80% of free-tier users MUST exercise at least 3 of the following core features: recipe creation, recipe search, recipe sharing, as measured by the product analytics pipeline (data source: `analytics.events` table, metric: `weekly_core_feature_adoption_pct`).                                                                    | ATP-NF-004-A       | First-week cohort engagement analysis                    | SCN-NF-004-A1     | ⬜ Untested |
-| **REQ-NF-006** | Every exported function and exported interface in this feature MUST carry a JSDoc comment block describing its purpose, parameters, and return value.                                                                                                                                                                                                                            | ATP-NF-006-A       | All exported APIs have complete JSDoc                    | SCN-NF-006-A1     | ⬜ Untested |
-| **REQ-NF-007** | Every UI component delivered by this feature MUST expose an accessible name reachable via Playwright's `getByRole` or `getByLabel` selectors.                                                                                                                                                                                                                                    | ATP-NF-007-A       | Accessible name reachability via role/label              | SCN-NF-007-A1     | ⬜ Untested |
-| **REQ-NF-008** | No UI component in this feature MUST convey state using color alone; every state indicator MUST also pair an icon or text label.                                                                                                                                                                                                                                                 | ATP-NF-008-A       | Every state indicator includes text or icon              | SCN-NF-008-A1     | ⬜ Untested |
-| **REQ-NF-009** | Every implementation task in this feature MUST have its corresponding test file written before, or co-committed in the same git commit with, the implementation. Either ordering satisfies this requirement.                                                                                                                                                                     | ATP-NF-009-A       | Implementation tasks have paired test files              | SCN-NF-009-A1     | ⬜ Untested |
-| **REQ-NF-015** | The count of rows in the `recipe_version_pending_archives` table MUST remain below 100 under normal operating conditions.                                                                                                                                                                                                                                                        | ATP-NF-015-A       | Normal-operation pending backlog SLO                     | SCN-NF-015-A1     | ⬜ Untested |
-| **REQ-NF-016** | A CloudWatch alarm MUST fire when the `recipe_version_pending_archives` row count exceeds 100 for more than 15 continuous minutes.                                                                                                                                                                                                                                               | ATP-NF-016-A       | CloudWatch alarm threshold and duration rule             | SCN-NF-016-A1     | ⬜ Untested |
-| **REQ-NF-017** | A CloudWatch alarm MUST fire when the oldest `recipe_version_pending_archives` row is older than 1 hour.                                                                                                                                                                                                                                                                         | ATP-NF-017-A       | CloudWatch age-based alarm rule                          | SCN-NF-017-A1     | ⬜ Untested |
-| **REQ-NF-018** | The frontend web application MUST resolve its API base URL from the `NEXT_PUBLIC_API_URL` environment variable, defaulting to `http://localhost:4000` when unset.                                                                                                                                                                                                                | ATP-NF-018-A       | Use NEXT_PUBLIC_API_URL when set                         | SCN-NF-018-A1     | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-NF-018-B       | Fallback to localhost:4000 when unset                    | SCN-NF-018-B1     | ⬜ Untested |
-| **REQ-NF-019** | The frontend mobile application MUST resolve its API base URL from the `EXPO_PUBLIC_API_URL` environment variable, defaulting to `http://localhost:4000` when unset.                                                                                                                                                                                                             | ATP-NF-019-A       | Use EXPO_PUBLIC_API_URL when set                         | SCN-NF-019-A1     | ⬜ Untested |
-|                |                                                                                                                                                                                                                                                                                                                                                                                  | ATP-NF-019-B       | Fallback to localhost:4000 when unset                    | SCN-NF-019-B1     | ⬜ Untested |
-| **REQ-NF-020** | Local development port assignments MUST be: API `4000`, Next.js web `3000`, Expo Metro `8081`, Postgres `5432`, LocalStack `4566`.                                                                                                                                                                                                                                               | ATP-NF-020-A       | Port mapping audit for all required services             | SCN-NF-020-A1     | ⬜ Untested |
+| Requirement ID  | Requirement Description                                                                                                                                                                                                                                                                                                                                                                                             | Test Case ID (ATP) | Validation Condition                                     | Scenario ID (SCN) | Status      |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------- | ----------------- | ----------- |
+| **REQ-001**     | The system MUST allow an authenticated user to create a recipe with a title.                                                                                                                                                                                                                                                                                                                                        | ATP-001-A          | Authenticated create with title                          | SCN-001-A1        | ⬜ Untested |
+| **REQ-002a**    | The system MUST allow an authenticated user to attach a description to a recipe on create.                                                                                                                                                                                                                                                                                                                          | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-002b**    | The system MUST allow an authenticated user to modify a recipe description on update.                                                                                                                                                                                                                                                                                                                               | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-003a**    | The system MUST allow an authenticated user to attach between 1 and 100 ingredients to a recipe.                                                                                                                                                                                                                                                                                                                    | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-003b**    | The system MUST link each ingredient to a record in the real food/nutrition database when a name match exists in that database.                                                                                                                                                                                                                                                                                     | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-004**     | The system MUST allow an authenticated user to attach an ordered list of step-by-step instructions to a recipe.                                                                                                                                                                                                                                                                                                     | ATP-004-A          | Instruction order retention                              | SCN-004-A1        | ⬜ Untested |
+| **REQ-005a**    | The system MUST allow an authenticated user to record prep time on a recipe as a non-negative integer number of minutes.                                                                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-005b**    | The system MUST allow an authenticated user to record cook time on a recipe as a non-negative integer number of minutes.                                                                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-005c**    | The system MUST allow an authenticated user to record total time on a recipe as a non-negative integer number of minutes.                                                                                                                                                                                                                                                                                           | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-006**     | The system MUST allow an authenticated user to record a positive-integer servings count on a recipe.                                                                                                                                                                                                                                                                                                                | ATP-006-A          | Accept positive integer servings                         | SCN-006-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-006-B          | Reject zero or negative servings                         | SCN-006-B1        | ⬜ Untested |
+| **REQ-007**     | The system MUST allow an authenticated user to attach between 0 and 50 tags/categories to a recipe.                                                                                                                                                                                                                                                                                                                 | ATP-007-A          | Attach zero or more tags                                 | SCN-007-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-007-A          | Attach zero or more tags                                 | SCN-007-A2        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-007-B          | Tag-count bounds 0..50                                   | SCN-007-B1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-007-B          | Tag-count bounds 0..50                                   | SCN-007-B2        | ⬜ Untested |
+| **REQ-008**     | The system MUST allow an authenticated user to attach up to 10 photos to a single recipe.                                                                                                                                                                                                                                                                                                                           | ATP-008-A          | Allow exactly 10 photos                                  | SCN-008-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-008-B          | Reject 11th photo                                        | SCN-008-B1        | ⬜ Untested |
+| **REQ-009**     | The system MUST reject any individual recipe photo whose binary size exceeds 5 MB.                                                                                                                                                                                                                                                                                                                                  | ATP-009-A          | Accept photo at 5 MB boundary                            | SCN-009-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-009-B          | Reject photo larger than 5 MB                            | SCN-009-B1        | ⬜ Untested |
+| **REQ-010a**    | The system MUST persist a recipe's metadata (title, description, ingredients, instructions, times, servings, tags) atomically in a single database transaction.                                                                                                                                                                                                                                                     | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-010b**    | The system MUST persist recipe metadata independently of photo upload results, such that metadata is saved successfully even when one or more photo uploads fail.                                                                                                                                                                                                                                                   | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-011**     | The client MUST validate each photo before transmission, rejecting any file whose size exceeds 5 MB.                                                                                                                                                                                                                                                                                                                | ATP-011-A          | Client accepts 5 MB file                                 | SCN-011-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-011-B          | Client rejects >5 MB file                                | SCN-011-B1        | ⬜ Untested |
+| **REQ-012**     | The client MUST validate each photo before transmission, rejecting any file whose MIME type is not in the allowlist `image/jpeg`, `image/png`, `image/webp`, `image/heic`, `image/heif`.                                                                                                                                                                                                                            | ATP-012-A          | Client accepts allowlisted MIME types                    | SCN-012-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-012-B          | Client rejects disallowed MIME type                      | SCN-012-B1        | ⬜ Untested |
+| **REQ-013**     | The server MUST re-validate each received photo by inspecting the file's magic bytes (not the client-supplied `Content-Type` header) and reject any file whose detected type is not in the allowlist `image/jpeg`, `image/png`, `image/webp`, `image/heic`, `image/heif`.                                                                                                                                           | ATP-013-A          | Server accepts allowlisted detected types                | SCN-013-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-013-B          | Server rejects disallowed detected type                  | SCN-013-B1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-013-C          | Server rejects spoofed Content-Type                      | SCN-013-C1        | ⬜ Untested |
+| **REQ-014**     | The system MUST surface a per-file upload/validation error to the user identifying which specific photo failed and why.                                                                                                                                                                                                                                                                                             | ATP-014-A          | Surface file-specific error and reason                   | SCN-014-A1        | ⬜ Untested |
+| **REQ-015**     | The system MUST allow each failed photo upload to be retried individually without requiring the user to re-save the recipe.                                                                                                                                                                                                                                                                                         | ATP-015-A          | Per-file retry without recipe re-save                    | SCN-015-A1        | ⬜ Untested |
+| **REQ-016**     | The system MUST NOT persist a reference to a photo on a recipe when that photo failed validation or upload.                                                                                                                                                                                                                                                                                                         | ATP-016-A          | Never persist failed photo reference                     | SCN-016-A1        | ⬜ Untested |
+| **REQ-017a**    | The system MUST reject any attempt to edit a recipe by a user other than the recipe's owner.                                                                                                                                                                                                                                                                                                                        | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-017b**    | The system MUST reject any attempt to delete a recipe by a user other than the recipe's owner.                                                                                                                                                                                                                                                                                                                      | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-018a**    | The system MUST treat recipe deletion as a soft delete (tombstone) that, within the same API transaction, removes the recipe from all listings, search results, collections, and clone targets.                                                                                                                                                                                                                     | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-018b**    | The system MUST make a soft-deleted recipe inaccessible via all normal (non-erasure-administration) APIs no later than the API response confirming deletion.                                                                                                                                                                                                                                                        | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-019a**    | The system MUST retain database rows for soft-deleted recipes indefinitely by default.                                                                                                                                                                                                                                                                                                                              | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-019b**    | The system MUST retain S3 version archives for soft-deleted recipes indefinitely by default.                                                                                                                                                                                                                                                                                                                        | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-019c**    | The system MUST NOT auto-purge any soft-deleted recipe data (DB rows or S3 archives) on any schedule, TTL, or background task.                                                                                                                                                                                                                                                                                      | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-020a**    | The system MUST hard-purge a tombstoned recipe's data only when invoked by the owning user via the explicit "Erase my data" GDPR right-to-erasure action.                                                                                                                                                                                                                                                           | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-020b**    | When a hard purge is invoked per REQ-020a, the system MUST remove all of the recipe's database rows AND all of its S3 version archives.                                                                                                                                                                                                                                                                             | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-020c**    | A hard-purge operation MUST be irreversible once the user has confirmed the GDPR erasure action.                                                                                                                                                                                                                                                                                                                    | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-021**     | The system MUST default any newly created user-authored recipe to public visibility.                                                                                                                                                                                                                                                                                                                                | ATP-021-A          | New recipes default to public                            | SCN-021-A1        | ⬜ Untested |
+| **REQ-022**     | The system MUST allow a user holding an active premium subscription to set a recipe they own to private visibility.                                                                                                                                                                                                                                                                                                 | ATP-022-A          | Allow private for active premium owner                   | SCN-022-A1        | ⬜ Untested |
+| **REQ-023**     | The system MUST reject any attempt by a free-tier user to set a recipe they own to private visibility.                                                                                                                                                                                                                                                                                                              | ATP-023-A          | Reject private visibility for free tier                  | SCN-023-A1        | ⬜ Untested |
+| **REQ-024**     | The system MUST allow any authenticated user to view any recipe whose visibility is public.                                                                                                                                                                                                                                                                                                                         | ATP-024-A          | Public recipe readable by any authenticated user         | SCN-024-A1        | ⬜ Untested |
+| **REQ-025**     | The system MUST allow any authenticated user to clone a public recipe into their own collection; the resulting clone is a new recipe whose owner is the cloning user.                                                                                                                                                                                                                                               | ATP-025-A          | Clone creates new owner-local recipe                     | SCN-025-A1        | ⬜ Untested |
+| **REQ-026a**    | When a user clones a recipe that was imported from a public source (website/Instagram), the resulting clone MUST retain the original source attribution.                                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-026b**    | When a user clones a recipe that was imported from a public source (website/Instagram), the resulting clone MUST default to public visibility.                                                                                                                                                                                                                                                                      | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-027a**    | The system MUST reject by default any attempt to set a clone of a public-source imported recipe to private visibility.                                                                                                                                                                                                                                                                                              | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-027b**    | The system MUST allow setting a clone of a public-source imported recipe to private visibility when BOTH conditions hold: (a) the requesting user holds an active premium subscription AND (b) the clone has had at least one substantive edit applied.                                                                                                                                                             | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-028a**    | The system MUST classify an edit as "substantive" if and only if it modifies the recipe's ingredients or instructions.                                                                                                                                                                                                                                                                                              | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-028b**    | The system MUST NOT classify modifications confined to title, description, tags, or photos as "substantive" edits.                                                                                                                                                                                                                                                                                                  | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-029**     | The system MUST allow an authenticated user to search recipes by free-text keyword.                                                                                                                                                                                                                                                                                                                                 | ATP-029-A          | Keyword search returns matching recipes                  | SCN-029-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-029-B          | Keyword search returns zero-result set for non-match     | SCN-029-B1        | ⬜ Untested |
+| **REQ-030a**    | The system MUST allow an authenticated user to filter recipes by tag.                                                                                                                                                                                                                                                                                                                                               | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-030b**    | The system MUST allow an authenticated user to filter recipes by cuisine.                                                                                                                                                                                                                                                                                                                                           | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-030c**    | The system MUST allow an authenticated user to filter recipes by dietary category.                                                                                                                                                                                                                                                                                                                                  | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-030d**    | The system MUST allow an authenticated user to filter recipes by ingredient.                                                                                                                                                                                                                                                                                                                                        | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-030e**    | The system MUST allow an authenticated user to filter recipes by prep time.                                                                                                                                                                                                                                                                                                                                         | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-030f**    | The system MUST allow an authenticated user to filter recipes by cook time.                                                                                                                                                                                                                                                                                                                                         | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-031**     | The system MUST resolve every ingredient linked to a real-food-database record to caloric and macronutrient (protein, carbohydrate, fat) values per unit.                                                                                                                                                                                                                                                           | ATP-031-A          | Nutrition resolution from linked food records            | SCN-031-A1        | ⬜ Untested |
+| **REQ-032a**    | The system MUST allow a user to add a freeform ingredient (text name not matched to the food database) to a recipe.                                                                                                                                                                                                                                                                                                 | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-032b**    | The system MUST flag every freeform ingredient as "user-entered".                                                                                                                                                                                                                                                                                                                                                   | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-033**     | The system MUST allow a user to optionally supply manual nutrition values (calories, protein, carbs, fat) for any user-entered freeform ingredient.                                                                                                                                                                                                                                                                 | ATP-033-A          | Persist optional manual nutrition fields                 | SCN-033-A1        | ⬜ Untested |
+| **REQ-034**     | The system MUST display a notice on any recipe containing at least one user-entered ingredient indicating that nutrition data is partially user-supplied.                                                                                                                                                                                                                                                           | ATP-034-A          | Display partial user-supplied nutrition notice           | SCN-034-A1        | ⬜ Untested |
+| **REQ-035**     | [NON-NORMATIVE — see sub-IDs] Decomposition map index entry for REQ-035a/REQ-035b. The sub-IDs are the authoritative normative requirements.                                                                                                                                                                                                                                                                        | ATP-035-A          | Top-10 versions are queryable and restorable             | SCN-035-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-035-B          | 11th save evicts oldest DB version                       | SCN-035-B1        | ⬜ Untested |
+| **REQ-035a**    | The system MUST create a new recipe version on every successful save.                                                                                                                                                                                                                                                                                                                                               | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-035b**    | The system MUST retain the most recent 10 versions of each recipe in the database, and those retained versions MUST be queryable and restorable by the recipe's owner.                                                                                                                                                                                                                                              | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-036**     | The system MUST archive every recipe version to S3 indefinitely.                                                                                                                                                                                                                                                                                                                                                    | ATP-036-A          | Archive each version to S3                               | SCN-036-A1        | ⬜ Untested |
+| **REQ-037**     | The system MUST return the save response to the client before initiating or confirming the S3 archive write, and MUST NOT propagate an S3 archive failure back to the save operation. Verification SHALL use structured-log timestamp analysis proving response timestamp precedes archive enqueue/write timestamps.                                                                                                | ATP-037-A          | Save completes without waiting for archive write         | SCN-037-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-037-B          | Save still succeeds when archive write fails             | SCN-037-B1        | ⬜ Untested |
+| **REQ-038**     | [NON-NORMATIVE — see sub-IDs] Decomposition map index entry for REQ-038a/REQ-038b/REQ-038c. The sub-IDs are the authoritative normative requirements.                                                                                                                                                                                                                                                               | ATP-038-A          | Retry transient archive failures                         | SCN-038-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-038-B          | Exhausted retries route payload to DLQ                   | SCN-038-B1        | ⬜ Untested |
+| **REQ-038a**    | The system MUST perform every S3 version-archive write asynchronously via SQS-backed background processing.                                                                                                                                                                                                                                                                                                         | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-038b**    | The SQS-backed archive worker MUST apply an exponential-backoff retry policy to failed S3 version-archive writes with a maximum of 3 attempts, base delay 30 seconds, and SQS redrive `maxReceiveCount=3`.                                                                                                                                                                                                          | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-038c**    | The system MUST route an archive payload to a dead-letter queue (DLQ) after 3 failed attempts (i.e., after exhaustion of the REQ-038b policy with SQS redrive `maxReceiveCount=3`).                                                                                                                                                                                                                                 | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-039**     | When an S3 version-archive write fails (transiently or finally), the system MUST persist the full version payload to the database as a `recipe_version_pending_archives` record so that automatic or operator-initiated retries can replay the exact failed payload.                                                                                                                                                | ATP-039-A          | Persist full payload to pending archive table on failure | SCN-039-A1        | ⬜ Untested |
+| **REQ-040**     | The system MUST delete a `recipe_version_pending_archives` record only after S3 confirms the corresponding archive write succeeded.                                                                                                                                                                                                                                                                                 | ATP-040-A          | Delete pending row after confirmed success               | SCN-040-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-040-B          | Retain pending row when success not confirmed            | SCN-040-B1        | ⬜ Untested |
+| **REQ-041a**    | The system MUST emit a structured CloudWatch alarm event on every S3 version-archive failure (transient or terminal), with minimum payload fields {recipeId, versionId, errorClass, attemptCount, timestamp}, routed to the operations-on-call PagerDuty service via the existing CloudWatch→SNS→PagerDuty integration.                                                                                             | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-041b**    | The system MUST NOT surface an S3 version-archive failure to the saving end-user.                                                                                                                                                                                                                                                                                                                                   | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-042a**    | The system MUST detect a concurrent edit conflict by comparing a client-submitted monotonically increasing `version` field against the server's current `version` for the same recipe.                                                                                                                                                                                                                              | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-042b**    | The system MUST reject any save whose submitted `version` is older than the server's current `version`.                                                                                                                                                                                                                                                                                                             | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-043**     | When the system rejects a save due to a stale `version`, it MUST respond with HTTP 409 and a body whose schema includes both `serverVersion` (the server's current `version`) and `clientVersion` (the client's attempted `version`).                                                                                                                                                                               | ATP-043-A          | Conflict response includes server and client versions    | SCN-043-A1        | ⬜ Untested |
+| **REQ-044**     | On receipt of an HTTP 409 conflict response, the client MUST present a single side-by-side UI view displaying both the server version and the client's attempted version simultaneously.                                                                                                                                                                                                                            | ATP-044-A          | Display side-by-side versions after 409                  | SCN-044-A1        | ⬜ Untested |
+| **REQ-045**     | The conflict-resolution UI MUST offer the user exactly three choices: (a) keep the server version, (b) overwrite with the local version, or (c) merge field-by-field.                                                                                                                                                                                                                                               | ATP-045-A          | Present exactly three allowed choices                    | SCN-045-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-045-B          | Reject unsupported fourth resolution path                | SCN-045-B1        | ⬜ Untested |
+| **REQ-046**     | The system MUST NOT silently drop, auto-merge, or apply last-write-wins semantics to concurrent edits; every conflict MUST be surfaced to the user via REQ-044/REQ-045.                                                                                                                                                                                                                                             | ATP-046-A          | Conflict must always surface to user                     | SCN-046-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-046-B          | No automatic field merge without explicit user choice    | SCN-046-B1        | ⬜ Untested |
+| **REQ-047**     | The system MUST allow an authenticated user to create a recipe collection, naming it.                                                                                                                                                                                                                                                                                                                               | ATP-047-A          | Owner creates a collection with name                     | SCN-047-A1        | ⬜ Untested |
+| **REQ-048a**    | The system MUST allow the owner of a collection to rename that collection.                                                                                                                                                                                                                                                                                                                                          | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-048b**    | The system MUST allow the owner of a collection to delete that collection.                                                                                                                                                                                                                                                                                                                                          | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-049**     | [NON-NORMATIVE — see sub-IDs] Decomposition map index entry for REQ-049a/REQ-049b. The sub-IDs are the authoritative normative requirements.                                                                                                                                                                                                                                                                        | ATP-049-A          | Recipe can belong to multiple collections                | SCN-049-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-049-B          | Remove recipe from one collection only                   | SCN-049-B1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-049-C          | Reject membership add at cap boundary                    | SCN-049-C1        | ⬜ Untested |
+| **REQ-049a**    | The system MUST allow the owner of a collection to add recipes to that collection and remove recipes from that collection.                                                                                                                                                                                                                                                                                          | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-049b**    | The system MUST allow a single recipe to belong to two or more collections simultaneously, up to 50 collections simultaneously per user-owned recipe association set (see `COLLECTION-CAP-50` in §Test Environment Conditions and Glossary term "Per-user collection cap").                                                                                                                                         | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-050a**    | The system MUST allow the owner of a collection to set its visibility to public or private, subject to the same subscription-tier rules as recipe visibility (REQ-022, REQ-023).                                                                                                                                                                                                                                    | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-050b**    | The system MUST allow any authenticated user to view a collection whose visibility is public.                                                                                                                                                                                                                                                                                                                       | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-051**     | The system MUST allow any authenticated user to clone a public collection into their own account.                                                                                                                                                                                                                                                                                                                   | ATP-051-A          | Public collection clone into requester account           | SCN-051-A1        | ⬜ Untested |
+| **REQ-052**     | When cloning a collection, the system MUST exclude from the clone any recipe in the source whose visibility prevents the cloning user from accessing it.                                                                                                                                                                                                                                                            | ATP-052-A          | Clone excludes inaccessible members                      | SCN-052-A1        | ⬜ Untested |
+| **REQ-053**     | A cloned collection MUST be a snapshot at clone time owned entirely by the cloning user; subsequent changes to the source collection MUST NOT propagate automatically.                                                                                                                                                                                                                                              | ATP-053-A          | Clone is snapshot at clone time                          | SCN-053-A1        | ⬜ Untested |
+| **REQ-054**     | The system MUST persist a `sourceCollectionId` reference on every cloned collection pointing to the source collection.                                                                                                                                                                                                                                                                                              | ATP-054-A          | Clone stores sourceCollectionId reference                | SCN-054-A1        | ⬜ Untested |
+| **REQ-055a**    | The system MUST expose a user-initiated "Pull updates from source" action on a cloned collection that, when invoked, adds public recipes newly added to the source collection since the most recent clone or pull.                                                                                                                                                                                                  | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-055b**    | When the "Pull updates from source" action is invoked, the system MUST remove from the cloned collection any recipe that the cloner can no longer access (e.g., visibility changed from public to private).                                                                                                                                                                                                         | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-055c**    | The "Pull updates from source" action MUST NOT remove or overwrite any recipe that the cloner added directly to the cloned collection (i.e., recipes not present in the source).                                                                                                                                                                                                                                    | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-056a**    | The system MUST NOT cascade-delete recipes when a collection is deleted.                                                                                                                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-056b**    | The system MUST NOT cascade-delete collections when a recipe is deleted.                                                                                                                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-057**     | The system MUST return a ranked list of matching ingredients from the real food database, with associated nutritional data, displayed within 300 ms of each keystroke, when the user has entered at least 2 characters into an ingredient name field; ranking MUST be ordered by descending match-score (prefix match > substring match > fuzzy match), with ties broken alphabetically by ingredient display name. | ATP-057-A          | Typeahead suggestions include nutrition-backed matches   | SCN-057-A1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-057-B          | Typeahead latency and trigger-threshold compliance       | SCN-057-B1        | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-057-B          | Typeahead latency and trigger-threshold compliance       | SCN-057-B2        | ⬜ Untested |
+| **REQ-CN-001a** | Per-user collection sharing (sharing collections with specific named users, e.g. friends, named-recipient grants) MUST NOT be implemented in this feature.                                                                                                                                                                                                                                                          | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-CN-001b** | The collection visibility model in this feature MUST expose only two visibility states: `public` and `private`.                                                                                                                                                                                                                                                                                                     | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-CN-002**  | The friends system (QR codes, friend codes, friend requests, cross-platform discovery) MUST NOT be implemented in this feature.                                                                                                                                                                                                                                                                                     | ATP-CN-002-A       | Friends subsystem absent                                 | SCN-CN-002-A1     | ⬜ Untested |
+| **REQ-CN-003**  | Recipes flagged as imported from a paid source (cookbook, subscription site) MUST NOT be settable to public visibility, regardless of subscription tier or edit history.                                                                                                                                                                                                                                            | ATP-CN-003-A       | Reject public visibility for paid-source recipe always   | SCN-CN-003-A1     | ⬜ Untested |
+| **REQ-CN-004a** | When a previously-premium user's subscription lapses, recipes that were already marked private at the time of lapse MUST remain private.                                                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-CN-004b** | After a previously-premium user's subscription lapses, the system MUST reject any new attempt by that user to set additional recipes to private visibility, until the subscription is renewed.                                                                                                                                                                                                                      | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-CN-005**  | Recipes flagged as imported from a physical copy (photo/OCR) MUST default to private visibility on creation.                                                                                                                                                                                                                                                                                                        | ATP-CN-005-A       | Physical-copy import created as private by default       | SCN-CN-005-A1     | ⬜ Untested |
+| **REQ-IF-001a** | The `POST /api/account/erasure` endpoint, when called by a user who already has a job in `queued` or `running` state, MUST return HTTP 202 with a body containing the existing job's id.                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-IF-001b** | The `POST /api/account/erasure` endpoint MUST NOT enqueue a duplicate job when the calling user already has a job in `queued` or `running` state.                                                                                                                                                                                                                                                                   | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-IF-002**  | The `POST /api/account/erasure` endpoint MUST return HTTP 410 (Gone) when the calling user already has a `completed` erasure job.                                                                                                                                                                                                                                                                                   | ATP-IF-002-A       | Completed job yields Gone                                | SCN-IF-002-A1     | ⬜ Untested |
+| **REQ-IF-003**  | The `POST /api/account/erasure` endpoint MUST enqueue a fresh erasure job and return HTTP 202 with the new job id when the calling user's most recent erasure job is in the `failed` state.                                                                                                                                                                                                                         | ATP-IF-003-A       | Failed state creates new job and returns HTTP 202        | SCN-IF-003-A1     | ⬜ Untested |
+| **REQ-IF-004a** | The system MUST be delivered as a web application.                                                                                                                                                                                                                                                                                                                                                                  | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-IF-004b** | The system MUST be delivered as a mobile application targeting iOS and Android.                                                                                                                                                                                                                                                                                                                                     | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-IF-004c** | Both platforms (web per REQ-IF-004a and mobile per REQ-IF-004b) MUST implement every functional requirement in the Functional Requirements table of this document (all `REQ-NNN` and `REQ-NNN[a-z]` IDs) with feature parity.                                                                                                                                                                                       | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-IF-005a** | Every API endpoint exposed by this feature MUST require an authenticated identity (valid Auth0-issued session/JWT).                                                                                                                                                                                                                                                                                                 | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-IF-005b** | Every UI surface delivered by this feature MUST require an authenticated identity.                                                                                                                                                                                                                                                                                                                                  | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-IF-005c** | No functional capability of this feature MUST be exposed to an unauthenticated/anonymous caller.                                                                                                                                                                                                                                                                                                                    | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-001**  | Under the load condition defined in §Test Environment Conditions as `STD-LOAD-SINGLE`, search and filter results over a collection of at least 20 recipes MUST be returned to the requesting client within 2.0 seconds (wall clock).                                                                                                                                                                                | ATP-NF-001-A       | 20-recipe search/filter response-time compliance         | SCN-NF-001-A1     | ⬜ Untested |
+| **REQ-NF-002**  | Under the standard load condition defined in §Test Environment Conditions ("STD-LOAD-10K": 10,000 concurrent users), the p95 API response time MUST NOT exceed 500 ms.                                                                                                                                                                                                                                              | ATP-NF-002-A       | Load-test p95 latency threshold                          | SCN-NF-002-A1     | ⬜ Untested |
+| **REQ-NF-003**  | A user starting from an empty recipe MUST be able to create a "complete recipe" (as defined in the Glossary) in under 5 minutes of elapsed time, verified via the scripted scenario defined in `acceptance-plan.md` (`ATP-NF-003`).                                                                                                                                                                                 | ATP-NF-003-A       | Timed user demonstration                                 | SCN-NF-003-A1     | ⬜ Untested |
+| **REQ-NF-004**  | Within their first calendar week, at least 80% of free-tier users MUST exercise all three core features: recipe creation, recipe search, and recipe sharing, as measured by the product analytics pipeline (data source: `analytics.events` table, metric: `weekly_core_feature_adoption_pct`).                                                                                                                     | ATP-NF-004-A       | First-week cohort engagement analysis                    | SCN-NF-004-A1     | ⬜ Untested |
+| **REQ-NF-005a** | All TypeScript source code in this feature MUST compile under `tsc --strict` with no errors.                                                                                                                                                                                                                                                                                                                        | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-005b** | TypeScript source files in this feature MUST NOT use the `any` type, except in files explicitly annotated as test doubles via the `@test-double` JSDoc tag in the file header.                                                                                                                                                                                                                                      | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-006**  | Every exported function and exported interface in this feature MUST carry a JSDoc comment block describing its purpose, parameters, and return value.                                                                                                                                                                                                                                                               | ATP-NF-006-A       | All exported APIs have complete JSDoc                    | SCN-NF-006-A1     | ⬜ Untested |
+| **REQ-NF-007**  | Every UI component delivered by this feature MUST expose an accessible name reachable via Playwright's `getByRole` or `getByLabel` selectors.                                                                                                                                                                                                                                                                       | ATP-NF-007-A       | Accessible name reachability via role/label              | SCN-NF-007-A1     | ⬜ Untested |
+| **REQ-NF-008**  | The system MUST NOT convey UI state using color as the sole differentiator; every state indicator MUST also include an icon or text label.                                                                                                                                                                                                                                                                          | ATP-NF-008-A       | Every state indicator includes text or icon              | SCN-NF-008-A1     | ⬜ Untested |
+| **REQ-NF-009**  | Every implementation task in this feature MUST have its corresponding test file written before, or co-committed in the same git commit with, the implementation. Either ordering satisfies this requirement.                                                                                                                                                                                                        | ATP-NF-009-A       | Implementation tasks have paired test files              | SCN-NF-009-A1     | ⬜ Untested |
+| **REQ-NF-010a** | All browser end-to-end tests for this feature MUST be implemented as Playwright `*.spec.ts` files.                                                                                                                                                                                                                                                                                                                  | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-010b** | All mobile end-to-end tests for this feature MUST be implemented as Maestro `*.yaml` flow files.                                                                                                                                                                                                                                                                                                                    | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-011a** | All backend service unit and integration tests MUST execute against LocalStack for AWS service emulation (S3, SQS).                                                                                                                                                                                                                                                                                                 | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-011b** | LocalStack MUST be provided as a Docker Compose service in the local development environment.                                                                                                                                                                                                                                                                                                                       | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-011c** | LocalStack MUST be provided as a GitHub Actions service container in CI.                                                                                                                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-012a** | The CI pipeline (GitHub Actions) MUST run the following five check categories on every pull request: `typecheck`, `lint`, `format:check`, `test` (unit + integration), and `test:e2e` (Playwright + Maestro).                                                                                                                                                                                                       | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-012b** | The CI pipeline MUST block merge of any pull request unless all five check categories defined in REQ-NF-012a pass.                                                                                                                                                                                                                                                                                                  | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-013a** | All end-to-end tests MUST execute against a database seeded by an idempotent seed script (running the script multiple times MUST produce the same final database state).                                                                                                                                                                                                                                            | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-013b** | The seed script referenced in REQ-NF-013a MUST produce stable, deterministic primary-key IDs across runs.                                                                                                                                                                                                                                                                                                           | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-013c** | The seeded database state MUST be suitable for fixture-based test assertions (i.e., test fixtures may reference seeded IDs by literal value).                                                                                                                                                                                                                                                                       | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-014a** | All unit tests and component tests MUST construct test data via mocks and fixture factories following the `make*` naming pattern (e.g., `makeRecipe()`, `makeUser()`).                                                                                                                                                                                                                                              | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-014b** | Unit tests and component tests MUST NOT make network connections to live services (e.g., production AWS, staging APIs, third-party SaaS).                                                                                                                                                                                                                                                                           | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-014c** | Unit tests and component tests MUST NOT connect to live databases (e.g., production Postgres, staging Postgres). LocalStack and ephemeral local Postgres are not "live" databases for this purpose.                                                                                                                                                                                                                 | ❌ MISSING         | —                                                        | —                 | ⬜ Untested |
+| **REQ-NF-015**  | Under the load condition defined in §Test Environment Conditions as `STD-LOAD-NORMAL`, the count of rows in the `recipe_version_pending_archives` table MUST remain below 100.                                                                                                                                                                                                                                      | ATP-NF-015-A       | Normal-operation pending backlog SLO                     | SCN-NF-015-A1     | ⬜ Untested |
+| **REQ-NF-016**  | A CloudWatch alarm MUST fire when the `recipe_version_pending_archives` row count exceeds 100 for more than 15 continuous minutes.                                                                                                                                                                                                                                                                                  | ATP-NF-016-A       | CloudWatch alarm threshold and duration rule             | SCN-NF-016-A1     | ⬜ Untested |
+| **REQ-NF-017**  | A CloudWatch alarm MUST fire when the oldest `recipe_version_pending_archives` row is older than 1 hour.                                                                                                                                                                                                                                                                                                            | ATP-NF-017-A       | CloudWatch age-based alarm rule                          | SCN-NF-017-A1     | ⬜ Untested |
+| **REQ-NF-018**  | The frontend web application MUST resolve its API base URL from the `NEXT_PUBLIC_API_URL` environment variable, defaulting to `http://localhost:4000` when unset.                                                                                                                                                                                                                                                   | ATP-NF-018-A       | Use NEXT_PUBLIC_API_URL when set                         | SCN-NF-018-A1     | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-NF-018-B       | Fallback to localhost:4000 when unset                    | SCN-NF-018-B1     | ⬜ Untested |
+| **REQ-NF-019**  | The frontend mobile application MUST resolve its API base URL from the `EXPO_PUBLIC_API_URL` environment variable, defaulting to `http://localhost:4000` when unset.                                                                                                                                                                                                                                                | ATP-NF-019-A       | Use EXPO_PUBLIC_API_URL when set                         | SCN-NF-019-A1     | ⬜ Untested |
+|                 |                                                                                                                                                                                                                                                                                                                                                                                                                     | ATP-NF-019-B       | Fallback to localhost:4000 when unset                    | SCN-NF-019-B1     | ⬜ Untested |
+| **REQ-NF-020**  | Local development port assignments MUST be: API `4000`, Next.js web `3000`, Expo Metro `8081`, Postgres `5432`, LocalStack `4566`.                                                                                                                                                                                                                                                                                  | ATP-NF-020-A       | Port mapping audit for all required services             | SCN-NF-020-A1     | ⬜ Untested |
 
 ### Matrix A Coverage
 
 | Metric                     | Value        |
 | -------------------------- | ------------ |
-| **Total Requirements**     | 65           |
-| **Total Test Cases (ATP)** | 124          |
-| **Total Scenarios (SCN)**  | 127          |
-| **REQ → ATP Coverage**     | 65/65 (100%) |
-| **ATP → SCN Coverage**     | 88/124 (70%) |
+| **Total Requirements**     | 137          |
+| **Total Test Cases (ATP)** | 129          |
+| **Total Scenarios (SCN)**  | 135          |
+| **REQ → ATP Coverage**     | 57/137 (41%) |
+| **ATP → SCN Coverage**     | 77/129 (59%) |
 
 ## Matrix B — Verification (Architectural View)
 
-| Requirement ID | System Component (SYS) | Component Name                                 | Test Case ID (STP) | Technique                  | Scenario ID (STS) | Status      |
-| -------------- | ---------------------- | ---------------------------------------------- | ------------------ | -------------------------- | ----------------- | ----------- |
-| **REQ-001**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-002**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-004**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-005**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-006**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-007**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-008**    | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A2        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Interface Contract Testing | STS-007-A1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Interface Contract Testing | STS-007-A2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Fault Injection            | STS-007-B1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Fault Injection            | STS-007-B2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C3        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A2        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B2        | ⬜ Untested |
-| **REQ-009**    | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A2        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B2        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A2        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B2        | ⬜ Untested |
-| **REQ-011**    | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-012**    | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-013**    | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A2        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B2        | ⬜ Untested |
-| **REQ-014**    | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A2        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Interface Contract Testing | STS-007-A1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Interface Contract Testing | STS-007-A2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Fault Injection            | STS-007-B1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Fault Injection            | STS-007-B2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C3        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-015**    | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A2        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-016**    | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis    | STS-006-A2        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B1        | ⬜ Untested |
-|                | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Interface Contract Testing | STS-006-B2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Interface Contract Testing | STS-007-A1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Interface Contract Testing | STS-007-A2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Fault Injection            | STS-007-B1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Fault Injection            | STS-007-B2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C1        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C2        | ⬜ Untested |
-|                | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing   | STS-007-C3        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B2        | ⬜ Untested |
-| **REQ-017**    | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Interface Contract Testing | STS-001-A1        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Interface Contract Testing | STS-001-A2        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Fault Injection            | STS-001-B1        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Fault Injection            | STS-001-B2        | ⬜ Untested |
-| **REQ-021**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-022**    | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A2        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B2        | ⬜ Untested |
-| **REQ-023**    | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A2        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B2        | ⬜ Untested |
-| **REQ-024**    | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Interface Contract Testing | STS-001-A1        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Interface Contract Testing | STS-001-A2        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Fault Injection            | STS-001-B1        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Fault Injection            | STS-001-B2        | ⬜ Untested |
-| **REQ-025**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A2        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-A          | Interface Contract Testing | STS-002-A3        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B1        | ⬜ Untested |
-|                | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis    | STS-002-B2        | ⬜ Untested |
-| **REQ-028**    | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A2        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B2        | ⬜ Untested |
-| **REQ-029**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Interface Contract Testing | STS-005-A1        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Interface Contract Testing | STS-005-A2        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis    | STS-005-B1        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis    | STS-005-B2        | ⬜ Untested |
-| **REQ-031**    | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A2        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B2        | ⬜ Untested |
-| **REQ-032**    | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A2        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B2        | ⬜ Untested |
-| **REQ-033**    | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A2        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B2        | ⬜ Untested |
-| **REQ-034**    | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-035**    | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Interface Contract Testing | STS-008-A1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Interface Contract Testing | STS-008-A2        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis    | STS-008-B1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis    | STS-008-B2        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing             | STS-008-C1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing             | STS-008-C2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B2        | ⬜ Untested |
-| **REQ-036**    | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A2        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B3        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A2        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B2        | ⬜ Untested |
-| **REQ-037**    | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A2        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B2        | ⬜ Untested |
-| **REQ-038**    | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A2        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B3        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A2        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B2        | ⬜ Untested |
-| **REQ-039**    | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Interface Contract Testing | STS-009-A2        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B1        | ⬜ Untested |
-|                | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Fault Injection            | STS-009-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B3        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B2        | ⬜ Untested |
-| **REQ-040**    | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B3        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B2        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Interface Contract Testing | STS-015-A2        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B1        | ⬜ Untested |
-|                | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Fault Injection            | STS-015-B2        | ⬜ Untested |
-| **REQ-041**    | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A2        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B2        | ⬜ Untested |
-| **REQ-043**    | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Interface Contract Testing | STS-008-A1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Interface Contract Testing | STS-008-A2        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis    | STS-008-B1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis    | STS-008-B2        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing             | STS-008-C1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing             | STS-008-C2        | ⬜ Untested |
-| **REQ-044**    | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-045**    | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-046**    | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Interface Contract Testing | STS-008-A1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Interface Contract Testing | STS-008-A2        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis    | STS-008-B1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis    | STS-008-B2        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing             | STS-008-C1        | ⬜ Untested |
-|                | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing             | STS-008-C2        | ⬜ Untested |
-| **REQ-047**    | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A2        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B2        | ⬜ Untested |
-| **REQ-048**    | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A2        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B2        | ⬜ Untested |
-| **REQ-049**    | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A2        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B2        | ⬜ Untested |
-| **REQ-051**    | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A2        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B2        | ⬜ Untested |
-| **REQ-052**    | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Interface Contract Testing | STS-001-A1        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Interface Contract Testing | STS-001-A2        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Fault Injection            | STS-001-B1        | ⬜ Untested |
-|                | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Fault Injection            | STS-001-B2        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A2        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B2        | ⬜ Untested |
-| **REQ-053**    | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A2        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B2        | ⬜ Untested |
-| **REQ-054**    | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Interface Contract Testing | STS-012-A2        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B1        | ⬜ Untested |
-|                | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning   | STS-012-B2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B2        | ⬜ Untested |
-| **REQ-056**    | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-A          | Interface Contract Testing | STS-011-A2        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B1        | ⬜ Untested |
-|                | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning   | STS-011-B2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B2        | ⬜ Untested |
-| **REQ-057**    | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Interface Contract Testing | STS-004-A2        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B1        | ⬜ Untested |
-|                | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning   | STS-004-B2        | ⬜ Untested |
-| **REQ-CN-002** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Interface Contract Testing | STS-020-A1        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Interface Contract Testing | STS-020-A2        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning   | STS-020-B1        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning   | STS-020-B2        | ⬜ Untested |
-| **REQ-CN-003** | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A2        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B2        | ⬜ Untested |
-| **REQ-CN-005** | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning   | STS-003-A2        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B1        | ⬜ Untested |
-|                | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis    | STS-003-B2        | ⬜ Untested |
-| **REQ-IF-002** | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Interface Contract Testing | STS-013-A1        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Interface Contract Testing | STS-013-A2        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Fault Injection            | STS-013-B1        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Fault Injection            | STS-013-B2        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing   | STS-013-C1        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing   | STS-013-C2        | ⬜ Untested |
-| **REQ-IF-003** | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Interface Contract Testing | STS-013-A1        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Interface Contract Testing | STS-013-A2        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Fault Injection            | STS-013-B1        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Fault Injection            | STS-013-B2        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing   | STS-013-C1        | ⬜ Untested |
-|                | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing   | STS-013-C2        | ⬜ Untested |
-| **REQ-NF-001** | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Interface Contract Testing | STS-005-A1        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Interface Contract Testing | STS-005-A2        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis    | STS-005-B1        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis    | STS-005-B2        | ⬜ Untested |
-| **REQ-NF-002** | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Interface Contract Testing | STS-005-A1        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Interface Contract Testing | STS-005-A2        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis    | STS-005-B1        | ⬜ Untested |
-|                | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis    | STS-005-B2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis    | STS-014-A2        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B1        | ⬜ Untested |
-|                | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Fault Injection            | STS-014-B2        | ⬜ Untested |
-| **REQ-NF-003** | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-NF-004** | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A2        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B2        | ⬜ Untested |
-| **REQ-NF-006** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Interface Contract Testing | STS-020-A1        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Interface Contract Testing | STS-020-A2        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning   | STS-020-B1        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning   | STS-020-B2        | ⬜ Untested |
-| **REQ-NF-007** | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-NF-008** | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-| **REQ-NF-009** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Interface Contract Testing | STS-020-A1        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Interface Contract Testing | STS-020-A2        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning   | STS-020-B1        | ⬜ Untested |
-|                | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning   | STS-020-B2        | ⬜ Untested |
-| **REQ-NF-015** | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Interface Contract Testing | STS-010-A2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B1        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B2        | ⬜ Untested |
-|                | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Fault Injection            | STS-010-B3        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A2        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B2        | ⬜ Untested |
-| **REQ-NF-016** | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A2        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B2        | ⬜ Untested |
-| **REQ-NF-017** | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-A          | Interface Contract Testing | STS-019-A2        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B1        | ⬜ Untested |
-|                | SYS-019                | Observability and Alerting                     | STP-019-B          | Fault Injection            | STS-019-B2        | ⬜ Untested |
-| **REQ-NF-018** | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Interface Contract Testing | STS-016-A2        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B1        | ⬜ Untested |
-|                | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning   | STS-016-B2        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis    | STS-018-A1        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis    | STS-018-A2        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning   | STS-018-B1        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning   | STS-018-B2        | ⬜ Untested |
-| **REQ-NF-019** | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Interface Contract Testing | STS-017-A2        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B1        | ⬜ Untested |
-|                | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning   | STS-017-B2        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis    | STS-018-A1        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis    | STS-018-A2        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning   | STS-018-B1        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning   | STS-018-B2        | ⬜ Untested |
-| **REQ-NF-020** | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis    | STS-018-A1        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis    | STS-018-A2        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning   | STS-018-B1        | ⬜ Untested |
-|                | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning   | STS-018-B2        | ⬜ Untested |
+| Requirement ID  | System Component (SYS) | Component Name                                 | Test Case ID (STP) | Technique                   | Scenario ID (STS) | Status      |
+| --------------- | ---------------------- | ---------------------------------------------- | ------------------ | --------------------------- | ----------------- | ----------- |
+| **REQ-001**     | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-002a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-002b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-003a**    | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A2        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-003b**    | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A2        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-004**     | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-005a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-005b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-005c**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-006**     | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-007**     | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-008**     | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Specification-Based Testing | STS-007-A1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Specification-Based Testing | STS-007-A2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Error Guessing              | STS-007-B1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Error Guessing              | STS-007-B2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C3        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B2        | ⬜ Untested |
+| **REQ-009**     | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B2        | ⬜ Untested |
+| **REQ-010a**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+| **REQ-010b**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+| **REQ-011**     | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-012**     | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-013**     | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+| **REQ-014**     | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Specification-Based Testing | STS-007-A1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Specification-Based Testing | STS-007-A2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Error Guessing              | STS-007-B1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Error Guessing              | STS-007-B2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C3        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-015**     | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-016**     | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-A          | Boundary Value Analysis     | STS-006-A2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-B          | Specification-Based Testing | STS-006-B2        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C1        | ⬜ Untested |
+|                 | SYS-006                | Photo Upload Validation and Attachment Service | STP-006-C          | Error Guessing              | STS-006-C2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Specification-Based Testing | STS-007-A1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-A          | Specification-Based Testing | STS-007-A2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Error Guessing              | STS-007-B1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-B          | Error Guessing              | STS-007-B2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C1        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C2        | ⬜ Untested |
+|                 | SYS-007                | Photo Processing Lambda                        | STP-007-C          | State Transition Testing    | STS-007-C3        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-017a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-017b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-018a**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-018b**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-019a**    | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-019b**    | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B2        | ⬜ Untested |
+| **REQ-019c**    | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-020a**    | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+| **REQ-020b**    | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B2        | ⬜ Untested |
+| **REQ-020c**    | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+| **REQ-021**     | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-022**     | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-023**     | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-024**     | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C3        | ⬜ Untested |
+| **REQ-025**     | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-026a**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-026b**    | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A2        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-A          | Specification-Based Testing | STS-002-A3        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B1        | ⬜ Untested |
+|                 | SYS-002                | Recipe Command Service                         | STP-002-B          | Boundary Value Analysis     | STS-002-B2        | ⬜ Untested |
+| **REQ-027a**    | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-027b**    | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-028a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-028b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-029**     | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-030a**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-030b**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-030c**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-030d**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-030e**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-030f**    | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-031**     | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A2        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B2        | ⬜ Untested |
+| **REQ-032a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-032b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-033**     | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A2        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B2        | ⬜ Untested |
+| **REQ-034**     | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-035**     | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-035a**    | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C2        | ⬜ Untested |
+| **REQ-035b**    | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C2        | ⬜ Untested |
+| **REQ-036**     | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A2        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B2        | ⬜ Untested |
+| **REQ-037**     | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A2        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B2        | ⬜ Untested |
+| **REQ-038**     | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A2        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B2        | ⬜ Untested |
+| **REQ-038a**    | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A2        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+| **REQ-038b**    | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A2        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+| **REQ-038c**    | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A2        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+| **REQ-039**     | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-A          | Specification-Based Testing | STS-009-A2        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B1        | ⬜ Untested |
+|                 | SYS-009                | Version Archive Queue Producer                 | STP-009-B          | Error Guessing              | STS-009-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-040**     | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-A          | Specification-Based Testing | STS-015-A2        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B1        | ⬜ Untested |
+|                 | SYS-015                | Object Storage and CDN Subsystem               | STP-015-B          | Error Guessing              | STS-015-B2        | ⬜ Untested |
+| **REQ-041a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-041b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-042a**    | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C2        | ⬜ Untested |
+| **REQ-042b**    | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C2        | ⬜ Untested |
+| **REQ-043**     | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C2        | ⬜ Untested |
+| **REQ-044**     | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-045**     | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-046**     | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-A          | Specification-Based Testing | STS-008-A2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-B          | Boundary Value Analysis     | STS-008-B2        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C1        | ⬜ Untested |
+|                 | SYS-008                | Recipe Versioning and Conflict Service         | STP-008-C          | Error Guessing              | STS-008-C2        | ⬜ Untested |
+| **REQ-047**     | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-048a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-048b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-049**     | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-049a**    | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-049b**    | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-050a**    | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-050b**    | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C3        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-051**     | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A2        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B2        | ⬜ Untested |
+| **REQ-052**     | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C3        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A2        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B2        | ⬜ Untested |
+| **REQ-053**     | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A2        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B2        | ⬜ Untested |
+| **REQ-054**     | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A2        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-055a**    | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A2        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B2        | ⬜ Untested |
+| **REQ-055b**    | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A2        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B2        | ⬜ Untested |
+| **REQ-055c**    | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-A          | Specification-Based Testing | STS-012-A2        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B1        | ⬜ Untested |
+|                 | SYS-012                | Collection Clone and Pull Reconcile Service    | STP-012-B          | Equivalence Partitioning    | STS-012-B2        | ⬜ Untested |
+| **REQ-056a**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-056b**    | ❌ MISSING             | —                                              | —                  | —                           | —                 | ⬜ Untested |
+| **REQ-057**     | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-A          | Specification-Based Testing | STS-004-A2        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B1        | ⬜ Untested |
+|                 | SYS-004                | Ingredient Catalog and Nutrition Resolver      | STP-004-B          | Equivalence Partitioning    | STS-004-B2        | ⬜ Untested |
+| **REQ-CN-001a** | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-CN-001b** | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-A          | Specification-Based Testing | STS-011-A2        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B1        | ⬜ Untested |
+|                 | SYS-011                | Collection Management Service                  | STP-011-B          | Equivalence Partitioning    | STS-011-B2        | ⬜ Untested |
+| **REQ-CN-002**  | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-CN-003**  | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-CN-004a** | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-CN-004b** | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-CN-005**  | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-A          | Equivalence Partitioning    | STS-003-A2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B1        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B2        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-B          | Boundary Value Analysis     | STS-003-B3        | ⬜ Untested |
+|                 | SYS-003                | Visibility and Source Policy Engine            | STP-003-C          | Decision Table Testing      | STS-003-C1        | ⬜ Untested |
+| **REQ-IF-001a** | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+| **REQ-IF-001b** | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+| **REQ-IF-002**  | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+| **REQ-IF-003**  | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-A          | Specification-Based Testing | STS-013-A2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-B          | Error Guessing              | STS-013-B2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-C          | State Transition Testing    | STS-013-C2        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D1        | ⬜ Untested |
+|                 | SYS-013                | GDPR Erasure Orchestrator                      | STP-013-D          | Error Guessing              | STS-013-D2        | ⬜ Untested |
+| **REQ-IF-004a** | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+| **REQ-IF-004b** | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-IF-004c** | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-IF-005a** | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C3        | ⬜ Untested |
+| **REQ-IF-005b** | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C3        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-IF-005c** | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-A          | Specification-Based Testing | STS-001-A2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-B          | Error Guessing              | STS-001-B2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C1        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C2        | ⬜ Untested |
+|                 | SYS-001                | Auth0 Identity and Access Guard                | STP-001-C          | Error Guessing              | STS-001-C3        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-NF-001**  | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+| **REQ-NF-002**  | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-A          | Specification-Based Testing | STS-005-A2        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-B          | Boundary Value Analysis     | STS-005-B1        | ⬜ Untested |
+|                 | SYS-005                | Recipe Search and Filter Service               | STP-005-C          | Performance Testing         | STS-005-C1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+| **REQ-NF-003**  | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-NF-004**  | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A2        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B2        | ⬜ Untested |
+| **REQ-NF-005a** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-005b** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-006**  | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-007**  | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-NF-008**  | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+| **REQ-NF-009**  | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-010a** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-010b** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-011a** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-011b** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-011c** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-012a** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-012b** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-013a** | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-013b** | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-013c** | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-A          | Boundary Value Analysis     | STS-014-A2        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B1        | ⬜ Untested |
+|                 | SYS-014                | Data Access and Persistence Layer              | STP-014-B          | Error Guessing              | STS-014-B2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-014a** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-014b** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-014c** | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-A          | Specification-Based Testing | STS-020-A2        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B1        | ⬜ Untested |
+|                 | SYS-020                | Quality, Test, and CI Governance               | STP-020-B          | Equivalence Partitioning    | STS-020-B2        | ⬜ Untested |
+| **REQ-NF-015**  | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-A          | Specification-Based Testing | STS-010-A2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-B          | Error Guessing              | STS-010-B3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C1        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C2        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C3        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C4        | ⬜ Untested |
+|                 | SYS-010                | Version Archive Worker and Replay Engine       | STP-010-C          | State Transition Testing    | STS-010-C5        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A2        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B2        | ⬜ Untested |
+| **REQ-NF-016**  | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A2        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B2        | ⬜ Untested |
+| **REQ-NF-017**  | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-A          | Specification-Based Testing | STS-019-A2        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B1        | ⬜ Untested |
+|                 | SYS-019                | Observability and Alerting                     | STP-019-B          | Error Guessing              | STS-019-B2        | ⬜ Untested |
+| **REQ-NF-018**  | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-A          | Specification-Based Testing | STS-016-A2        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B1        | ⬜ Untested |
+|                 | SYS-016                | Web Client Application (Next.js)               | STP-016-B          | Equivalence Partitioning    | STS-016-B2        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis     | STS-018-A1        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis     | STS-018-A2        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning    | STS-018-B1        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning    | STS-018-B2        | ⬜ Untested |
+| **REQ-NF-019**  | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-A          | Specification-Based Testing | STS-017-A2        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B1        | ⬜ Untested |
+|                 | SYS-017                | Mobile Client Application (Expo/React Native)  | STP-017-B          | Equivalence Partitioning    | STS-017-B2        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis     | STS-018-A1        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis     | STS-018-A2        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning    | STS-018-B1        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning    | STS-018-B2        | ⬜ Untested |
+| **REQ-NF-020**  | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis     | STS-018-A1        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-A          | Boundary Value Analysis     | STS-018-A2        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning    | STS-018-B1        | ⬜ Untested |
+|                 | SYS-018                | Configuration and Environment Resolution       | STP-018-B          | Equivalence Partitioning    | STS-018-B2        | ⬜ Untested |
 
 ### Matrix B Coverage
 
-| Metric                            | Value        |
-| --------------------------------- | ------------ |
-| **Total System Components (SYS)** | 20           |
-| **Total System Test Cases (STP)** | 43           |
-| **Total System Scenarios (STS)**  | 89           |
-| **REQ → SYS Coverage**            | 65/65 (100%) |
-| **SYS → STP Coverage**            | 20/20 (100%) |
+| Metric                            | Value         |
+| --------------------------------- | ------------- |
+| **Total System Components (SYS)** | 20            |
+| **Total System Test Cases (STP)** | 49            |
+| **Total System Scenarios (STS)**  | 103           |
+| **REQ → SYS Coverage**            | 120/137 (87%) |
+| **SYS → STP Coverage**            | 20/20 (100%)  |
 
 ## Matrix C — Integration Verification (Module Boundary View)
 
@@ -592,25 +1145,33 @@
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-003                   | Recipe HTTP Controller           | ITP-003-B          | Interface Fault Injection            | ITS-003-B1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-003                   | Recipe HTTP Controller           | ITP-003-C          | Data Flow Testing                    | ITS-003-C1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-003                   | Recipe HTTP Controller           | ITP-003-D          | Concurrency & Race Condition Testing | ITS-003-D1        | ⬜ Untested |
+| SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-003                   | Recipe HTTP Controller           | ITP-003-E          | CDCT                                 | ITS-003-E1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-004                   | Recipe Command Service           | ITP-004-A          | Interface Contract Testing           | ITS-004-A1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-004                   | Recipe Command Service           | ITP-004-B          | Interface Fault Injection            | ITS-004-B1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-004                   | Recipe Command Service           | ITP-004-C          | Data Flow Testing                    | ITS-004-C1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-004                   | Recipe Command Service           | ITP-004-D          | Concurrency & Race Condition Testing | ITS-004-D1        | ⬜ Untested |
+| SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-004                   | Recipe Command Service           | ITP-004-E          | CDCT                                 | ITS-004-E1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-005                   | Recipe DTO Validator             | ITP-005-A          | Interface Contract Testing           | ITS-005-A1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-005                   | Recipe DTO Validator             | ITP-005-B          | Interface Fault Injection            | ITS-005-B1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-005                   | Recipe DTO Validator             | ITP-005-C          | Data Flow Testing                    | ITS-005-C1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-028                   | API Error Mapper                 | ITP-028-A          | Interface Contract Testing           | ITS-028-A1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-028                   | API Error Mapper                 | ITP-028-B          | Interface Fault Injection            | ITS-028-B1        | ⬜ Untested |
+| SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-028                   | API Error Mapper                 | ITP-028-C          | Data Flow Testing                    | ITS-028-C1        | ⬜ Untested |
 | SYS-002 (REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b)                                                                                                                        | REQ-001, REQ-002, REQ-004, REQ-005, REQ-006, REQ-007, REQ-010a, REQ-010b, REQ-021, REQ-025, REQ-026a, REQ-026b                                                                                                                        | ARCH-028                   | API Error Mapper                 | ITP-028-D          | Concurrency & Race Condition Testing | ITS-028-D1        | ⬜ Untested |
 | SYS-003 (REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005)                                                                                                   | REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005                                                                                                   | ARCH-006                   | Visibility Policy Engine         | ITP-006-A          | Interface Contract Testing           | ITS-006-A1        | ⬜ Untested |
 | SYS-003 (REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005)                                                                                                   | REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005                                                                                                   | ARCH-006                   | Visibility Policy Engine         | ITP-006-B          | Interface Fault Injection            | ITS-006-B1        | ⬜ Untested |
+| SYS-003 (REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005)                                                                                                   | REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005                                                                                                   | ARCH-006                   | Visibility Policy Engine         | ITP-006-C          | Data Flow Testing                    | ITS-006-C1        | ⬜ Untested |
 | SYS-003 (REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005)                                                                                                   | REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005                                                                                                   | ARCH-006                   | Visibility Policy Engine         | ITP-006-D          | Concurrency & Race Condition Testing | ITS-006-D1        | ⬜ Untested |
 | SYS-003 (REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005)                                                                                                   | REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005                                                                                                   | ARCH-007                   | Substantive Edit Detector        | ITP-007-A          | Interface Contract Testing           | ITS-007-A1        | ⬜ Untested |
+| SYS-003 (REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005)                                                                                                   | REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005                                                                                                   | ARCH-007                   | Substantive Edit Detector        | ITP-007-B          | Data Flow Testing                    | ITS-007-B1        | ⬜ Untested |
+| SYS-003 (REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005)                                                                                                   | REQ-022, REQ-023, REQ-027a, REQ-027b, REQ-028, REQ-050a, REQ-CN-001a, REQ-CN-001b, REQ-CN-003, REQ-CN-004a, REQ-CN-004b, REQ-CN-005                                                                                                   | ARCH-007                   | Substantive Edit Detector        | ITP-007-C          | Concurrency & Race Condition Testing | ITS-007-C1        | ⬜ Untested |
 | SYS-004 (REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057)                                                                                                                                                                                | REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057                                                                                                                                                                                | ARCH-008                   | Ingredient Resolver Service      | ITP-008-A          | Interface Contract Testing           | ITS-008-A1        | ⬜ Untested |
 | SYS-004 (REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057)                                                                                                                                                                                | REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057                                                                                                                                                                                | ARCH-008                   | Ingredient Resolver Service      | ITP-008-B          | Interface Fault Injection            | ITS-008-B1        | ⬜ Untested |
 | SYS-004 (REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057)                                                                                                                                                                                | REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057                                                                                                                                                                                | ARCH-008                   | Ingredient Resolver Service      | ITP-008-C          | Data Flow Testing                    | ITS-008-C1        | ⬜ Untested |
+| SYS-004 (REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057)                                                                                                                                                                                | REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057                                                                                                                                                                                | ARCH-008                   | Ingredient Resolver Service      | ITP-008-D          | Concurrency & Race Condition Testing | ITS-008-D1        | ⬜ Untested |
 | SYS-004 (REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057)                                                                                                                                                                                | REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057                                                                                                                                                                                | ARCH-009                   | Nutrition Calculator             | ITP-009-A          | Interface Contract Testing           | ITS-009-A1        | ⬜ Untested |
 | SYS-004 (REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057)                                                                                                                                                                                | REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057                                                                                                                                                                                | ARCH-009                   | Nutrition Calculator             | ITP-009-B          | Interface Fault Injection            | ITS-009-B1        | ⬜ Untested |
+| SYS-004 (REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057)                                                                                                                                                                                | REQ-003a, REQ-003b, REQ-031, REQ-032, REQ-033, REQ-057                                                                                                                                                                                | ARCH-009                   | Nutrition Calculator             | ITP-009-C          | Concurrency & Race Condition Testing | ITS-009-C1        | ⬜ Untested |
 | SYS-005 (REQ-018a, REQ-018b, REQ-029, REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f, REQ-NF-001, REQ-NF-002)                                                                                                                       | REQ-018a, REQ-018b, REQ-029, REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f, REQ-NF-001, REQ-NF-002                                                                                                                       | ARCH-010                   | Recipe Search Service            | ITP-010-A          | Interface Contract Testing           | ITS-010-A1        | ⬜ Untested |
 | SYS-005 (REQ-018a, REQ-018b, REQ-029, REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f, REQ-NF-001, REQ-NF-002)                                                                                                                       | REQ-018a, REQ-018b, REQ-029, REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f, REQ-NF-001, REQ-NF-002                                                                                                                       | ARCH-010                   | Recipe Search Service            | ITP-010-B          | Interface Fault Injection            | ITS-010-B1        | ⬜ Untested |
 | SYS-005 (REQ-018a, REQ-018b, REQ-029, REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f, REQ-NF-001, REQ-NF-002)                                                                                                                       | REQ-018a, REQ-018b, REQ-029, REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f, REQ-NF-001, REQ-NF-002                                                                                                                       | ARCH-010                   | Recipe Search Service            | ITP-010-C          | Data Flow Testing                    | ITS-010-C1        | ⬜ Untested |
@@ -627,30 +1188,33 @@
 | SYS-007 (REQ-008, REQ-014, REQ-016)                                                                                                                                                                                                             | REQ-008, REQ-014, REQ-016                                                                                                                                                                                                             | ARCH-014                   | Photo Processing Lambda Handler  | ITP-014-B          | Interface Fault Injection            | ITS-014-B1        | ⬜ Untested |
 | SYS-007 (REQ-008, REQ-014, REQ-016)                                                                                                                                                                                                             | REQ-008, REQ-014, REQ-016                                                                                                                                                                                                             | ARCH-014                   | Photo Processing Lambda Handler  | ITP-014-C          | Data Flow Testing                    | ITS-014-C1        | ⬜ Untested |
 | SYS-007 (REQ-008, REQ-014, REQ-016)                                                                                                                                                                                                             | REQ-008, REQ-014, REQ-016                                                                                                                                                                                                             | ARCH-014                   | Photo Processing Lambda Handler  | ITP-014-D          | Concurrency & Race Condition Testing | ITS-014-D1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-004                   | Recipe Command Service           | ITP-004-A          | Interface Contract Testing           | ITS-004-A1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-004                   | Recipe Command Service           | ITP-004-B          | Interface Fault Injection            | ITS-004-B1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-004                   | Recipe Command Service           | ITP-004-C          | Data Flow Testing                    | ITS-004-C1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-004                   | Recipe Command Service           | ITP-004-D          | Concurrency & Race Condition Testing | ITS-004-D1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-015                   | Version Snapshot Writer          | ITP-015-A          | Interface Contract Testing           | ITS-015-A1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-015                   | Version Snapshot Writer          | ITP-015-B          | Interface Fault Injection            | ITS-015-B1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-015                   | Version Snapshot Writer          | ITP-015-C          | Data Flow Testing                    | ITS-015-C1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-016                   | Optimistic Concurrency Guard     | ITP-016-A          | Interface Contract Testing           | ITS-016-A1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-016                   | Optimistic Concurrency Guard     | ITP-016-B          | Interface Fault Injection            | ITS-016-B1        | ⬜ Untested |
-| SYS-008 (REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                                         | REQ-035, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                                         | ARCH-016                   | Optimistic Concurrency Guard     | ITP-016-D          | Concurrency & Race Condition Testing | ITS-016-D1        | ⬜ Untested |
-| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-039)                                                                                                                                                                                                    | REQ-036, REQ-037, REQ-038, REQ-039                                                                                                                                                                                                    | ARCH-017                   | Archive Queue Producer           | ITP-017-A          | Interface Contract Testing           | ITS-017-A1        | ⬜ Untested |
-| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-039)                                                                                                                                                                                                    | REQ-036, REQ-037, REQ-038, REQ-039                                                                                                                                                                                                    | ARCH-017                   | Archive Queue Producer           | ITP-017-B          | Interface Fault Injection            | ITS-017-B1        | ⬜ Untested |
-| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-039)                                                                                                                                                                                                    | REQ-036, REQ-037, REQ-038, REQ-039                                                                                                                                                                                                    | ARCH-017                   | Archive Queue Producer           | ITP-017-C          | Data Flow Testing                    | ITS-017-C1        | ⬜ Untested |
-| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-039)                                                                                                                                                                                                    | REQ-036, REQ-037, REQ-038, REQ-039                                                                                                                                                                                                    | ARCH-017                   | Archive Queue Producer           | ITP-017-D          | Concurrency & Race Condition Testing | ITS-017-D1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-018                   | Archive Worker Lambda            | ITP-018-A          | Interface Contract Testing           | ITS-018-A1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-018                   | Archive Worker Lambda            | ITP-018-B          | Interface Fault Injection            | ITS-018-B1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-018                   | Archive Worker Lambda            | ITP-018-C          | Data Flow Testing                    | ITS-018-C1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-018                   | Archive Worker Lambda            | ITP-018-D          | Concurrency & Race Condition Testing | ITS-018-D1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-019                   | Pending Archive Reconciler       | ITP-019-A          | Interface Contract Testing           | ITS-019-A1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-019                   | Pending Archive Reconciler       | ITP-019-B          | Interface Fault Injection            | ITS-019-B1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-019                   | Pending Archive Reconciler       | ITP-019-C          | Data Flow Testing                    | ITS-019-C1        | ⬜ Untested |
-| SYS-010 (REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                                                        | REQ-036, REQ-038, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                                                        | ARCH-019                   | Pending Archive Reconciler       | ITP-019-D          | Concurrency & Race Condition Testing | ITS-019-D1        | ⬜ Untested |
-| SYS-011 (REQ-047, REQ-048, REQ-049, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b)                                                                                                                                                      | REQ-047, REQ-048, REQ-049, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b                                                                                                                                                      | ARCH-020                   | Collection Service               | ITP-020-A          | Interface Contract Testing           | ITS-020-A1        | ⬜ Untested |
-| SYS-011 (REQ-047, REQ-048, REQ-049, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b)                                                                                                                                                      | REQ-047, REQ-048, REQ-049, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b                                                                                                                                                      | ARCH-020                   | Collection Service               | ITP-020-B          | Interface Fault Injection            | ITS-020-B1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-004                   | Recipe Command Service           | ITP-004-A          | Interface Contract Testing           | ITS-004-A1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-004                   | Recipe Command Service           | ITP-004-B          | Interface Fault Injection            | ITS-004-B1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-004                   | Recipe Command Service           | ITP-004-C          | Data Flow Testing                    | ITS-004-C1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-004                   | Recipe Command Service           | ITP-004-D          | Concurrency & Race Condition Testing | ITS-004-D1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-004                   | Recipe Command Service           | ITP-004-E          | CDCT                                 | ITS-004-E1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-015                   | Version Snapshot Writer          | ITP-015-A          | Interface Contract Testing           | ITS-015-A1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-015                   | Version Snapshot Writer          | ITP-015-B          | Interface Fault Injection            | ITS-015-B1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-015                   | Version Snapshot Writer          | ITP-015-C          | Data Flow Testing                    | ITS-015-C1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-016                   | Optimistic Concurrency Guard     | ITP-016-A          | Interface Contract Testing           | ITS-016-A1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-016                   | Optimistic Concurrency Guard     | ITP-016-B          | Interface Fault Injection            | ITS-016-B1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-016                   | Optimistic Concurrency Guard     | ITP-016-C          | Data Flow Testing                    | ITS-016-C1        | ⬜ Untested |
+| SYS-008 (REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046)                                                                                                                                                                     | REQ-035, REQ-035a, REQ-035b, REQ-042a, REQ-042b, REQ-043, REQ-046                                                                                                                                                                     | ARCH-016                   | Optimistic Concurrency Guard     | ITP-016-D          | Concurrency & Race Condition Testing | ITS-016-D1        | ⬜ Untested |
+| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039)                                                                                                                                                                      | REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039                                                                                                                                                                      | ARCH-017                   | Archive Queue Producer           | ITP-017-A          | Interface Contract Testing           | ITS-017-A1        | ⬜ Untested |
+| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039)                                                                                                                                                                      | REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039                                                                                                                                                                      | ARCH-017                   | Archive Queue Producer           | ITP-017-B          | Interface Fault Injection            | ITS-017-B1        | ⬜ Untested |
+| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039)                                                                                                                                                                      | REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039                                                                                                                                                                      | ARCH-017                   | Archive Queue Producer           | ITP-017-C          | Data Flow Testing                    | ITS-017-C1        | ⬜ Untested |
+| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039)                                                                                                                                                                      | REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039                                                                                                                                                                      | ARCH-017                   | Archive Queue Producer           | ITP-017-D          | Concurrency & Race Condition Testing | ITS-017-D1        | ⬜ Untested |
+| SYS-009 (REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039)                                                                                                                                                                      | REQ-036, REQ-037, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039                                                                                                                                                                      | ARCH-017                   | Archive Queue Producer           | ITP-017-E          | CDCT                                 | ITS-017-E1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-018                   | Archive Worker Lambda            | ITP-018-A          | Interface Contract Testing           | ITS-018-A1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-018                   | Archive Worker Lambda            | ITP-018-B          | Interface Fault Injection            | ITS-018-B1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-018                   | Archive Worker Lambda            | ITP-018-C          | Data Flow Testing                    | ITS-018-C1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-018                   | Archive Worker Lambda            | ITP-018-D          | Concurrency & Race Condition Testing | ITS-018-D1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-019                   | Pending Archive Reconciler       | ITP-019-A          | Interface Contract Testing           | ITS-019-A1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-019                   | Pending Archive Reconciler       | ITP-019-B          | Interface Fault Injection            | ITS-019-B1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-019                   | Pending Archive Reconciler       | ITP-019-C          | Data Flow Testing                    | ITS-019-C1        | ⬜ Untested |
+| SYS-010 (REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015)                                                                                                                                                          | REQ-036, REQ-038, REQ-038a, REQ-038b, REQ-038c, REQ-039, REQ-040, REQ-NF-015                                                                                                                                                          | ARCH-019                   | Pending Archive Reconciler       | ITP-019-D          | Concurrency & Race Condition Testing | ITS-019-D1        | ⬜ Untested |
+| SYS-011 (REQ-047, REQ-048, REQ-049, REQ-049a, REQ-049b, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b)                                                                                                                                  | REQ-047, REQ-048, REQ-049, REQ-049a, REQ-049b, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b                                                                                                                                  | ARCH-020                   | Collection Service               | ITP-020-A          | Interface Contract Testing           | ITS-020-A1        | ⬜ Untested |
+| SYS-011 (REQ-047, REQ-048, REQ-049, REQ-049a, REQ-049b, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b)                                                                                                                                  | REQ-047, REQ-048, REQ-049, REQ-049a, REQ-049b, REQ-050a, REQ-050b, REQ-056, REQ-CN-001a, REQ-CN-001b                                                                                                                                  | ARCH-020                   | Collection Service               | ITP-020-B          | Interface Fault Injection            | ITS-020-B1        | ⬜ Untested |
 | SYS-012 (REQ-051, REQ-052, REQ-053, REQ-054, REQ-055a, REQ-055b, REQ-055c)                                                                                                                                                                      | REQ-051, REQ-052, REQ-053, REQ-054, REQ-055a, REQ-055b, REQ-055c                                                                                                                                                                      | ARCH-021                   | Collection Clone & Pull Service  | ITP-021-A          | Interface Contract Testing           | ITS-021-A1        | ⬜ Untested |
 | SYS-012 (REQ-051, REQ-052, REQ-053, REQ-054, REQ-055a, REQ-055b, REQ-055c)                                                                                                                                                                      | REQ-051, REQ-052, REQ-053, REQ-054, REQ-055a, REQ-055b, REQ-055c                                                                                                                                                                      | ARCH-021                   | Collection Clone & Pull Service  | ITP-021-B          | Interface Fault Injection            | ITS-021-B1        | ⬜ Untested |
 | SYS-012 (REQ-051, REQ-052, REQ-053, REQ-054, REQ-055a, REQ-055b, REQ-055c)                                                                                                                                                                      | REQ-051, REQ-052, REQ-053, REQ-054, REQ-055a, REQ-055b, REQ-055c                                                                                                                                                                      | ARCH-021                   | Collection Clone & Pull Service  | ITP-021-C          | Data Flow Testing                    | ITS-021-C1        | ⬜ Untested |
@@ -659,6 +1223,7 @@
 | SYS-013 (REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003)                                                                                                                          | REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003                                                                                                                          | ARCH-022                   | GDPR Erasure Orchestrator        | ITP-022-B          | Interface Fault Injection            | ITS-022-B1        | ⬜ Untested |
 | SYS-013 (REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003)                                                                                                                          | REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003                                                                                                                          | ARCH-022                   | GDPR Erasure Orchestrator        | ITP-022-C          | Data Flow Testing                    | ITS-022-C1        | ⬜ Untested |
 | SYS-013 (REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003)                                                                                                                          | REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003                                                                                                                          | ARCH-022                   | GDPR Erasure Orchestrator        | ITP-022-D          | Concurrency & Race Condition Testing | ITS-022-D1        | ⬜ Untested |
+| SYS-013 (REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003)                                                                                                                          | REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003                                                                                                                          | ARCH-022                   | GDPR Erasure Orchestrator        | ITP-022-E          | CDCT                                 | ITS-022-E1        | ⬜ Untested |
 | SYS-013 (REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003)                                                                                                                          | REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003                                                                                                                          | ARCH-023                   | Erasure Storage Purger           | ITP-023-A          | Interface Contract Testing           | ITS-023-A1        | ⬜ Untested |
 | SYS-013 (REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003)                                                                                                                          | REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003                                                                                                                          | ARCH-023                   | Erasure Storage Purger           | ITP-023-B          | Interface Fault Injection            | ITS-023-B1        | ⬜ Untested |
 | SYS-013 (REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003)                                                                                                                          | REQ-019a, REQ-019b, REQ-019c, REQ-020a, REQ-020b, REQ-020c, REQ-IF-001a, REQ-IF-001b, REQ-IF-002, REQ-IF-003                                                                                                                          | ARCH-023                   | Erasure Storage Purger           | ITP-023-C          | Data Flow Testing                    | ITS-023-C1        | ⬜ Untested |
@@ -679,57 +1244,155 @@
 | SYS-016 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018                                                                     | ARCH-026                   | Web Recipe & Collection UI       | ITP-026-B          | Interface Fault Injection            | ITS-026-B1        | ⬜ Untested |
 | SYS-016 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018                                                                     | ARCH-026                   | Web Recipe & Collection UI       | ITP-026-C          | Data Flow Testing                    | ITS-026-C1        | ⬜ Untested |
 | SYS-016 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018                                                                     | ARCH-026                   | Web Recipe & Collection UI       | ITP-026-D          | Concurrency & Race Condition Testing | ITS-026-D1        | ⬜ Untested |
+| SYS-016 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004a, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-018                                                                     | ARCH-026                   | Web Recipe & Collection UI       | ITP-026-E          | CDCT                                 | ITS-026-E1        | ⬜ Untested |
 | SYS-017 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019                                                                     | ARCH-027                   | Mobile Recipe & Collection UI    | ITP-027-A          | Interface Contract Testing           | ITS-027-A1        | ⬜ Untested |
 | SYS-017 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019                                                                     | ARCH-027                   | Mobile Recipe & Collection UI    | ITP-027-B          | Interface Fault Injection            | ITS-027-B1        | ⬜ Untested |
 | SYS-017 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019                                                                     | ARCH-027                   | Mobile Recipe & Collection UI    | ITP-027-C          | Data Flow Testing                    | ITS-027-C1        | ⬜ Untested |
 | SYS-017 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019                                                                     | ARCH-027                   | Mobile Recipe & Collection UI    | ITP-027-D          | Concurrency & Race Condition Testing | ITS-027-D1        | ⬜ Untested |
+| SYS-017 (REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019)                                                                     | REQ-011, REQ-012, REQ-014, REQ-015, REQ-034, REQ-044, REQ-045, REQ-IF-004b, REQ-IF-004c, REQ-IF-005b, REQ-IF-005c, REQ-NF-003, REQ-NF-007, REQ-NF-008, REQ-NF-019                                                                     | ARCH-027                   | Mobile Recipe & Collection UI    | ITP-027-E          | CDCT                                 | ITS-027-E1        | ⬜ Untested |
 | SYS-018 (REQ-NF-018, REQ-NF-019, REQ-NF-020)                                                                                                                                                                                                    | REQ-NF-018, REQ-NF-019, REQ-NF-020                                                                                                                                                                                                    | ARCH-029                   | Config Loader                    | ITP-029-A          | Interface Contract Testing           | ITS-029-A1        | ⬜ Untested |
 | SYS-018 (REQ-NF-018, REQ-NF-019, REQ-NF-020)                                                                                                                                                                                                    | REQ-NF-018, REQ-NF-019, REQ-NF-020                                                                                                                                                                                                    | ARCH-029                   | Config Loader                    | ITP-029-B          | Interface Fault Injection            | ITS-029-B1        | ⬜ Untested |
+| SYS-018 (REQ-NF-018, REQ-NF-019, REQ-NF-020)                                                                                                                                                                                                    | REQ-NF-018, REQ-NF-019, REQ-NF-020                                                                                                                                                                                                    | ARCH-029                   | Config Loader                    | ITP-029-C          | Concurrency & Race Condition Testing | ITS-029-C1        | ⬜ Untested |
 | SYS-019 (REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017)                                                                                                                                                                               | REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017                                                                                                                                                                               | ARCH-030                   | Telemetry & Logger               | ITP-030-A          | Interface Contract Testing           | ITS-030-A1        | ⬜ Untested |
+| SYS-019 (REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017)                                                                                                                                                                               | REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017                                                                                                                                                                               | ARCH-030                   | Telemetry & Logger               | ITP-030-B          | Data Flow Testing                    | ITS-030-B1        | ⬜ Untested |
+| SYS-019 (REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017)                                                                                                                                                                               | REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017                                                                                                                                                                               | ARCH-030                   | Telemetry & Logger               | ITP-030-C          | Interface Fault Injection            | ITS-030-C1        | ⬜ Untested |
 | SYS-019 (REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017)                                                                                                                                                                               | REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017                                                                                                                                                                               | ARCH-031                   | Archive Backlog Alarm            | ITP-031-A          | Interface Contract Testing           | ITS-031-A1        | ⬜ Untested |
 | SYS-019 (REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017)                                                                                                                                                                               | REQ-041, REQ-NF-004, REQ-NF-015, REQ-NF-016, REQ-NF-017                                                                                                                                                                               | ARCH-031                   | Archive Backlog Alarm            | ITP-031-B          | Interface Fault Injection            | ITS-031-B1        | ⬜ Untested |
 | SYS-020 (REQ-CN-002, REQ-NF-005a, REQ-NF-005b, REQ-NF-006, REQ-NF-009, REQ-NF-010a, REQ-NF-010b, REQ-NF-011a, REQ-NF-011b, REQ-NF-011c, REQ-NF-012a, REQ-NF-012b, REQ-NF-013a, REQ-NF-013b, REQ-NF-013c, REQ-NF-014a, REQ-NF-014b, REQ-NF-014c) | REQ-CN-002, REQ-NF-005a, REQ-NF-005b, REQ-NF-006, REQ-NF-009, REQ-NF-010a, REQ-NF-010b, REQ-NF-011a, REQ-NF-011b, REQ-NF-011c, REQ-NF-012a, REQ-NF-012b, REQ-NF-013a, REQ-NF-013b, REQ-NF-013c, REQ-NF-014a, REQ-NF-014b, REQ-NF-014c | ARCH-032                   | CI & Test Governance Harness     | ITP-032-A          | Interface Contract Testing           | ITS-032-A1        | ⬜ Untested |
 | SYS-020 (REQ-CN-002, REQ-NF-005a, REQ-NF-005b, REQ-NF-006, REQ-NF-009, REQ-NF-010a, REQ-NF-010b, REQ-NF-011a, REQ-NF-011b, REQ-NF-011c, REQ-NF-012a, REQ-NF-012b, REQ-NF-013a, REQ-NF-013b, REQ-NF-013c, REQ-NF-014a, REQ-NF-014b, REQ-NF-014c) | REQ-CN-002, REQ-NF-005a, REQ-NF-005b, REQ-NF-006, REQ-NF-009, REQ-NF-010a, REQ-NF-010b, REQ-NF-011a, REQ-NF-011b, REQ-NF-011c, REQ-NF-012a, REQ-NF-012b, REQ-NF-013a, REQ-NF-013b, REQ-NF-013c, REQ-NF-014a, REQ-NF-014b, REQ-NF-014c | ARCH-032                   | CI & Test Governance Harness     | ITP-032-B          | Interface Fault Injection            | ITS-032-B1        | ⬜ Untested |
-| N/A (Cross-Cutting)                                                                                                                                                                                                                             | —                                                                                                                                                                                                                                     | ARCH-033                   | NestJS Module Wiring             | ITP-033-A          | Interface Contract Testing           | ITS-033-A1        | ⬜ Untested |
-| N/A (Cross-Cutting)                                                                                                                                                                                                                             | —                                                                                                                                                                                                                                     | ARCH-033                   | NestJS Module Wiring             | ITP-033-B          | Interface Fault Injection            | ITS-033-B1        | ⬜ Untested |
 
 ### Matrix C Coverage
 
 | Metric                                 | Value        |
 | -------------------------------------- | ------------ |
-| **Total Architecture Modules (ARCH)**  | 33           |
-| **Total Cross-Cutting Modules**        | 1            |
-| **Total Integration Test Cases (ITP)** | 100          |
-| **Total Integration Scenarios (ITS)**  | 100          |
+| **Total Architecture Modules (ARCH)**  | 32           |
+| **Total Cross-Cutting Modules**        | 0            |
+| **Total Integration Test Cases (ITP)** | 117          |
+| **Total Integration Scenarios (ITS)**  | 117          |
 | **SYS → ARCH Coverage**                | 20/20 (100%) |
-| **ARCH → ITP Coverage**                | 33/33 (100%) |
+| **ARCH → ITP Coverage**                | 32/32 (100%) |
 
 ### Uncovered Requirements (REQ without ATP)
 
-None — full coverage.
+- REQ-002a
+- REQ-002b
+- REQ-003a
+- REQ-003b
+- REQ-005a
+- REQ-005b
+- REQ-005c
+- REQ-010a
+- REQ-010b
+- REQ-017a
+- REQ-017b
+- REQ-018a
+- REQ-018b
+- REQ-019a
+- REQ-019b
+- REQ-019c
+- REQ-020a
+- REQ-020b
+- REQ-020c
+- REQ-026a
+- REQ-026b
+- REQ-027a
+- REQ-027b
+- REQ-028a
+- REQ-028b
+- REQ-030a
+- REQ-030b
+- REQ-030c
+- REQ-030d
+- REQ-030e
+- REQ-030f
+- REQ-032a
+- REQ-032b
+- REQ-035a
+- REQ-035b
+- REQ-038a
+- REQ-038b
+- REQ-038c
+- REQ-041a
+- REQ-041b
+- REQ-042a
+- REQ-042b
+- REQ-048a
+- REQ-048b
+- REQ-049a
+- REQ-049b
+- REQ-050a
+- REQ-050b
+- REQ-055a
+- REQ-055b
+- REQ-055c
+- REQ-056a
+- REQ-056b
+- REQ-CN-001a
+- REQ-CN-001b
+- REQ-CN-004a
+- REQ-CN-004b
+- REQ-IF-001a
+- REQ-IF-001b
+- REQ-IF-004a
+- REQ-IF-004b
+- REQ-IF-004c
+- REQ-IF-005a
+- REQ-IF-005b
+- REQ-IF-005c
+- REQ-NF-005a
+- REQ-NF-005b
+- REQ-NF-010a
+- REQ-NF-010b
+- REQ-NF-011a
+- REQ-NF-011b
+- REQ-NF-011c
+- REQ-NF-012a
+- REQ-NF-012b
+- REQ-NF-013a
+- REQ-NF-013b
+- REQ-NF-013c
+- REQ-NF-014a
+- REQ-NF-014b
+- REQ-NF-014c
 
 ### Orphaned Test Cases (ATP without valid REQ)
 
+- ATP-002-A
 - ATP-003-A
 - ATP-003-B
+- ATP-003-C
+- ATP-005-A
+- ATP-005-B
 - ATP-010-A
 - ATP-010-B
+- ATP-017-A
+- ATP-017-B
 - ATP-018-A
 - ATP-019-A
 - ATP-020-A
 - ATP-020-B
+- ATP-020-C
 - ATP-026-A
 - ATP-027-A
 - ATP-027-B
+- ATP-028-A
+- ATP-028-B
 - ATP-030-A
+- ATP-032-A
+- ATP-041-A
+- ATP-041-B
 - ATP-042-A
 - ATP-042-B
+- ATP-048-A
+- ATP-048-B
 - ATP-050-A
 - ATP-050-B
 - ATP-050-C
 - ATP-055-A
 - ATP-055-B
 - ATP-055-C
+- ATP-056-A
+- ATP-056-B
 - ATP-CN-001-A
 - ATP-CN-004-A
 - ATP-CN-004-B
@@ -749,7 +1412,23 @@ None — full coverage.
 
 ### Uncovered Requirements — System Level (REQ without SYS)
 
-None — full coverage.
+- REQ-002a
+- REQ-002b
+- REQ-005a
+- REQ-005b
+- REQ-005c
+- REQ-017a
+- REQ-017b
+- REQ-028a
+- REQ-028b
+- REQ-032a
+- REQ-032b
+- REQ-041a
+- REQ-041b
+- REQ-048a
+- REQ-048b
+- REQ-056a
+- REQ-056b
 
 ### Orphaned System Test Cases (STP without valid SYS)
 
@@ -761,7 +1440,9 @@ None — full coverage.
 
 ### Orphaned Integration Test Cases (ITP without valid ARCH)
 
-None — all integration tests trace to modules.
+- ITP-033-A
+- ITP-033-B
+- ITP-033-C
 
 ## Matrix D — Implementation Verification (Module View)
 
@@ -770,82 +1451,113 @@ None — all integration tests trace to modules.
 | ARCH-001 (SYS-001)          | SYS-001          | MOD-001             | Auth0 JWT Verifier                              | UTP-001-A             | Statement & Branch Coverage | UTS-001-A1        | ⬜ Untested |
 | ARCH-001 (SYS-001)          | SYS-001          | MOD-001             | Auth0 JWT Verifier                              | UTP-001-B             | Equivalence Partitioning    | UTS-001-B1        | ⬜ Untested |
 | ARCH-001 (SYS-001)          | SYS-001          | MOD-001             | Auth0 JWT Verifier                              | UTP-001-C             | Strict Isolation            | UTS-001-C1        | ⬜ Untested |
+| ARCH-001 (SYS-001)          | SYS-001          | MOD-001             | Auth0 JWT Verifier                              | UTP-001-D             | Error Guessing              | UTS-001-D1        | ⬜ Untested |
+| ARCH-001 (SYS-001)          | SYS-001          | MOD-001             | Auth0 JWT Verifier                              | UTP-001-E             | State Transition Testing    | UTS-001-E1        | ⬜ Untested |
+| ARCH-001 (SYS-001)          | SYS-001          | MOD-001             | Auth0 JWT Verifier                              | UTP-001-E             | State Transition Testing    | UTS-001-E2        | ⬜ Untested |
 | ARCH-002 (SYS-001)          | SYS-001          | MOD-002             | Owner & Tier Authorization Guard                | UTP-002-A             | Statement & Branch Coverage | UTS-002-A1        | ⬜ Untested |
 | ARCH-002 (SYS-001)          | SYS-001          | MOD-002             | Owner & Tier Authorization Guard                | UTP-002-B             | Equivalence Partitioning    | UTS-002-B1        | ⬜ Untested |
 | ARCH-002 (SYS-001)          | SYS-001          | MOD-002             | Owner & Tier Authorization Guard                | UTP-002-C             | Strict Isolation            | UTS-002-C1        | ⬜ Untested |
+| ARCH-002 (SYS-001)          | SYS-001          | MOD-002             | Owner & Tier Authorization Guard                | UTP-002-D             | Boundary Value Analysis     | UTS-002-D1        | ⬜ Untested |
 | ARCH-003 (SYS-002)          | SYS-002          | MOD-003             | Recipe HTTP Controller                          | UTP-003-A             | Statement & Branch Coverage | UTS-003-A1        | ⬜ Untested |
 | ARCH-003 (SYS-002)          | SYS-002          | MOD-003             | Recipe HTTP Controller                          | UTP-003-B             | Equivalence Partitioning    | UTS-003-B1        | ⬜ Untested |
 | ARCH-003 (SYS-002)          | SYS-002          | MOD-003             | Recipe HTTP Controller                          | UTP-003-C             | Strict Isolation            | UTS-003-C1        | ⬜ Untested |
 | ARCH-004 (SYS-002, SYS-008) | SYS-002, SYS-008 | MOD-004             | Recipe Command Service                          | UTP-004-A             | Statement & Branch Coverage | UTS-004-A1        | ⬜ Untested |
 | ARCH-004 (SYS-002, SYS-008) | SYS-002, SYS-008 | MOD-004             | Recipe Command Service                          | UTP-004-B             | Equivalence Partitioning    | UTS-004-B1        | ⬜ Untested |
 | ARCH-004 (SYS-002, SYS-008) | SYS-002, SYS-008 | MOD-004             | Recipe Command Service                          | UTP-004-C             | Strict Isolation            | UTS-004-C1        | ⬜ Untested |
+| ARCH-004 (SYS-002, SYS-008) | SYS-002, SYS-008 | MOD-004             | Recipe Command Service                          | UTP-004-D             | Error Guessing              | UTS-004-D1        | ⬜ Untested |
 | ARCH-005 (SYS-002)          | SYS-002          | MOD-005             | Recipe DTO Validator                            | UTP-005-A             | Statement & Branch Coverage | UTS-005-A1        | ⬜ Untested |
 | ARCH-005 (SYS-002)          | SYS-002          | MOD-005             | Recipe DTO Validator                            | UTP-005-B             | Boundary Value Analysis     | UTS-005-B1        | ⬜ Untested |
 | ARCH-005 (SYS-002)          | SYS-002          | MOD-005             | Recipe DTO Validator                            | UTP-005-C             | Strict Isolation            | UTS-005-C1        | ⬜ Untested |
+| ARCH-005 (SYS-002)          | SYS-002          | MOD-005             | Recipe DTO Validator                            | UTP-005-D             | Error Guessing              | UTS-005-D1        | ⬜ Untested |
 | ARCH-006 (SYS-003)          | SYS-003          | MOD-006             | Visibility Policy Engine                        | UTP-006-A             | Statement & Branch Coverage | UTS-006-A1        | ⬜ Untested |
 | ARCH-006 (SYS-003)          | SYS-003          | MOD-006             | Visibility Policy Engine                        | UTP-006-B             | Equivalence Partitioning    | UTS-006-B1        | ⬜ Untested |
+| ARCH-006 (SYS-003)          | SYS-003          | MOD-006             | Visibility Policy Engine                        | UTP-006-C             | Error Guessing              | UTS-006-C1        | ⬜ Untested |
+| ARCH-006 (SYS-003)          | SYS-003          | MOD-006             | Visibility Policy Engine                        | UTP-006-D             | Boundary Value Analysis     | UTS-006-D1        | ⬜ Untested |
 | ARCH-007 (SYS-003)          | SYS-003          | MOD-007             | Substantive Edit Detector                       | UTP-007-A             | Statement & Branch Coverage | UTS-007-A1        | ⬜ Untested |
 | ARCH-007 (SYS-003)          | SYS-003          | MOD-007             | Substantive Edit Detector                       | UTP-007-B             | Equivalence Partitioning    | UTS-007-B1        | ⬜ Untested |
+| ARCH-007 (SYS-003)          | SYS-003          | MOD-007             | Substantive Edit Detector                       | UTP-007-C             | Boundary Value Analysis     | UTS-007-C1        | ⬜ Untested |
 | ARCH-008 (SYS-004)          | SYS-004          | MOD-008             | Ingredient Resolver Service                     | UTP-008-A             | Statement & Branch Coverage | UTS-008-A1        | ⬜ Untested |
 | ARCH-008 (SYS-004)          | SYS-004          | MOD-008             | Ingredient Resolver Service                     | UTP-008-B             | Boundary Value Analysis     | UTS-008-B1        | ⬜ Untested |
+| ARCH-008 (SYS-004)          | SYS-004          | MOD-008             | Ingredient Resolver Service                     | UTP-008-B             | Boundary Value Analysis     | UTS-008-B2        | ⬜ Untested |
 | ARCH-008 (SYS-004)          | SYS-004          | MOD-008             | Ingredient Resolver Service                     | UTP-008-C             | Strict Isolation            | UTS-008-C1        | ⬜ Untested |
+| ARCH-008 (SYS-004)          | SYS-004          | MOD-008             | Ingredient Resolver Service                     | UTP-008-D             | Error Guessing              | UTS-008-D1        | ⬜ Untested |
 | ARCH-009 (SYS-004)          | SYS-004          | MOD-009             | Nutrition Calculator                            | UTP-009-A             | Statement & Branch Coverage | UTS-009-A1        | ⬜ Untested |
 | ARCH-009 (SYS-004)          | SYS-004          | MOD-009             | Nutrition Calculator                            | UTP-009-B             | Boundary Value Analysis     | UTS-009-B1        | ⬜ Untested |
 | ARCH-009 (SYS-004)          | SYS-004          | MOD-009             | Nutrition Calculator                            | UTP-009-C             | Strict Isolation            | UTS-009-C1        | ⬜ Untested |
 | ARCH-010 (SYS-005)          | SYS-005          | MOD-010             | Recipe Search Service                           | UTP-010-A             | Statement & Branch Coverage | UTS-010-A1        | ⬜ Untested |
 | ARCH-010 (SYS-005)          | SYS-005          | MOD-010             | Recipe Search Service                           | UTP-010-B             | Boundary Value Analysis     | UTS-010-B1        | ⬜ Untested |
 | ARCH-010 (SYS-005)          | SYS-005          | MOD-010             | Recipe Search Service                           | UTP-010-C             | Strict Isolation            | UTS-010-C1        | ⬜ Untested |
+| ARCH-010 (SYS-005)          | SYS-005          | MOD-010             | Recipe Search Service                           | UTP-010-D             | Error Guessing              | UTS-010-D1        | ⬜ Untested |
 | ARCH-011 (SYS-005)          | SYS-005          | MOD-011             | Search Query Builder                            | UTP-011-A             | Statement & Branch Coverage | UTS-011-A1        | ⬜ Untested |
 | ARCH-011 (SYS-005)          | SYS-005          | MOD-011             | Search Query Builder                            | UTP-011-B             | Boundary Value Analysis     | UTS-011-B1        | ⬜ Untested |
 | ARCH-012 (SYS-006)          | SYS-006          | MOD-012             | Photo Presign Service                           | UTP-012-A             | Statement & Branch Coverage | UTS-012-A1        | ⬜ Untested |
 | ARCH-012 (SYS-006)          | SYS-006          | MOD-012             | Photo Presign Service                           | UTP-012-B             | Boundary Value Analysis     | UTS-012-B1        | ⬜ Untested |
 | ARCH-012 (SYS-006)          | SYS-006          | MOD-012             | Photo Presign Service                           | UTP-012-C             | Strict Isolation            | UTS-012-C1        | ⬜ Untested |
+| ARCH-012 (SYS-006)          | SYS-006          | MOD-012             | Photo Presign Service                           | UTP-012-D             | Error Guessing              | UTS-012-D1        | ⬜ Untested |
 | ARCH-013 (SYS-006)          | SYS-006          | MOD-013             | Photo Confirm Service                           | UTP-013-A             | Statement & Branch Coverage | UTS-013-A1        | ⬜ Untested |
 | ARCH-013 (SYS-006)          | SYS-006          | MOD-013             | Photo Confirm Service                           | UTP-013-B             | Equivalence Partitioning    | UTS-013-B1        | ⬜ Untested |
 | ARCH-013 (SYS-006)          | SYS-006          | MOD-013             | Photo Confirm Service                           | UTP-013-C             | Strict Isolation            | UTS-013-C1        | ⬜ Untested |
+| ARCH-013 (SYS-006)          | SYS-006          | MOD-013             | Photo Confirm Service                           | UTP-013-D             | Error Guessing              | UTS-013-D1        | ⬜ Untested |
+| ARCH-013 (SYS-006)          | SYS-006          | MOD-013             | Photo Confirm Service                           | UTP-013-E             | State Transition Testing    | UTS-013-E1        | ⬜ Untested |
 | ARCH-014 (SYS-007)          | SYS-007          | MOD-014             | Photo Processing Lambda Handler                 | UTP-014-A             | Statement & Branch Coverage | UTS-014-A1        | ⬜ Untested |
 | ARCH-014 (SYS-007)          | SYS-007          | MOD-014             | Photo Processing Lambda Handler                 | UTP-014-B             | Equivalence Partitioning    | UTS-014-B1        | ⬜ Untested |
 | ARCH-014 (SYS-007)          | SYS-007          | MOD-014             | Photo Processing Lambda Handler                 | UTP-014-C             | Strict Isolation            | UTS-014-C1        | ⬜ Untested |
+| ARCH-014 (SYS-007)          | SYS-007          | MOD-014             | Photo Processing Lambda Handler                 | UTP-014-D             | Error Guessing              | UTS-014-D1        | ⬜ Untested |
 | ARCH-015 (SYS-008)          | SYS-008          | MOD-015             | Version Snapshot Writer                         | UTP-015-A             | Statement & Branch Coverage | UTS-015-A1        | ⬜ Untested |
 | ARCH-015 (SYS-008)          | SYS-008          | MOD-015             | Version Snapshot Writer                         | UTP-015-B             | Boundary Value Analysis     | UTS-015-B1        | ⬜ Untested |
 | ARCH-015 (SYS-008)          | SYS-008          | MOD-015             | Version Snapshot Writer                         | UTP-015-C             | Strict Isolation            | UTS-015-C1        | ⬜ Untested |
 | ARCH-016 (SYS-008)          | SYS-008          | MOD-016             | Optimistic Concurrency Guard                    | UTP-016-A             | Statement & Branch Coverage | UTS-016-A1        | ⬜ Untested |
 | ARCH-016 (SYS-008)          | SYS-008          | MOD-016             | Optimistic Concurrency Guard                    | UTP-016-B             | Equivalence Partitioning    | UTS-016-B1        | ⬜ Untested |
 | ARCH-016 (SYS-008)          | SYS-008          | MOD-016             | Optimistic Concurrency Guard                    | UTP-016-C             | Strict Isolation            | UTS-016-C1        | ⬜ Untested |
+| ARCH-016 (SYS-008)          | SYS-008          | MOD-016             | Optimistic Concurrency Guard                    | UTP-016-D             | Error Guessing              | UTS-016-D1        | ⬜ Untested |
 | ARCH-017 (SYS-009)          | SYS-009          | MOD-017             | Archive Queue Producer                          | UTP-017-A             | Statement & Branch Coverage | UTS-017-A1        | ⬜ Untested |
 | ARCH-017 (SYS-009)          | SYS-009          | MOD-017             | Archive Queue Producer                          | UTP-017-B             | Boundary Value Analysis     | UTS-017-B1        | ⬜ Untested |
 | ARCH-017 (SYS-009)          | SYS-009          | MOD-017             | Archive Queue Producer                          | UTP-017-C             | Strict Isolation            | UTS-017-C1        | ⬜ Untested |
+| ARCH-017 (SYS-009)          | SYS-009          | MOD-017             | Archive Queue Producer                          | UTP-017-D             | Error Guessing              | UTS-017-D1        | ⬜ Untested |
 | ARCH-018 (SYS-010)          | SYS-010          | MOD-018             | Archive Worker Lambda                           | UTP-018-A             | Statement & Branch Coverage | UTS-018-A1        | ⬜ Untested |
 | ARCH-018 (SYS-010)          | SYS-010          | MOD-018             | Archive Worker Lambda                           | UTP-018-B             | Equivalence Partitioning    | UTS-018-B1        | ⬜ Untested |
 | ARCH-018 (SYS-010)          | SYS-010          | MOD-018             | Archive Worker Lambda                           | UTP-018-C             | Strict Isolation            | UTS-018-C1        | ⬜ Untested |
+| ARCH-018 (SYS-010)          | SYS-010          | MOD-018             | Archive Worker Lambda                           | UTP-018-D             | Error Guessing              | UTS-018-D1        | ⬜ Untested |
 | ARCH-019 (SYS-010)          | SYS-010          | MOD-019             | Pending Archive Reconciler                      | UTP-019-A             | Statement & Branch Coverage | UTS-019-A1        | ⬜ Untested |
 | ARCH-019 (SYS-010)          | SYS-010          | MOD-019             | Pending Archive Reconciler                      | UTP-019-B             | Boundary Value Analysis     | UTS-019-B1        | ⬜ Untested |
 | ARCH-019 (SYS-010)          | SYS-010          | MOD-019             | Pending Archive Reconciler                      | UTP-019-C             | Strict Isolation            | UTS-019-C1        | ⬜ Untested |
+| ARCH-019 (SYS-010)          | SYS-010          | MOD-019             | Pending Archive Reconciler                      | UTP-019-D             | Error Guessing              | UTS-019-D1        | ⬜ Untested |
 | ARCH-020 (SYS-011)          | SYS-011          | MOD-020             | Collection Service                              | UTP-020-A             | Statement & Branch Coverage | UTS-020-A1        | ⬜ Untested |
 | ARCH-020 (SYS-011)          | SYS-011          | MOD-020             | Collection Service                              | UTP-020-B             | Equivalence Partitioning    | UTS-020-B1        | ⬜ Untested |
 | ARCH-020 (SYS-011)          | SYS-011          | MOD-020             | Collection Service                              | UTP-020-C             | Strict Isolation            | UTS-020-C1        | ⬜ Untested |
+| ARCH-020 (SYS-011)          | SYS-011          | MOD-020             | Collection Service                              | UTP-020-D             | Error Guessing              | UTS-020-D1        | ⬜ Untested |
 | ARCH-021 (SYS-012)          | SYS-012          | MOD-021             | Collection Clone & Pull Service                 | UTP-021-A             | Statement & Branch Coverage | UTS-021-A1        | ⬜ Untested |
 | ARCH-021 (SYS-012)          | SYS-012          | MOD-021             | Collection Clone & Pull Service                 | UTP-021-B             | Equivalence Partitioning    | UTS-021-B1        | ⬜ Untested |
 | ARCH-021 (SYS-012)          | SYS-012          | MOD-021             | Collection Clone & Pull Service                 | UTP-021-C             | Strict Isolation            | UTS-021-C1        | ⬜ Untested |
+| ARCH-021 (SYS-012)          | SYS-012          | MOD-021             | Collection Clone & Pull Service                 | UTP-021-D             | Error Guessing              | UTS-021-D1        | ⬜ Untested |
 | ARCH-022 (SYS-013)          | SYS-013          | MOD-022             | GDPR Erasure Orchestrator                       | UTP-022-A             | Statement & Branch Coverage | UTS-022-A1        | ⬜ Untested |
 | ARCH-022 (SYS-013)          | SYS-013          | MOD-022             | GDPR Erasure Orchestrator                       | UTP-022-B             | Equivalence Partitioning    | UTS-022-B1        | ⬜ Untested |
 | ARCH-022 (SYS-013)          | SYS-013          | MOD-022             | GDPR Erasure Orchestrator                       | UTP-022-C             | Strict Isolation            | UTS-022-C1        | ⬜ Untested |
+| ARCH-022 (SYS-013)          | SYS-013          | MOD-022             | GDPR Erasure Orchestrator                       | UTP-022-D             | Boundary Value Analysis     | UTS-022-D1        | ⬜ Untested |
+| ARCH-022 (SYS-013)          | SYS-013          | MOD-022             | GDPR Erasure Orchestrator                       | UTP-022-E             | State Transition Testing    | UTS-022-E1        | ⬜ Untested |
+| ARCH-022 (SYS-013)          | SYS-013          | MOD-022             | GDPR Erasure Orchestrator                       | UTP-022-F             | Error Guessing              | UTS-022-F1        | ⬜ Untested |
 | ARCH-023 (SYS-013, SYS-015) | SYS-013, SYS-015 | MOD-023             | Erasure Storage Purger                          | UTP-023-A             | Statement & Branch Coverage | UTS-023-A1        | ⬜ Untested |
 | ARCH-023 (SYS-013, SYS-015) | SYS-013, SYS-015 | MOD-023             | Erasure Storage Purger                          | UTP-023-B             | Boundary Value Analysis     | UTS-023-B1        | ⬜ Untested |
 | ARCH-023 (SYS-013, SYS-015) | SYS-013, SYS-015 | MOD-023             | Erasure Storage Purger                          | UTP-023-C             | Strict Isolation            | UTS-023-C1        | ⬜ Untested |
+| ARCH-023 (SYS-013, SYS-015) | SYS-013, SYS-015 | MOD-023             | Erasure Storage Purger                          | UTP-023-D             | Error Guessing              | UTS-023-D1        | ⬜ Untested |
 | ARCH-024 (SYS-014)          | SYS-014          | MOD-024             | Drizzle Repository Layer                        | UTP-024-A             | Statement & Branch Coverage | UTS-024-A1        | ⬜ Untested |
 | ARCH-024 (SYS-014)          | SYS-014          | MOD-024             | Drizzle Repository Layer                        | UTP-024-B             | Equivalence Partitioning    | UTS-024-B1        | ⬜ Untested |
 | ARCH-024 (SYS-014)          | SYS-014          | MOD-024             | Drizzle Repository Layer                        | UTP-024-C             | Strict Isolation            | UTS-024-C1        | ⬜ Untested |
+| ARCH-024 (SYS-014)          | SYS-014          | MOD-024             | Drizzle Repository Layer                        | UTP-024-D             | Error Guessing              | UTS-024-D1        | ⬜ Untested |
+| ARCH-024 (SYS-014)          | SYS-014          | MOD-024             | Drizzle Repository Layer                        | UTP-024-E             | State Transition Testing    | UTS-024-E1        | ⬜ Untested |
 | ARCH-025 (SYS-015)          | SYS-015          | MOD-025             | S3 & CloudFront Adapter `[EXTERNAL]` [EXTERNAL] | — (integration level) | —                           | —                 | ⬜ Bypassed |
 | ARCH-026 (SYS-016)          | SYS-016          | MOD-026             | Web Recipe & Collection UI                      | UTP-026-A             | Statement & Branch Coverage | UTS-026-A1        | ⬜ Untested |
 | ARCH-026 (SYS-016)          | SYS-016          | MOD-026             | Web Recipe & Collection UI                      | UTP-026-B             | Equivalence Partitioning    | UTS-026-B1        | ⬜ Untested |
 | ARCH-026 (SYS-016)          | SYS-016          | MOD-026             | Web Recipe & Collection UI                      | UTP-026-C             | Strict Isolation            | UTS-026-C1        | ⬜ Untested |
+| ARCH-026 (SYS-016)          | SYS-016          | MOD-026             | Web Recipe & Collection UI                      | UTP-026-D             | State Transition Testing    | UTS-026-D1        | ⬜ Untested |
 | ARCH-027 (SYS-017)          | SYS-017          | MOD-027             | Mobile Recipe & Collection UI                   | UTP-027-A             | Statement & Branch Coverage | UTS-027-A1        | ⬜ Untested |
 | ARCH-027 (SYS-017)          | SYS-017          | MOD-027             | Mobile Recipe & Collection UI                   | UTP-027-B             | Equivalence Partitioning    | UTS-027-B1        | ⬜ Untested |
 | ARCH-027 (SYS-017)          | SYS-017          | MOD-027             | Mobile Recipe & Collection UI                   | UTP-027-C             | Strict Isolation            | UTS-027-C1        | ⬜ Untested |
+| ARCH-027 (SYS-017)          | SYS-017          | MOD-027             | Mobile Recipe & Collection UI                   | UTP-027-D             | State Transition Testing    | UTS-027-D1        | ⬜ Untested |
 | ARCH-028 (SYS-002)          | SYS-002          | MOD-028             | API Error Mapper                                | UTP-028-A             | Statement & Branch Coverage | UTS-028-A1        | ⬜ Untested |
 | ARCH-028 (SYS-002)          | SYS-002          | MOD-028             | API Error Mapper                                | UTP-028-B             | Equivalence Partitioning    | UTS-028-B1        | ⬜ Untested |
 | ARCH-028 (SYS-002)          | SYS-002          | MOD-028             | API Error Mapper                                | UTP-028-C             | Strict Isolation            | UTS-028-C1        | ⬜ Untested |
+| ARCH-028 (SYS-002)          | SYS-002          | MOD-028             | API Error Mapper                                | UTP-028-D             | Error Guessing              | UTS-028-D1        | ⬜ Untested |
 | ARCH-029 (SYS-018)          | SYS-018          | MOD-029             | Config Loader                                   | UTP-029-A             | Statement & Branch Coverage | UTS-029-A1        | ⬜ Untested |
 | ARCH-029 (SYS-018)          | SYS-018          | MOD-029             | Config Loader                                   | UTP-029-B             | Boundary Value Analysis     | UTS-029-B1        | ⬜ Untested |
 | ARCH-029 (SYS-018)          | SYS-018          | MOD-029             | Config Loader                                   | UTP-029-C             | Strict Isolation            | UTS-029-C1        | ⬜ Untested |
@@ -858,9 +1570,6 @@ None — all integration tests trace to modules.
 | ARCH-032 (SYS-020)          | SYS-020          | MOD-032             | CI & Test Governance Harness `[CROSS-CUTTING]`  | UTP-032-A             | Statement & Branch Coverage | UTS-032-A1        | ⬜ Untested |
 | ARCH-032 (SYS-020)          | SYS-020          | MOD-032             | CI & Test Governance Harness `[CROSS-CUTTING]`  | UTP-032-B             | Equivalence Partitioning    | UTS-032-B1        | ⬜ Untested |
 | ARCH-032 (SYS-020)          | SYS-020          | MOD-032             | CI & Test Governance Harness `[CROSS-CUTTING]`  | UTP-032-C             | Strict Isolation            | UTS-032-C1        | ⬜ Untested |
-| ARCH-033 ([CROSS-CUTTING])  | [CROSS-CUTTING]  | MOD-033             | NestJS Module Wiring `[CROSS-CUTTING]`          | UTP-033-A             | Statement & Branch Coverage | UTS-033-A1        | ⬜ Untested |
-| ARCH-033 ([CROSS-CUTTING])  | [CROSS-CUTTING]  | MOD-033             | NestJS Module Wiring `[CROSS-CUTTING]`          | UTP-033-B             | Equivalence Partitioning    | UTS-033-B1        | ⬜ Untested |
-| ARCH-033 ([CROSS-CUTTING])  | [CROSS-CUTTING]  | MOD-033             | NestJS Module Wiring `[CROSS-CUTTING]`          | UTP-033-C             | Strict Isolation            | UTS-033-C1        | ⬜ Untested |
 
 ### Matrix D Coverage
 
@@ -869,330 +1578,361 @@ None — all integration tests trace to modules.
 | **Total Module Designs (MOD)**  | 33           |
 | **External Modules**            | 1            |
 | **Testable Modules**            | 32           |
-| **Total Unit Test Cases (UTP)** | 93           |
-| **Total Unit Scenarios (UTS)**  | 93           |
-| **ARCH → MOD Coverage**         | 33/33 (100%) |
+| **Total Unit Test Cases (UTP)** | 123          |
+| **Total Unit Scenarios (UTS)**  | 125          |
+| **ARCH → MOD Coverage**         | 32/32 (100%) |
 | **MOD → UTP Coverage**          | 32/32 (100%) |
 
 ## Matrix H — Hazard Traceability
 
-| HAZ ID  | Mitigation | Verification                  | Status     |
-| ------- | ---------- | ----------------------------- | ---------- |
-| HAZ-001 | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-017    | ATP-017-B ATP-017-A           | ⬜ Pending |
-|         | SYS-001    | STP-001-A STP-001-B           | ⬜ Pending |
-| HAZ-002 | REQ-017    | ATP-017-B ATP-017-A           | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | SYS-001    | STP-001-A STP-001-B           | ⬜ Pending |
-| HAZ-003 | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | SYS-018    | STP-018-A STP-018-B           | ⬜ Pending |
-|         | SYS-001    | STP-001-A STP-001-B           | ⬜ Pending |
-| HAZ-004 | REQ-010    | ATP-010-A ATP-010-B           | ⬜ Pending |
-|         | REQ-010    | ATP-010-A ATP-010-B           | ⬜ Pending |
-|         | REQ-001    | ATP-001-A                     | ⬜ Pending |
-|         | REQ-004    | ATP-004-A                     | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-| HAZ-005 | REQ-025    | ATP-025-A                     | ⬜ Pending |
-|         | REQ-026    | ATP-026-A                     | ⬜ Pending |
-|         | REQ-026    | ATP-026-A                     | ⬜ Pending |
-|         | REQ-052    | ATP-052-A                     | ⬜ Pending |
-|         | SYS-001    | STP-001-A STP-001-B           | ⬜ Pending |
-| HAZ-006 | REQ-017    | ATP-017-B ATP-017-A           | ⬜ Pending |
-|         | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-| HAZ-007 | REQ-023    | ATP-023-A                     | ⬜ Pending |
-|         | REQ-022    | ATP-022-A                     | ⬜ Pending |
-|         | REQ-CN-004 | ATP-CN-004-A ATP-CN-004-B     | ⬜ Pending |
-|         | REQ-CN-004 | ATP-CN-004-A ATP-CN-004-B     | ⬜ Pending |
-|         | SYS-003    | STP-003-A STP-003-B           | ⬜ Pending |
-| HAZ-008 | REQ-CN-003 | ATP-CN-003-A                  | ⬜ Pending |
-|         | REQ-026    | ATP-026-A                     | ⬜ Pending |
-|         | REQ-026    | ATP-026-A                     | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | SYS-003    | STP-003-A STP-003-B           | ⬜ Pending |
-| HAZ-009 | REQ-027    | ATP-027-B ATP-027-A           | ⬜ Pending |
-|         | REQ-027    | ATP-027-B ATP-027-A           | ⬜ Pending |
-|         | REQ-028    | ATP-028-A ATP-028-B           | ⬜ Pending |
-|         | SYS-003    | STP-003-A STP-003-B           | ⬜ Pending |
-| HAZ-010 | REQ-031    | ATP-031-A                     | ⬜ Pending |
-|         | REQ-057    | ATP-057-A                     | ⬜ Pending |
-|         | REQ-033    | ATP-033-A                     | ⬜ Pending |
-|         | SYS-004    | STP-004-A STP-004-B           | ⬜ Pending |
-| HAZ-011 | REQ-057    | ATP-057-A                     | ⬜ Pending |
-|         | REQ-003    | ATP-003-A ATP-003-B           | ⬜ Pending |
-|         | REQ-003    | ATP-003-A ATP-003-B           | ⬜ Pending |
-|         | SYS-004    | STP-004-A STP-004-B           | ⬜ Pending |
-| HAZ-012 | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-024    | ATP-024-A                     | ⬜ Pending |
-|         | REQ-029    | ATP-029-A ATP-029-B           | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-| HAZ-013 | REQ-030    | ATP-030-A                     | ⬜ Pending |
-|         | REQ-030    | ATP-030-A                     | ⬜ Pending |
-|         | REQ-030    | ATP-030-A                     | ⬜ Pending |
-|         | REQ-030    | ATP-030-A                     | ⬜ Pending |
-|         | REQ-030    | ATP-030-A                     | ⬜ Pending |
-|         | REQ-030    | ATP-030-A                     | ⬜ Pending |
-|         | REQ-NF-001 | ATP-NF-001-A                  | ⬜ Pending |
-|         | REQ-NF-002 | ATP-NF-002-A                  | ⬜ Pending |
-|         | SYS-005    | STP-005-A STP-005-B           | ⬜ Pending |
-| HAZ-014 | REQ-013    | ATP-013-B ATP-013-C ATP-013-A | ⬜ Pending |
-|         | REQ-017    | ATP-017-B ATP-017-A           | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-| HAZ-015 | REQ-013    | ATP-013-B ATP-013-C ATP-013-A | ⬜ Pending |
-|         | REQ-012    | ATP-012-B ATP-012-A           | ⬜ Pending |
-|         | SYS-006    | STP-006-A STP-006-B           | ⬜ Pending |
-| HAZ-016 | REQ-016    | ATP-016-A                     | ⬜ Pending |
-|         | REQ-014    | ATP-014-A                     | ⬜ Pending |
-|         | REQ-015    | ATP-015-A                     | ⬜ Pending |
-|         | SYS-006    | STP-006-A STP-006-B           | ⬜ Pending |
-| HAZ-017 | REQ-014    | ATP-014-A                     | ⬜ Pending |
-|         | REQ-016    | ATP-016-A                     | ⬜ Pending |
-|         | SYS-007    | STP-007-A STP-007-B STP-007-C | ⬜ Pending |
-| HAZ-018 | REQ-015    | ATP-015-A                     | ⬜ Pending |
-|         | REQ-014    | ATP-014-A                     | ⬜ Pending |
-|         | REQ-041    | ATP-041-B ATP-041-A           | ⬜ Pending |
-|         | SYS-019    | STP-019-A STP-019-B           | ⬜ Pending |
-| HAZ-019 | REQ-035    | ATP-035-B ATP-035-A           | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-|         | SYS-008    | STP-008-A STP-008-B STP-008-C | ⬜ Pending |
-| HAZ-020 | REQ-042    | ATP-042-A ATP-042-B           | ⬜ Pending |
-|         | REQ-042    | ATP-042-A ATP-042-B           | ⬜ Pending |
-|         | REQ-046    | ATP-046-A ATP-046-B           | ⬜ Pending |
-|         | SYS-008    | STP-008-A STP-008-B STP-008-C | ⬜ Pending |
-| HAZ-021 | REQ-043    | ATP-043-A                     | ⬜ Pending |
-|         | REQ-044    | ATP-044-A                     | ⬜ Pending |
-|         | REQ-045    | ATP-045-B ATP-045-A           | ⬜ Pending |
-|         | SYS-008    | STP-008-A STP-008-B STP-008-C | ⬜ Pending |
-| HAZ-022 | REQ-037    | ATP-037-A ATP-037-B           | ⬜ Pending |
-|         | REQ-039    | ATP-039-A                     | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-|         | SYS-009    | STP-009-A STP-009-B           | ⬜ Pending |
-| HAZ-023 | REQ-038    | ATP-038-B ATP-038-A           | ⬜ Pending |
-|         | REQ-039    | ATP-039-A                     | ⬜ Pending |
-|         | SYS-010    | STP-010-A STP-010-B           | ⬜ Pending |
-|         | SYS-009    | STP-009-A STP-009-B           | ⬜ Pending |
-| HAZ-024 | REQ-040    | ATP-040-B ATP-040-A           | ⬜ Pending |
-|         | REQ-036    | ATP-036-A                     | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-|         | SYS-010    | STP-010-A STP-010-B           | ⬜ Pending |
-| HAZ-025 | REQ-038    | ATP-038-B ATP-038-A           | ⬜ Pending |
-|         | REQ-NF-015 | ATP-NF-015-A                  | ⬜ Pending |
-|         | REQ-NF-016 | ATP-NF-016-A                  | ⬜ Pending |
-|         | REQ-NF-017 | ATP-NF-017-A                  | ⬜ Pending |
-|         | SYS-019    | STP-019-A STP-019-B           | ⬜ Pending |
-| HAZ-026 | REQ-039    | ATP-039-A                     | ⬜ Pending |
-|         | REQ-040    | ATP-040-B ATP-040-A           | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-| HAZ-027 | REQ-048    | ATP-048-B ATP-048-A           | ⬜ Pending |
-|         | REQ-049    | ATP-049-B ATP-049-A           | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | SYS-001    | STP-001-A STP-001-B           | ⬜ Pending |
-| HAZ-028 | REQ-056    | ATP-056-B ATP-056-A           | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-|         | SYS-011    | STP-011-A STP-011-B           | ⬜ Pending |
-| HAZ-029 | REQ-051    | ATP-051-A                     | ⬜ Pending |
-|         | REQ-052    | ATP-052-A                     | ⬜ Pending |
-|         | SYS-001    | STP-001-A STP-001-B           | ⬜ Pending |
-|         | SYS-012    | STP-012-A STP-012-B           | ⬜ Pending |
-| HAZ-030 | REQ-055    | ATP-055-A ATP-055-B ATP-055-C | ⬜ Pending |
-|         | REQ-055    | ATP-055-A ATP-055-B ATP-055-C | ⬜ Pending |
-|         | REQ-055    | ATP-055-A ATP-055-B ATP-055-C | ⬜ Pending |
-|         | REQ-053    | ATP-053-A                     | ⬜ Pending |
-|         | SYS-012    | STP-012-A STP-012-B           | ⬜ Pending |
-| HAZ-031 | REQ-IF-001 | ATP-IF-001-B ATP-IF-001-A     | ⬜ Pending |
-|         | REQ-IF-001 | ATP-IF-001-B ATP-IF-001-A     | ⬜ Pending |
-|         | REQ-IF-003 | ATP-IF-003-A                  | ⬜ Pending |
-|         | SYS-013    | STP-013-A STP-013-B STP-013-C | ⬜ Pending |
-| HAZ-032 | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-IF-002 | ATP-IF-002-A                  | ⬜ Pending |
-|         | REQ-IF-003 | ATP-IF-003-A                  | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-| HAZ-033 | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-017    | ATP-017-B ATP-017-A           | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | SYS-013    | STP-013-A STP-013-B STP-013-C | ⬜ Pending |
-| HAZ-034 | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-| HAZ-035 | REQ-010    | ATP-010-A ATP-010-B           | ⬜ Pending |
-|         | REQ-010    | ATP-010-A ATP-010-B           | ⬜ Pending |
-|         | REQ-035    | ATP-035-B ATP-035-A           | ⬜ Pending |
-|         | REQ-040    | ATP-040-B ATP-040-A           | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-| HAZ-036 | REQ-039    | ATP-039-A                     | ⬜ Pending |
-|         | REQ-040    | ATP-040-B ATP-040-A           | ⬜ Pending |
-|         | REQ-NF-013 | ATP-NF-013-A                  | ⬜ Pending |
-|         | REQ-NF-013 | ATP-NF-013-A                  | ⬜ Pending |
-|         | REQ-NF-013 | ATP-NF-013-A                  | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-| HAZ-037 | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-| HAZ-038 | REQ-016    | ATP-016-A                     | ⬜ Pending |
-|         | REQ-036    | ATP-036-A                     | ⬜ Pending |
-|         | SYS-006    | STP-006-A STP-006-B           | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-| HAZ-039 | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | REQ-050    | ATP-050-A ATP-050-C ATP-050-B | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-| HAZ-040 | REQ-044    | ATP-044-A                     | ⬜ Pending |
-|         | REQ-045    | ATP-045-B ATP-045-A           | ⬜ Pending |
-|         | REQ-046    | ATP-046-A ATP-046-B           | ⬜ Pending |
-|         | SYS-016    | STP-016-A STP-016-B           | ⬜ Pending |
-| HAZ-041 | REQ-NF-007 | ATP-NF-007-A                  | ⬜ Pending |
-|         | REQ-NF-008 | ATP-NF-008-A                  | ⬜ Pending |
-|         | SYS-016    | STP-016-A STP-016-B           | ⬜ Pending |
-| HAZ-042 | REQ-NF-018 | ATP-NF-018-A ATP-NF-018-B     | ⬜ Pending |
-|         | REQ-IF-004 | ATP-IF-004-A                  | ⬜ Pending |
-|         | REQ-IF-004 | ATP-IF-004-A                  | ⬜ Pending |
-|         | SYS-018    | STP-018-A STP-018-B           | ⬜ Pending |
-|         | SYS-016    | STP-016-A STP-016-B           | ⬜ Pending |
-| HAZ-043 | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-NF-019 | ATP-NF-019-A ATP-NF-019-B     | ⬜ Pending |
-|         | SYS-001    | STP-001-A STP-001-B           | ⬜ Pending |
-|         | SYS-017    | STP-017-A STP-017-B           | ⬜ Pending |
-| HAZ-044 | REQ-011    | ATP-011-A ATP-011-B           | ⬜ Pending |
-|         | REQ-012    | ATP-012-B ATP-012-A           | ⬜ Pending |
-|         | REQ-014    | ATP-014-A                     | ⬜ Pending |
-|         | SYS-017    | STP-017-A STP-017-B           | ⬜ Pending |
-| HAZ-045 | REQ-IF-004 | ATP-IF-004-A                  | ⬜ Pending |
-|         | REQ-IF-004 | ATP-IF-004-A                  | ⬜ Pending |
-|         | REQ-044    | ATP-044-A                     | ⬜ Pending |
-|         | REQ-045    | ATP-045-B ATP-045-A           | ⬜ Pending |
-|         | SYS-017    | STP-017-A STP-017-B           | ⬜ Pending |
-| HAZ-046 | REQ-NF-018 | ATP-NF-018-A ATP-NF-018-B     | ⬜ Pending |
-|         | REQ-NF-019 | ATP-NF-019-A ATP-NF-019-B     | ⬜ Pending |
-|         | REQ-NF-020 | ATP-NF-020-A                  | ⬜ Pending |
-|         | SYS-018    | STP-018-A STP-018-B           | ⬜ Pending |
-| HAZ-047 | REQ-NF-020 | ATP-NF-020-A                  | ⬜ Pending |
-|         | REQ-NF-012 | ATP-NF-012-A                  | ⬜ Pending |
-|         | REQ-NF-012 | ATP-NF-012-A                  | ⬜ Pending |
-|         | SYS-020    | STP-020-A STP-020-B           | ⬜ Pending |
-|         | SYS-018    | STP-018-A STP-018-B           | ⬜ Pending |
-| HAZ-048 | REQ-041    | ATP-041-B ATP-041-A           | ⬜ Pending |
-|         | REQ-NF-016 | ATP-NF-016-A                  | ⬜ Pending |
-|         | REQ-NF-017 | ATP-NF-017-A                  | ⬜ Pending |
-|         | SYS-019    | STP-019-A STP-019-B           | ⬜ Pending |
-| HAZ-049 | REQ-NF-015 | ATP-NF-015-A                  | ⬜ Pending |
-|         | REQ-NF-016 | ATP-NF-016-A                  | ⬜ Pending |
-|         | REQ-NF-017 | ATP-NF-017-A                  | ⬜ Pending |
-|         | SYS-019    | STP-019-A STP-019-B           | ⬜ Pending |
-| HAZ-050 | REQ-NF-005 | ATP-NF-005-B ATP-NF-005-A     | ⬜ Pending |
-|         | REQ-NF-005 | ATP-NF-005-B ATP-NF-005-A     | ⬜ Pending |
-|         | REQ-NF-009 | ATP-NF-009-A                  | ⬜ Pending |
-|         | REQ-NF-012 | ATP-NF-012-A                  | ⬜ Pending |
-|         | REQ-NF-012 | ATP-NF-012-A                  | ⬜ Pending |
-|         | SYS-020    | STP-020-A STP-020-B           | ⬜ Pending |
-| HAZ-051 | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-IF-002 | ATP-IF-002-A                  | ⬜ Pending |
-|         | REQ-IF-003 | ATP-IF-003-A                  | ⬜ Pending |
-|         | SYS-015    | STP-015-A STP-015-B           | ⬜ Pending |
-|         | SYS-013    | STP-013-A STP-013-B STP-013-C | ⬜ Pending |
-| HAZ-052 | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-042    | ATP-042-A ATP-042-B           | ⬜ Pending |
-|         | REQ-042    | ATP-042-A ATP-042-B           | ⬜ Pending |
-|         | REQ-046    | ATP-046-A ATP-046-B           | ⬜ Pending |
-|         | REQ-IF-002 | ATP-IF-002-A                  | ⬜ Pending |
-|         | SYS-013    | STP-013-A STP-013-B STP-013-C | ⬜ Pending |
-| HAZ-053 | REQ-NF-005 | ATP-NF-005-B ATP-NF-005-A     | ⬜ Pending |
-|         | REQ-NF-005 | ATP-NF-005-B ATP-NF-005-A     | ⬜ Pending |
-|         | REQ-NF-009 | ATP-NF-009-A                  | ⬜ Pending |
-|         | REQ-NF-012 | ATP-NF-012-A                  | ⬜ Pending |
-|         | REQ-NF-012 | ATP-NF-012-A                  | ⬜ Pending |
-|         | SYS-020    | STP-020-A STP-020-B           | ⬜ Pending |
-| HAZ-054 | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | SYS-014    | STP-014-A STP-014-B           | ⬜ Pending |
-|         | SYS-013    | STP-013-A STP-013-B STP-013-C | ⬜ Pending |
-| HAZ-055 | REQ-037    | ATP-037-A ATP-037-B           | ⬜ Pending |
-|         | REQ-039    | ATP-039-A                     | ⬜ Pending |
-|         | REQ-040    | ATP-040-B ATP-040-A           | ⬜ Pending |
-|         | SYS-009    | STP-009-A STP-009-B           | ⬜ Pending |
-|         | SYS-010    | STP-010-A STP-010-B           | ⬜ Pending |
-| HAZ-056 | REQ-038    | ATP-038-B ATP-038-A           | ⬜ Pending |
-|         | REQ-039    | ATP-039-A                     | ⬜ Pending |
-|         | REQ-NF-015 | ATP-NF-015-A                  | ⬜ Pending |
-|         | REQ-NF-016 | ATP-NF-016-A                  | ⬜ Pending |
-| HAZ-057 | REQ-040    | ATP-040-B ATP-040-A           | ⬜ Pending |
-|         | REQ-036    | ATP-036-A                     | ⬜ Pending |
-|         | REQ-037    | ATP-037-A ATP-037-B           | ⬜ Pending |
-| HAZ-058 | REQ-013    | ATP-013-B ATP-013-C ATP-013-A | ⬜ Pending |
-|         | REQ-016    | ATP-016-A                     | ⬜ Pending |
-|         | REQ-017    | ATP-017-B ATP-017-A           | ⬜ Pending |
-| HAZ-059 | REQ-014    | ATP-014-A                     | ⬜ Pending |
-|         | REQ-016    | ATP-016-A                     | ⬜ Pending |
-| HAZ-060 | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-020    | ATP-020-A ATP-020-B           | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-|         | REQ-019    | ATP-019-A                     | ⬜ Pending |
-| HAZ-061 | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-018    | ATP-018-A                     | ⬜ Pending |
-|         | REQ-024    | ATP-024-A                     | ⬜ Pending |
-|         | REQ-029    | ATP-029-A ATP-029-B           | ⬜ Pending |
-| HAZ-062 | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-|         | REQ-IF-005 | ATP-IF-005-B ATP-IF-005-A     | ⬜ Pending |
-| HAZ-063 | REQ-NF-005 | ATP-NF-005-B ATP-NF-005-A     | ⬜ Pending |
-|         | REQ-NF-005 | ATP-NF-005-B ATP-NF-005-A     | ⬜ Pending |
-|         | REQ-NF-009 | ATP-NF-009-A                  | ⬜ Pending |
-| HAZ-064 | REQ-NF-015 | ATP-NF-015-A                  | ⬜ Pending |
-|         | REQ-NF-016 | ATP-NF-016-A                  | ⬜ Pending |
-|         | REQ-NF-017 | ATP-NF-017-A                  | ⬜ Pending |
+| HAZ ID  | Mitigation       | Verification                            | Status     |
+| ------- | ---------------- | --------------------------------------- | ---------- |
+| HAZ-001 | REQ-IF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-017          | ATP-017-B ATP-017-A                     | ⬜ Pending |
+|         | SYS-001          | STP-001-A STP-001-B STP-001-C           | ⬜ Pending |
+| HAZ-002 | REQ-017          | ATP-017-B ATP-017-A                     | ⬜ Pending |
+|         | REQ-050a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-001          | STP-001-A STP-001-B STP-001-C           | ⬜ Pending |
+| HAZ-003 | ⚠️ No mitigation | ⚠️ No test coverage                     | ⬜ Pending |
+| HAZ-004 | REQ-010a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-010b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-001          | ATP-001-A                               | ⬜ Pending |
+|         | REQ-004          | ATP-004-A                               | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+| HAZ-005 | REQ-025          | ATP-025-A                               | ⬜ Pending |
+|         | REQ-026a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-026b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-052          | ATP-052-A                               | ⬜ Pending |
+|         | SYS-001          | STP-001-A STP-001-B STP-001-C           | ⬜ Pending |
+| HAZ-006 | REQ-017          | ATP-017-B ATP-017-A                     | ⬜ Pending |
+|         | REQ-018a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-018b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+| HAZ-007 | REQ-023          | ATP-023-A                               | ⬜ Pending |
+|         | REQ-022          | ATP-022-A                               | ⬜ Pending |
+|         | REQ-CN-004a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-CN-004b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-003          | STP-003-A STP-003-B STP-003-C           | ⬜ Pending |
+| HAZ-008 | REQ-CN-003       | ATP-CN-003-A                            | ⬜ Pending |
+|         | REQ-026a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-026b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-003          | STP-003-A STP-003-B STP-003-C           | ⬜ Pending |
+| HAZ-009 | REQ-027a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-027b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-028          | ATP-028-A ATP-028-B                     | ⬜ Pending |
+|         | SYS-003          | STP-003-A STP-003-B STP-003-C           | ⬜ Pending |
+| HAZ-010 | REQ-031          | ATP-031-A                               | ⬜ Pending |
+|         | REQ-057          | ATP-057-B ATP-057-A                     | ⬜ Pending |
+|         | REQ-033          | ATP-033-A                               | ⬜ Pending |
+|         | SYS-004          | STP-004-A STP-004-B                     | ⬜ Pending |
+| HAZ-011 | REQ-057          | ATP-057-B ATP-057-A                     | ⬜ Pending |
+|         | REQ-003a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-003b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-004          | STP-004-A STP-004-B                     | ⬜ Pending |
+| HAZ-012 | REQ-018a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-018b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-024          | ATP-024-A                               | ⬜ Pending |
+|         | REQ-029          | ATP-029-A ATP-029-B                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+| HAZ-013 | REQ-030a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-030b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-030c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-030d         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-030e         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-030f         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-001       | ATP-NF-001-A                            | ⬜ Pending |
+|         | REQ-NF-002       | ATP-NF-002-A                            | ⬜ Pending |
+|         | SYS-005          | STP-005-A STP-005-B STP-005-C           | ⬜ Pending |
+| HAZ-014 | REQ-013          | ATP-013-B ATP-013-C ATP-013-A           | ⬜ Pending |
+|         | REQ-017          | ATP-017-B ATP-017-A                     | ⬜ Pending |
+|         | REQ-IF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+| HAZ-015 | REQ-013          | ATP-013-B ATP-013-C ATP-013-A           | ⬜ Pending |
+|         | REQ-012          | ATP-012-B ATP-012-A                     | ⬜ Pending |
+|         | SYS-006          | STP-006-A STP-006-B STP-006-C           | ⬜ Pending |
+| HAZ-016 | REQ-016          | ATP-016-A                               | ⬜ Pending |
+|         | REQ-014          | ATP-014-A                               | ⬜ Pending |
+|         | REQ-015          | ATP-015-A                               | ⬜ Pending |
+|         | SYS-006          | STP-006-A STP-006-B STP-006-C           | ⬜ Pending |
+| HAZ-017 | REQ-014          | ATP-014-A                               | ⬜ Pending |
+|         | REQ-016          | ATP-016-A                               | ⬜ Pending |
+|         | SYS-007          | STP-007-A STP-007-B STP-007-C           | ⬜ Pending |
+| HAZ-018 | REQ-015          | ATP-015-A                               | ⬜ Pending |
+|         | REQ-014          | ATP-014-A                               | ⬜ Pending |
+|         | REQ-041          | ATP-041-B ATP-041-A                     | ⬜ Pending |
+|         | SYS-019          | STP-019-A STP-019-B                     | ⬜ Pending |
+| HAZ-019 | REQ-035          | ATP-035-B ATP-035-A                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+|         | SYS-008          | STP-008-A STP-008-B STP-008-C           | ⬜ Pending |
+| HAZ-020 | REQ-042a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-042b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-046          | ATP-046-A ATP-046-B                     | ⬜ Pending |
+|         | SYS-008          | STP-008-A STP-008-B STP-008-C           | ⬜ Pending |
+| HAZ-021 | REQ-043          | ATP-043-A                               | ⬜ Pending |
+|         | REQ-044          | ATP-044-A                               | ⬜ Pending |
+|         | REQ-045          | ATP-045-B ATP-045-A                     | ⬜ Pending |
+|         | SYS-008          | STP-008-A STP-008-B STP-008-C           | ⬜ Pending |
+| HAZ-022 | REQ-037          | ATP-037-A ATP-037-B                     | ⬜ Pending |
+|         | REQ-039          | ATP-039-A                               | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+|         | SYS-009          | STP-009-A STP-009-B                     | ⬜ Pending |
+| HAZ-023 | REQ-038          | ATP-038-B ATP-038-A                     | ⬜ Pending |
+|         | REQ-039          | ATP-039-A                               | ⬜ Pending |
+|         | SYS-010          | STP-010-A STP-010-B STP-010-C           | ⬜ Pending |
+|         | SYS-009          | STP-009-A STP-009-B                     | ⬜ Pending |
+| HAZ-024 | REQ-040          | ATP-040-B ATP-040-A                     | ⬜ Pending |
+|         | REQ-036          | ATP-036-A                               | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+|         | SYS-010          | STP-010-A STP-010-B STP-010-C           | ⬜ Pending |
+| HAZ-025 | REQ-038          | ATP-038-B ATP-038-A                     | ⬜ Pending |
+|         | REQ-NF-015       | ATP-NF-015-A                            | ⬜ Pending |
+|         | REQ-NF-016       | ATP-NF-016-A                            | ⬜ Pending |
+|         | REQ-NF-017       | ATP-NF-017-A                            | ⬜ Pending |
+|         | SYS-019          | STP-019-A STP-019-B                     | ⬜ Pending |
+| HAZ-026 | REQ-039          | ATP-039-A                               | ⬜ Pending |
+|         | REQ-040          | ATP-040-B ATP-040-A                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+| HAZ-027 | REQ-048          | ATP-048-B ATP-048-A                     | ⬜ Pending |
+|         | REQ-049          | ATP-049-C ATP-049-B ATP-049-A           | ⬜ Pending |
+|         | REQ-050a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-001          | STP-001-A STP-001-B STP-001-C           | ⬜ Pending |
+| HAZ-028 | REQ-056          | ATP-056-B ATP-056-A                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+|         | SYS-011          | STP-011-A STP-011-B                     | ⬜ Pending |
+| HAZ-029 | REQ-051          | ATP-051-A                               | ⬜ Pending |
+|         | REQ-052          | ATP-052-A                               | ⬜ Pending |
+|         | SYS-001          | STP-001-A STP-001-B STP-001-C           | ⬜ Pending |
+|         | SYS-012          | STP-012-A STP-012-B                     | ⬜ Pending |
+| HAZ-030 | REQ-055a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-055b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-055c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-053          | ATP-053-A                               | ⬜ Pending |
+|         | SYS-012          | STP-012-A STP-012-B                     | ⬜ Pending |
+| HAZ-031 | REQ-IF-001a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-001b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-003       | ATP-IF-003-A                            | ⬜ Pending |
+|         | SYS-013          | STP-013-A STP-013-B STP-013-C STP-013-D | ⬜ Pending |
+| HAZ-032 | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-002       | ATP-IF-002-A                            | ⬜ Pending |
+|         | REQ-IF-003       | ATP-IF-003-A                            | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+| HAZ-033 | REQ-020a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-017          | ATP-017-B ATP-017-A                     | ⬜ Pending |
+|         | REQ-IF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-013          | STP-013-A STP-013-B STP-013-C STP-013-D | ⬜ Pending |
+| HAZ-034 | REQ-018a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-018b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+| HAZ-035 | REQ-010a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-010b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-035          | ATP-035-B ATP-035-A                     | ⬜ Pending |
+|         | REQ-040          | ATP-040-B ATP-040-A                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+| HAZ-036 | REQ-039          | ATP-039-A                               | ⬜ Pending |
+|         | REQ-040          | ATP-040-B ATP-040-A                     | ⬜ Pending |
+|         | REQ-NF-013a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-013b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-013c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+| HAZ-037 | REQ-IF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+| HAZ-038 | REQ-016          | ATP-016-A                               | ⬜ Pending |
+|         | REQ-036          | ATP-036-A                               | ⬜ Pending |
+|         | SYS-006          | STP-006-A STP-006-B STP-006-C           | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+| HAZ-039 | REQ-018a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-018b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+| HAZ-040 | REQ-044          | ATP-044-A                               | ⬜ Pending |
+|         | REQ-045          | ATP-045-B ATP-045-A                     | ⬜ Pending |
+|         | REQ-046          | ATP-046-A ATP-046-B                     | ⬜ Pending |
+|         | SYS-016          | STP-016-A STP-016-B                     | ⬜ Pending |
+| HAZ-041 | REQ-NF-007       | ATP-NF-007-A                            | ⬜ Pending |
+|         | REQ-NF-008       | ATP-NF-008-A                            | ⬜ Pending |
+|         | SYS-016          | STP-016-A STP-016-B                     | ⬜ Pending |
+| HAZ-042 | REQ-NF-018       | ATP-NF-018-A ATP-NF-018-B               | ⬜ Pending |
+|         | REQ-IF-004a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-004c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-018          | STP-018-A STP-018-B                     | ⬜ Pending |
+|         | SYS-016          | STP-016-A STP-016-B                     | ⬜ Pending |
+| HAZ-043 | REQ-IF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-019       | ATP-NF-019-A ATP-NF-019-B               | ⬜ Pending |
+|         | SYS-001          | STP-001-A STP-001-B STP-001-C           | ⬜ Pending |
+|         | SYS-017          | STP-017-A STP-017-B                     | ⬜ Pending |
+| HAZ-044 | REQ-011          | ATP-011-A ATP-011-B                     | ⬜ Pending |
+|         | REQ-012          | ATP-012-B ATP-012-A                     | ⬜ Pending |
+|         | REQ-014          | ATP-014-A                               | ⬜ Pending |
+|         | SYS-017          | STP-017-A STP-017-B                     | ⬜ Pending |
+| HAZ-045 | REQ-IF-004b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-004c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-044          | ATP-044-A                               | ⬜ Pending |
+|         | REQ-045          | ATP-045-B ATP-045-A                     | ⬜ Pending |
+|         | SYS-017          | STP-017-A STP-017-B                     | ⬜ Pending |
+| HAZ-046 | REQ-NF-018       | ATP-NF-018-A ATP-NF-018-B               | ⬜ Pending |
+|         | REQ-NF-019       | ATP-NF-019-A ATP-NF-019-B               | ⬜ Pending |
+|         | REQ-NF-020       | ATP-NF-020-A                            | ⬜ Pending |
+|         | SYS-018          | STP-018-A STP-018-B                     | ⬜ Pending |
+| HAZ-047 | REQ-NF-020       | ATP-NF-020-A                            | ⬜ Pending |
+|         | REQ-NF-012a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-012b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-020          | STP-020-A STP-020-B                     | ⬜ Pending |
+|         | SYS-018          | STP-018-A STP-018-B                     | ⬜ Pending |
+| HAZ-048 | REQ-041          | ATP-041-B ATP-041-A                     | ⬜ Pending |
+|         | REQ-NF-016       | ATP-NF-016-A                            | ⬜ Pending |
+|         | REQ-NF-017       | ATP-NF-017-A                            | ⬜ Pending |
+|         | SYS-019          | STP-019-A STP-019-B                     | ⬜ Pending |
+| HAZ-049 | REQ-NF-015       | ATP-NF-015-A                            | ⬜ Pending |
+|         | REQ-NF-016       | ATP-NF-016-A                            | ⬜ Pending |
+|         | REQ-NF-017       | ATP-NF-017-A                            | ⬜ Pending |
+|         | SYS-019          | STP-019-A STP-019-B                     | ⬜ Pending |
+| HAZ-050 | REQ-NF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-009       | ATP-NF-009-A                            | ⬜ Pending |
+|         | REQ-NF-012a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-012b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-020          | STP-020-A STP-020-B                     | ⬜ Pending |
+| HAZ-051 | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-002       | ATP-IF-002-A                            | ⬜ Pending |
+|         | REQ-IF-003       | ATP-IF-003-A                            | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+|         | SYS-013          | STP-013-A STP-013-B STP-013-C STP-013-D | ⬜ Pending |
+| HAZ-052 | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-042a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-042b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-046          | ATP-046-A ATP-046-B                     | ⬜ Pending |
+|         | REQ-IF-002       | ATP-IF-002-A                            | ⬜ Pending |
+|         | SYS-013          | STP-013-A STP-013-B STP-013-C STP-013-D | ⬜ Pending |
+| HAZ-053 | REQ-NF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-009       | ATP-NF-009-A                            | ⬜ Pending |
+|         | REQ-NF-012a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-012b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-020          | STP-020-A STP-020-B                     | ⬜ Pending |
+| HAZ-054 | REQ-018a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-018b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-014          | STP-014-A STP-014-B                     | ⬜ Pending |
+|         | SYS-013          | STP-013-A STP-013-B STP-013-C STP-013-D | ⬜ Pending |
+| HAZ-055 | REQ-037          | ATP-037-A ATP-037-B                     | ⬜ Pending |
+|         | REQ-039          | ATP-039-A                               | ⬜ Pending |
+|         | REQ-040          | ATP-040-B ATP-040-A                     | ⬜ Pending |
+|         | SYS-009          | STP-009-A STP-009-B                     | ⬜ Pending |
+|         | SYS-010          | STP-010-A STP-010-B STP-010-C           | ⬜ Pending |
+| HAZ-056 | REQ-038          | ATP-038-B ATP-038-A                     | ⬜ Pending |
+|         | REQ-039          | ATP-039-A                               | ⬜ Pending |
+|         | REQ-NF-015       | ATP-NF-015-A                            | ⬜ Pending |
+|         | REQ-NF-016       | ATP-NF-016-A                            | ⬜ Pending |
+| HAZ-057 | REQ-040          | ATP-040-B ATP-040-A                     | ⬜ Pending |
+|         | REQ-036          | ATP-036-A                               | ⬜ Pending |
+|         | REQ-037          | ATP-037-A ATP-037-B                     | ⬜ Pending |
+| HAZ-058 | REQ-013          | ATP-013-B ATP-013-C ATP-013-A           | ⬜ Pending |
+|         | REQ-016          | ATP-016-A                               | ⬜ Pending |
+|         | REQ-017          | ATP-017-B ATP-017-A                     | ⬜ Pending |
+| HAZ-059 | REQ-014          | ATP-014-A                               | ⬜ Pending |
+|         | REQ-016          | ATP-016-A                               | ⬜ Pending |
+| HAZ-060 | REQ-020a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-019c         | ⚠️ No test coverage                     | ⬜ Pending |
+| HAZ-061 | REQ-018a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-018b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-024          | ATP-024-A                               | ⬜ Pending |
+|         | REQ-029          | ATP-029-A ATP-029-B                     | ⬜ Pending |
+| HAZ-062 | REQ-IF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005c      | ⚠️ No test coverage                     | ⬜ Pending |
+| HAZ-063 | REQ-NF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-NF-009       | ATP-NF-009-A                            | ⬜ Pending |
+| HAZ-064 | REQ-NF-015       | ATP-NF-015-A                            | ⬜ Pending |
+|         | REQ-NF-016       | ATP-NF-016-A                            | ⬜ Pending |
+|         | REQ-NF-017       | ATP-NF-017-A                            | ⬜ Pending |
+| HAZ-065 | REQ-IF-005a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-005c      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-001          | STP-001-A STP-001-B STP-001-C           | ⬜ Pending |
+| HAZ-066 | REQ-038          | ATP-038-B ATP-038-A                     | ⬜ Pending |
+|         | REQ-039          | ATP-039-A                               | ⬜ Pending |
+|         | REQ-NF-015       | ATP-NF-015-A                            | ⬜ Pending |
+|         | REQ-NF-016       | ATP-NF-016-A                            | ⬜ Pending |
+|         | REQ-NF-017       | ATP-NF-017-A                            | ⬜ Pending |
+|         | SYS-009          | STP-009-A STP-009-B                     | ⬜ Pending |
+|         | SYS-010          | STP-010-A STP-010-B STP-010-C           | ⬜ Pending |
+|         | SYS-019          | STP-019-A STP-019-B                     | ⬜ Pending |
+| HAZ-067 | REQ-020b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-020c         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-IF-002       | ATP-IF-002-A                            | ⬜ Pending |
+|         | REQ-IF-003       | ATP-IF-003-A                            | ⬜ Pending |
+|         | SYS-015          | STP-015-A STP-015-B                     | ⬜ Pending |
+|         | SYS-013          | STP-013-A STP-013-B STP-013-C STP-013-D | ⬜ Pending |
+| HAZ-068 | REQ-CN-005       | ATP-CN-005-A                            | ⬜ Pending |
+|         | REQ-026a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-026b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050a         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-050b         | ⚠️ No test coverage                     | ⬜ Pending |
+|         | SYS-003          | STP-003-A STP-003-B STP-003-C           | ⬜ Pending |
+| HAZ-069 | REQ-CN-004a      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-CN-004b      | ⚠️ No test coverage                     | ⬜ Pending |
+|         | REQ-023          | ATP-023-A                               | ⬜ Pending |
+|         | REQ-022          | ATP-022-A                               | ⬜ Pending |
+|         | SYS-003          | STP-003-A STP-003-B STP-003-C           | ⬜ Pending |
+| HAZ-070 | REQ-034          | ATP-034-A                               | ⬜ Pending |
+|         | REQ-031          | ATP-031-A                               | ⬜ Pending |
+|         | REQ-057          | ATP-057-B ATP-057-A                     | ⬜ Pending |
+|         | SYS-004          | STP-004-A STP-004-B                     | ⬜ Pending |
+|         | SYS-016          | STP-016-A STP-016-B                     | ⬜ Pending |
+|         | SYS-017          | STP-017-A STP-017-B                     | ⬜ Pending |
 
 ### Matrix H Coverage
 
-| Metric                    | Value        |
-| ------------------------- | ------------ |
-| **Total Hazards (HAZ)**   | 64           |
-| **HAZ with Verification** | 64/64 (100%) |
+| Metric                    | Value       |
+| ------------------------- | ----------- |
+| **Total Hazards (HAZ)**   | 70          |
+| **HAZ with Verification** | 67/70 (95%) |
 
 ## 4. Coverage Analysis
 
 | Matrix   | Forward Coverage | Backward Coverage | Gaps | Orphans |
 | -------- | ---------------- | ----------------- | ---- | ------- |
-| Matrix A | 65/71 (91%)      | 89/89 (100%)      | 6    | 0       |
-| Matrix B | 65/71 (91%)      | 89/89 (100%)      | 6    | 0       |
-| Matrix C | 21/28 (75%)      | 100/100 (100%)    | 7    | 0       |
-| Matrix D | 33/41 (80%)      | 94/94 (100%)      | 8    | 0       |
-| Matrix H | 64/67 (95%)      | 86/86 (100%)      | 3    | 0       |
+| Matrix A | 137/143 (95%)    | 81/81 (100%)      | 6    | 0       |
+| Matrix B | 137/143 (95%)    | 104/104 (100%)    | 6    | 0       |
+| Matrix C | 20/27 (74%)      | 114/114 (100%)    | 7    | 0       |
+| Matrix D | 32/40 (80%)      | 122/122 (100%)    | 8    | 0       |
+| Matrix H | 70/73 (95%)      | 71/71 (100%)      | 3    | 0       |
 
 ## 5. Hazard Management Summary
 
@@ -1283,4 +2023,4 @@ No anomalies detected.
 | ------------- | ------------------ | ------------------ | ------------ |
 | QA Manager    | ********\_******** | ********\_******** | ****\_\_**** |
 | Lead Engineer | ********\_******** | ********\_******** | ****\_\_**** |
-| Release Tag   | (not specified)    | Git SHA: 4fe5c02   | 2026-05-08   |
+| Release Tag   | (not specified)    | Git SHA: b56dc97   | 2026-05-08   |
