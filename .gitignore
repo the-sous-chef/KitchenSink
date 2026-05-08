@@ -1,8 +1,73 @@
+# dependencies (bun install)
 node_modules
+
+# output
+out
 dist
-.turbo
-*.tsbuildinfo
+*.tgz
+
+# code coverage
 coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# dotenv environment variable files
 .env
-.env.*
-!.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# turbo cache
+.turbo
+
+# next.js
+.next
+
+# expo
+.expo
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
+
+# generated system assets (copied at build time) — keep manifest files for system discovery
+**/public/systems/**
+!**/public/systems/*/
+!**/public/systems/*/manifest.json
+
+# agent worktrees
+.worktrees
+
+# agent session artifacts
+.opencode/plans/
+.opencode/scratch/
+.sisyphus/
+
+# localstack CI artifacts
+localstack.log
+
+# CDK build output
+infra/cdk/cdk.out
+
+# serverless framework cache
+.serverless/
+
+# playwright e2e auth state
+e2e/web/.auth/
+
+# playwright test artifacts
+playwright-report/
+test-results/
+blob-report/

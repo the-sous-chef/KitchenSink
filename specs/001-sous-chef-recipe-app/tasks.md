@@ -80,6 +80,10 @@
 - [ ] T014 [P] Define collections Drizzle tables in `packages/shared/db/src/schema/collections.ts`
 - [ ] T015 Create schema barrel and Drizzle client proxy in `packages/shared/db/src/schema/index.ts` and `packages/shared/db/src/client.ts`
 - [ ] T016 Add initial drizzle migration with extensions, indexes, and FTS trigger SQL in `packages/shared/db/src/migrations/0001_initial.sql`
+- [ ] T118 [P] Add `deleted_at timestamptz NULL` column + partial index `(owner_id) WHERE deleted_at IS NULL` to `recipes` table in `packages/shared/db/src/schema/recipes.ts` and migration `packages/shared/db/src/migrations/0002_soft_delete.sql` — moved from Phase 4.5 so Phase 3 DALs consume `deleted_at` from day one (avoids back-patching every read query)
+- [ ] T119 Add collection provenance columns in `packages/shared/db/src/schema/collections.ts` + migration `0003_collection_provenance.sql` — moved from Phase 4.5: (a) `source_collection_id uuid NULL REFERENCES collections(id) ON DELETE SET NULL` on `collections` table; (b) `added_via` enum (`manual` | `clone` | `pull`) on `recipe_collections` membership table with existing rows backfilled to `manual`. (T120 merged into T119 — same file, same migration.)
+- [ ] T121 [P] Create `recipe_version_pending_archives` table (id, recipe_id, version_number, snapshot JSONB, enqueued_at, attempt_count, last_error) in `packages/shared/db/src/schema/versions.ts` + migration `0004_pending_archives.sql` — moved from Phase 4.5
+- [ ] T122 [P] Create `account_erasure_jobs` table (id, user_id, status enum: queued|running|completed|failed, requested_at, completed_at, error) in `packages/shared/db/src/schema/users.ts` + migration `0005_account_erasure.sql` — moved from Phase 4.5
 - [ ] T017 Implement environment loader with Zod validation and optional SSM fallback in `packages/shared/config/src/load-config.ts`
 - [ ] T018 Wire global DB provider module and injection token in `packages/api/recipe/src/db/db.module.ts`
 - [ ] T019 Implement Auth0 JWT validation guard stub for spec-002 integration in `packages/api/recipe/src/auth/auth.guard.ts`
@@ -168,6 +172,7 @@
 - [ ] T048-test Write unit tests for visibility policy evaluator (all C-004 scenarios: user-created, imported-public, imported-physical, paid-source, tier transitions, substantive edit unlock) in `packages/api/recipe/src/recipes/domain/__tests__/visibility-policy.test.ts`
 - [ ] T047-test Write unit tests for clone service (attribution copy, owner reassignment, visibility inheritance) in `packages/api/recipe/src/recipes/__tests__/clone.service.test.ts`
 - [ ] T049-test Write unit tests for substantive edit detection (ingredient change = substantive, title change = not substantive) in `packages/api/recipe/src/recipes/__tests__/substantive-edit.service.test.ts`
+- [ ] T139-test Write unit tests for substantive-edit detection on **imported** recipes (FR-005 + C-004): editing ingredients/steps on an imported recipe MUST set `hasSubstantiveEdit=true` and unlock private-visibility transition for premium users per C-004; editing only metadata (title, description, tags, photos) MUST NOT in `packages/api/recipe/src/recipes/__tests__/substantive-edit-imported.test.ts`
 
 ### Implementation (TDD Green)
 
@@ -175,6 +180,7 @@
 - [ ] T047 [US2] Implement clone workflow with attribution copy and owner reassignment in `packages/api/recipe/src/recipes/recipes.service.ts`
 - [ ] T048 [US2] Implement C-004 visibility policy evaluator for source type, tier, and substantive edit state in `packages/api/recipe/src/recipes/domain/visibility-policy.ts`
 - [ ] T049 [US2] Implement substantive edit detection for ingredient/step mutations updating `hasSubstantiveEdit` in `packages/api/recipe/src/recipes/recipes.service.ts`
+- [ ] T139 [US2] Extend substantive-edit detector to handle imported-recipe lineage per FR-005 + C-004 (preserve source-import flag through versioning so premium users can unlock private visibility only after a substantive edit) in `packages/api/recipe/src/recipes/recipes.service.ts`
 - [ ] T050 [US2] Implement `/api/recipes/{id}/clone` and `/api/recipes/{id}/visibility` endpoints in `packages/api/recipe/src/recipes/recipes.controller.ts`
 
 ### Integration Tests
@@ -183,6 +189,52 @@
 - [ ] T103 [US2] Add integration test for collection cloning (public collection clone excludes private recipes) in `packages/api/recipe/__tests__/integration/collections/clone-collection.integration.spec.ts`
 
 **Checkpoint**: US2 sharing and cloning behavior is independently functional and policy-compliant.
+
+---
+
+## Phase 4.5: Spec Clarification Deltas
+
+**Purpose**: Implement behavior added by the 2026-04-29 spec clarifications — recipe soft-delete tombstones (C-007), collection clone provenance + pull-from-source (FR-011), async version-archive worker (FR-007b-i), and GDPR account erasure flow.
+
+### Schema & Migrations
+
+> **Note**: Schema tasks T118–T122 were moved to Phase 2 Foundational (after T016) so Phase 3 DALs consume the new columns/tables from day one. This section is intentionally empty; behavior tasks below depend on those Phase 2 schema tasks.
+
+### Recipe Soft-Delete (C-007)
+
+- [ ] T123-test Write unit tests for recipe DAL soft-delete (sets `deleted_at`, list/find/search exclude tombstones, owner can still see version history) in `packages/api/recipe/src/recipes/dal/__tests__/recipes.dal.soft-delete.test.ts`
+- [ ] T123 Update recipe DAL to soft-delete (UPDATE … SET deleted_at = now()) and add `WHERE deleted_at IS NULL` filter to all read queries in `packages/api/recipe/src/recipes/dal/recipes.dal.ts`
+- [ ] T124 Update search DAL to exclude tombstoned recipes (`WHERE deleted_at IS NULL`) in `packages/api/recipe/src/search/dal/search.dal.ts`
+- [ ] T125 Update collections DAL to exclude tombstoned recipes from membership list responses in `packages/api/recipe/src/collections/dal/collections.dal.ts`
+- [ ] T126 [US1] Add integration test asserting `DELETE /api/recipes/{id}` returns 204, row remains with `deleted_at` set, and recipe is excluded from list/search/get/collection responses in `packages/api/recipe/__tests__/integration/recipes/soft-delete.integration.spec.ts`
+
+### Collection Clone & Pull-from-Source (FR-011)
+
+- [ ] T127-test Write unit tests for collection clone service (creates new collection with `source_collection_id`, copies memberships with `added_via=clone`, owner reassignment) in `packages/api/recipe/src/collections/__tests__/clone-collection.service.test.ts`
+- [ ] T128-test Write unit tests for pull-from-source service (additive only, `added_via=pull`, no-op when no new recipes, 400 when collection has no source) in `packages/api/recipe/src/collections/__tests__/pull-from-source.service.test.ts`
+- [ ] T127 [US2] Implement `cloneCollection` and `pullFromSource` in `packages/api/recipe/src/collections/collections.service.ts`
+- [ ] T128 [US2] Add `CloneCollectionRequest` DTO + controller endpoints `POST /api/collections/{id}/clone` and `POST /api/collections/{id}/pull-from-source` in `packages/api/recipe/src/collections/{dto/clone-collection.dto.ts,collections.controller.ts}`
+- [ ] T129 [US2] Update existing T103 collection-clone integration test to assert `source_collection_id` and `added_via=clone` are set, and add a follow-up `pull-from-source` integration test in `packages/api/recipe/__tests__/integration/collections/pull-from-source.integration.spec.ts`
+
+### Async Version Archive Worker (FR-007b-i)
+
+- [ ] T130-test Write unit tests for pending-archive enqueue (insert row when version snapshot is written) and worker handler (success → delete row, failure → increment attempt_count + last_error) in `packages/api/recipe/src/versions/__tests__/archive-worker.test.ts`
+- [ ] T130 Update versioning service to insert into `recipe_version_pending_archives` instead of writing to S3 inline in `packages/api/recipe/src/versions/versions.service.ts`
+- [ ] T131 Implement version-archive worker (SQS-triggered Lambda) that drains pending rows, writes snapshots to S3 versions bucket, and deletes the pending row on success in `packages/api/version-archive-worker/src/handlers/archive.handler.ts` (scaffold workspace via bootstrap skill: `--name version-archive-worker --location packages/api/version-archive-worker --type serverless --scope kitchensink`)
+- [ ] T132 Add CDK infrastructure for version-archive SQS queue + DLQ + Lambda subscription in `packages/api/version-archive-worker/infra/`
+- [ ] T133 Add integration test for the full async archive path (enqueue → worker drains → S3 object exists, pending row gone) using LocalStack SQS + S3 in `packages/api/version-archive-worker/__tests__/integration/archive.integration.spec.ts`
+- [ ] T138 Add CloudWatch alarms for pending-archive backlog (per FR-007b-i SLO): backlog count > 100 sustained > 15 min, and oldest pending row age > 1 hour. Wire SNS topic for ops paging. Define in `packages/api/version-archive-worker/infra/lib/alarms.ts`
+
+### GDPR Account Erasure
+
+- [ ] T134-test Write unit tests for erasure service (queues job; duplicate request while job is `queued` or `running` returns HTTP 202 with existing job id; request after `completed` returns 410; request after `failed` enqueues a fresh job and returns 202; validates optional confirmation phrase) in `packages/api/recipe/src/account/__tests__/erasure.service.test.ts`
+- [ ] T135-test Write unit tests for erasure worker (hard-deletes recipes incl. tombstoned, versions, photos, collections, S3 photo + version objects, marks job completed) in `packages/api/recipe/src/account/__tests__/erasure-worker.test.ts`
+- [ ] T134 Implement `AccountModule` with `ErasureService` (job queueing) and `ErasureRequest` / `ErasureRequestAcceptedResponse` DTOs in `packages/api/recipe/src/account/{account.module.ts,erasure.service.ts,dto/erasure.dto.ts}`
+- [ ] T135 Implement `POST /api/account/erasure` controller in `packages/api/recipe/src/account/account.controller.ts`
+- [ ] T136 Implement erasure worker that hard-deletes all user-owned data (recipes incl. tombstoned, versions, pending-archive rows, photos, collections, memberships, S3 photo objects, S3 version-archive objects) in `packages/api/recipe/src/account/erasure.worker.ts`
+- [ ] T137 Add integration test for end-to-end erasure: seed user with recipes (some tombstoned), photos in LocalStack S3, version archives, collections → trigger erasure → assert all rows + S3 objects gone, job row marked `completed` in `packages/api/recipe/__tests__/integration/account/erasure.integration.spec.ts`
+
+**Checkpoint**: Spec clarifications for soft-delete, collection clone provenance, async version archives, and GDPR erasure are implemented and tested.
 
 ---
 
@@ -281,7 +333,8 @@
 
 ### Phase Dependency Graph
 
-- Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3 (US1 Backend) → Phase 4 (US2 Backend) → Phase 5 (Frontend) → Phase 6 (Polish)
+- Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3 (US1 Backend) → Phase 4 (US2 Backend) → Phase 4.5 (Spec Clarifications) → Phase 5 (Frontend) → Phase 6 (Polish)
+- Phase 4.5 depends on US1 (recipes/versions/photos/collections) and US2 (clone primitives); Phase 5 frontend should consume Phase 4.5 schema additions (`deletedAt`, `sourceCollectionId`, `addedVia`) and surface the new endpoints.
 - Phase 1 includes test infrastructure + CI pipeline setup — these MUST complete before any test tasks run.
 - Phase 2 blocks all story work.
 - Phase 5 (Frontend) can start after Phase 3 (US1 Backend) delivers stable API endpoints. Phase 4 (US2) and Phase 5 can run in parallel.
@@ -351,12 +404,13 @@ All phases follow red-green-refactor:
 
 ## Task Count Summary
 
-| Phase                 | Implementation | Unit Tests | Integration Tests | E2E Tests | Infrastructure | Total   |
-| --------------------- | -------------- | ---------- | ----------------- | --------- | -------------- | ------- |
-| Phase 1: Setup        | 14             | 0          | 0                 | 0         | 14             | 28      |
-| Phase 2: Foundational | 12             | 6          | 0                 | 0         | 2              | 20      |
-| Phase 3: US1          | 21             | 14         | 7                 | 0         | 0              | 42      |
-| Phase 4: US2          | 5              | 3          | 2                 | 0         | 0              | 10      |
-| Phase 5: Frontend     | 16             | 5          | 0                 | 11        | 0              | 32      |
-| Phase 6: Polish       | 11             | 0          | 0                 | 0         | 2              | 13      |
-| **Total**             | **79**         | **28**     | **9**             | **11**    | **18**         | **145** |
+| Phase                     | Implementation | Unit Tests | Integration Tests | E2E Tests | Infrastructure | Total   |
+| ------------------------- | -------------- | ---------- | ----------------- | --------- | -------------- | ------- |
+| Phase 1: Setup            | 14             | 0          | 0                 | 0         | 14             | 28      |
+| Phase 2: Foundational     | 12             | 6          | 0                 | 0         | 6              | 24      |
+| Phase 3: US1              | 21             | 14         | 7                 | 0         | 0              | 42      |
+| Phase 4: US2              | 6              | 4          | 2                 | 0         | 0              | 12      |
+| Phase 4.5: Clarifications | 10             | 6          | 4                 | 0         | 2              | 22      |
+| Phase 5: Frontend         | 16             | 5          | 0                 | 11        | 0              | 32      |
+| Phase 6: Polish           | 11             | 0          | 0                 | 0         | 2              | 13      |
+| **Total**                 | **90**         | **35**     | **13**            | **11**    | **24**         | **173** |

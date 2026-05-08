@@ -133,6 +133,12 @@ export interface Recipe {
     tags: string[];
     hasPartialNutrition: boolean;
     currentVersion: number;
+    /**
+     * Soft-delete tombstone (C-007). When set, the recipe is excluded from every
+     * production read path. Hard removal happens only via the user-initiated
+     * GDPR erasure flow.
+     */
+    deletedAt?: IsoDateTimeString;
     createdAt: IsoDateTimeString;
     updatedAt: IsoDateTimeString;
 }
@@ -160,6 +166,7 @@ export const recipeSchema = z.object({
     tags: z.array(z.string().min(1)),
     hasPartialNutrition: z.boolean(),
     currentVersion: positiveIntSchema,
+    deletedAt: isoDateTimeStringSchema.optional(),
     createdAt: isoDateTimeStringSchema,
     updatedAt: isoDateTimeStringSchema,
 });
@@ -350,6 +357,12 @@ export interface Collection {
     ownerId: string;
     name: string;
     description?: string;
+    /**
+     * Set when this collection was cloned from another collection (FR-011).
+     * Pull-from-source updates are explicit and opt-in; this field never causes
+     * implicit re-sync of recipe membership.
+     */
+    sourceCollectionId?: string;
     createdAt: IsoDateTimeString;
     updatedAt: IsoDateTimeString;
 }
@@ -362,9 +375,27 @@ export const collectionSchema = z.object({
     ownerId: idSchema,
     name: z.string().min(1),
     description: z.string().min(1).optional(),
+    sourceCollectionId: idSchema.optional(),
     createdAt: isoDateTimeStringSchema,
     updatedAt: isoDateTimeStringSchema,
 });
+
+/**
+ * Provenance of how a recipe entered a collection (FR-011).
+ */
+export const RecipeCollectionAddedVia = {
+    MANUAL: 'manual',
+    CLONE_SEED: 'clone_seed',
+    PULL: 'pull',
+} as const;
+
+export type RecipeCollectionAddedVia = (typeof RecipeCollectionAddedVia)[keyof typeof RecipeCollectionAddedVia];
+
+export const recipeCollectionAddedViaSchema = z.enum([
+    RecipeCollectionAddedVia.MANUAL,
+    RecipeCollectionAddedVia.CLONE_SEED,
+    RecipeCollectionAddedVia.PULL,
+]);
 
 /**
  * Join record linking a recipe to a collection.
@@ -373,6 +404,7 @@ export interface RecipeCollection {
     collectionId: string;
     recipeId: string;
     addedAt: IsoDateTimeString;
+    addedVia: RecipeCollectionAddedVia;
 }
 
 /**
@@ -382,6 +414,62 @@ export const recipeCollectionSchema = z.object({
     collectionId: idSchema,
     recipeId: idSchema,
     addedAt: isoDateTimeStringSchema,
+    addedVia: recipeCollectionAddedViaSchema,
+});
+
+/**
+ * Lifecycle status of a pending S3 archive for a recipe version (FR-007b-i).
+ */
+export const RecipeVersionArchiveStatus = {
+    PENDING: 'pending',
+    IN_FLIGHT: 'in_flight',
+    FAILED: 'failed',
+    DLQ: 'dlq',
+} as const;
+
+export type RecipeVersionArchiveStatus = (typeof RecipeVersionArchiveStatus)[keyof typeof RecipeVersionArchiveStatus];
+
+export const recipeVersionArchiveStatusSchema = z.enum([
+    RecipeVersionArchiveStatus.PENDING,
+    RecipeVersionArchiveStatus.IN_FLIGHT,
+    RecipeVersionArchiveStatus.FAILED,
+    RecipeVersionArchiveStatus.DLQ,
+]);
+
+/**
+ * Tracks a recipe-version snapshot that has been written to PostgreSQL but not
+ * yet archived to S3. The recipe save transaction is the source of truth; S3
+ * archiving is asynchronous and retried via SQS until success (FR-007b-i).
+ */
+export interface RecipeVersionPendingArchive {
+    id: string;
+    recipeVersionId: string;
+    recipeId: string;
+    versionNumber: number;
+    status: RecipeVersionArchiveStatus;
+    attempts: number;
+    lastError?: string;
+    nextAttemptAt: IsoDateTimeString;
+    sqsMessageId?: string;
+    createdAt: IsoDateTimeString;
+    updatedAt: IsoDateTimeString;
+}
+
+/**
+ * Runtime validator for {@link RecipeVersionPendingArchive}.
+ */
+export const recipeVersionPendingArchiveSchema = z.object({
+    id: idSchema,
+    recipeVersionId: idSchema,
+    recipeId: idSchema,
+    versionNumber: positiveIntSchema,
+    status: recipeVersionArchiveStatusSchema,
+    attempts: nonNegativeIntSchema,
+    lastError: z.string().min(1).optional(),
+    nextAttemptAt: isoDateTimeStringSchema,
+    sqsMessageId: z.string().min(1).optional(),
+    createdAt: isoDateTimeStringSchema,
+    updatedAt: isoDateTimeStringSchema,
 });
 
 /**
@@ -540,11 +628,16 @@ export const paginatedResponseSchema = <T extends z.ZodType<unknown>>(itemSchema
  */
 export const RecipeErrorCode = {
     RECIPE_NOT_FOUND: 'RECIPE_NOT_FOUND',
+    RECIPE_TOMBSTONED: 'RECIPE_TOMBSTONED',
     NOT_OWNER: 'NOT_OWNER',
     VERSION_CONFLICT: 'VERSION_CONFLICT',
     MAX_PHOTOS_EXCEEDED: 'MAX_PHOTOS_EXCEEDED',
     INVALID_VISIBILITY: 'INVALID_VISIBILITY',
     PHOTO_PROCESSING_FAILED: 'PHOTO_PROCESSING_FAILED',
+    ARCHIVE_PENDING: 'ARCHIVE_PENDING',
+    ARCHIVE_DLQ: 'ARCHIVE_DLQ',
+    COLLECTION_NOT_CLONED: 'COLLECTION_NOT_CLONED',
+    ERASURE_IN_PROGRESS: 'ERASURE_IN_PROGRESS',
 } as const;
 
 /**
@@ -557,11 +650,16 @@ export type RecipeErrorCode = (typeof RecipeErrorCode)[keyof typeof RecipeErrorC
  */
 export const recipeErrorCodeSchema = z.enum([
     RecipeErrorCode.RECIPE_NOT_FOUND,
+    RecipeErrorCode.RECIPE_TOMBSTONED,
     RecipeErrorCode.NOT_OWNER,
     RecipeErrorCode.VERSION_CONFLICT,
     RecipeErrorCode.MAX_PHOTOS_EXCEEDED,
     RecipeErrorCode.INVALID_VISIBILITY,
     RecipeErrorCode.PHOTO_PROCESSING_FAILED,
+    RecipeErrorCode.ARCHIVE_PENDING,
+    RecipeErrorCode.ARCHIVE_DLQ,
+    RecipeErrorCode.COLLECTION_NOT_CLONED,
+    RecipeErrorCode.ERASURE_IN_PROGRESS,
 ]);
 
 /**

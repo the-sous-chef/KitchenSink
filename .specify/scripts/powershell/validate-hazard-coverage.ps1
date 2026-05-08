@@ -1,0 +1,1 @@
+../../extensions/v-model/scripts/powershell/validate-hazard-coverage.ps1

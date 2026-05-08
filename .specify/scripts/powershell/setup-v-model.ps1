@@ -1,0 +1,1 @@
+../../extensions/v-model/scripts/powershell/setup-v-model.ps1

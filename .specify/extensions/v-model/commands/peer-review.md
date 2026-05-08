@@ -1,16 +1,16 @@
 ---
 description: AI-powered stateless linter for any V-Model artifact — evaluates against standards-based criteria and produces a structured review with PRF-{ARTIFACT}-NNN findings.
 handoffs:
-  - label: Run CI Check
-    agent: speckit.v-model.trace
-    prompt: Validate the peer review findings and traceability
-    send: true
-  - label: Review Another Artifact
-    agent: speckit.v-model.peer-review
-    prompt: Review another V-Model artifact
+    - label: Run CI Check
+      agent: speckit.v-model.trace
+      prompt: Validate the peer review findings and traceability
+      send: true
+    - label: Review Another Artifact
+      agent: speckit.v-model.peer-review
+      prompt: Review another V-Model artifact
 scripts:
-  sh: scripts/bash/setup-v-model.sh --json
-  ps: scripts/powershell/setup-v-model.ps1 -Json
+    sh: .specify/scripts/bash/setup-v-model.sh --json
+    ps: .specify/scripts/powershell/setup-v-model.ps1 -Json
 ---
 
 ## User Input
@@ -49,33 +49,33 @@ For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot
 2. **Resolve the file path**: Look for the artifact in `VMODEL_DIR`. If the file does not exist, check if it exists at the literal path provided by the user.
 
 3. **Validate the artifact type**: The file name MUST match one of the 9 supported types:
-   - `requirements.md`
-   - `acceptance-plan.md`
-   - `system-design.md`
-   - `system-test.md`
-   - `architecture-design.md`
-   - `integration-test.md`
-   - `module-design.md`
-   - `unit-test.md`
-   - `hazard-analysis.md`
+    - `requirements.md`
+    - `acceptance-plan.md`
+    - `system-design.md`
+    - `system-test.md`
+    - `architecture-design.md`
+    - `integration-test.md`
+    - `module-design.md`
+    - `unit-test.md`
+    - `hazard-analysis.md`
 
-   If the file name does not match any supported type, inform the user:
+    If the file name does not match any supported type, inform the user:
 
-   > "peer-review supports these artifact types: requirements.md, acceptance-plan.md, system-design.md, system-test.md, architecture-design.md, integration-test.md, module-design.md, unit-test.md, hazard-analysis.md."
+    > "peer-review supports these artifact types: requirements.md, acceptance-plan.md, system-design.md, system-test.md, architecture-design.md, integration-test.md, module-design.md, unit-test.md, hazard-analysis.md."
 
 4. **Determine the artifact abbreviation** for PRF IDs:
 
-   | Artifact File            | Abbreviation | Governing Standard                    |
-   | ------------------------ | ------------ | ------------------------------------- |
-   | `requirements.md`        | REQ          | INCOSE Guide for Writing Requirements |
-   | `acceptance-plan.md`     | ATP          | ISO 29119                             |
-   | `system-design.md`       | SYS          | IEEE 1016                             |
-   | `system-test.md`         | STP          | ISO 29119                             |
-   | `architecture-design.md` | ARCH         | IEEE 42010 / Kruchten 4+1             |
-   | `integration-test.md`    | ITP          | ISO 29119-4                           |
-   | `module-design.md`       | MOD          | DO-178C / ISO 26262                   |
-   | `unit-test.md`           | UTP          | ISO 29119-4                           |
-   | `hazard-analysis.md`     | HAZ          | ISO 14971 / ISO 26262                 |
+    | Artifact File            | Abbreviation | Governing Standard                    |
+    | ------------------------ | ------------ | ------------------------------------- |
+    | `requirements.md`        | REQ          | INCOSE Guide for Writing Requirements |
+    | `acceptance-plan.md`     | ATP          | ISO 29119                             |
+    | `system-design.md`       | SYS          | IEEE 1016                             |
+    | `system-test.md`         | STP          | ISO 29119                             |
+    | `architecture-design.md` | ARCH         | IEEE 42010 / Kruchten 4+1             |
+    | `integration-test.md`    | ITP          | ISO 29119-4                           |
+    | `module-design.md`       | MOD          | DO-178C / ISO 26262                   |
+    | `unit-test.md`           | UTP          | ISO 29119-4                           |
+    | `hazard-analysis.md`     | HAZ          | ISO 14971 / ISO 26262                 |
 
 ### 3. Load Context
 
@@ -84,15 +84,15 @@ For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot
 2. **Load the artifact**: Read the target artifact file completely.
 
 3. **Count items**: Count the primary items in the artifact:
-   - `requirements.md`: Count `REQ-NNN` IDs (all categories)
-   - `acceptance-plan.md`: Count `ATP-NNN` IDs
-   - `system-design.md`: Count `SYS-NNN` IDs
-   - `system-test.md`: Count `STP-NNN` IDs
-   - `architecture-design.md`: Count `ARCH-NNN` IDs
-   - `integration-test.md`: Count `ITP-NNN` IDs
-   - `module-design.md`: Count `MOD-NNN` IDs
-   - `unit-test.md`: Count `UTP-NNN` IDs
-   - `hazard-analysis.md`: Count `HAZ-NNN` IDs
+    - `requirements.md`: Count `REQ-NNN` IDs (all categories)
+    - `acceptance-plan.md`: Count `ATP-NNN` IDs
+    - `system-design.md`: Count `SYS-NNN` IDs
+    - `system-test.md`: Count `STP-NNN` IDs
+    - `architecture-design.md`: Count `ARCH-NNN` IDs
+    - `integration-test.md`: Count `ITP-NNN` IDs
+    - `module-design.md`: Count `MOD-NNN` IDs
+    - `unit-test.md`: Count `UTP-NNN` IDs
+    - `hazard-analysis.md`: Count `HAZ-NNN` IDs
 
 ### 4. Evaluate Against Standards-Based Criteria
 
@@ -187,13 +187,13 @@ Check for:
 For each quality issue identified in Step 4:
 
 1. **Assign a PRF ID**: `PRF-{ARTIFACT}-NNN` — sequential, zero-padded, starting at 001.
-   - Example for requirements review: PRF-REQ-001, PRF-REQ-002, PRF-REQ-003
+    - Example for requirements review: PRF-REQ-001, PRF-REQ-002, PRF-REQ-003
 
 2. **Classify severity** — exactly one of:
-   - **Critical**: Fundamental quality violation that blocks release (untestable requirement, missing mandatory view, unmitigated catastrophic hazard, zero coverage for a component).
-   - **Major**: Significant quality issue that should be fixed before approval (ambiguous quantifier, incomplete interface contract, missing test technique, orphaned component with no trace).
-   - **Minor**: Style or completeness issue that does not affect correctness (inconsistent formatting, verbose description, missing rationale on low-risk item).
-   - **Observation**: Informational suggestion, not a defect (alternative decomposition, additional test technique that could add value, formatting preference).
+    - **Critical**: Fundamental quality violation that blocks release (untestable requirement, missing mandatory view, unmitigated catastrophic hazard, zero coverage for a component).
+    - **Major**: Significant quality issue that should be fixed before approval (ambiguous quantifier, incomplete interface contract, missing test technique, orphaned component with no trace).
+    - **Minor**: Style or completeness issue that does not affect correctness (inconsistent formatting, verbose description, missing rationale on low-risk item).
+    - **Observation**: Informational suggestion, not a defect (alternative decomposition, additional test technique that could add value, formatting preference).
 
 3. **Identify location**: The specific artifact ID (e.g., REQ-007, SYS-003, MOD-005) or section name where the issue was found.
 
@@ -224,9 +224,9 @@ Display a summary:
 - Total findings
 - Path to the generated review file
 - CI exit code that `peer-review-check.sh` would return:
-  - Exit 0 if zero findings or observations only
-  - Exit 1 if any Critical or Major findings
-  - Exit 2 if Minor findings only (no Critical/Major)
+    - Exit 0 if zero findings or observations only
+    - Exit 1 if any Critical or Major findings
+    - Exit 2 if Minor findings only (no Critical/Major)
 - Next step: If Critical or Major findings exist, recommend fixing them and re-running
 
 ## Operating Constraints

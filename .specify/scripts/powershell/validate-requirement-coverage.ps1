@@ -1,0 +1,1 @@
+../../extensions/v-model/scripts/powershell/validate-requirement-coverage.ps1

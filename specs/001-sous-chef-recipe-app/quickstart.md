@@ -398,3 +398,43 @@ Frontend apps default to `http://localhost:3000` for API calls. Override via env
 - **Expo (mobile)**: Set `EXPO_PUBLIC_API_URL` in `.env` or EAS build environment
 
 For E2E tests, the API URL is set automatically by the test `globalSetup` to point at the local test server.
+
+---
+
+## Domain Behavior Notes
+
+A few behaviors are easy to trip over when poking at the local DB or hitting the API by hand:
+
+### Soft-deleted recipes (tombstones)
+
+`DELETE /api/recipes/{id}` is a **soft delete**. The row stays in `recipes` with `deleted_at` set to the deletion timestamp. List, search, get-by-id, and collection responses all filter out tombstoned rows, but they remain visible in Drizzle Studio and via direct SQL.
+
+If you need to inspect or reset state during development:
+
+```sql
+-- See tombstoned recipes
+SELECT id, title, deleted_at FROM recipes WHERE deleted_at IS NOT NULL;
+
+-- Un-tombstone for local debugging only (NEVER do this in prod)
+UPDATE recipes SET deleted_at = NULL WHERE id = '<uuid>';
+```
+
+Hard deletion of recipe rows, version snapshots, photos, and S3-archived version blobs only happens via the GDPR erasure flow (`POST /api/account/erasure`), which runs asynchronously.
+
+### Cloned collections and pull-from-source
+
+`POST /api/collections/{id}/clone` creates a new collection whose `source_collection_id` points back to the original. Each membership row carries an `added_via` value:
+
+- `manual` — direct add via `POST /api/collections/{id}/recipes`
+- `clone` — copied during the initial clone
+- `pull` — added later via `POST /api/collections/{id}/pull-from-source`
+
+Pulls are additive only: recipes removed from the source after the clone are **not** removed from the clone. Removing a recipe from the source collection has no effect on existing clones.
+
+### Pending version archives
+
+Version snapshots are written synchronously to PostgreSQL but archived to S3 asynchronously. Rows in `recipe_version_pending_archives` remain the source of truth until the archive worker confirms the upload. When debugging "missing" S3 objects locally, check that table first — the LocalStack worker may simply not have run yet.
+
+### Account erasure (local)
+
+`POST /api/account/erasure` queues an async job that hard-deletes everything owned by the calling user, including tombstoned recipes and all S3 objects. Locally this runs against LocalStack and the dev Postgres — re-seed afterward with `npm run seed --workspace=packages/shared/db` if you want the test fixtures back.

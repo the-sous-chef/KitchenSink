@@ -1,0 +1,1 @@
+../../extensions/v-model/scripts/bash/validate-module-coverage.sh

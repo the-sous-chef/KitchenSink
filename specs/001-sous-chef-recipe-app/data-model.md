@@ -99,6 +99,11 @@ CREATE TABLE recipes (
     -- Weighted: title (A) > description (B) > ingredient_names_text (C)
     search_vector          TSVECTOR,
 
+    -- Soft-delete tombstone (C-007). NULL = active; NOT NULL = tombstoned and excluded
+    -- from every read path except the GDPR erasure preview. Hard purge only via
+    -- the user-initiated "Erase my data" flow.
+    deleted_at             TIMESTAMPTZ,
+
     created_at             TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at             TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -298,24 +303,47 @@ Application purges DB rows beyond 10 most recent on each write. All versions rem
 
 ```sql
 CREATE TABLE collections (
-    id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-    owner_id    UUID        NOT NULL REFERENCES users(id),
-    name        TEXT        NOT NULL,
-    description TEXT,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    id                   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id             UUID        NOT NULL REFERENCES users(id),
+    name                 TEXT        NOT NULL,
+    description          TEXT,
+
+    -- Clone provenance (FR-011). NULL = original collection authored by owner.
+    -- NOT NULL = this collection was cloned from another (snapshot at clone time).
+    -- Pull-from-source updates are EXPLICIT and OPT-IN; setting this column
+    -- never causes implicit re-sync of recipe membership.
+    source_collection_id UUID        REFERENCES collections(id),
+
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at           TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE recipe_collections (
     collection_id UUID NOT NULL REFERENCES collections(id) ON DELETE CASCADE,
     recipe_id     UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
     added_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    -- Provenance of how this recipe entered the collection (FR-011).
+    -- 'manual'      = user added directly
+    -- 'clone_seed'  = inserted at collection-clone time from source snapshot
+    -- 'pull'        = added by an explicit user-initiated "Pull updates from source"
+    added_via     TEXT NOT NULL DEFAULT 'manual'
+                  CHECK (added_via IN ('manual', 'clone_seed', 'pull')),
+
     PRIMARY KEY (collection_id, recipe_id)
 );
 
-CREATE INDEX idx_collections_owner_id          ON collections (owner_id);
-CREATE INDEX idx_recipe_collections_recipe_id  ON recipe_collections (recipe_id);
+CREATE INDEX idx_collections_owner_id            ON collections (owner_id);
+CREATE INDEX idx_collections_source_collection   ON collections (source_collection_id)
+    WHERE source_collection_id IS NOT NULL;
+CREATE INDEX idx_recipe_collections_recipe_id    ON recipe_collections (recipe_id);
 ```
+
+**Clone semantics (FR-011)**:
+
+- Cloning a collection inserts a new `collections` row with `source_collection_id` set to the source, plus one `recipe_collections` row per source recipe with `added_via = 'clone_seed'`.
+- Subsequent edits to the source collection do **not** propagate automatically.
+- The owner of the cloned collection may invoke `POST /api/collections/{id}/pull-from-source` to fetch new recipes added to the source since the last pull; new memberships are inserted with `added_via = 'pull'`. Removed recipes in the source are **not** removed from the clone.
 
 ---
 
@@ -478,3 +506,86 @@ export const searchTriggerMigration = sql`
     EXECUTE FUNCTION recipes_search_vector_update();
 `;
 ```
+
+---
+
+### `recipe_version_pending_archives` (FR-007b-i)
+
+Tracks recipe-version snapshots that have been written to PostgreSQL but not yet archived to S3. The recipe save transaction is the **source of truth**; S3 archiving is asynchronous and retried via SQS until success.
+
+```sql
+CREATE TABLE recipe_version_pending_archives (
+    id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    recipe_version_id UUID        NOT NULL REFERENCES recipe_versions(id) ON DELETE CASCADE,
+    recipe_id         UUID        NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    version_number    INTEGER     NOT NULL,
+
+    -- Archive lifecycle
+    status            TEXT        NOT NULL DEFAULT 'pending'
+                      CHECK (status IN ('pending', 'in_flight', 'failed', 'dlq')),
+    attempts          INTEGER     NOT NULL DEFAULT 0,
+    last_error        TEXT,
+    next_attempt_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    -- SQS coordination
+    sqs_message_id    TEXT,
+    sqs_receipt       TEXT,
+
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    UNIQUE (recipe_version_id)
+);
+
+CREATE INDEX idx_pending_archives_status_next
+    ON recipe_version_pending_archives (status, next_attempt_at)
+    WHERE status IN ('pending', 'failed');
+
+CREATE INDEX idx_pending_archives_recipe_id
+    ON recipe_version_pending_archives (recipe_id);
+```
+
+**Lifecycle (FR-007b-i)**:
+
+1. Recipe save transaction commits: writes `recipes` + `recipe_versions` + `recipe_version_pending_archives` (status=`pending`) atomically.
+2. Same transaction enqueues an SQS message referencing `recipe_version_pending_archives.id`.
+3. Archive worker Lambda consumes the message, sets status=`in_flight`, uploads JSON snapshot to `s3://archive-bucket/versions/{recipe_id}/{version_number}.json`, then sets `recipe_versions.s3_key` and DELETEs the pending row on success.
+4. On failure: increment `attempts`, set `status='failed'`, record `last_error`, schedule `next_attempt_at` with exponential backoff. SQS redrive policy moves messages exceeding `maxReceiveCount` to a DLQ; the worker marks `status='dlq'` for operator visibility.
+5. The user-facing read path **never blocks** on archive completion. `recipe_versions.s3_key IS NULL` simply means "DB-only so far"; the row is fully usable for restore.
+
+---
+
+## Soft Delete & GDPR Erasure (C-007)
+
+### Soft-delete semantics
+
+- Recipe deletion sets `recipes.deleted_at = now()`. The row is retained for audit/history and is **excluded from every read path** (search, list, single fetch, collection membership listings) by adding `AND deleted_at IS NULL` to all production queries.
+- Tombstoned recipes remain referenced by `recipe_versions`, `recipe_collections`, and `cloned_from_id` so that history and provenance remain intact for non-deleted descendants.
+- Restoring a tombstoned recipe (within the retention window) is an `UPDATE recipes SET deleted_at = NULL` — no data reconstruction needed.
+
+### Hard purge ("Erase my data")
+
+User-initiated GDPR erasure is the **only** path that physically removes data:
+
+1. Frontend calls `POST /api/account/erasure-requests` to enumerate the user's tombstoned + active recipes, photos, versions, collections, and pending archives.
+2. User confirms; backend records an `erasure_request` audit row (out of scope for this feature; tracked in compliance backlog) and enqueues an erasure job.
+3. Erasure worker, in order:
+    - DELETEs `recipe_version_pending_archives` rows for the user's recipes.
+    - DELETEs S3 objects under `versions/{recipe_id}/` and `photos/{recipe_id}/` for each owned recipe.
+    - DELETEs `recipe_versions`, `recipe_photos`, `recipe_ingredients`, `recipe_steps`, `recipe_collections`, `recipes`, and `collections` for the user.
+    - DELETEs the `users` row last.
+4. Cloned descendants owned by **other** users are unaffected; their `cloned_from_id` is set to NULL by the erasure worker prior to deleting the source recipe to preserve referential integrity without leaking source data.
+
+This is the **only** code path permitted to issue `DELETE FROM recipes`. All other "delete" operations MUST set `deleted_at` instead.
+
+---
+
+## Read-path filter rule (C-007)
+
+Every query against `recipes` in production code paths MUST include `AND r.deleted_at IS NULL` (or the equivalent in Drizzle ORM via a shared `activeRecipes()` query helper). The only exceptions are:
+
+- The GDPR erasure preview endpoint.
+- The erasure worker itself.
+- Internal admin/debug tooling explicitly scoped to tombstone inspection.
+
+A repository-wide ESLint rule (`no-raw-recipes-select`) enforces use of the `activeRecipes()` helper for SELECTs against the `recipes` table.
