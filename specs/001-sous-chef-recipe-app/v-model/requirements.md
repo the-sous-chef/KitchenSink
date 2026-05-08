@@ -265,13 +265,13 @@ re-use across multiple performance requirements.
 
 ---
 
-**Total Requirements**: 129
-**By Category**: Functional: 83 | Non-Functional: 31 | Interface: 10 | Constraint: 7
+**Total Requirements**: 134 normative (+ 3 non-normative umbrella index entries: REQ-035, REQ-038, REQ-049 = 137 rows total)
+**By Category**: Functional: 88 | Non-Functional: 29 | Interface: 10 | Constraint: 7
 
-(Functional sub-IDs: REQ-003a/b, REQ-010a/b, REQ-018a/b, REQ-019a/b/c, REQ-020a/b/c, REQ-026a/b, REQ-027a/b, REQ-030a/b/c/d/e/f, REQ-035a/b, REQ-038a/b/c, REQ-042a/b, REQ-049a/b, REQ-050a/b, REQ-055a/b/c. Non-Functional sub-IDs: REQ-NF-005a/b, REQ-NF-010a/b, REQ-NF-011a/b/c, REQ-NF-012a/b, REQ-NF-013a/b/c, REQ-NF-014a/b/c. Interface sub-IDs: REQ-IF-001a/b, REQ-IF-004a/b/c, REQ-IF-005a/b/c. Constraint sub-IDs: REQ-CN-001a/b, REQ-CN-004a/b.)
+(Functional sub-IDs: REQ-002a/b, REQ-003a/b, REQ-005a/b/c, REQ-010a/b, REQ-017a/b, REQ-018a/b, REQ-019a/b/c, REQ-020a/b/c, REQ-026a/b, REQ-027a/b, REQ-028a/b, REQ-030a/b/c/d/e/f, REQ-032a/b, REQ-035a/b, REQ-038a/b/c, REQ-041a/b, REQ-042a/b, REQ-048a/b, REQ-049a/b, REQ-050a/b, REQ-055a/b/c, REQ-056a/b. Non-Functional sub-IDs: REQ-NF-005a/b, REQ-NF-010a/b, REQ-NF-011a/b/c, REQ-NF-012a/b, REQ-NF-013a/b/c, REQ-NF-014a/b/c. Interface sub-IDs: REQ-IF-001a/b, REQ-IF-004a/b/c, REQ-IF-005a/b/c. Constraint sub-IDs: REQ-CN-001a/b, REQ-CN-004a/b.)
 
-**By Priority**: P1: 125 | P2: 2 | P3: 2
-**By Verification Method**: Test: 85 | Inspection: 39 | Analysis: 4 | Demonstration: 1
+**By Priority**: P1: 130 | P2: 2 | P3: 2
+**By Verification Method**: Test: 101 | Inspection: 30 | Analysis: 3
 
 ## Source Traceability (spec.md → REQ-NNN)
 
@@ -373,6 +373,7 @@ re-use across multiple performance requirements.
 | 2026-04-30 | Initial drafting                 | Initial 87-requirement specification published.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | 2026-04-30 | Peer-review remediation          | Atomization of 22 compound requirements (PRF-REQ-001..022, PRF-REQ-029) using sub-ID convention; testability hardening of REQ-057 (PRF-REQ-030); temporal/alert precision for REQ-018, REQ-037, REQ-041 (PRF-REQ-031..033); cardinality bounds on REQ-003a, REQ-007 (PRF-REQ-034, PRF-REQ-035); priority differentiation for REQ-NF-003, REQ-NF-004 (PRF-REQ-036..038); glossary extraction of "Complete recipe"; load-condition extraction to §Test Environment Conditions. Total requirement count: 87 → 122. |
 | 2026-05-02 | Peer-review remediation addendum | Retained umbrella IDs and decomposed REQ-035/REQ-038/REQ-049 into REQ-035a/b, REQ-038a/b/c, REQ-049a/b for atomicity; replaced vague cardinality "multiple" with explicit "two or more" plus per-user cap placeholder. Total requirement count: 122 → 129.                                                                                                                                                                                                                                                      |
+| 2026-05-07 | Counter reconciliation           | Recounted the requirements table programmatically and corrected the summary block: 134 normative requirements (+ 3 non-normative umbrella index entries = 137 rows). Category breakdown corrected to F:88 / NF:29 / IF:10 / CN:7 = 134. Priority breakdown corrected to P1:130 / P2:2 / P3:2. Verification breakdown corrected to Test:101 / Inspection:30 / Analysis:3 (Demonstration removed — none remain after PRF-REQ-036 upgraded REQ-NF-003 to Test).                                                    |
 
 ## Peer-Review Remediation Log
 
