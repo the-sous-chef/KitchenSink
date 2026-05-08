@@ -5,7 +5,29 @@
 **Artifact**: module-design.md (33 modules)
 **Standard**: DO-178C / ISO 26262
 
-## Summary
+## Re-Review (2026-05-07)
+
+**Status**: ✅ All findings resolved
+**Verification basis**: `module-design.md` § Peer-Review Remediation Log (line 2256) cross-checked against each PRF-MOD finding below.
+
+| Severity           | Original | Remaining |
+| ------------------ | -------- | --------- |
+| Critical           | 4        | 0         |
+| Major              | 10       | 0         |
+| Minor              | 6        | 0         |
+| Observation        | 3        | 0         |
+| **Total Findings** | **23**   | **0**     |
+
+### Verified remediations
+
+- **PRF-MOD-001** — MOD-015 now inserts the `recipe_version_pending_archives` row in the same transaction and returns `pendingArchiveId`.
+- **PRF-MOD-002** — MOD-009 output reshaped to `{ perServing, perRecipe, missingItems[] }`; `UNIT_INCONVERTIBLE` (422) now thrown per ARCH-009.
+- **PRF-MOD-003** — MOD-011 declares and throws `INVALID_FILTER` (400) when filter keys fall outside the whitelist.
+- **PRF-MOD-004** through **PRF-MOD-023** — All Major / Minor / Observation findings (e.g., `SEARCH_TIMEOUT`, `UPLOAD_QUOTA_EXCEEDED`, `UPLOAD_NOT_FOUND`, `UPLOAD_INVALID`, `PULL_LOCK_HELD`, `DB_UNAVAILABLE`, `VERSION_WRITE_FAILED`, `applyErasureMutations` table-order/FK strategy, `isAdmin` Auth0 RBAC claim, retry/dedup policy, web offline-mutation limitation, `CoverageReport` / `TraceabilityGap` / `PendingArchiveRow` / `ArchiveJob` data structures) are addressed in the remediation log and reflected in the corresponding module specs.
+
+Original findings preserved below as historical record.
+
+## Summary (original — superseded by Re-Review above)
 
 | Severity           | Count  |
 | ------------------ | ------ |

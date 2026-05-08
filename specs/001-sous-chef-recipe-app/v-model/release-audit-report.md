@@ -4,7 +4,7 @@
 
 **System**: Sous Chef Recipe App
 **Version**: 0.1.0-alpha
-**Git Tag**: (not specified) (commit 0c6bf9e)
+**Git Tag**: (not specified) (commit 4fe5c02)
 **Date**: 2026-05-08
 **Regulatory Context**: (not specified)
 
@@ -19,7 +19,7 @@
 
 | Artifact            | File                   | Git SHA | Last Modified | Status  |
 | ------------------- | ---------------------- | ------- | ------------- | ------- |
-| Requirements        | requirements.md        | 0c6bf9e | 2026-05-07    | Present |
+| Requirements        | requirements.md        | 4fe5c02 | 2026-05-07    | Present |
 | Acceptance Plan     | acceptance-plan.md     | 0c6bf9e | 2026-05-07    | Present |
 | System Design       | system-design.md       | 0c6bf9e | 2026-05-07    | Present |
 | System Test         | system-test.md         | 0c6bf9e | 2026-05-07    | Present |
@@ -1283,4 +1283,4 @@ No anomalies detected.
 | ------------- | ------------------ | ------------------ | ------------ |
 | QA Manager    | ********\_******** | ********\_******** | ****\_\_**** |
 | Lead Engineer | ********\_******** | ********\_******** | ****\_\_**** |
-| Release Tag   | (not specified)    | Git SHA: 0c6bf9e   | 2026-05-08   |
+| Release Tag   | (not specified)    | Git SHA: 4fe5c02   | 2026-05-08   |
