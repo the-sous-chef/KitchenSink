@@ -1,8 +1,8 @@
 # Data Model: Auth0 User Authentication
 
-**Feature**: `002-auth0-user-auth`  
-**Date**: 2026-04-14  
-**Storage**: Aurora DSQL (PostgreSQL-compatible)  
+**Feature**: `002-auth0-user-auth`
+**Date**: 2026-04-14
+**Storage**: Aurora DSQL (PostgreSQL-compatible)
 **Source spec**: [spec.md](./spec.md) — Key Entities section
 
 ---
@@ -70,15 +70,15 @@ Auth0 access tokens include custom namespaced claims populated by the post-regis
 
 ```json
 {
-  "iss": "https://<tenant>.auth0.com/",
-  "sub": "auth0|abc123",
-  "aud": ["https://api.sous-chef.io"],
-  "exp": 1744000000,
-  "iat": 1743996400,
-  "https://sous-chef.io/userId": "uuid-v4",
-  "https://sous-chef.io/auth0Id": "auth0|abc123",
-  "https://sous-chef.io/email": "user@example.com",
-  "https://sous-chef.io/status": "active"
+    "iss": "https://<tenant>.auth0.com/",
+    "sub": "auth0|abc123",
+    "aud": ["https://api.sous-chef.io"],
+    "exp": 1744000000,
+    "iat": 1743996400,
+    "https://sous-chef.io/userId": "uuid-v4",
+    "https://sous-chef.io/auth0Id": "auth0|abc123",
+    "https://sous-chef.io/email": "user@example.com",
+    "https://sous-chef.io/status": "active"
 }
 ```
 

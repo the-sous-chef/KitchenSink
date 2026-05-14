@@ -1,17 +1,19 @@
 # Research: Auth0 AWS Architecture
 
-**Feature**: `002-auth0-user-auth`  
-**Date**: 2026-04-14  
-**Status**: Complete  
+**Feature**: `002-auth0-user-auth`
+**Date**: 2026-04-14
+**Status**: Complete
 **Scope**: Production-grade AWS infrastructure for Auth0 authentication layer — authorizer, async deletion, reconciliation, observability, distributed tracing, CDK patterns.
 
 ---
 
-## 1. API Gateway Authorizer: REST Lambda REQUEST vs HTTP API JWT
+## 1. API Gateway Authorizer: REST Lambda REQUEST vs HTTP API Lambda Authorizer
 
 ### Decision: REST API + Lambda REQUEST Authorizer
 
 **The core problem with HTTP API JWT authorizer** is that it validates the token's standard claims (`iss`, `aud`, `exp`, `nbf`, `iat`, `scope`/`scp`) and passes all token claims downstream via `$request.context.authorizer.jwt.claims` — including custom namespaced claims from Auth0 `app_metadata` (e.g., `https://sous-chef.io/userId`). However, it **cannot enforce custom claim values at the authorizer level** to shape an IAM policy, deny access based on a `status: suspended` flag, or inject context values per-route. It is a binary pass/fail on standard OAuth claims only.
+
+**HTTP API Lambda authorizer** (REQUEST type, not JWT type) is the missing comparison point: it allows custom logic and context injection while still using the HTTP API — potentially at lower cost and complexity than REST API. Evaluate this before committing to REST.
 
 **REST API Lambda REQUEST authorizer** gives full control:
 
@@ -20,28 +22,30 @@
 - Inject arbitrary key-value context into `$context.authorizer.*` for downstream Lambda functions — eliminating a DB lookup per request for the user ID
 - Support multiple authorization methods (token + headers + query params) for internal admin impersonation detection
 
-**When HTTP API JWT is sufficient**: If all routes need is "is this token valid for this audience?" with no custom claim logic, no context injection, and no suspension enforcement — HTTP API JWT is cheaper and simpler. For this feature, we need all three, so it is insufficient.
+**When HTTP API JWT is sufficient**: If all routes need is "is this token valid for this audience?" with no custom claim logic, no context injection, and no suspension enforcement — HTTP API JWT is cheaper and simpler. For this feature, we need all three, so JWT alone is insufficient.
+
+**When HTTP API Lambda authorizer suffices**: If custom claim logic and context injection are needed but a simpler integration is preferred, HTTP API + Lambda REQUEST authorizer may be a better fit than REST API. The spec should evaluate this option explicitly before locking in REST.
 
 ### JWKS Caching: Two-Layer Strategy
 
-**Layer 1 — In-process module-scope cache (Lambda lifetime)**  
-Use `jwks-rsa` with `cache: true`. The JWKS key set is fetched from `https://<tenant>.auth0.com/.well-known/jwks.json` once per Lambda container cold start and held in module scope. Subsequent invocations within the same container reuse the cached keys. `cacheMaxAge: 600_000` (10 minutes) refreshes the set if the container lives long enough.
+**Layer 1 — In-process per-client, per-`kid` LRU cache (Lambda lifetime)**
+Use `jwks-rsa` with `cache: true`. The library caches keys-by-`kid` (not the full JWKS set) using an LRU with TTL `cacheMaxAge: 600_000` (10 minutes). The cache lives on each `JwksClient` instance; storing the client in module scope allows a warm Lambda container to reuse it. For a new or missing `kid`, or after cache expiry, a network fetch occurs. Do not rely on "JWKS fetched once per cold start" as the sole caching behavior — new `kid`s, cache evictions, and multiple client instances can trigger additional fetches.
 
 ```typescript
 // Initialized once at module scope — survives across invocations in the same container
 const jwksClient = jwksRsa.default({
-  jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
-  cache: true,
-  cacheMaxAge: 600_000, // 10 minutes
-  rateLimit: true,
-  jwksRequestsPerMinute: 10,
+    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
+    cache: true,
+    cacheMaxAge: 600_000, // 10 minutes
+    rateLimit: true,
+    jwksRequestsPerMinute: 10,
 });
 ```
 
-**Layer 2 — API Gateway policy cache (cross-Lambda)**  
+**Layer 2 — API Gateway policy cache (cross-Lambda)**
 API Gateway caches the IAM policy returned by the authorizer, keyed on the Authorization header value (for TOKEN authorizers) or on a configurable identity source (for REQUEST authorizers). Set `resultsCacheTtl: Duration.seconds(300)` (5 minutes). Within that window, no Lambda invocation occurs for the same token — the cached policy is applied directly.
 
-**Cache invalidation risk**: If a user is suspended in Auth0 between policy cache TTL windows, a currently valid cached policy will continue to allow access for up to 5 minutes. For suspension enforcement: reduce TTL to `Duration.seconds(60)` for the authorizer. The `status` claim is read from the token; token revocation is immediate but cached policies can linger.
+**Cache invalidation risk**: If a user is suspended in Auth0 between policy cache TTL windows, a currently valid cached policy will continue to allow access for up to the TTL duration. For suspension enforcement: reduce TTL to `Duration.seconds(60)` for the authorizer. Note: JWTs are self-contained and cannot be individually revoked — Auth0 recommends short-lived tokens (e.g., 1 hour) combined with short authorizer TTL for prompt revocation. Suspension lag = token lifetime + authorizer cache TTL.
 
 **Recommendation**: Use `resultsCacheTtl: Duration.seconds(300)` for normal operation. If instantaneous suspension enforcement is required (security posture), drop to `Duration.seconds(0)` to disable caching — at the cost of one Lambda invocation per request.
 
@@ -52,11 +56,11 @@ The authorizer returns a `context` object with scalar values only (strings, numb
 ```typescript
 // Returned by the REQUEST authorizer
 const context = {
-  userId: payload.sub, // string — canonical Sous Chef user ID
-  auth0Id: payload["https://sous-chef.io/auth0Id"], // string
-  email: payload["https://sous-chef.io/email"], // string
-  status: payload["https://sous-chef.io/status"], // string: 'active' | 'suspended'
-  isImpersonating: "false", // string (booleans as strings)
+    userId: payload.sub, // string — canonical Sous Chef user ID
+    auth0Id: payload['https://sous-chef.io/auth0Id'], // string
+    email: payload['https://sous-chef.io/email'], // string
+    status: payload['https://sous-chef.io/status'], // string: 'active' | 'suspended'
+    isImpersonating: 'false', // string (booleans as strings)
 };
 ```
 
@@ -100,26 +104,26 @@ const receiveCount = Number(record.attributes.ApproximateReceiveCount);
 const maxAttempts = 5;
 
 if (receiveCount >= maxAttempts) {
-  // Let the message go to DLQ — do not changeMessageVisibility
-  throw new Auth0DeletionMaxRetriesError(auth0Id);
+    // Let the message go to DLQ — do not changeMessageVisibility
+    throw new Auth0DeletionMaxRetriesError(auth0Id);
 }
 
 try {
-  await deleteAuth0User(auth0Id, managementApiToken);
-  // Message auto-deleted on successful return
+    await deleteAuth0User(auth0Id, managementApiToken);
+    // Message auto-deleted on successful return
 } catch (error) {
-  // Exponential backoff: 30s, 60s, 120s, 240s, 480s
-  const delaySeconds = Math.min(30 * Math.pow(2, receiveCount - 1), 900);
+    // Exponential backoff: 30s, 60s, 120s, 240s, 480s
+    const delaySeconds = Math.min(30 * Math.pow(2, receiveCount - 1), 900);
 
-  await sqsClient.send(
-    new ChangeMessageVisibilityCommand({
-      QueueUrl: queueUrl,
-      ReceiptHandle: record.receiptHandle,
-      VisibilityTimeout: delaySeconds,
-    }),
-  );
+    await sqsClient.send(
+        new ChangeMessageVisibilityCommand({
+            QueueUrl: queueUrl,
+            ReceiptHandle: record.receiptHandle,
+            VisibilityTimeout: delaySeconds,
+        }),
+    );
 
-  throw error; // Signal failure to SQS event source mapping
+    throw error; // Signal failure to SQS event source mapping
 }
 ```
 
@@ -130,12 +134,11 @@ Use `reportBatchItemFailures: true` on the SQS event source mapping. This allows
 ### DLQ Alarm
 
 ```typescript
-const dlqAlarm = new cloudwatch.Alarm(this, "DlqDepthAlarm", {
-  metric: dlq.metricApproximateNumberOfMessagesVisible(),
-  threshold: 1,
-  evaluationPeriods: 1,
-  alarmDescription:
-    "Auth0 deletion DLQ has unprocessed messages — manual intervention required",
+const dlqAlarm = new cloudwatch.Alarm(this, 'DlqDepthAlarm', {
+    metric: dlq.metricApproximateNumberOfMessagesVisible(),
+    threshold: 1,
+    evaluationPeriods: 1,
+    alarmDescription: 'Auth0 deletion DLQ has unprocessed messages — manual intervention required',
 });
 ```
 
@@ -187,25 +190,21 @@ The reconciliation job detects Auth0 users without a corresponding Sous Chef dat
 Run nightly at 02:00 UTC (low-traffic window):
 
 ```typescript
-const reconciliationSchedule = new scheduler.Schedule(
-  this,
-  "ReconciliationSchedule",
-  {
+const reconciliationSchedule = new scheduler.Schedule(this, 'ReconciliationSchedule', {
     schedule: scheduler.ScheduleExpression.cron({
-      minute: "0",
-      hour: "2",
-      timeZone: TimeZone.UTC,
+        minute: '0',
+        hour: '2',
+        timeZone: TimeZone.UTC,
     }),
     flexibleTimeWindow: {
-      mode: scheduler.FlexibleTimeWindowMode.FLEXIBLE,
-      maximumWindowInMinutes: 15, // Spread invocation within 15-min window
+        mode: scheduler.FlexibleTimeWindowMode.FLEXIBLE,
+        maximumWindowInMinutes: 15, // Spread invocation within 15-min window
     },
     target: new schedulerTargets.LambdaInvoke(reconciliationFn, {
-      retryAttempts: 3,
-      maxEventAge: Duration.hours(1),
+        retryAttempts: 3,
+        maxEventAge: Duration.hours(1),
     }),
-  },
-);
+});
 ```
 
 ---
@@ -220,16 +219,16 @@ All Lambda functions emit JSON to stdout. `@aws-lambda-powertools/logger` or `pi
 
 ```json
 {
-  "level": "INFO",
-  "message": "User signup complete",
-  "timestamp": "2026-04-14T02:00:00.000Z",
-  "service": "auth-layer",
-  "correlationId": "trace-id-from-apigw",
-  "userId": "uuid-v4",
-  "auth0Id": "auth0|abc123",
-  "environment": "production",
-  "functionName": "auth0-post-registration",
-  "xRayTraceId": "1-abc123"
+    "level": "INFO",
+    "message": "User signup complete",
+    "timestamp": "2026-04-14T02:00:00.000Z",
+    "service": "auth-layer",
+    "correlationId": "trace-id-from-apigw",
+    "userId": "uuid-v4",
+    "auth0Id": "auth0|abc123",
+    "environment": "production",
+    "functionName": "auth0-post-registration",
+    "xRayTraceId": "1-abc123"
 }
 ```
 
@@ -330,13 +329,13 @@ Aurora DSQL (via aws-sdk — auto-instrumented by ADOT)
 Sentry's JavaScript SDK (v8+) uses OTel under the hood when `openTelemetryInstrumentation` is enabled. When ADOT is active on the Lambda, the Sentry SDK reads the OTel trace context and attaches errors to the correct trace span automatically — no additional configuration required.
 
 ```typescript
-import * as Sentry from "@sentry/aws-serverless";
+import * as Sentry from '@sentry/aws-serverless';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.ENVIRONMENT,
-  tracesSampleRate: 1.0,
-  integrations: [Sentry.openTelemetryInstrumentation()],
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.ENVIRONMENT,
+    tracesSampleRate: 1.0,
+    integrations: [Sentry.openTelemetryInstrumentation()],
 });
 ```
 
@@ -347,172 +346,167 @@ Sentry.init({
 ### Lambda REQUEST Authorizer with ADOT
 
 ```typescript
-import * as lambda from "aws-cdk-lib/aws-lambda";
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
-import * as iam from "aws-cdk-lib/aws-iam";
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 // ADOT optimized layer (March 2026+ recommended approach — NOT adotInstrumentation)
 const adotLayer = lambda.LayerVersion.fromLayerVersionArn(
-  this,
-  "AdotLayer",
-  `arn:aws:lambda:${this.region}:901920570463:layer:AWSOpenTelemetryDistroJs:5`,
+    this,
+    'AdotLayer',
+    `arn:aws:lambda:${this.region}:901920570463:layer:AWSOpenTelemetryDistroJs:5`,
 );
 
-const authorizerFn = new lambda.Function(this, "AuthorizerFn", {
-  runtime: lambda.Runtime.NODEJS_22_X,
-  handler: "index.handler",
-  code: lambda.Code.fromAsset("dist/authorizer"),
-  layers: [adotLayer],
-  environment: {
-    AUTH0_DOMAIN: process.env.AUTH0_DOMAIN!,
-    AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE!,
-    ENVIRONMENT: props.environment,
-    AWS_LAMBDA_EXEC_WRAPPER: "/opt/otel-instrument",
-    OTEL_SERVICE_NAME: "auth-authorizer",
-    OTEL_PROPAGATORS: "tracecontext,baggage,xray",
-    SENTRY_DSN: process.env.SENTRY_DSN!,
-  },
-  tracing: lambda.Tracing.ACTIVE,
-  timeout: Duration.seconds(10),
-  memorySize: 256,
+const authorizerFn = new lambda.Function(this, 'AuthorizerFn', {
+    runtime: lambda.Runtime.NODEJS_22_X,
+    handler: 'index.handler',
+    code: lambda.Code.fromAsset('dist/authorizer'),
+    layers: [adotLayer],
+    environment: {
+        AUTH0_DOMAIN: process.env.AUTH0_DOMAIN!,
+        AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE!,
+        ENVIRONMENT: props.environment,
+        AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-instrument',
+        OTEL_SERVICE_NAME: 'auth-authorizer',
+        OTEL_PROPAGATORS: 'tracecontext,baggage,xray',
+        SENTRY_DSN: process.env.SENTRY_DSN!,
+    },
+    tracing: lambda.Tracing.ACTIVE,
+    timeout: Duration.seconds(10),
+    memorySize: 256,
 });
 
 // Application Signals IAM policy (required for ADOT layer)
 authorizerFn.addToRolePolicy(
-  new iam.PolicyStatement({
-    actions: [
-      "xray:PutTraceSegments",
-      "xray:PutTelemetryRecords",
-      "cloudwatch:PutMetricData",
-    ],
-    resources: ["*"],
-  }),
+    new iam.PolicyStatement({
+        actions: ['xray:PutTraceSegments', 'xray:PutTelemetryRecords', 'cloudwatch:PutMetricData'],
+        resources: ['*'],
+    }),
 );
 
-const authorizer = new apigateway.RequestAuthorizer(this, "Auth0Authorizer", {
-  handler: authorizerFn,
-  identitySources: [apigateway.IdentitySource.header("Authorization")],
-  resultsCacheTtl: Duration.seconds(300), // 5-minute policy cache
+const authorizer = new apigateway.RequestAuthorizer(this, 'Auth0Authorizer', {
+    handler: authorizerFn,
+    identitySources: [apigateway.IdentitySource.header('Authorization')],
+    resultsCacheTtl: Duration.seconds(300), // 5-minute policy cache
 });
 ```
 
 ### SQS Deletion Queue with DLQ
 
 ```typescript
-import * as sqs from "aws-cdk-lib/aws-sqs";
-import * as lambdaEventSources from "aws-cdk-lib/aws-lambda-event-sources";
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 
-const deletionDlq = new sqs.Queue(this, "Auth0DeletionDlq", {
-  retentionPeriod: Duration.days(14),
-  encryption: sqs.QueueEncryption.SQS_MANAGED,
+const deletionDlq = new sqs.Queue(this, 'Auth0DeletionDlq', {
+    retentionPeriod: Duration.days(14),
+    encryption: sqs.QueueEncryption.SQS_MANAGED,
 });
 
-const deletionQueue = new sqs.Queue(this, "Auth0DeletionQueue", {
-  visibilityTimeout: Duration.seconds(60), // 6× Lambda timeout (10s × 6)
-  retentionPeriod: Duration.days(4),
-  encryption: sqs.QueueEncryption.SQS_MANAGED,
-  deadLetterQueue: {
-    queue: deletionDlq,
-    maxReceiveCount: 5,
-  },
+const deletionQueue = new sqs.Queue(this, 'Auth0DeletionQueue', {
+    visibilityTimeout: Duration.seconds(60), // 6× Lambda timeout (10s × 6)
+    retentionPeriod: Duration.days(4),
+    encryption: sqs.QueueEncryption.SQS_MANAGED,
+    deadLetterQueue: {
+        queue: deletionDlq,
+        maxReceiveCount: 5,
+    },
 });
 
-const deletionWorkerFn = new lambda.Function(this, "Auth0DeletionWorker", {
-  runtime: lambda.Runtime.NODEJS_22_X,
-  handler: "index.handler",
-  code: lambda.Code.fromAsset("dist/auth0-deletion-worker"),
-  timeout: Duration.seconds(10),
-  memorySize: 128,
-  environment: {
-    QUEUE_URL: deletionQueue.queueUrl,
-    AUTH0_DOMAIN: process.env.AUTH0_DOMAIN!,
-    AUTH0_M2M_SECRET_ARN: m2mSecret.secretArn,
-  },
+const deletionWorkerFn = new lambda.Function(this, 'Auth0DeletionWorker', {
+    runtime: lambda.Runtime.NODEJS_22_X,
+    handler: 'index.handler',
+    code: lambda.Code.fromAsset('dist/auth0-deletion-worker'),
+    timeout: Duration.seconds(10),
+    memorySize: 128,
+    environment: {
+        QUEUE_URL: deletionQueue.queueUrl,
+        AUTH0_DOMAIN: process.env.AUTH0_DOMAIN!,
+        AUTH0_M2M_SECRET_ARN: m2mSecret.secretArn,
+    },
 });
 
 deletionWorkerFn.addEventSource(
-  new lambdaEventSources.SqsEventSource(deletionQueue, {
-    batchSize: 5,
-    reportBatchItemFailures: true,
-  }),
+    new lambdaEventSources.SqsEventSource(deletionQueue, {
+        batchSize: 5,
+        reportBatchItemFailures: true,
+    }),
 );
 
 // DLQ depth alarm
-new cloudwatch.Alarm(this, "DlqDepthAlarm", {
-  metric: deletionDlq.metricApproximateNumberOfMessagesVisible(),
-  threshold: 1,
-  evaluationPeriods: 1,
-  alarmDescription:
-    "Auth0 deletion DLQ depth > 0 — manual Auth0 deletion required",
-  treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+new cloudwatch.Alarm(this, 'DlqDepthAlarm', {
+    metric: deletionDlq.metricApproximateNumberOfMessagesVisible(),
+    threshold: 1,
+    evaluationPeriods: 1,
+    alarmDescription: 'Auth0 deletion DLQ depth > 0 — manual Auth0 deletion required',
+    treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
 });
 ```
 
 ### EventBridge Scheduler for Reconciliation
 
 ```typescript
-import * as scheduler from "@aws-cdk-lib/aws-scheduler";
-import * as schedulerTargets from "@aws-cdk-lib/aws-scheduler-targets";
-import { TimeZone } from "aws-cdk-lib";
+import * as scheduler from '@aws-cdk-lib/aws-scheduler';
+import * as schedulerTargets from '@aws-cdk-lib/aws-scheduler-targets';
+import { TimeZone } from 'aws-cdk-lib';
 
-const reconciliationFn = new lambda.Function(this, "ReconciliationFn", {
-  runtime: lambda.Runtime.NODEJS_22_X,
-  handler: "index.handler",
-  code: lambda.Code.fromAsset("dist/reconciliation"),
-  timeout: Duration.minutes(15),
-  memorySize: 512,
-  environment: {
-    AUTH0_DOMAIN: process.env.AUTH0_DOMAIN!,
-    AUTH0_M2M_SECRET_ARN: m2mSecret.secretArn,
-    DB_SECRET_ARN: dbSecret.secretArn,
-  },
+const reconciliationFn = new lambda.Function(this, 'ReconciliationFn', {
+    runtime: lambda.Runtime.NODEJS_22_X,
+    handler: 'index.handler',
+    code: lambda.Code.fromAsset('dist/reconciliation'),
+    timeout: Duration.minutes(15),
+    memorySize: 512,
+    environment: {
+        AUTH0_DOMAIN: process.env.AUTH0_DOMAIN!,
+        AUTH0_M2M_SECRET_ARN: m2mSecret.secretArn,
+        DB_SECRET_ARN: dbSecret.secretArn,
+    },
 });
 
-new scheduler.Schedule(this, "ReconciliationSchedule", {
-  schedule: scheduler.ScheduleExpression.cron({
-    minute: "0",
-    hour: "2",
-    timeZone: TimeZone.UTC,
-  }),
-  flexibleTimeWindow: {
-    mode: scheduler.FlexibleTimeWindowMode.FLEXIBLE,
-    maximumWindowInMinutes: 15,
-  },
-  target: new schedulerTargets.LambdaInvoke(reconciliationFn, {
-    retryAttempts: 3,
-    maxEventAge: Duration.hours(1),
-  }),
+new scheduler.Schedule(this, 'ReconciliationSchedule', {
+    schedule: scheduler.ScheduleExpression.cron({
+        minute: '0',
+        hour: '2',
+        timeZone: TimeZone.UTC,
+    }),
+    flexibleTimeWindow: {
+        mode: scheduler.FlexibleTimeWindowMode.FLEXIBLE,
+        maximumWindowInMinutes: 15,
+    },
+    target: new schedulerTargets.LambdaInvoke(reconciliationFn, {
+        retryAttempts: 3,
+        maxEventAge: Duration.hours(1),
+    }),
 });
 ```
 
 ### CloudWatch Log Group + Subscription Filter (Sentry Forwarder)
 
 ```typescript
-import * as logs from "aws-cdk-lib/aws-logs";
-import * as logsDest from "aws-cdk-lib/aws-logs-destinations";
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as logsDest from 'aws-cdk-lib/aws-logs-destinations';
 
-const logGroup = new logs.LogGroup(this, "AuthLayerLogs", {
-  logGroupName: "/sous-chef/auth-layer",
-  retention: logs.RetentionDays.THREE_MONTHS,
-  removalPolicy: RemovalPolicy.RETAIN,
+const logGroup = new logs.LogGroup(this, 'AuthLayerLogs', {
+    logGroupName: '/sous-chef/auth-layer',
+    retention: logs.RetentionDays.THREE_MONTHS,
+    removalPolicy: RemovalPolicy.RETAIN,
 });
 
-const sentryForwarderFn = new lambda.Function(this, "SentryForwarder", {
-  runtime: lambda.Runtime.NODEJS_22_X,
-  handler: "index.handler",
-  code: lambda.Code.fromAsset("dist/sentry-forwarder"),
-  timeout: Duration.seconds(30),
-  environment: {
-    SENTRY_DSN: process.env.SENTRY_DSN!,
-    ENVIRONMENT: props.environment,
-  },
+const sentryForwarderFn = new lambda.Function(this, 'SentryForwarder', {
+    runtime: lambda.Runtime.NODEJS_22_X,
+    handler: 'index.handler',
+    code: lambda.Code.fromAsset('dist/sentry-forwarder'),
+    timeout: Duration.seconds(30),
+    environment: {
+        SENTRY_DSN: process.env.SENTRY_DSN!,
+        ENVIRONMENT: props.environment,
+    },
 });
 
 // Forward only ERROR and above to Sentry (filter pattern: JSON field match)
-new logs.SubscriptionFilter(this, "SentrySubscription", {
-  logGroup,
-  destination: new logsDest.LambdaDestination(sentryForwarderFn),
-  filterPattern: logs.FilterPattern.stringValue("$.level", "=", "ERROR"),
+new logs.SubscriptionFilter(this, 'SentrySubscription', {
+    logGroup,
+    destination: new logsDest.LambdaDestination(sentryForwarderFn),
+    filterPattern: logs.FilterPattern.stringValue('$.level', '=', 'ERROR'),
 });
 ```
 

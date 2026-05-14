@@ -1,6 +1,6 @@
 # Quickstart: Auth0 User Authentication
 
-**Feature**: `002-auth0-user-auth`  
+**Feature**: `002-auth0-user-auth`
 **Date**: 2026-04-14
 
 This guide gets a local development environment running for the auth feature: Auth0 tenant, local database, environment variables, and the Lambda functions running locally.
@@ -60,18 +60,15 @@ In Auth0 Dashboard → Actions → Library → Create Action → Post-Login flow
 ```javascript
 // Action: Add Custom Claims
 exports.onExecutePostLogin = async (event, api) => {
-  const namespace = "https://sous-chef.io/";
-  const metadata = event.user.app_metadata || {};
+    const namespace = 'https://sous-chef.io/';
+    const metadata = event.user.app_metadata || {};
 
-  if (metadata.userId) {
-    api.accessToken.setCustomClaim(`${namespace}userId`, metadata.userId);
-    api.accessToken.setCustomClaim(`${namespace}auth0Id`, event.user.user_id);
-    api.accessToken.setCustomClaim(`${namespace}email`, event.user.email);
-    api.accessToken.setCustomClaim(
-      `${namespace}status`,
-      metadata.status || "active",
-    );
-  }
+    if (metadata.userId) {
+        api.accessToken.setCustomClaim(`${namespace}userId`, metadata.userId);
+        api.accessToken.setCustomClaim(`${namespace}auth0Id`, event.user.user_id);
+        api.accessToken.setCustomClaim(`${namespace}email`, event.user.email);
+        api.accessToken.setCustomClaim(`${namespace}status`, metadata.status || 'active');
+    }
 };
 ```
 
