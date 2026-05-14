@@ -1,0 +1,114 @@
+# Specification Analysis Report
+
+| ID  | Category               | Severity | Location(s)                                                                                                                                                                           | Summary                                                                                                                                                                                                                                                                                         | Recommendation                                                                                                                                     |
+| --- | ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I1  | Inconsistency          | HIGH     | `specs/011-recipe-digitization/spec.md:270`, `specs/011-recipe-digitization/plan.md:161`, `specs/011-recipe-digitization/tasks.md:44`                                                 | Invitation table name drifts across artifacts: `circle_invitations` (spec) vs `circle_invites` (plan/tasks). This creates migration/model naming ambiguity and potential ORM/table mismatch.                                                                                                    | Canonicalize one table name across spec/plan/tasks and ensure migration/schema filenames align.                                                    |
+| I2  | Inconsistency          | HIGH     | `specs/011-recipe-digitization/spec.md:270`, `specs/011-recipe-digitization/plan.md:161`                                                                                              | Plan defines `circle_invites` as rotation/audit history while spec names `circle_invitations`; both represent the same entity but with divergent terminology.                                                                                                                                   | Keep one canonical noun across all sections (data model + APIs + tasks coverage tables).                                                           |
+| I3  | Inconsistency          | HIGH     | `specs/011-recipe-digitization/spec.md:189`, `specs/011-recipe-digitization/plan.md:203`                                                                                              | `FR-027` says all endpoints are under `/api/v1/recipes/digitize/*`, but circles endpoints are `/api/v1/circles/*` and tasks map circles work to `FR-027` (e.g., `T063`).                                                                                                                        | Split route convention into recipe-only vs global API versioning requirement, or update FR-027 wording to include circles explicitly.              |
+| A1  | Ambiguity              | HIGH     | `specs/011-recipe-digitization/spec.md:364`                                                                                                                                           | `SC-001 OCR parse quality ≥ 70%` is not operationalized in `spec.md` (metric formula, denominator, scoring rubric) while `T100` gates canary on it. This is hard to test consistently.                                                                                                          | Define exact SC-001 computation (sample set, pass rule, confidence interval, handwritten/printed weighting).                                       |
+| A2  | Ambiguity              | HIGH     | `specs/011-recipe-digitization/spec.md:216`, `specs/011-recipe-digitization/spec.md:229`                                                                                              | `NFR-001` says "completes within 10s" but measurement contract uses p95 cold-start metric; wording could be interpreted as per-request hard cap vs percentile SLO.                                                                                                                              | Normalize requirement wording to percentile/SLO language used in measurement contract and plan dashboards.                                         |
+| C1  | Constitution Alignment | CRITICAL | `.specify/memory/constitution.md:100`, `specs/011-recipe-digitization/tasks.md:132`, `specs/011-recipe-digitization/tasks.md:135`, `specs/011-recipe-digitization/tasks.md:143`       | Constitution Principle IV mandates naming conventions `*.integration.test.ts`, `*.e2e.test.ts`, but tasks specify `*.integration.spec.ts` and Playwright `*.spec.ts` paths. This is a direct MUST conflict.                                                                                     | Update planned test file naming in plan/tasks to constitution-compliant conventions before implementation.                                         |
+| C2  | Constitution Alignment | CRITICAL | `.specify/memory/constitution.md:100`, `specs/011-recipe-digitization/spec.md:372`, `specs/011-recipe-digitization/plan.md:339`, `specs/011-recipe-digitization/tasks.md:132`         | Constitution requires every test file to open with a requirement-traceability block comment. Spec/plan/tasks define many tests but do not encode this as an explicit task/checkpoint.                                                                                                           | Add explicit task coverage for test-header traceability enforcement (template/lint/checklist) across unit/integration/e2e suites.                  |
+| C3  | Constitution Alignment | CRITICAL | `.specify/memory/constitution.md:138`, `specs/011-recipe-digitization/plan.md:332`, `specs/011-recipe-digitization/tasks.md:169`                                                      | Constitution requires per-PR schema isolation (`pr_<number>`) for Aurora DSQL; artifacts reference RDS/Postgres migrations and deployment but include no PR-schema isolation task or validation.                                                                                                | Add explicit infrastructure/testing tasks for per-PR schema creation/teardown and guardrails.                                                      |
+| C4  | Constitution Alignment | CRITICAL | `.specify/memory/constitution.md:165`, `specs/011-recipe-digitization/tasks.md:132`, `specs/011-recipe-digitization/tasks.md:143`                                                     | Constitution requires `generate:types` to run before any test task. No task/CI gate in this feature ensures this ordering for new packages and new test suites.                                                                                                                                 | Add CI/task dependency check enforcing `generate:types` before `test`, `test:integration`, `test:e2e`.                                             |
+| G1  | Coverage Gap           | HIGH     | `specs/011-recipe-digitization/spec.md:202`, `specs/011-recipe-digitization/tasks.md:246`, `specs/011-recipe-digitization/tasks.md:280`, `specs/011-recipe-digitization/tasks.md:298` | `FR-035` requires fallback to FR-033 semantics (soft-delete when no members). Addendum `T098` changes lifecycle to 30-day retention + hard-delete worker with audience revert deferred until hard-delete, creating behavior-timing mismatch risk against FR-035 immediate fallback expectation. | Clarify FR-035/FR-033 temporal semantics under soft-delete retention and map explicit tasks for immediate access behavior during retention window. |
+| G2  | Coverage Gap           | MEDIUM   | `specs/011-recipe-digitization/spec.md:219`, `specs/011-recipe-digitization/spec.md:232`, `specs/011-recipe-digitization/tasks.md:145`                                                | `NFR-004` measurement contract requires mobile assistive-tech validation (Detox + inspectors/manual pass). Tasks include Playwright + axe (`T076`) and general frontend hardening (`T066`) but no explicit mobile accessibility test harness task.                                              | Add a concrete mobile accessibility verification task tied to NFR-004 measurement contract.                                                        |
+| U1  | Underspecification     | MEDIUM   | `specs/011-recipe-digitization/tasks.md:282`                                                                                                                                          | `T097` references "PR-template note + tasks.md cross-reference" but target path for PR template is unspecified, making execution non-deterministic.                                                                                                                                             | Specify exact file path(s) for PR template and required update format.                                                                             |
+| U2  | Underspecification     | MEDIUM   | `specs/011-recipe-digitization/tasks.md:285`                                                                                                                                          | `T100` depends on release-readiness artifact to be created later; gating criteria exist, but ownership and verification trigger are not explicitly linked to a phase command/task in this artifact set.                                                                                         | Add explicit handoff criterion linking T100 completion to release-readiness command output verification.                                           |
+| D1  | Duplication            | LOW      | `specs/011-recipe-digitization/spec.md:198`, `specs/011-recipe-digitization/spec.md:104`, `specs/011-recipe-digitization/plan.md:207`, `specs/011-recipe-digitization/tasks.md:134`   | Invite lifecycle semantics (single active link, rotation, revoked=410, idempotent join) are repeated in FR, US acceptance criteria, plan API table, and integration tasks. Intent is consistent but wording is duplicated.                                                                      | Keep one canonical contract section and reference it from stories/tasks to reduce drift risk.                                                      |
+| D2  | Duplication            | LOW      | `specs/011-recipe-digitization/spec.md:200`, `specs/011-recipe-digitization/spec.md:327`, `specs/011-recipe-digitization/plan.md:272`, `specs/011-recipe-digitization/tasks.md:135`   | Circle deletion fallback semantics are repeated across FR, fallback table, plan migration notes, and tests. Slight wording differences increase maintenance burden.                                                                                                                             | Consolidate authoritative behavior text in FR + one lifecycle section; reference elsewhere.                                                        |
+
+## Coverage Summary Table
+
+| Requirement Key | Has Task? | Task IDs                                             | Notes                                                               |
+| --------------- | --------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
+| FR-001          | Yes       | T038, T088                                           | Covered via job creation + S3/CDK wiring.                           |
+| FR-002          | Yes       | T057, T096                                           | Addendum strengthens offline behavior.                              |
+| FR-003          | Yes       | T044, T058, T096                                     | Queue/batch flow covered.                                           |
+| FR-004          | Yes       | T038, T057                                           | Validation covered API + UI.                                        |
+| FR-005          | Yes       | T044, T058                                           | Shared `batch_id` handling covered.                                 |
+| FR-006          | Yes       | T050, T068, T086, T093                               | Addendum explicitly addresses provider contract risk.               |
+| FR-007          | Yes       | T051                                                 | Parser normalization covered.                                       |
+| FR-008          | Yes       | T052                                                 | Handwriting path covered.                                           |
+| FR-009          | Yes       | T052                                                 | Token confidence extraction covered.                                |
+| FR-010          | Yes       | T052                                                 | Language capture covered.                                           |
+| FR-011          | Yes       | T052, T053, T080                                     | Payload + observability covered.                                    |
+| FR-012          | Yes       | T052                                                 | Confidence in payload covered.                                      |
+| FR-013          | Yes       | T040, T049, T056, T068, T087                         | Async pipeline and queue alarms covered.                            |
+| FR-014          | Yes       | T059, T074                                           | Side-by-side correction covered.                                    |
+| FR-015          | Yes       | T041, T060, T074                                     | Correction API + UX covered.                                        |
+| FR-016          | Yes       | T045, T062                                           | Accept-all behavior covered.                                        |
+| FR-017          | Yes       | T041, T053, T061                                     | Token-level highlight/confirm covered.                              |
+| FR-018          | Yes       | T059                                                 | Photo retention in correction flow covered.                         |
+| FR-019          | Yes       | T038, T088, T089                                     | S3/CloudFront path covered.                                         |
+| FR-020          | Yes       | T011, T054                                           | Raw/parsed separation covered.                                      |
+| FR-021          | Yes       | T042, T069, T074                                     | Save path + linkage covered.                                        |
+| FR-022          | Yes       | T043                                                 | Soft delete/discard covered.                                        |
+| FR-023          | Yes       | T066, T076                                           | Accessibility labels/checks covered.                                |
+| FR-024          | Yes       | T066, T076                                           | Keyboard navigation covered.                                        |
+| FR-025          | Yes       | T061, T076                                           | Non-color confidence indicator covered.                             |
+| FR-026          | Yes       | T064, T066, T076                                     | Invite a11y path covered.                                           |
+| FR-027          | Yes       | T038, T046, T048, T063, T090                         | Coverage exists but route-scope wording conflicts (see I3).         |
+| FR-028          | Yes       | T039                                                 | Cursor pagination covered.                                          |
+| FR-029          | Yes       | T037, T040, T054, T068                               | Status contract covered.                                            |
+| FR-030          | Yes       | T046, T048, T036, T079                               | RFC7807/error_code coverage exists.                                 |
+| FR-031          | Yes       | T010, T027, T030, T070, T073                         | Invite lifecycle covered.                                           |
+| FR-032          | Yes       | T031, T064, T070, T075                               | Join/idempotent/revoked flow covered.                               |
+| FR-033          | Yes       | T014, T033, T071, T073, T095, T098                   | Covered, but soft-delete timing requires clarification (G1).        |
+| FR-034          | Yes       | T032, T035, T081                                     | Outlier monitoring covered.                                         |
+| FR-035          | Yes       | T015, T034, T072, T095                               | Covered, but retention interaction ambiguous (G1).                  |
+| FR-036          | Yes       | T016, T082, T083, T084, T091                         | Retention purge behavior covered.                                   |
+| NFR-001         | Yes       | T050, T056, T077, T078, T080, T086, T092, T093, T100 | Metrics + canary gates present; SC linkage still ambiguous (A1/A2). |
+| NFR-002         | Yes       | T038, T088                                           | Direct-upload path covered.                                         |
+| NFR-003         | Yes       | T029, T033, T034, T071, T072, T077, T079, T098       | Audit and lifecycle events covered.                                 |
+| NFR-004         | Yes       | T061, T066, T076, T096, T097, T100                   | Coverage exists; explicit mobile test harness missing (G2).         |
+| NFR-005         | Yes       | T001, T006, T018, T090, T094, T097, T099             | Workspace/monorepo controls strengthened by addendum.               |
+| NFR-006         | Yes       | T049, T056, T078, T087, T092                         | Queue scalability/alarms covered.                                   |
+| NFR-007         | Yes       | T035, T081, T091                                     | Outlier alerting covered.                                           |
+| NFR-008         | Yes       | T016, T082, T083, T091                               | Purge + metrics covered.                                            |
+
+## Constitution Alignment Issues
+
+- **CRITICAL (C1):** Test naming conventions in tasks conflict with Principle IV required patterns (`*.integration.test.ts`, `*.e2e.test.ts`).
+- **CRITICAL (C2):** No explicit enforcement task for mandatory requirement-traceability block comment in every test file.
+- **CRITICAL (C3):** No explicit per-PR schema isolation task despite Principle V MUST requirement.
+- **CRITICAL (C4):** No explicit `generate:types`-before-test ordering enforcement task despite Principle VI MUST requirement.
+
+## Unmapped Tasks
+
+- No orphan implementation tasks detected in `tasks.md`; all T001–T100 include at least one bracketed reference (FR/NFR/US/C/R/A/D).
+
+## Addendum Validation (T093–T100 vs stated conditions)
+
+| Condition | Stated Resolution                               | Validation Result          | Notes                                                                    |
+| --------- | ----------------------------------------------- | -------------------------- | ------------------------------------------------------------------------ |
+| C-A-001   | T093 + plan OcrProvider contract                | Pass                       | T093 and plan contract section are aligned.                              |
+| C-A-002   | T094 workspace guard                            | Pass                       | Resolves workspace registration drift risk.                              |
+| C-A-003   | T095 transactional isolation + concurrency test | Pass                       | Aligns with plan isolation section.                                      |
+| C-D-001   | Code-first review decision (no task)            | Pass (documented decision) | Explicitly recorded in pre-impl review.                                  |
+| C-D-002   | T096 offline copy/retry                         | Pass                       | Adds previously missing UX failure-state behavior.                       |
+| C-D-003   | Existing T062                                   | Pass                       | Accept-All already covered.                                              |
+| C-D-004   | T097 `packages/ui`-first process                | Partial                    | Intent clear, but target files/acceptance mechanism underspecified (U1). |
+| C-R-001   | T098 soft-delete retention + hard-delete worker | Partial                    | Condition resolved, but introduces FR-033/FR-035 timing ambiguity (G1).  |
+| C-R-002   | T099 + T100 flags/canary gates                  | Pass                       | Conditions mapped with explicit gating criteria.                         |
+
+## Metrics
+
+- Total Requirements: **44** (FR-001..FR-036 + NFR-001..NFR-008)
+- Total Tasks: **100** (T001..T100)
+- Coverage % (requirements with >=1 task): **100%**
+- Ambiguity Count: **2**
+- Duplication Count: **2**
+- Critical Issues Count: **4**
+
+## Next Actions
+
+- **CRITICAL issues exist**: Resolve constitution conflicts before `/speckit.implement`.
+- Normalize data model and API terminology (`circle_invites` vs `circle_invitations`, FR-027 route scope).
+- Clarify FR-033/FR-035 behavior under new soft-delete retention model introduced by addendum.
+- Suggested commands:
+    - `Run /speckit.tasks` to refine task constraints for constitution-required test naming and CI ordering gates`
+    - `Run /speckit.plan` to align FR-027 and lifecycle timing semantics across spec/plan`
+    - `Manually edit tasks.md to add explicit constitutional compliance tasks (per-PR schema isolation, test traceability headers, generate:types gate)`
+
+Would you like me to suggest concrete remediation edits for the top 8 issues?

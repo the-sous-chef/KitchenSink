@@ -1,0 +1,134 @@
+# Product Forge Lifecycle Status
+# Feature: 012-creator-profiles
+# Last updated: 2026-05-10
+
+feature: 012-creator-profiles
+mode: retroactive-bootstrap
+pilot: false
+last_updated: 2026-05-10
+
+phases:
+    problem-discovery:
+        state: skipped
+        reason: Scope defined in cross-feature-consistency-report.md §11 and §12 (2026-05-09). Personas and boundaries resolved at portfolio level.
+        artifact: null
+
+    research:
+        state: bootstrapped
+        bootstrapped_from:
+            - cross-feature-consistency-report.md (§11, §12)
+            - specs/010-subscriptions/spec.md (monetization boundary)
+            - specs/011-recipe-digitization/spec.md (Circle boundary)
+        artifacts:
+            - research.md
+            - research/README.md
+        completed_at: 2026-05-09
+
+    product-spec:
+        state: bootstrapped
+        bootstrapped_from:
+            - research.md
+            - cross-feature-consistency-report.md §11
+        artifacts:
+            - product-spec/product-spec.md
+            - product-spec/README.md
+            - product-spec/user-journey.md
+            - product-spec/metrics.md
+        completed_at: 2026-05-09
+
+    revalidation:
+        state: pending
+        note: Awaiting human review via /speckit.product-forge.revalidate.
+        artifact: review.md
+
+    bridge:
+        state: not-started
+        artifact: spec.md
+
+    plan:
+        state: completed
+        note: plan.md exists; verify-report warns canonical FR namespace still needs sync against product-spec/V-Model.
+        artifact: plan.md
+
+    tasks:
+        state: completed
+        note: tasks.md exists with unchecked implementation tasks; execution has not started.
+        artifact: tasks.md
+
+    pre-impl-review:
+        state: not-started
+        artifact: null
+
+    implement:
+        state: not-started
+        artifact: null
+
+    code-review:
+        state: not-started
+        artifact: null
+
+    verify:
+        state: failed
+        note: verify-report.md exists and reports BLOCKED V-Model traceability/test execution plus spec/product-spec FR drift.
+        artifact: verify-report.md
+
+    test-plan:
+        state: not-started
+        artifact: null
+
+    test-run:
+        state: not-started
+
+    release-readiness:
+        state: blocked
+        note: v-model/release-audit-report.md is blocked and cannot satisfy GR-001 until traceability gaps and untested scenarios are closed.
+
+    retrospective:
+        state: not-started
+
+v-model:
+    state: completed
+    artifacts:
+        - v-model/requirements.md
+        - v-model/system-design.md
+        - v-model/architecture-design.md
+        - v-model/module-design.md
+        - v-model/unit-test.md
+        - v-model/integration-test.md
+        - v-model/system-test.md
+        - v-model/acceptance-plan.md
+        - v-model/hazard-analysis.md
+        - v-model/traceability-matrix.md
+        - v-model/release-audit-report.md
+        - v-model/peer-review-requirements.md
+        - v-model/peer-review-system-design.md
+        - v-model/peer-review-architecture-design.md
+        - v-model/peer-review-module-design.md
+        - v-model/peer-review-unit-test.md
+        - v-model/peer-review-integration-test.md
+        - v-model/peer-review-system-test.md
+        - v-model/peer-review-acceptance-plan.md
+        - v-model/peer-review-hazard-analysis.md
+
+next_action: resolve verify blockers
+
+entity_ownership:
+    - CreatorProfile (primary owner)
+    - AudienceScope.public-profile (S-004, defined here)
+
+cross_feature_references:
+    - feature: 010-subscriptions
+      relationship: tip jars, premium recipes, paid follows extend 010 billing model
+    - feature: 013-cooking-school
+      relationship: educator profiles reference CreatorProfile entity
+    - feature: 002-auth0-user-auth
+      relationship: required — @handle tied to authenticated identity
+    - feature: 001-sous-chef-recipe-app
+      relationship: recipe entity is the primary content surface on profiles
+    - feature: 011-recipe-digitization
+      relationship: peer audience scope — Circle (S-003) owned by 011, not here
+
+personas:
+    primary: P11 Robin
+    secondary: P5 Morgan
+    tertiary: P9 Drew

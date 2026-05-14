@@ -1,0 +1,89 @@
+# Product Forge Lifecycle Status
+# Feature: 014-notification-service
+# Last updated: 2026-05-10
+
+feature: 014-notification-service
+mode: retroactive-bootstrap
+pilot: false
+
+phases:
+    problem-discovery:
+        state: skipped
+        artifact: null
+    research:
+        state: bootstrapped
+        artifact: research/codebase-analysis.md
+    product-spec:
+        state: bootstrapped
+        artifact: product-spec/product-spec.md
+        artifacts:
+            - product-spec/product-spec.md
+            - product-spec/README.md
+            - product-spec/user-journey.md
+            - product-spec/metrics.md
+    revalidation:
+        state: pending
+        artifact: review.md
+    bridge:
+        state: completed
+        artifact: spec.md
+    plan:
+        state: completed
+        note: plan.md exists; implementation has not started.
+        artifact: plan.md
+    tasks:
+        state: completed
+        note: tasks.md exists with unchecked implementation and verification tasks.
+        artifact: tasks.md
+    pre-impl-review:
+        state: not-started
+        artifact: null
+    implement:
+        state: not-started
+        artifact: null
+    code-review:
+        state: not-started
+        artifact: null
+    verify:
+        state: failed
+        note: verify-report.md exists and reports NOT READY FOR M8 EXIT; release audit remains blocked.
+        artifact: verify-report.md
+    test-plan:
+        state: not-started
+        artifact: null
+    test-run:
+        state: not-started
+        artifact: null
+    release-readiness:
+        state: blocked
+        note: v-model/release-audit-report.md is blocked and cannot satisfy GR-001 until traceability gaps and untested scenarios are closed.
+        artifact: v-model/release-audit-report.md
+    retrospective:
+        state: not-started
+        artifact: null
+
+v-model:
+    state: completed
+    artifacts:
+        - v-model/requirements.md
+        - v-model/system-design.md
+        - v-model/architecture-design.md
+        - v-model/module-design.md
+        - v-model/unit-test.md
+        - v-model/integration-test.md
+        - v-model/system-test.md
+        - v-model/acceptance-plan.md
+        - v-model/hazard-analysis.md
+        - v-model/traceability-matrix.md
+        - v-model/release-audit-report.md
+        - v-model/peer-review-requirements.md
+        - v-model/peer-review-system-design.md
+        - v-model/peer-review-architecture-design.md
+        - v-model/peer-review-module-design.md
+        - v-model/peer-review-unit-test.md
+        - v-model/peer-review-integration-test.md
+        - v-model/peer-review-system-test.md
+        - v-model/peer-review-acceptance-plan.md
+        - v-model/peer-review-hazard-analysis.md
+
+last_updated: 2026-05-13

@@ -2,7 +2,8 @@
 
 **Feature Branch**: `010-subscriptions`
 **Created**: 2026-04-14
-**Status**: Draft
+**Last updated**: 2026-05-10
+**Status**: Product decisions revalidated — implementation/test gate blocked pending V-Model regeneration and test execution
 **Input**: Split from `001-sous-chef-recipe-app` — free/premium tier definitions, feature gating, upgrade prompts, and subscription lifecycle.
 
 ## Dependencies
@@ -48,10 +49,10 @@ New users start on a free tier that provides core functionality: creating, viewi
 
 **Subscription & Monetization**
 
-- **FR-040**: System MUST provide a free tier with access to: recipe CRUD, sharing/cloning, basic importing, manual meal planning, grocery list generation, and cooking mode.
-- **FR-041**: System MUST provide a premium tier that unlocks: private recipe visibility, AI recipe generation, AI meal suggestions, auto-generated meal plans, food waste optimization, AI instruction optimization, online grocery ordering, and trainer nutrition planning.
-- **FR-042**: System MUST gate premium features with clear upgrade prompts that preview the feature value for free-tier users.
-- **FR-043**: System MUST retain all user data and non-premium functionality if a premium subscription lapses.
+- **FR-040**: System MUST provide a free tier with access to: recipe CRUD, sharing/cloning, basic importing, manual meal planning, grocery list generation, and cooking mode. Free-tier users may create unlimited public recipes; no recipe count cap applies. All free-tier recipes are public by default; private visibility is not available on the free tier.
+- **FR-041**: System MUST provide a premium tier that unlocks: private recipe visibility, AI recipe generation, AI meal suggestions, auto-generated meal plans, food waste optimization, AI instruction optimization, online grocery ordering, and trainer nutrition planning. Premium is available at **$6.99/month** or **$59.99/year** (annual saves ~29%). New subscribers receive a **14-day free trial** before the first charge.
+- **FR-042**: System MUST gate premium features with clear upgrade prompts that preview the feature value for free-tier users. Prompts follow a three-tier hierarchy: (1) contextual inline teaser at the feature entry point, (2) modal/bottom-sheet on active invocation, (3) pricing page accessible from any CTA and from account settings.
+- **FR-043**: System MUST retain all user data and non-premium functionality if a premium subscription lapses. Existing private recipes remain private after downgrade; the lapsed user cannot create new private recipes until they renew. A **7-day grace period** applies after a failed payment before premium access is removed.
 
 ### Non-Functional Requirements _(constitution-derived)_
 
@@ -74,3 +75,6 @@ New users start on a free tier that provides core functionality: creating, viewi
 ## Assumptions
 
 - The free tier is designed as a conversion funnel — features are gated to demonstrate premium value, not to cripple the free experience.
+- **Family plan is out of scope for v1.** Family/household multi-seat subscriptions are a future consideration only. No FR, no architecture, and no task covers family plans in this release. A dedicated spec change is required before any family-plan work begins.
+- **Web is the primary billing surface.** Stripe Checkout and the Stripe Customer Portal are web-only. Mobile users see upgrade prompts and are deep-linked to the web checkout URL. Native in-app purchase (App Store / Play Store IAP) is out of scope for v1.
+- Imported, attributed recipes are always public regardless of subscription tier, in compliance with source Terms of Service.

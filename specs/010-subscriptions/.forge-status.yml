@@ -1,0 +1,120 @@
+# Product Forge Lifecycle Status
+# Feature: 010-subscriptions
+# Last updated: 2026-05-13
+
+feature: 010-subscriptions
+mode: retroactive-bootstrap
+pilot: true
+
+phases:
+    problem-discovery:
+        state: skipped
+        reason: Feature split from 001 and already validated through existing spec/research corpus.
+        artifact: null
+
+    research:
+        state: complete
+        bootstrapped_from:
+            - research.md
+            - plan.md
+            - spec.md
+        artifacts:
+            - research/competitors.md
+            - research/ux-patterns.md
+            - research/codebase-analysis.md
+            - research/tech-stack.md
+            - research/metrics-roi.md
+            - research/README.md
+        completed_at: 2026-05-09
+
+    product-spec:
+        state: complete
+        bootstrapped_from:
+            - spec.md
+            - plan.md
+            - tasks.md
+            - v-model/requirements.md
+        artifacts:
+            - product-spec/product-spec.md
+            - product-spec/user-journey.md
+            - product-spec/wireframes/
+            - product-spec/metrics.md
+            - product-spec/README.md
+        completed_at: 2026-05-09
+
+    revalidation:
+        state: complete
+        note: All open decisions closed by Product Owner on 2026-05-10. See review.md Revision 1.
+        artifact: review.md
+        completed_at: 2026-05-10
+
+    bridge:
+        state: complete
+        note: spec.md already exists from SpecKit flow; bridge is a no-op.
+        artifact: spec.md
+
+    plan:
+        state: complete
+        artifact: plan.md
+
+    tasks:
+        state: complete
+        note: TASK-028 added 2026-05-10 for mobile subscription status + portal deep-link.
+        artifact: tasks.md
+
+    pre-impl-review:
+        state: skipped
+        reason: Existing V-Model design artifacts provide equivalent pre-implementation review surface.
+        artifact: null
+
+    implement:
+        state: not-started
+        note: tasks.md present but no task execution markers in feature implementation packages.
+
+    code-review:
+        state: not-applicable
+        reason: No implementation changes in this bootstrap operation.
+
+    verify:
+        state: failed
+        note: verify-report.md now shows Matrix B coverage for REQ-026..REQ-031, but downstream architecture/module/hazard/unit/integration sync and execution evidence remain incomplete.
+        artifact: verify-report.md
+
+    test-plan:
+        state: not-started
+        artifact: null
+
+    test-run:
+        state: not-started
+
+    release-readiness:
+        state: blocked
+        note: blocked until all downstream V-Model artifacts are synchronized, remaining traceability gaps are closed, and real execution results are ingested.
+
+    retrospective:
+        state: not-applicable
+
+v-model:
+    state: complete
+    note: requirements.md, system-design.md, and acceptance-plan.md updated 2026-05-10 to reflect closed product decisions (pricing, trial, grace period, prompt hierarchy, web-only billing). Other V-Model artifacts (architecture-design, module-design, hazard-analysis, traceability-matrix, test plans) remain at their prior state and should be reviewed for consistency with REQ-026–REQ-031 before implementation begins.
+    artifacts:
+        - v-model/requirements.md
+        - v-model/system-design.md
+        - v-model/architecture-design.md
+        - v-model/module-design.md
+        - v-model/hazard-analysis.md
+        - v-model/traceability-matrix.md
+        - v-model/release-audit-report.md
+        - v-model/unit-test.md
+        - v-model/integration-test.md
+        - v-model/system-test.md
+        - v-model/acceptance-plan.md
+        - v-model/trace.md
+    peer_reviews: complete
+
+contracts:
+    state: not-started
+    artifacts: []
+
+next_action: resolve V-Model downstream sync blockers
+next_command: /speckit.product-forge.sync-verify

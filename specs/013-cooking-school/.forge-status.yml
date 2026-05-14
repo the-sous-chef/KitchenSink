@@ -1,0 +1,114 @@
+# Product Forge Lifecycle Status
+# Feature: 013-cooking-school
+# Last updated: 2026-05-13
+
+feature: 013-cooking-school
+mode: retroactive-bootstrap
+pilot: false
+
+phases:
+    problem-discovery:
+        state: skipped
+        reason: Feature defined via cross-feature consistency report §11 (2026-05-09); personas and scope pre-validated.
+        artifact: null
+
+    research:
+        state: bootstrapped
+        bootstrapped_from:
+            - cross-feature-consistency-report.md (§11)
+            - research.md
+            - research/README.md
+        artifacts:
+            - research.md
+        completed_at: 2026-05-09
+
+    product-spec:
+        state: bootstrapped
+        bootstrapped_from:
+            - research.md
+            - spec.md
+        artifacts:
+            - product-spec/product-spec.md
+            - product-spec/README.md
+            - product-spec/user-journey.md
+            - product-spec/metrics.md
+        completed_at: 2026-05-09
+
+    revalidation:
+        state: pending
+        note: Awaiting human review via /speckit.product-forge.revalidate.
+        artifact: review.md
+
+    bridge:
+        state: completed
+        artifact: spec.md
+
+    plan:
+        state: completed
+        note: plan.md exists; implementation has not started.
+        artifact: plan.md
+
+    tasks:
+        state: completed
+        note: tasks.md exists; all tasks remain unchecked and no execution evidence exists.
+        artifact: tasks.md
+
+    pre-impl-review:
+        state: not-started
+        artifact: null
+
+    implement:
+        state: not-started
+        note: No implementation packages exist yet.
+
+    code-review:
+        state: not-applicable
+        reason: No implementation changes in this operation.
+
+    verify:
+        state: failed
+        note: verify-report.md reports 5 CRITICAL and 5 WARNING; release audit remains blocked.
+        artifact: verify-report.md
+
+    test-plan:
+        state: completed
+        artifact: v-model/acceptance-plan.md
+
+    test-run:
+        state: not-started
+
+    release-readiness:
+        state: blocked
+        note: v-model/release-audit-report.md is blocked and cannot satisfy GR-001 until traceability gaps are closed and executed results or approved waivers are ingested.
+        artifact: v-model/release-audit-report.md
+
+    retrospective:
+        state: not-applicable
+
+v-model:
+    state: completed
+    last_updated: 2026-05-10
+    artifacts:
+        - v-model/requirements.md
+        - v-model/system-design.md
+        - v-model/architecture-design.md
+        - v-model/module-design.md
+        - v-model/unit-test.md
+        - v-model/integration-test.md
+        - v-model/system-test.md
+        - v-model/acceptance-plan.md
+        - v-model/hazard-analysis.md
+        - v-model/traceability-matrix.md
+        - v-model/release-audit-report.md
+        - v-model/peer-review-requirements.md
+        - v-model/peer-review-system-design.md
+        - v-model/peer-review-architecture-design.md
+        - v-model/peer-review-module-design.md
+        - v-model/peer-review-unit-test.md
+        - v-model/peer-review-integration-test.md
+        - v-model/peer-review-system-test.md
+        - v-model/peer-review-acceptance-plan.md
+        - v-model/peer-review-hazard-analysis.md
+
+next_action: revalidation
+next_action_command: /speckit.product-forge.revalidate
