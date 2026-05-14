@@ -2,7 +2,8 @@
 
 **Feature Branch**: `005-ai-integration`
 **Created**: 2026-04-14
-**Status**: Draft
+**Last updated**: 2026-05-10
+**Status**: Product decisions approved — plan/V-Model/test artifacts remain Draft; release audit ❌ BLOCKED
 **Input**: Split from `001-sous-chef-recipe-app` — AI-powered recipe generation (BYOK in-app + external agent platforms via OAuth).
 
 ## Dependencies
@@ -49,10 +50,11 @@ A user can interact with AI for recipe generation in two ways. **In-app (BYOK)**
 - **FR-015**: System MUST allow users to configure their preferred AI provider (e.g., OpenAI, Gemini, Anthropic) by securely storing their own API credentials (BYOK model).
 - **FR-016**: System MUST call the user's configured AI provider to generate recipes based on criteria (ingredients, dietary restrictions, cuisine, calorie targets) and return results within the app.
 - **FR-017**: System MUST allow users to preview AI-generated recipes before optionally saving them to their collection.
-- **FR-018**: System MUST expose an OAuth 2.0-protected API that allows authorized external agents (e.g., ChatGPT GPT Actions, Gemini Extensions) to read the user's recipe collection and create recipes on their behalf. Users MUST explicitly grant consent via an OAuth authorization flow before any agent can access their account.
+- **FR-018**: System MUST expose an OAuth 2.1-protected API that allows authorized external agents (e.g., ChatGPT GPT Actions, Gemini Extensions) to read the user's recipe collection and create recipes on their behalf. Users MUST explicitly grant consent via an OAuth authorization flow before any agent can access their account. Read access (`recipes:read`) and write access (`recipes:create`) are separate scopes requiring separate, clearly labeled consent steps. Users may grant read without granting write. Agents requesting both scopes must present them as two distinct consent checkboxes, not a bundled grant. _(Decision D-001, 2026-05-10)_
 - **FR-019**: System MUST allow recipe owners to request AI-powered optimization of recipe instructions (simplify language or streamline cooking steps). _(Premium)_
-- **FR-020**: AI-generated recipes saved by users (whether via in-app generation or external agent) MUST be treated as private, user-owned recipes.
+- **FR-020**: AI-generated recipes saved by users (whether via in-app generation or external agent) MUST be treated as private, user-owned recipes. Default visibility is always `private`. External agents MUST NOT set visibility to any value other than `private` on initial save; the `recipe_save` MCP tool must reject non-private visibility payloads with `400`. Users may change visibility through the standard recipe settings flow after saving. _(Decision D-004, 2026-05-10)_
 - **FR-021**: System MUST allow users to revoke external agent authorizations at any time from their account settings.
+- **FR-022**: System MUST display a confidence indicator and guard message on every AI-generated output surface (web and mobile). The standard guard message is: "AI-generated content may be inaccurate. Verify before use." Nutrition-adjacent outputs additionally display: "This is not medical advice. Consult a qualified professional." The guard message is not dismissible on first view; after 3 views it may collapse to an icon with tooltip but cannot be disabled. This requirement is not user-configurable. _(Decision D-003, 2026-05-10; resolves W-003 from verify-report.md)_
 
 ### Non-Functional Requirements _(constitution-derived)_
 
@@ -63,8 +65,8 @@ A user can interact with AI for recipe generation in two ways. **In-app (BYOK)**
 
 ### Key Entities
 
-- **AI Provider Config**: Stores a user's BYOK credentials for their chosen AI provider (e.g., OpenAI API key). Encrypted at rest. Used by the system to make AI generation requests on the user's behalf within the app.
-- **Agent Authorization**: Represents a user's OAuth grant to an external agent platform. Tracks which platform, granted scopes (recipes:read, recipes:create), grant date, and revocation status. Users can revoke at any time.
+- **AI Provider Config**: Stores a user's BYOK credentials for their chosen AI provider (e.g., OpenAI API key). Encrypted at rest via AWS Secrets Manager (ARN stored in Postgres; raw key never in DB). One active key per provider; up to all three providers (OpenAI, Anthropic, Gemini) may be configured simultaneously. Storing a new key for a provider replaces the existing one. _(Decision D-005, 2026-05-10)_
+- **Agent Authorization**: Represents a user's OAuth grant to an external agent platform. Tracks which platform, granted scopes (`recipes:read`, `recipes:create`), grant date, and revocation status. Read and write scopes are granted separately. Users can revoke at any time.
 
 ## Success Criteria _(mandatory)_
 
@@ -79,4 +81,4 @@ A user can interact with AI for recipe generation in two ways. **In-app (BYOK)**
 
 ## Clarifications
 
-- **C-002 (AI Integration Model)**: AI integration operates as two distinct patterns: **(1) BYOK in-app** — users configure their preferred AI provider (OpenAI, Gemini, Anthropic) by storing their own API credentials; Sous Chef calls the provider to generate recipes within the app. **(2) External agent platform** — Sous Chef exposes an OAuth 2.0 API so custom agents on ChatGPT, Gemini, etc. can read the user's recipe collection and create recipes on their behalf. Users must explicitly authorize agents via OAuth consent and can revoke access at any time. Both directions produce private, user-owned recipes.
+- **C-002 (AI Integration Model)**: AI integration operates as two distinct patterns: **(1) BYOK in-app** — users configure their preferred AI provider (OpenAI, Gemini, Anthropic) by storing their own API credentials; Sous Chef calls the provider to generate recipes within the app. **(2) External agent platform** — Sous Chef exposes an OAuth 2.1 API so custom agents on ChatGPT, Gemini, etc. can read the user's recipe collection and create recipes on their behalf. Users must explicitly authorize agents via OAuth consent and can revoke access at any time. Read (`recipes:read`) and write (`recipes:create`) scopes require separate consent steps. Both directions produce private, user-owned recipes. _(D-001, D-004)_
