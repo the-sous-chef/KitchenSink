@@ -1,0 +1,34 @@
+# Wireframe: Import from URL (Web)
+
+**Branch**: `004-recipe-importing` | **Date**: 2026-05-09
+**FRs**: [FR-008](../../spec.md#fr-008), [FR-009](../../spec.md#fr-009), [NFR-003](../../spec.md#non-functional-requirements-constitution-derived), [NFR-004](../../spec.md#non-functional-requirements-constitution-derived)
+
+---
+
+## ASCII Wireframe
+
+```
++--------------------------------------------------------------------------+
+|  Sous Chef                                [Morgan ▼] [Settings]           |
++--------------------------------------------------------------------------+
+|                                                                          |
+|  Import Recipe                                                           |
+|                                                                          |
+|  [ URL Import ] [ Instagram Import ] [ File Upload ] [ Manual Paste ]    |
+|                                                                          |
+|  Source URL                                                               |
+|  +--------------------------------------------------------------------+  |
+|  | https://www.example.com/recipes/chicken-teriyaki                  |  |
+|  +--------------------------------------------------------------------+  |
+|                                                                          |
+|  [ Import Recipe ]   [ Clear ]                                           |
+|                                                                          |
+|  Status: [⏳ Parsing] Fetching HTML → Extracting JSON-LD → Validating     |
+|  (Status always shown as icon + text label, never color alone)          |
+|                                                                          |
+|  Help:                                                                    |
+|  - Supports public recipe URLs and Instagram post URLs                    |
+|  - Unsupported Instagram posts (no caption recipe text) show explicit error|
+|                                                                          |
++--------------------------------------------------------------------------+
+```
