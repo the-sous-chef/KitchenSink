@@ -2,6 +2,7 @@
 
 **Feature Branch**: `001-sous-chef-recipe-app`
 **Created**: 2026-04-30
+**Last Updated**: 2026-05-08 (PRF-ATP-001 remediation: corrected ATP count to 129 in Coverage Summary, added sub-ID linkage coverage note)
 **Status**: Draft
 **Source**: `specs/001-sous-chef-recipe-app/v-model/requirements.md`
 
@@ -22,19 +23,19 @@ strict Given/When/Then format.
 - **Exit Criteria:**
     1. All P1 ATPs pass.
     2. Zero open Critical/Major defects linked to this feature scope.
-    3. Coverage Summary shows 100% requirement coverage against the current baseline (129 requirements).
+    3. Coverage Summary shows 100% requirement coverage against the current baseline (134 requirements).
 
 ## Traceability Policy
 
-- The traceability baseline is **129 requirements** from `requirements.md` (including atomic sub-IDs).
+- The traceability baseline is **134 requirements** from `requirements.md` (including atomic sub-IDs). This is the count of normative requirement IDs: 91 functional REQ-NNN/REQ-NNNx + 29 non-functional REQ-NF-NNN/NF-NNNx + 10 interface REQ-IF-NNN + 7 constraint REQ-CN-NNN = 134 total. Umbrella index entries (REQ-035, REQ-038, REQ-049) are non-normative and excluded from the baseline.
 - ATP linkage uses explicit atomic sub-IDs where requirements were decomposed for independent testability (e.g., REQ-035a/b, REQ-038a/b/c, REQ-049a/b).
 - Umbrella IDs MAY be retained in addition to atomic links only when needed for readability; atomic links are authoritative for coverage.
-- `REQ-010c` is treated as a known upstream reference anomaly (preamble-only mention, no requirement row) and is excluded from coverage accounting unless promoted to a formal requirement row in `requirements.md`.
+- `REQ-010c` (referenced in the atomization preamble as a conceptual completeness note) is not a formal requirement row; the 134-count baseline is derived from actual table rows only.
 
 ## ID Schema
 
 - **Test Case**: `ATP-{NNN}-{X}` for functional requirements (e.g., `ATP-008-B`)
-- **Scenario**: `SCN-{NNN}-{X}{#}` for functional requirements (e.g., `SCN-008-B1`)
+- **Scenario**: `SCN-{NNN}-{X}{#}` for functional requirements (e.g., `SCN-008-B1`). All acceptance-level scenarios use the **User Scenario** label (e.g., `**User Scenario: SCN-008-B1**`) to distinguish them from system-level scenarios in `system-test.md`.
 - **Category-prefixed IDs**:
     - Non-functional: `ATP-NF-{NNN}-{X}`, `SCN-NF-{NNN}-{X}{#}`
     - Interface: `ATP-IF-{NNN}-{X}`, `SCN-IF-{NNN}-{X}{#}`
@@ -53,9 +54,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-001-A (Authenticated create with title)
 
-**Linked Requirement:** REQ-001  
-**Description:** Validates that an authenticated user can create a recipe with a title.  
-**Validation Condition:** A valid authenticated create request includes a non-empty title.  
+**Linked Requirement:** REQ-001
+**Description:** Validates that an authenticated user can create a recipe with a title.
+**Validation Condition:** A valid authenticated create request includes a non-empty title.
 **Expected Result:** HTTP 201 is returned; response JSON contains recipe `id` and `title`; persisted recipe row stores the submitted title for the requesting owner.
 
 - **User Scenario: SCN-001-A1**
@@ -69,9 +70,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-002-A (Description persistence)
 
-**Linked Requirement:** REQ-002  
-**Description:** Validates that description can be attached during create or update operations.  
-**Validation Condition:** A recipe payload containing a description is accepted on create and on update by the owner.  
+**Linked Requirement:** REQ-002
+**Description:** Validates that description can be attached during create or update operations.
+**Validation Condition:** A recipe payload containing a description is accepted on create and on update by the owner.
 **Expected Result:** Create/update responses are successful and persisted recipe `description` exactly matches submitted text.
 
 - **User Scenario: SCN-002-A1**
@@ -85,9 +86,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-003-A (Linked ingredient persistence)
 
-**Linked Requirement:** REQ-003b  
-**Description:** Validates that ingredients can be added and linked to a real food record when a match exists.  
-**Validation Condition:** Ingredient text with an exact food-database match is selected during recipe save.  
+**Linked Requirement:** REQ-003b
+**Description:** Validates that ingredients can be added and linked to a real food record when a match exists.
+**Validation Condition:** Ingredient text with an exact food-database match is selected during recipe save.
 **Expected Result:** Persisted ingredient row includes the selected food-database record identifier and remains attached to the recipe.
 
 - **User Scenario: SCN-003-A1**
@@ -97,9 +98,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-003-B (Ingredient-count bounds 1..100)
 
-**Linked Requirement:** REQ-003a  
-**Description:** Validates lower and upper inclusive ingredient-count bounds for recipe save.  
-**Validation Condition:** Recipe saves are submitted at lower boundary (1 ingredient), upper boundary (100 ingredients), and outside boundaries (0 and 101 ingredients).  
+**Linked Requirement:** REQ-003a
+**Description:** Validates lower and upper inclusive ingredient-count bounds for recipe save.
+**Validation Condition:** Recipe saves are submitted at lower boundary (1 ingredient), upper boundary (100 ingredients), and outside boundaries (0 and 101 ingredients).
 **Expected Result:** Saves with 1 and 100 ingredients succeed; saves with 0 or 101 ingredients are rejected with HTTP 422 and no out-of-range payload is persisted.
 
 - **User Scenario: SCN-003-B1**
@@ -114,9 +115,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-003-C (Reject recipe with 101 ingredients)
 
-**Linked Requirement:** REQ-003a  
-**Description:** Validates explicit upper-bound rejection beyond the 100-ingredient limit.  
-**Validation Condition:** Recipe save is submitted with exactly 101 ingredients.  
+**Linked Requirement:** REQ-003a
+**Description:** Validates explicit upper-bound rejection beyond the 100-ingredient limit.
+**Validation Condition:** Recipe save is submitted with exactly 101 ingredients.
 **Expected Result:** HTTP 422 is returned with an ingredient-count bounds validation error; recipe with 101 ingredients is not persisted.
 
 - **User Scenario: SCN-003-C1**
@@ -130,9 +131,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-004-A (Instruction order retention)
 
-**Linked Requirement:** REQ-004  
-**Description:** Validates that step-by-step instructions are stored and returned in explicit order.  
-**Validation Condition:** A recipe is saved with an ordered list of at least three instruction steps.  
+**Linked Requirement:** REQ-004
+**Description:** Validates that step-by-step instructions are stored and returned in explicit order.
+**Validation Condition:** A recipe is saved with an ordered list of at least three instruction steps.
 **Expected Result:** Retrieved recipe returns the same instruction sequence order as submitted (e.g., step 1, step 2, step 3).
 
 - **User Scenario: SCN-004-A1**
@@ -146,9 +147,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-005-A (Accept non-negative integer minutes)
 
-**Linked Requirement:** REQ-005  
-**Description:** Validates acceptance of prep/cook/total times as non-negative integer minutes.  
-**Validation Condition:** A recipe is saved with integer values `prep=0`, `cook=25`, `total=25`.  
+**Linked Requirement:** REQ-005
+**Description:** Validates acceptance of prep/cook/total times as non-negative integer minutes.
+**Validation Condition:** A recipe is saved with integer values `prep=0`, `cook=25`, `total=25`.
 **Expected Result:** Save succeeds and all three persisted time fields equal submitted integers.
 
 - **User Scenario: SCN-005-A1**
@@ -158,9 +159,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-005-B (Reject negative minute values)
 
-**Linked Requirement:** REQ-005  
-**Description:** Validates rejection of negative minute values for any time field.  
-**Validation Condition:** A recipe save is attempted with one or more negative minute integers.  
+**Linked Requirement:** REQ-005
+**Description:** Validates rejection of negative minute values for any time field.
+**Validation Condition:** A recipe save is attempted with one or more negative minute integers.
 **Expected Result:** HTTP 422 is returned; response identifies invalid negative fields; no negative values are persisted.
 
 - **User Scenario: SCN-005-B1**
@@ -174,9 +175,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-006-A (Accept positive integer servings)
 
-**Linked Requirement:** REQ-006  
-**Description:** Validates acceptance of a positive integer servings value.  
-**Validation Condition:** A recipe is saved with `servings=4`.  
+**Linked Requirement:** REQ-006
+**Description:** Validates acceptance of a positive integer servings value.
+**Validation Condition:** A recipe is saved with `servings=4`.
 **Expected Result:** Save succeeds and persisted `servings` equals `4`.
 
 - **User Scenario: SCN-006-A1**
@@ -186,9 +187,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-006-B (Reject zero or negative servings)
 
-**Linked Requirement:** REQ-006  
-**Description:** Validates rejection of non-positive servings values.  
-**Validation Condition:** A recipe save is attempted with `servings=0` or a negative integer.  
+**Linked Requirement:** REQ-006
+**Description:** Validates rejection of non-positive servings values.
+**Validation Condition:** A recipe save is attempted with `servings=0` or a negative integer.
 **Expected Result:** HTTP 422 is returned with a servings validation error; record is not updated with non-positive servings.
 
 - **User Scenario: SCN-006-B1**
@@ -202,9 +203,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-007-A (Attach zero or more tags)
 
-**Linked Requirement:** REQ-007  
-**Description:** Validates that a user can save a recipe with any number of tags, including zero.  
-**Validation Condition:** Recipe save requests are submitted with no tags and with multiple tags.  
+**Linked Requirement:** REQ-007
+**Description:** Validates that a user can save a recipe with any number of tags, including zero.
+**Validation Condition:** Recipe save requests are submitted with no tags and with multiple tags.
 **Expected Result:** Both saves succeed; persisted tags exactly match each request payload.
 
 - **User Scenario: SCN-007-A1**
@@ -219,9 +220,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-007-B (Tag-count bounds 0..50)
 
-**Linked Requirement:** REQ-007  
-**Description:** Validates explicit upper inclusive tag bound and rejection beyond it.  
-**Validation Condition:** Recipe saves are submitted with exactly 50 tags and with 51 tags.  
+**Linked Requirement:** REQ-007
+**Description:** Validates explicit upper inclusive tag bound and rejection beyond it.
+**Validation Condition:** Recipe saves are submitted with exactly 50 tags and with 51 tags.
 **Expected Result:** Save with 50 tags succeeds; save with 51 tags is rejected with HTTP 422 and no out-of-range tag payload is persisted.
 
 - **User Scenario: SCN-007-B1**
@@ -240,9 +241,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-008-A (Allow exactly 10 photos)
 
-**Linked Requirement:** REQ-008  
-**Description:** Validates the upper inclusive limit of 10 photos on a recipe.  
-**Validation Condition:** A recipe save includes exactly 10 valid photos.  
+**Linked Requirement:** REQ-008
+**Description:** Validates the upper inclusive limit of 10 photos on a recipe.
+**Validation Condition:** A recipe save includes exactly 10 valid photos.
 **Expected Result:** Save succeeds and recipe stores references to all 10 uploaded photos.
 
 - **User Scenario: SCN-008-A1**
@@ -252,9 +253,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-008-B (Reject 11th photo)
 
-**Linked Requirement:** REQ-008  
-**Description:** Validates rejection beyond the 10-photo cap.  
-**Validation Condition:** A recipe save includes 11 valid photos.  
+**Linked Requirement:** REQ-008
+**Description:** Validates rejection beyond the 10-photo cap.
+**Validation Condition:** A recipe save includes 11 valid photos.
 **Expected Result:** HTTP 422 is returned with photo-count violation; no 11th photo reference is persisted.
 
 - **User Scenario: SCN-008-B1**
@@ -268,9 +269,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-009-A (Accept photo at 5 MB boundary)
 
-**Linked Requirement:** REQ-009  
-**Description:** Validates that a photo of exactly 5 MB is accepted.  
-**Validation Condition:** An individual photo binary size equals exactly 5,242,880 bytes (5 MiB).  
+**Linked Requirement:** REQ-009
+**Description:** Validates that a photo of exactly 5 MB is accepted.
+**Validation Condition:** An individual photo binary size equals exactly 5,242,880 bytes (5 MiB).
 **Expected Result:** Photo passes size validation and upload flow continues successfully.
 
 - **User Scenario: SCN-009-A1**
@@ -280,9 +281,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-009-B (Reject photo larger than 5 MB)
 
-**Linked Requirement:** REQ-009  
-**Description:** Validates rejection when photo size exceeds 5 MB by any amount.  
-**Validation Condition:** An individual photo binary size is 5,242,881 bytes or greater.  
+**Linked Requirement:** REQ-009
+**Description:** Validates rejection when photo size exceeds 5 MB by any amount.
+**Validation Condition:** An individual photo binary size is 5,242,881 bytes or greater.
 **Expected Result:** HTTP 422 is returned with per-file size error; oversized photo is not persisted.
 
 - **User Scenario: SCN-009-B1**
@@ -296,9 +297,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-010-A (Metadata persists when all photos succeed)
 
-**Linked Requirement:** REQ-010a  
-**Description:** Validates metadata persistence in a successful all-photo upload path.  
-**Validation Condition:** Metadata and photos are submitted, and all photos upload successfully.  
+**Linked Requirement:** REQ-010a
+**Description:** Validates metadata persistence in a successful all-photo upload path.
+**Validation Condition:** Metadata and photos are submitted, and all photos upload successfully.
 **Expected Result:** Metadata and photo references are persisted in one successful save response.
 
 - **User Scenario: SCN-010-A1**
@@ -308,9 +309,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-010-B (Metadata persists when one or more photos fail)
 
-**Linked Requirement:** REQ-010b  
-**Description:** Validates that metadata save is independent from partial photo upload failure.  
-**Validation Condition:** Metadata is valid but at least one submitted photo fails validation or upload.  
+**Linked Requirement:** REQ-010b
+**Description:** Validates that metadata save is independent from partial photo upload failure.
+**Validation Condition:** Metadata is valid but at least one submitted photo fails validation or upload.
 **Expected Result:** Metadata save succeeds; failed photo references are absent; success response indicates metadata was saved with per-file photo errors.
 
 - **User Scenario: SCN-010-B1**
@@ -324,9 +325,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-011-A (Client accepts 5 MB file)
 
-**Linked Requirement:** REQ-011  
-**Description:** Validates client pre-upload validation allows files up to 5 MB inclusive.  
-**Validation Condition:** Client receives a file at exactly 5 MB and performs local validation.  
+**Linked Requirement:** REQ-011
+**Description:** Validates client pre-upload validation allows files up to 5 MB inclusive.
+**Validation Condition:** Client receives a file at exactly 5 MB and performs local validation.
 **Expected Result:** Client marks file valid and includes it in upload queue.
 
 - **User Scenario: SCN-011-A1**
@@ -336,9 +337,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-011-B (Client rejects >5 MB file)
 
-**Linked Requirement:** REQ-011  
-**Description:** Validates client pre-upload rejection for files above 5 MB.  
-**Validation Condition:** Client receives a file larger than 5 MB.  
+**Linked Requirement:** REQ-011
+**Description:** Validates client pre-upload rejection for files above 5 MB.
+**Validation Condition:** Client receives a file larger than 5 MB.
 **Expected Result:** Client blocks transmission and surfaces a per-file size error message.
 
 - **User Scenario: SCN-011-B1**
@@ -352,9 +353,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-012-A (Client accepts allowlisted MIME types)
 
-**Linked Requirement:** REQ-012  
-**Description:** Validates client-side acceptance of allowlisted MIME types only.  
-**Validation Condition:** Files are selected with MIME types `image/jpeg`, `image/png`, `image/webp`, `image/heic`, and `image/heif`.  
+**Linked Requirement:** REQ-012
+**Description:** Validates client-side acceptance of allowlisted MIME types only.
+**Validation Condition:** Files are selected with MIME types `image/jpeg`, `image/png`, `image/webp`, `image/heic`, and `image/heif`.
 **Expected Result:** Client accepts each allowlisted type and permits transmission.
 
 - **User Scenario: SCN-012-A1**
@@ -364,9 +365,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-012-B (Client rejects disallowed MIME type)
 
-**Linked Requirement:** REQ-012  
-**Description:** Validates client-side rejection of MIME types outside the allowlist.  
-**Validation Condition:** A file with MIME type `image/gif` is selected.  
+**Linked Requirement:** REQ-012
+**Description:** Validates client-side rejection of MIME types outside the allowlist.
+**Validation Condition:** A file with MIME type `image/gif` is selected.
 **Expected Result:** Client rejects the file and surfaces a MIME allowlist validation error.
 
 - **User Scenario: SCN-012-B1**
@@ -380,9 +381,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-013-A (Server accepts allowlisted detected types)
 
-**Linked Requirement:** REQ-013  
-**Description:** Validates server acceptance when detected file signature matches allowlisted types.  
-**Validation Condition:** Uploaded files have magic-byte signatures for allowlisted formats.  
+**Linked Requirement:** REQ-013
+**Description:** Validates server acceptance when detected file signature matches allowlisted types.
+**Validation Condition:** Uploaded files have magic-byte signatures for allowlisted formats.
 **Expected Result:** Server accepts files and persists photo references for valid detected types.
 
 - **User Scenario: SCN-013-A1**
@@ -392,9 +393,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-013-B (Server rejects disallowed detected type)
 
-**Linked Requirement:** REQ-013  
-**Description:** Validates server rejection based on detected signature for non-allowlisted content.  
-**Validation Condition:** Uploaded file magic bytes identify a non-allowlisted type such as GIF.  
+**Linked Requirement:** REQ-013
+**Description:** Validates server rejection based on detected signature for non-allowlisted content.
+**Validation Condition:** Uploaded file magic bytes identify a non-allowlisted type such as GIF.
 **Expected Result:** Server rejects the file with HTTP 422 and does not persist a photo reference.
 
 - **User Scenario: SCN-013-B1**
@@ -404,9 +405,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-013-C (Server rejects spoofed Content-Type)
 
-**Linked Requirement:** REQ-013  
-**Description:** Validates that server ignores client-supplied `Content-Type` when signature mismatches.  
-**Validation Condition:** Request header claims an allowlisted MIME but magic bytes indicate disallowed content.  
+**Linked Requirement:** REQ-013
+**Description:** Validates that server ignores client-supplied `Content-Type` when signature mismatches.
+**Validation Condition:** Request header claims an allowlisted MIME but magic bytes indicate disallowed content.
 **Expected Result:** Server rejects upload using detected type; response explains signature mismatch; no photo reference is saved.
 
 - **User Scenario: SCN-013-C1**
@@ -420,9 +421,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-014-A (Surface file-specific error and reason)
 
-**Linked Requirement:** REQ-014  
-**Description:** Validates that failures are reported per file with explicit reason.  
-**Validation Condition:** Multiple photo uploads include at least one failing file and one passing file.  
+**Linked Requirement:** REQ-014
+**Description:** Validates that failures are reported per file with explicit reason.
+**Validation Condition:** Multiple photo uploads include at least one failing file and one passing file.
 **Expected Result:** Error payload/UI identifies failed file token (name or index) and concrete reason; successful files remain unaffected.
 
 - **User Scenario: SCN-014-A1**
@@ -436,9 +437,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-015-A (Per-file retry without recipe re-save)
 
-**Linked Requirement:** REQ-015  
-**Description:** Validates that an individual failed photo can be retried independently.  
-**Validation Condition:** A saved recipe has one failed photo and at least one successful photo.  
+**Linked Requirement:** REQ-015
+**Description:** Validates that an individual failed photo can be retried independently.
+**Validation Condition:** A saved recipe has one failed photo and at least one successful photo.
 **Expected Result:** Retrying only the failed photo succeeds and attaches it without requiring a metadata re-save operation.
 
 - **User Scenario: SCN-015-A1**
@@ -452,9 +453,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-016-A (Never persist failed photo reference)
 
-**Linked Requirement:** REQ-016  
-**Description:** Validates that failed uploads/validation never create dangling photo references.  
-**Validation Condition:** A photo upload attempt fails validation or storage write.  
+**Linked Requirement:** REQ-016
+**Description:** Validates that failed uploads/validation never create dangling photo references.
+**Validation Condition:** A photo upload attempt fails validation or storage write.
 **Expected Result:** Recipe photo reference list omits the failed photo identifier; no DB row links recipe to failed object key.
 
 - **User Scenario: SCN-016-A1**
@@ -468,9 +469,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-017-A (Reject non-owner edit)
 
-**Linked Requirement:** REQ-017  
-**Description:** Validates that users cannot edit recipes they do not own.  
-**Validation Condition:** Authenticated non-owner submits an edit request for another user's recipe.  
+**Linked Requirement:** REQ-017
+**Description:** Validates that users cannot edit recipes they do not own.
+**Validation Condition:** Authenticated non-owner submits an edit request for another user's recipe.
 **Expected Result:** HTTP 403 is returned; recipe content remains unchanged.
 
 - **User Scenario: SCN-017-A1**
@@ -480,9 +481,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-017-B (Reject non-owner delete)
 
-**Linked Requirement:** REQ-017  
-**Description:** Validates that users cannot delete recipes they do not own.  
-**Validation Condition:** Authenticated non-owner submits delete for another user's recipe.  
+**Linked Requirement:** REQ-017
+**Description:** Validates that users cannot delete recipes they do not own.
+**Validation Condition:** Authenticated non-owner submits delete for another user's recipe.
 **Expected Result:** HTTP 403 is returned; recipe is not tombstoned.
 
 - **User Scenario: SCN-017-B1**
@@ -496,9 +497,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-018-A (Tombstone removes recipe from all normal access paths)
 
-**Linked Requirement:** REQ-018a, REQ-018b  
-**Description:** Validates immediate soft-delete visibility/inaccessibility semantics.  
-**Validation Condition:** Owner soft-deletes a recipe that is currently listed, searchable, and clonable.  
+**Linked Requirement:** REQ-018a, REQ-018b
+**Description:** Validates immediate soft-delete visibility/inaccessibility semantics.
+**Validation Condition:** Owner soft-deletes a recipe that is currently listed, searchable, and clonable.
 **Expected Result:** Recipe is absent from listings/search/collections/clone targets and normal fetch endpoints return inaccessible outcome (e.g., HTTP 404).
 
 - **User Scenario: SCN-018-A1**
@@ -512,9 +513,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-019-A (No automatic purge of tombstoned data)
 
-**Linked Requirement:** REQ-019a, REQ-019b, REQ-019c  
-**Description:** Validates that soft-deleted recipe DB rows and S3 archives are retained by default.  
-**Validation Condition:** A recipe is tombstoned and system retention jobs run through scheduled windows without erasure action.  
+**Linked Requirement:** REQ-019a, REQ-019b, REQ-019c
+**Description:** Validates that soft-deleted recipe DB rows and S3 archives are retained by default.
+**Validation Condition:** A recipe is tombstoned and system retention jobs run through scheduled windows without erasure action.
 **Expected Result:** Tombstoned DB rows and associated S3 version archives still exist; no auto-purge occurs.
 
 - **User Scenario: SCN-019-A1**
@@ -528,9 +529,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-020-A (Hard purge only via explicit owner erasure)
 
-**Linked Requirement:** REQ-020a, REQ-020b, REQ-020c  
-**Description:** Validates that hard purge executes only from explicit owner erasure flow and is irreversible.  
-**Validation Condition:** Owner confirms "Erase my data" for a tombstoned recipe.  
+**Linked Requirement:** REQ-020a, REQ-020b, REQ-020c
+**Description:** Validates that hard purge executes only from explicit owner erasure flow and is irreversible.
+**Validation Condition:** Owner confirms "Erase my data" for a tombstoned recipe.
 **Expected Result:** Recipe rows and all S3 version archives are permanently removed; subsequent restore attempts fail because data no longer exists.
 
 - **User Scenario: SCN-020-A1**
@@ -540,9 +541,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-020-B (Reject unauthorized hard purge attempt)
 
-**Linked Requirement:** REQ-020a  
-**Description:** Validates hard purge is rejected when a non-owner attempts the operation.  
-**Validation Condition:** A request attempts to hard-delete tombstoned data by a user who is not the owning user.  
+**Linked Requirement:** REQ-020a
+**Description:** Validates hard purge is rejected when a non-owner attempts the operation.
+**Validation Condition:** A request attempts to hard-delete tombstoned data by a user who is not the owning user.
 **Expected Result:** Request is denied with HTTP 403 Forbidden; tombstoned DB/S3 data remains intact.
 
 - **User Scenario: SCN-020-B1**
@@ -552,9 +553,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-020-C (Reject hard purge when explicit erasure is missing)
 
-**Linked Requirement:** REQ-020a  
-**Description:** Validates hard purge is rejected when the explicit owner erasure state is absent.  
-**Validation Condition:** A request attempts to hard-delete tombstoned data without a recorded explicit owner erasure confirmation.  
+**Linked Requirement:** REQ-020a
+**Description:** Validates hard purge is rejected when the explicit owner erasure state is absent.
+**Validation Condition:** A request attempts to hard-delete tombstoned data without a recorded explicit owner erasure confirmation.
 **Expected Result:** Request is denied with HTTP 409 Conflict; tombstoned DB/S3 data remains intact.
 
 - **User Scenario: SCN-020-C1**
@@ -566,9 +567,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-021-A (New recipes default to public)
 
-**Linked Requirement:** REQ-021  
-**Description:** Validates default visibility assignment for newly created user-authored recipes.  
-**Validation Condition:** An authenticated user creates a recipe without an explicit visibility override.  
+**Linked Requirement:** REQ-021
+**Description:** Validates default visibility assignment for newly created user-authored recipes.
+**Validation Condition:** An authenticated user creates a recipe without an explicit visibility override.
 **Expected Result:** HTTP 201 is returned; response and persisted recipe row show `visibility="public"`.
 
 - **User Scenario: SCN-021-A1**
@@ -582,9 +583,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-022-A (Allow private for active premium owner)
 
-**Linked Requirement:** REQ-022  
-**Description:** Validates that premium subscribers can set owned recipes to private.  
-**Validation Condition:** Owner has active premium subscription and updates owned recipe visibility to private.  
+**Linked Requirement:** REQ-022
+**Description:** Validates that premium subscribers can set owned recipes to private.
+**Validation Condition:** Owner has active premium subscription and updates owned recipe visibility to private.
 **Expected Result:** HTTP 200 is returned; recipe visibility transitions from `public` to `private` in persistence.
 
 - **User Scenario: SCN-022-A1**
@@ -598,9 +599,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-023-A (Reject private visibility for free tier)
 
-**Linked Requirement:** REQ-023  
-**Description:** Validates that free-tier users cannot set owned recipes to private.  
-**Validation Condition:** Owner has free-tier subscription and attempts to set visibility to private.  
+**Linked Requirement:** REQ-023
+**Description:** Validates that free-tier users cannot set owned recipes to private.
+**Validation Condition:** Owner has free-tier subscription and attempts to set visibility to private.
 **Expected Result:** HTTP 403 is returned; error indicates subscription restriction; recipe remains public.
 
 - **User Scenario: SCN-023-A1**
@@ -614,9 +615,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-024-A (Public recipe readable by any authenticated user)
 
-**Linked Requirement:** REQ-024  
-**Description:** Validates read access for authenticated non-owners to public recipes.  
-**Validation Condition:** A public recipe exists and a different authenticated user requests it.  
+**Linked Requirement:** REQ-024
+**Description:** Validates read access for authenticated non-owners to public recipes.
+**Validation Condition:** A public recipe exists and a different authenticated user requests it.
 **Expected Result:** HTTP 200 is returned with recipe payload including title, ingredients, and instructions.
 
 - **User Scenario: SCN-024-A1**
@@ -630,9 +631,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-025-A (Clone creates new owner-local recipe)
 
-**Linked Requirement:** REQ-025  
-**Description:** Validates cloning of public recipes into the requesting user's account.  
-**Validation Condition:** Authenticated user clones a public recipe owned by another user.  
+**Linked Requirement:** REQ-025
+**Description:** Validates cloning of public recipes into the requesting user's account.
+**Validation Condition:** Authenticated user clones a public recipe owned by another user.
 **Expected Result:** HTTP 201 is returned; cloned recipe has a new `id` and `ownerId` equal to cloner; source recipe remains unchanged.
 
 - **User Scenario: SCN-025-A1**
@@ -646,9 +647,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-026-A (Retain attribution on imported-source clone)
 
-**Linked Requirement:** REQ-026a, REQ-026b  
-**Description:** Validates attribution preservation and default public visibility for public-source imported clones.  
-**Validation Condition:** A recipe with public-source attribution metadata is cloned by another user.  
+**Linked Requirement:** REQ-026a, REQ-026b
+**Description:** Validates attribution preservation and default public visibility for public-source imported clones.
+**Validation Condition:** A recipe with public-source attribution metadata is cloned by another user.
 **Expected Result:** Clone preserves original attribution fields and stores `visibility="public"` by default.
 
 - **User Scenario: SCN-026-A1**
@@ -662,9 +663,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-027-A (Reject private setting when unlock criteria not met)
 
-**Linked Requirement:** REQ-027a  
-**Description:** Validates rejection when either premium subscription or substantive edit prerequisite is missing.  
-**Validation Condition:** Owner of imported-source clone attempts to set private without satisfying both prerequisites.  
+**Linked Requirement:** REQ-027a
+**Description:** Validates rejection when either premium subscription or substantive edit prerequisite is missing.
+**Validation Condition:** Owner of imported-source clone attempts to set private without satisfying both prerequisites.
 **Expected Result:** HTTP 403 is returned with unlock-criteria message; clone visibility remains public.
 
 - **User Scenario: SCN-027-A1**
@@ -674,9 +675,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-027-B (Allow private after premium plus substantive edit)
 
-**Linked Requirement:** REQ-027b  
-**Description:** Validates successful private visibility change after both unlock criteria are satisfied.  
-**Validation Condition:** Owner is premium and clone has at least one substantive edit to ingredients or instructions.  
+**Linked Requirement:** REQ-027b
+**Description:** Validates successful private visibility change after both unlock criteria are satisfied.
+**Validation Condition:** Owner is premium and clone has at least one substantive edit to ingredients or instructions.
 **Expected Result:** HTTP 200 is returned; clone visibility changes to `private`.
 
 - **User Scenario: SCN-027-B1**
@@ -690,9 +691,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-028-A (Classify ingredient/instruction changes as substantive)
 
-**Linked Requirement:** REQ-028  
-**Description:** Validates positive substantive classification for ingredient or instruction modifications.  
-**Validation Condition:** An edit modifies ingredient rows or instruction steps.  
+**Linked Requirement:** REQ-028
+**Description:** Validates positive substantive classification for ingredient or instruction modifications.
+**Validation Condition:** An edit modifies ingredient rows or instruction steps.
 **Expected Result:** Recipe/clone state records `substantiveEdit=true` for that revision.
 
 - **User Scenario: SCN-028-A1**
@@ -702,9 +703,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-028-B (Do not classify metadata/photo-only edits as substantive)
 
-**Linked Requirement:** REQ-028  
-**Description:** Validates negative substantive classification for title/description/tags/photos-only edits.  
-**Validation Condition:** An edit changes only non-substantive fields.  
+**Linked Requirement:** REQ-028
+**Description:** Validates negative substantive classification for title/description/tags/photos-only edits.
+**Validation Condition:** An edit changes only non-substantive fields.
 **Expected Result:** Revision does not set substantive flag; `substantiveEdit` state remains unchanged.
 
 - **User Scenario: SCN-028-B1**
@@ -718,9 +719,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-029-A (Keyword search returns matching recipes)
 
-**Linked Requirement:** REQ-029  
-**Description:** Validates free-text search over recipe content.  
-**Validation Condition:** Dataset contains a uniquely tokenized recipe string and user searches that token.  
+**Linked Requirement:** REQ-029
+**Description:** Validates free-text search over recipe content.
+**Validation Condition:** Dataset contains a uniquely tokenized recipe string and user searches that token.
 **Expected Result:** HTTP 200 is returned; results include the matching recipe and exclude non-matching recipes.
 
 - **User Scenario: SCN-029-A1**
@@ -730,9 +731,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-029-B (Keyword search returns zero-result set for non-match)
 
-**Linked Requirement:** REQ-029  
-**Description:** Validates non-match behavior for free-text search.  
-**Validation Condition:** Dataset contains no recipe matching the searched token.  
+**Linked Requirement:** REQ-029
+**Description:** Validates non-match behavior for free-text search.
+**Validation Condition:** Dataset contains no recipe matching the searched token.
 **Expected Result:** HTTP 200 is returned with an empty results list (`items: []`, `total: 0` or equivalent empty response contract).
 
 - **User Scenario: SCN-029-B1**
@@ -746,9 +747,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-030-A (Filter by all supported dimensions)
 
-**Linked Requirement:** REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f  
-**Description:** Validates filtering by tag, cuisine, dietary category, ingredient, prep time, and cook time.  
-**Validation Condition:** User applies all supported filter dimensions in one query against seeded recipes.  
+**Linked Requirement:** REQ-030a, REQ-030b, REQ-030c, REQ-030d, REQ-030e, REQ-030f
+**Description:** Validates filtering by tag, cuisine, dietary category, ingredient, prep time, and cook time.
+**Validation Condition:** User applies all supported filter dimensions in one query against seeded recipes.
 **Expected Result:** Returned set contains only recipes matching all provided filter criteria.
 
 - **User Scenario: SCN-030-A1**
@@ -762,9 +763,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-031-A (Nutrition resolution from linked food records)
 
-**Linked Requirement:** REQ-031  
-**Description:** Validates per-unit calories/protein/carbohydrate/fat resolution for linked ingredients.  
-**Validation Condition:** Recipe ingredient links to an existing food-database record with known nutrient profile.  
+**Linked Requirement:** REQ-031
+**Description:** Validates per-unit calories/protein/carbohydrate/fat resolution for linked ingredients.
+**Validation Condition:** Recipe ingredient links to an existing food-database record with known nutrient profile.
 **Expected Result:** Ingredient payload includes resolved numeric fields for calories, protein, carbohydrate, and fat per unit.
 
 - **User Scenario: SCN-031-A1**
@@ -778,9 +779,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-032-A (Save unmatched ingredient as user-entered)
 
-**Linked Requirement:** REQ-032  
-**Description:** Validates storage of unmatched ingredient text and user-entered marker.  
-**Validation Condition:** Ingredient text does not match any food database record during save.  
+**Linked Requirement:** REQ-032
+**Description:** Validates storage of unmatched ingredient text and user-entered marker.
+**Validation Condition:** Ingredient text does not match any food database record during save.
 **Expected Result:** Ingredient is persisted with original text and `isUserEntered=true`.
 
 - **User Scenario: SCN-032-A1**
@@ -794,9 +795,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-033-A (Persist optional manual nutrition fields)
 
-**Linked Requirement:** REQ-033  
-**Description:** Validates optional manual nutrition input for user-entered ingredients.  
-**Validation Condition:** User-entered ingredient is provided with manual calories/protein/carbs/fat values.  
+**Linked Requirement:** REQ-033
+**Description:** Validates optional manual nutrition input for user-entered ingredients.
+**Validation Condition:** User-entered ingredient is provided with manual calories/protein/carbs/fat values.
 **Expected Result:** Persisted ingredient nutrition fields equal the manually supplied values.
 
 - **User Scenario: SCN-033-A1**
@@ -810,9 +811,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-034-A (Display partial user-supplied nutrition notice)
 
-**Linked Requirement:** REQ-034  
-**Description:** Validates disclosure notice when recipe contains at least one user-entered ingredient.  
-**Validation Condition:** Recipe has mixed linked and user-entered ingredients.  
+**Linked Requirement:** REQ-034
+**Description:** Validates disclosure notice when recipe contains at least one user-entered ingredient.
+**Validation Condition:** Recipe has mixed linked and user-entered ingredients.
 **Expected Result:** Recipe view includes visible notice text indicating nutrition data is partially user-supplied.
 
 - **User Scenario: SCN-034-A1**
@@ -826,9 +827,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-035-A (Top-10 versions are queryable and restorable)
 
-**Linked Requirement:** REQ-035, REQ-035a, REQ-035b  
-**Description:** Validates creation of a version on every save and owner ability to query/restore within retained set.  
-**Validation Condition:** Owner performs 10 successful saves on a single recipe.  
+**Linked Requirement:** REQ-035, REQ-035a, REQ-035b
+**Description:** Validates creation of a version on every save and owner ability to query/restore within retained set.
+**Validation Condition:** Owner performs 10 successful saves on a single recipe.
 **Expected Result:** Version list contains 10 versions; owner can restore any listed version and resulting recipe state matches selected version payload.
 
 - **User Scenario: SCN-035-A1**
@@ -838,9 +839,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-035-B (11th save evicts oldest DB version)
 
-**Linked Requirement:** REQ-035, REQ-035b  
-**Description:** Validates rolling DB retention window of most recent 10 versions.  
-**Validation Condition:** Owner performs an 11th successful save on the same recipe.  
+**Linked Requirement:** REQ-035, REQ-035b
+**Description:** Validates rolling DB retention window of most recent 10 versions.
+**Validation Condition:** Owner performs an 11th successful save on the same recipe.
 **Expected Result:** DB-queryable versions are only versions 2 through 11; version 1 is no longer in DB retention set.
 
 - **User Scenario: SCN-035-B1**
@@ -854,9 +855,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-036-A (Archive each version to S3)
 
-**Linked Requirement:** REQ-036  
-**Description:** Validates S3 archival for every recipe version with indefinite retention intent.  
-**Validation Condition:** Multiple successful saves occur and archive worker processes each resulting version event.  
+**Linked Requirement:** REQ-036
+**Description:** Validates S3 archival for every recipe version with indefinite retention intent.
+**Validation Condition:** Multiple successful saves occur and archive worker processes each resulting version event.
 **Expected Result:** S3 contains one archive object per version key; previously archived versions remain retrievable.
 
 - **User Scenario: SCN-036-A1**
@@ -870,9 +871,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-037-A (Save completes without waiting for archive write)
 
-**Linked Requirement:** REQ-037  
-**Description:** Validates asynchronous decoupling between user-facing save and archive write completion.  
-**Validation Condition:** Archive subsystem is intentionally delayed while user submits a save.  
+**Linked Requirement:** REQ-037
+**Description:** Validates asynchronous decoupling between user-facing save and archive write completion.
+**Validation Condition:** Archive subsystem is intentionally delayed while user submits a save.
 **Expected Result:** Save endpoint returns success immediately after DB commit; archive completion occurs later.
 
 - **User Scenario: SCN-037-A1**
@@ -882,9 +883,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-037-B (Save still succeeds when archive write fails)
 
-**Linked Requirement:** REQ-037  
-**Description:** Validates that archive failures do not fail user save operation.  
-**Validation Condition:** S3 archive write fails for the saved version.  
+**Linked Requirement:** REQ-037
+**Description:** Validates that archive failures do not fail user save operation.
+**Validation Condition:** S3 archive write fails for the saved version.
 **Expected Result:** Save response is successful; new version is persisted in DB; archive failure is handled out-of-band.
 
 - **User Scenario: SCN-037-B1**
@@ -898,9 +899,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-038-A (Retry transient archive failures)
 
-**Linked Requirement:** REQ-038, REQ-038a, REQ-038b  
-**Description:** Validates automatic retry behavior for transient S3 archive write failures.  
-**Validation Condition:** First archive attempt fails transiently and a later retry succeeds.  
+**Linked Requirement:** REQ-038, REQ-038a, REQ-038b
+**Description:** Validates automatic retry behavior for transient S3 archive write failures.
+**Validation Condition:** First archive attempt fails transiently and a later retry succeeds.
 **Expected Result:** Worker retries automatically and eventually archives to S3; message is not left in DLQ.
 
 - **User Scenario: SCN-038-A1**
@@ -910,9 +911,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-038-B (Exhausted retries route payload to DLQ)
 
-**Linked Requirement:** REQ-038, REQ-038a, REQ-038b, REQ-038c  
-**Description:** Validates dead-letter handling after retry exhaustion.  
-**Validation Condition:** All archive retry attempts fail for a version payload.  
+**Linked Requirement:** REQ-038, REQ-038a, REQ-038b, REQ-038c
+**Description:** Validates dead-letter handling after retry exhaustion.
+**Validation Condition:** All archive retry attempts fail for a version payload.
 **Expected Result:** A DLQ message is created containing the failed archive payload reference.
 
 - **User Scenario: SCN-038-B1**
@@ -926,9 +927,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-039-A (Persist full payload to pending archive table on failure)
 
-**Linked Requirement:** REQ-039  
-**Description:** Validates durable persistence of exact failed version payload for replay.  
-**Validation Condition:** Archive write fails for a version event.  
+**Linked Requirement:** REQ-039
+**Description:** Validates durable persistence of exact failed version payload for replay.
+**Validation Condition:** Archive write fails for a version event.
 **Expected Result:** `recipe_version_pending_archives` contains row with recipe ID, version, and full payload sufficient for exact replay.
 
 - **User Scenario: SCN-039-A1**
@@ -942,9 +943,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-040-A (Delete pending row after confirmed success)
 
-**Linked Requirement:** REQ-040  
-**Description:** Validates pending row removal after S3 confirms archive success.  
-**Validation Condition:** Replay of a pending archive payload receives S3 success confirmation.  
+**Linked Requirement:** REQ-040
+**Description:** Validates pending row removal after S3 confirms archive success.
+**Validation Condition:** Replay of a pending archive payload receives S3 success confirmation.
 **Expected Result:** Corresponding pending row is deleted after success confirmation is recorded.
 
 - **User Scenario: SCN-040-A1**
@@ -954,9 +955,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-040-B (Retain pending row when success not confirmed)
 
-**Linked Requirement:** REQ-040  
-**Description:** Validates that pending rows are not removed on failed or unconfirmed replay attempts.  
-**Validation Condition:** Replay attempt fails or completes without S3 success acknowledgment.  
+**Linked Requirement:** REQ-040
+**Description:** Validates that pending rows are not removed on failed or unconfirmed replay attempts.
+**Validation Condition:** Replay attempt fails or completes without S3 success acknowledgment.
 **Expected Result:** Pending row remains in `recipe_version_pending_archives` for future retry.
 
 - **User Scenario: SCN-040-B1**
@@ -970,9 +971,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-041-A (Emit alert for every archive failure)
 
-**Linked Requirement:** REQ-041  
-**Description:** Validates that each S3 version-archive failure produces an operational alert event.  
-**Validation Condition:** Two distinct archive failures are induced for two version events.  
+**Linked Requirement:** REQ-041
+**Description:** Validates that each S3 version-archive failure produces an operational alert event.
+**Validation Condition:** Two distinct archive failures are induced for two version events.
 **Expected Result:** Two corresponding alert records/notifications are emitted (one per failure) in CloudWatch/alarm pipeline.
 
 - **User Scenario: SCN-041-A1**
@@ -982,9 +983,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-041-B (Do not surface archive failure to saving end-user)
 
-**Linked Requirement:** REQ-041  
-**Description:** Validates user transparency requirement when archive fails in background.  
-**Validation Condition:** User saves a recipe while archive write for that version fails asynchronously.  
+**Linked Requirement:** REQ-041
+**Description:** Validates user transparency requirement when archive fails in background.
+**Validation Condition:** User saves a recipe while archive write for that version fails asynchronously.
 **Expected Result:** Save response remains successful (2xx), and no user-facing archive failure error is shown in the save result.
 
 - **User Scenario: SCN-041-B1**
@@ -998,9 +999,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-042-A (Accept non-stale version save)
 
-**Linked Requirement:** REQ-042a  
-**Description:** Validates that a save with current version is accepted.  
-**Validation Condition:** Client submits version equal to server current version for the recipe.  
+**Linked Requirement:** REQ-042a
+**Description:** Validates that a save with current version is accepted.
+**Validation Condition:** Client submits version equal to server current version for the recipe.
 **Expected Result:** Save succeeds, new server version increments monotonically.
 
 - **User Scenario: SCN-042-A1**
@@ -1010,9 +1011,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-042-B (Reject stale version save)
 
-**Linked Requirement:** REQ-042a, REQ-042b  
-**Description:** Validates rejection of saves with older client version than server version.  
-**Validation Condition:** Client submits version lower than server current version.  
+**Linked Requirement:** REQ-042a, REQ-042b
+**Description:** Validates rejection of saves with older client version than server version.
+**Validation Condition:** Client submits version lower than server current version.
 **Expected Result:** Request is rejected with HTTP 409 and no recipe mutation is committed.
 
 - **User Scenario: SCN-042-B1**
@@ -1026,9 +1027,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-043-A (Conflict response includes server and client versions)
 
-**Linked Requirement:** REQ-043  
-**Description:** Validates exact conflict response code and payload contract.  
-**Validation Condition:** A stale-version save request is rejected by optimistic concurrency validation.  
+**Linked Requirement:** REQ-043
+**Description:** Validates exact conflict response code and payload contract.
+**Validation Condition:** A stale-version save request is rejected by optimistic concurrency validation.
 **Expected Result:** HTTP 409 is returned with JSON body containing both `serverVersion` and `clientVersion` fields with correct numeric values.
 
 - **User Scenario: SCN-043-A1**
@@ -1042,9 +1043,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-044-A (Display side-by-side versions after 409)
 
-**Linked Requirement:** REQ-044  
-**Description:** Validates client conflict UI rendering after receiving HTTP 409.  
-**Validation Condition:** Client receives conflict response containing server and client attempted versions.  
+**Linked Requirement:** REQ-044
+**Description:** Validates client conflict UI rendering after receiving HTTP 409.
+**Validation Condition:** Client receives conflict response containing server and client attempted versions.
 **Expected Result:** Client displays two explicit panes/sections representing server version and attempted local version concurrently.
 
 - **User Scenario: SCN-044-A1**
@@ -1058,9 +1059,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-045-A (Present exactly three allowed choices)
 
-**Linked Requirement:** REQ-045  
-**Description:** Validates conflict UI offers only the mandated three options.  
-**Validation Condition:** Conflict UI is opened for a stale-version save.  
+**Linked Requirement:** REQ-045
+**Description:** Validates conflict UI offers only the mandated three options.
+**Validation Condition:** Conflict UI is opened for a stale-version save.
 **Expected Result:** Available actions are exactly: keep server version, overwrite with local version, merge field-by-field.
 
 - **User Scenario: SCN-045-A1**
@@ -1070,9 +1071,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-045-B (Reject unsupported fourth resolution path)
 
-**Linked Requirement:** REQ-045  
-**Description:** Validates that no extra resolution behavior is exposed beyond the required three.  
-**Validation Condition:** User attempts to trigger any unsupported conflict action (e.g., auto-resolve).  
+**Linked Requirement:** REQ-045
+**Description:** Validates that no extra resolution behavior is exposed beyond the required three.
+**Validation Condition:** User attempts to trigger any unsupported conflict action (e.g., auto-resolve).
 **Expected Result:** Unsupported action is unavailable or rejected; only the three permitted paths remain actionable.
 
 - **User Scenario: SCN-045-B1**
@@ -1086,9 +1087,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-046-A (Conflict must always surface to user)
 
-**Linked Requirement:** REQ-046  
-**Description:** Validates that concurrent conflicts are surfaced via conflict UI rather than silently resolved.  
-**Validation Condition:** Two clients edit same recipe concurrently and second submit is stale.  
+**Linked Requirement:** REQ-046
+**Description:** Validates that concurrent conflicts are surfaced via conflict UI rather than silently resolved.
+**Validation Condition:** Two clients edit same recipe concurrently and second submit is stale.
 **Expected Result:** Stale submit yields HTTP 409 and conflict UI path; no silent data overwrite occurs.
 
 - **User Scenario: SCN-046-A1**
@@ -1098,9 +1099,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-046-B (No automatic field merge without explicit user choice)
 
-**Linked Requirement:** REQ-046  
-**Description:** Validates that merge application requires explicit user-selected merge path.  
-**Validation Condition:** Conflict state exists and user has not chosen any resolution action.  
+**Linked Requirement:** REQ-046
+**Description:** Validates that merge application requires explicit user-selected merge path.
+**Validation Condition:** Conflict state exists and user has not chosen any resolution action.
 **Expected Result:** Recipe remains at server state until user explicitly chooses keep/overwrite/merge action.
 
 - **User Scenario: SCN-046-B1**
@@ -1114,9 +1115,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-047-A (Owner creates a collection with name)
 
-**Linked Requirement:** REQ-047  
-**Description:** Validates creation of recipe collections by authenticated users with required naming.  
-**Validation Condition:** Authenticated user submits create-collection request containing name text.  
+**Linked Requirement:** REQ-047
+**Description:** Validates creation of recipe collections by authenticated users with required naming.
+**Validation Condition:** Authenticated user submits create-collection request containing name text.
 **Expected Result:** HTTP 201 is returned; collection row persisted with submitted `name` and owner ID.
 
 - **User Scenario: SCN-047-A1**
@@ -1130,9 +1131,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-048-A (Owner can rename collection)
 
-**Linked Requirement:** REQ-048  
-**Description:** Validates owner ability to rename an existing collection.  
-**Validation Condition:** Collection owner submits rename request for owned collection.  
+**Linked Requirement:** REQ-048
+**Description:** Validates owner ability to rename an existing collection.
+**Validation Condition:** Collection owner submits rename request for owned collection.
 **Expected Result:** HTTP 200 is returned; collection `name` updates to new value.
 
 - **User Scenario: SCN-048-A1**
@@ -1142,9 +1143,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-048-B (Owner can delete collection)
 
-**Linked Requirement:** REQ-048  
-**Description:** Validates owner ability to delete owned collection.  
-**Validation Condition:** Owner submits delete request for owned collection.  
+**Linked Requirement:** REQ-048
+**Description:** Validates owner ability to delete owned collection.
+**Validation Condition:** Owner submits delete request for owned collection.
 **Expected Result:** Delete succeeds; collection is removed from owner's collection list.
 
 - **User Scenario: SCN-048-B1**
@@ -1158,9 +1159,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-049-A (Recipe can belong to multiple collections)
 
-**Linked Requirement:** REQ-049, REQ-049a, REQ-049b  
-**Description:** Validates many-to-many recipe membership across collections.  
-**Validation Condition:** Owner adds the same recipe to two distinct collections.  
+**Linked Requirement:** REQ-049, REQ-049a, REQ-049b
+**Description:** Validates many-to-many recipe membership across collections.
+**Validation Condition:** Owner adds the same recipe to two distinct collections.
 **Expected Result:** Membership rows exist for both collection links to the same recipe.
 
 - **User Scenario: SCN-049-A1**
@@ -1170,9 +1171,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-049-B (Remove recipe from one collection only)
 
-**Linked Requirement:** REQ-049, REQ-049a  
-**Description:** Validates remove behavior is scoped to chosen collection membership.  
-**Validation Condition:** Recipe is linked to multiple collections and owner removes one membership.  
+**Linked Requirement:** REQ-049, REQ-049a
+**Description:** Validates remove behavior is scoped to chosen collection membership.
+**Validation Condition:** Recipe is linked to multiple collections and owner removes one membership.
 **Expected Result:** Recipe is removed from selected collection while remaining in other linked collections.
 
 - **User Scenario: SCN-049-B1**
@@ -1182,9 +1183,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-049-C (Reject membership add at cap boundary)
 
-**Linked Requirement:** REQ-049, REQ-049b  
-**Description:** Placeholder boundary case for per-user collection membership cap enforcement.  
-**Validation Condition:** A user is at `[TBD: per-user collection cap]` and attempts to add one more recipe membership.  
+**Linked Requirement:** REQ-049, REQ-049b
+**Description:** Placeholder boundary case for per-user collection membership cap enforcement.
+**Validation Condition:** A user is at `[TBD: per-user collection cap]` and attempts to add one more recipe membership.
 **Expected Result:** **TBD until REQ-049b cap value is resolved**; expected behavior is rejection at cap boundary with no additional membership persisted.
 
 - **User Scenario: SCN-049-C1**
@@ -1198,9 +1199,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-050-A (Premium owner can set collection private)
 
-**Linked Requirement:** REQ-050a  
-**Description:** Validates premium subscription private visibility control for collections.  
-**Validation Condition:** Premium owner updates owned collection visibility to private.  
+**Linked Requirement:** REQ-050a
+**Description:** Validates premium subscription private visibility control for collections.
+**Validation Condition:** Premium owner updates owned collection visibility to private.
 **Expected Result:** HTTP 200 is returned; collection visibility becomes private.
 
 - **User Scenario: SCN-050-A1**
@@ -1210,9 +1211,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-050-B (Free-tier owner cannot set collection private)
 
-**Linked Requirement:** REQ-050a  
-**Description:** Validates free-tier rejection for private collection visibility.  
-**Validation Condition:** Free-tier owner attempts to set owned collection to private.  
+**Linked Requirement:** REQ-050a
+**Description:** Validates free-tier rejection for private collection visibility.
+**Validation Condition:** Free-tier owner attempts to set owned collection to private.
 **Expected Result:** HTTP 403 is returned and collection visibility remains public.
 
 - **User Scenario: SCN-050-B1**
@@ -1222,9 +1223,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-050-C (Any authenticated user can view public collection)
 
-**Linked Requirement:** REQ-050b  
-**Description:** Validates authenticated public-read access for collections.  
-**Validation Condition:** A public collection exists and non-owner authenticated user requests it.  
+**Linked Requirement:** REQ-050b
+**Description:** Validates authenticated public-read access for collections.
+**Validation Condition:** A public collection exists and non-owner authenticated user requests it.
 **Expected Result:** HTTP 200 is returned with collection details and accessible recipe members.
 
 - **User Scenario: SCN-050-C1**
@@ -1238,9 +1239,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-051-A (Public collection clone into requester account)
 
-**Linked Requirement:** REQ-051  
-**Description:** Validates clone capability for public collections.  
-**Validation Condition:** Authenticated user clones a public collection owned by another user.  
+**Linked Requirement:** REQ-051
+**Description:** Validates clone capability for public collections.
+**Validation Condition:** Authenticated user clones a public collection owned by another user.
 **Expected Result:** HTTP 201 is returned; a new collection owned by cloner is created with copied eligible members.
 
 - **User Scenario: SCN-051-A1**
@@ -1254,9 +1255,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-052-A (Clone excludes inaccessible members)
 
-**Linked Requirement:** REQ-052  
-**Description:** Validates access-aware filtering of source recipes during collection clone.  
-**Validation Condition:** Source public collection contains at least one recipe inaccessible to cloner.  
+**Linked Requirement:** REQ-052
+**Description:** Validates access-aware filtering of source recipes during collection clone.
+**Validation Condition:** Source public collection contains at least one recipe inaccessible to cloner.
 **Expected Result:** Cloned collection omits inaccessible recipe(s) while including accessible ones.
 
 - **User Scenario: SCN-052-A1**
@@ -1270,9 +1271,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-053-A (Clone is snapshot at clone time)
 
-**Linked Requirement:** REQ-053  
-**Description:** Validates clone ownership and snapshot-time semantics.  
-**Validation Condition:** User clones source collection and source is modified afterward.  
+**Linked Requirement:** REQ-053
+**Description:** Validates clone ownership and snapshot-time semantics.
+**Validation Condition:** User clones source collection and source is modified afterward.
 **Expected Result:** Cloned collection remains unchanged after source modifications unless explicit pull-updates action is invoked.
 
 - **User Scenario: SCN-053-A1**
@@ -1286,9 +1287,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-054-A (Clone stores sourceCollectionId reference)
 
-**Linked Requirement:** REQ-054  
-**Description:** Validates provenance persistence on cloned collections.  
-**Validation Condition:** Public collection clone operation completes successfully.  
+**Linked Requirement:** REQ-054
+**Description:** Validates provenance persistence on cloned collections.
+**Validation Condition:** Public collection clone operation completes successfully.
 **Expected Result:** Persisted cloned collection row contains `sourceCollectionId` equal to source collection ID.
 
 - **User Scenario: SCN-054-A1**
@@ -1302,9 +1303,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-055-A (Pull adds newly public recipes from source)
 
-**Linked Requirement:** REQ-055a  
-**Description:** Validates pull-updates adds source recipes newly added since snapshot when they are public and accessible.  
-**Validation Condition:** Source collection gained new public recipe after clone; cloner invokes pull-updates.  
+**Linked Requirement:** REQ-055a
+**Description:** Validates pull-updates adds source recipes newly added since snapshot when they are public and accessible.
+**Validation Condition:** Source collection gained new public recipe after clone; cloner invokes pull-updates.
 **Expected Result:** Newly added accessible public source recipe appears in cloned collection after pull.
 
 - **User Scenario: SCN-055-A1**
@@ -1314,9 +1315,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-055-B (Pull removes recipes no longer accessible)
 
-**Linked Requirement:** REQ-055b  
-**Description:** Validates pull-updates removes source-linked recipes cloner can no longer access.  
-**Validation Condition:** A previously included source recipe becomes inaccessible to cloner before pull-updates.  
+**Linked Requirement:** REQ-055b
+**Description:** Validates pull-updates removes source-linked recipes cloner can no longer access.
+**Validation Condition:** A previously included source recipe becomes inaccessible to cloner before pull-updates.
 **Expected Result:** Pull-updates removes that inaccessible recipe from cloned collection.
 
 - **User Scenario: SCN-055-B1**
@@ -1326,9 +1327,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-055-C (Pull preserves cloner-added recipes)
 
-**Linked Requirement:** REQ-055c  
-**Description:** Validates pull-updates does not remove or overwrite recipes manually added by cloner.  
-**Validation Condition:** Cloned collection contains cloner-added recipe not originating from source.  
+**Linked Requirement:** REQ-055c
+**Description:** Validates pull-updates does not remove or overwrite recipes manually added by cloner.
+**Validation Condition:** Cloned collection contains cloner-added recipe not originating from source.
 **Expected Result:** Pull-updates leaves cloner-added recipe membership unchanged.
 
 - **User Scenario: SCN-055-C1**
@@ -1342,9 +1343,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-056-A (Deleting collection does not delete recipes)
 
-**Linked Requirement:** REQ-056  
-**Description:** Validates non-cascade behavior from collection deletion to recipe entities.  
-**Validation Condition:** Collection containing recipes is deleted by owner.  
+**Linked Requirement:** REQ-056
+**Description:** Validates non-cascade behavior from collection deletion to recipe entities.
+**Validation Condition:** Collection containing recipes is deleted by owner.
 **Expected Result:** Collection-membership links are removed, but underlying recipe rows remain intact.
 
 - **User Scenario: SCN-056-A1**
@@ -1354,9 +1355,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-056-B (Deleting recipe does not delete collections)
 
-**Linked Requirement:** REQ-056  
-**Description:** Validates non-cascade behavior from recipe deletion to collection entities.  
-**Validation Condition:** Recipe in one or more collections is deleted/tombstoned.  
+**Linked Requirement:** REQ-056
+**Description:** Validates non-cascade behavior from recipe deletion to collection entities.
+**Validation Condition:** Recipe in one or more collections is deleted/tombstoned.
 **Expected Result:** Recipe is removed from memberships as needed, but collection entities remain present.
 
 - **User Scenario: SCN-056-B1**
@@ -1370,9 +1371,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-057-A (Typeahead suggestions include nutrition-backed matches)
 
-**Linked Requirement:** REQ-057  
-**Description:** Validates ingredient typeahead suggestion behavior with concrete nutrition fields per suggestion.  
-**Validation Condition:** User enters ingredient prefix with matching food-database records.  
+**Linked Requirement:** REQ-057
+**Description:** Validates ingredient typeahead suggestion behavior with concrete nutrition fields per suggestion.
+**Validation Condition:** User enters ingredient prefix with matching food-database records.
 **Expected Result:** Suggestion list returns matching ingredients and each suggestion includes numeric `caloriesPerUnit`, `proteinPerUnit`, `carbsPerUnit`, and `fatPerUnit` fields derived from the linked food-database record.
 
 - **User Scenario: SCN-057-A1**
@@ -1382,9 +1383,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-057-B (Typeahead latency and trigger-threshold compliance)
 
-**Linked Requirement:** REQ-057  
-**Description:** Validates the 2-character trigger boundary and 300 ms suggestion-response latency obligation.  
-**Validation Condition:** Ingredient input transitions from 1 to 2+ characters while wall-clock timings are captured at keystroke and first suggestion response render/receipt.  
+**Linked Requirement:** REQ-057
+**Description:** Validates the 2-character trigger boundary and 300 ms suggestion-response latency obligation.
+**Validation Condition:** Ingredient input transitions from 1 to 2+ characters while wall-clock timings are captured at keystroke and first suggestion response render/receipt.
 **Expected Result:** With 1 character, no suggestions are returned; with 2+ characters, suggestions are returned and each suggestion response is received within 300 ms of each keystroke.
 
 - **User Scenario: SCN-057-B1**
@@ -1403,9 +1404,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-001-A (20-recipe search/filter response-time compliance)
 
-**Linked Requirement:** REQ-NF-001  
-**Description:** Validates wall-clock response-time SLO for search/filter on dataset size floor.  
-**Validation Condition:** Seeded dataset has at least 20 recipes; timed search/filter query is executed under controlled environment.  
+**Linked Requirement:** REQ-NF-001
+**Description:** Validates wall-clock response-time SLO for search/filter on dataset size floor.
+**Validation Condition:** Seeded dataset has at least 20 recipes; timed search/filter query is executed under controlled environment.
 **Expected Result:** End-to-end wall-clock from request send to full response receive is <=2.0 seconds.
 
 - **User Scenario: SCN-NF-001-A1**
@@ -1419,9 +1420,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-002-A (Load-test p95 latency threshold)
 
-**Linked Requirement:** REQ-NF-002  
-**Description:** Validates API p95 latency target under sustained 10,000 concurrent-user load.  
-**Validation Condition:** Sustained load test runs at 10,000 concurrent users using production-like workload profile.  
+**Linked Requirement:** REQ-NF-002
+**Description:** Validates API p95 latency target under sustained 10,000 concurrent-user load.
+**Validation Condition:** Sustained load test runs at 10,000 concurrent users using production-like workload profile.
 **Expected Result:** Reported p95 API response time is <=500ms for the sustained measurement window.
 
 - **User Scenario: SCN-NF-002-A1**
@@ -1435,9 +1436,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-003-A (Timed user demonstration)
 
-**Linked Requirement:** REQ-NF-003  
-**Description:** Validates usability target for creating complete recipe from empty start state.  
-**Validation Condition:** User starts with empty recipe and must add >=1 ingredient, >=1 instruction, >=1 photo; timer starts when user activates `Create Recipe` and stops when success confirmation is rendered.  
+**Linked Requirement:** REQ-NF-003
+**Description:** Validates usability target for creating complete recipe from empty start state.
+**Validation Condition:** User starts with empty recipe and must add >=1 ingredient, >=1 instruction, >=1 photo; timer starts when user activates `Create Recipe` and stops when success confirmation is rendered.
 **Expected Result:** Elapsed completion time is under 5:00; start/end timestamps and elapsed duration are recorded in an execution log entry for reproducibility.
 
 - **User Scenario: SCN-NF-003-A1**
@@ -1451,9 +1452,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-004-A (First-week cohort engagement analysis)
 
-**Linked Requirement:** REQ-NF-004  
-**Description:** Validates analytic KPI for free-tier first-week feature usage breadth.  
-**Validation Condition:** Analytics query computes first-week free-tier users who performed at least three core features (create, search, share) over the first complete calendar week after feature launch, with cohort size `N >= 100`.  
+**Linked Requirement:** REQ-NF-004
+**Description:** Validates analytic KPI for free-tier first-week feature usage breadth.
+**Validation Condition:** Analytics query computes first-week free-tier users who performed at least three core features (create, search, share) over the first complete calendar week after feature launch, with cohort size `N >= 100`.
 **Expected Result:** Computed percentage is >=80% for the measured cohort period and reported with the sampled cohort size.
 
 - **User Scenario: SCN-NF-004-A1**
@@ -1467,9 +1468,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-005-A (`tsc --strict` compiles with zero errors)
 
-**Linked Requirement:** REQ-NF-005a  
-**Description:** Validates strict TypeScript compile requirement for this feature codebase.  
-**Validation Condition:** `tsc --strict` is executed against feature packages at HEAD.  
+**Linked Requirement:** REQ-NF-005a
+**Description:** Validates strict TypeScript compile requirement for this feature codebase.
+**Validation Condition:** `tsc --strict` is executed against feature packages at HEAD.
 **Expected Result:** Compiler exits with code 0 and reports zero type errors.
 
 - **User Scenario: SCN-NF-005-A1**
@@ -1479,9 +1480,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-005-B (No `any` outside annotated test doubles)
 
-**Linked Requirement:** REQ-NF-005b  
-**Description:** Validates forbidden `any` usage policy outside explicitly annotated test-double files.  
-**Validation Condition:** Static inspection scans TypeScript sources for `any` usage and verifies location/annotations.  
+**Linked Requirement:** REQ-NF-005b
+**Description:** Validates forbidden `any` usage policy outside explicitly annotated test-double files.
+**Validation Condition:** Static inspection scans TypeScript sources for `any` usage and verifies location/annotations.
 **Expected Result:** Any occurrences are confined to files explicitly marked as test doubles; no production-source violations exist.
 
 - **User Scenario: SCN-NF-005-B1**
@@ -1495,9 +1496,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-006-A (All exported APIs have complete JSDoc)
 
-**Linked Requirement:** REQ-NF-006  
-**Description:** Validates documentation coverage on exported functions and interfaces.  
-**Validation Condition:** Exported symbols are enumerated and inspected for JSDoc blocks containing purpose, parameters, and return value.  
+**Linked Requirement:** REQ-NF-006
+**Description:** Validates documentation coverage on exported functions and interfaces.
+**Validation Condition:** Exported symbols are enumerated and inspected for JSDoc blocks containing purpose, parameters, and return value.
 **Expected Result:** Every exported function/interface has JSDoc with required sections; no missing documentation findings.
 
 - **User Scenario: SCN-NF-006-A1**
@@ -1511,9 +1512,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-007-A (Accessible name reachability via role/label)
 
-**Linked Requirement:** REQ-NF-007  
-**Description:** Validates UI components expose accessible names discoverable by role/label selectors.  
-**Validation Condition:** Playwright accessibility-focused tests query interactive components using `getByRole` or `getByLabel`.  
+**Linked Requirement:** REQ-NF-007
+**Description:** Validates UI components expose accessible names discoverable by role/label selectors.
+**Validation Condition:** Playwright accessibility-focused tests query interactive components using `getByRole` or `getByLabel`.
 **Expected Result:** Queries resolve to intended components without fallback to non-accessible selectors.
 
 - **User Scenario: SCN-NF-007-A1**
@@ -1527,9 +1528,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-008-A (Every state indicator includes text or icon)
 
-**Linked Requirement:** REQ-NF-008  
-**Description:** Validates accessibility rule prohibiting color-only state communication.  
-**Validation Condition:** UI state indicators (error/success/warning/selection) are audited across feature surfaces.  
+**Linked Requirement:** REQ-NF-008
+**Description:** Validates accessibility rule prohibiting color-only state communication.
+**Validation Condition:** UI state indicators (error/success/warning/selection) are audited across feature surfaces.
 **Expected Result:** Every state indicator combines color with iconography or textual label.
 
 - **User Scenario: SCN-NF-008-A1**
@@ -1543,9 +1544,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-009-A (Implementation tasks have paired test files)
 
-**Linked Requirement:** REQ-NF-009  
-**Description:** Validates implementation changes are accompanied by corresponding tests in same or earlier commit context.  
-**Validation Condition:** Task-to-commit review checks modified implementation files against associated test additions/updates and compares commit timestamps.  
+**Linked Requirement:** REQ-NF-009
+**Description:** Validates implementation changes are accompanied by corresponding tests in same or earlier commit context.
+**Validation Condition:** Task-to-commit review checks modified implementation files against associated test additions/updates and compares commit timestamps.
 **Expected Result:** For each implementation task, at least one corresponding test-file commit timestamp is less than or equal to the implementation-file commit timestamp within the same PR.
 
 - **User Scenario: SCN-NF-009-A1**
@@ -1559,9 +1560,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-010-A (Web Playwright and mobile Maestro file patterns)
 
-**Linked Requirement:** REQ-NF-010a, REQ-NF-010b  
-**Description:** Validates required end-to-end test file naming and framework conventions.  
-**Validation Condition:** Repository test files are inspected for browser and mobile E2E suites.  
+**Linked Requirement:** REQ-NF-010a, REQ-NF-010b
+**Description:** Validates required end-to-end test file naming and framework conventions.
+**Validation Condition:** Repository test files are inspected for browser and mobile E2E suites.
 **Expected Result:** Browser E2E tests are in Playwright `*.spec.ts`; mobile E2E flows are Maestro `*.yaml` files.
 
 - **User Scenario: SCN-NF-010-A1**
@@ -1575,9 +1576,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-011-A (Local development LocalStack integration)
 
-**Linked Requirement:** REQ-NF-011a, REQ-NF-011b  
-**Description:** Validates LocalStack is provided as local Docker Compose service for backend test execution.  
-**Validation Condition:** Local Docker Compose configuration defines LocalStack service and backend tests target emulated S3/SQS endpoints.  
+**Linked Requirement:** REQ-NF-011a, REQ-NF-011b
+**Description:** Validates LocalStack is provided as local Docker Compose service for backend test execution.
+**Validation Condition:** Local Docker Compose configuration defines LocalStack service and backend tests target emulated S3/SQS endpoints.
 **Expected Result:** Local unit/integration tests execute against LocalStack without reaching live AWS.
 
 - **User Scenario: SCN-NF-011-A1**
@@ -1587,9 +1588,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-011-B (CI LocalStack service container integration)
 
-**Linked Requirement:** REQ-NF-011a, REQ-NF-011c  
-**Description:** Validates GitHub Actions provides LocalStack service container for backend tests.  
-**Validation Condition:** CI workflow definitions are inspected and test jobs executed in pull request pipeline.  
+**Linked Requirement:** REQ-NF-011a, REQ-NF-011c
+**Description:** Validates GitHub Actions provides LocalStack service container for backend tests.
+**Validation Condition:** CI workflow definitions are inspected and test jobs executed in pull request pipeline.
 **Expected Result:** CI jobs define and use LocalStack service container for AWS emulation during backend tests.
 
 - **User Scenario: SCN-NF-011-B1**
@@ -1603,9 +1604,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-012-A (PR pipeline runs five mandatory checks)
 
-**Linked Requirement:** REQ-NF-012a, REQ-NF-012b  
-**Description:** Validates CI workflow runs `typecheck`, `lint`, `format:check`, `test`, and `test:e2e` on each PR.  
-**Validation Condition:** Pull request workflow definitions and protection rules are inspected.  
+**Linked Requirement:** REQ-NF-012a, REQ-NF-012b
+**Description:** Validates CI workflow runs `typecheck`, `lint`, `format:check`, `test`, and `test:e2e` on each PR.
+**Validation Condition:** Pull request workflow definitions and protection rules are inspected.
 **Expected Result:** All five checks are configured as required PR checks and merge is blocked unless each passes.
 
 - **User Scenario: SCN-NF-012-A1**
@@ -1619,9 +1620,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-013-A (Stable seeded IDs across repeated runs)
 
-**Linked Requirement:** REQ-NF-013a, REQ-NF-013b, REQ-NF-013c  
-**Description:** Validates deterministic seed behavior for fixture-based E2E assertions.  
-**Validation Condition:** Seed script runs twice on clean test databases.  
+**Linked Requirement:** REQ-NF-013a, REQ-NF-013b, REQ-NF-013c
+**Description:** Validates deterministic seed behavior for fixture-based E2E assertions.
+**Validation Condition:** Seed script runs twice on clean test databases.
 **Expected Result:** Entity IDs and key fixture values are identical across runs; rerun does not duplicate incompatible records.
 
 - **User Scenario: SCN-NF-013-A1**
@@ -1635,9 +1636,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-014-A (No live service/database access in unit/component tests)
 
-**Linked Requirement:** REQ-NF-014a, REQ-NF-014b, REQ-NF-014c  
-**Description:** Validates test isolation policy with mocks and fixture factories.  
-**Validation Condition:** Unit/component test suites are inspected for dependency wiring and fixture usage patterns.  
+**Linked Requirement:** REQ-NF-014a, REQ-NF-014b, REQ-NF-014c
+**Description:** Validates test isolation policy with mocks and fixture factories.
+**Validation Condition:** Unit/component test suites are inspected for dependency wiring and fixture usage patterns.
 **Expected Result:** Tests use `make*` fixture factories and mocks; no live service or live database connections are present.
 
 - **User Scenario: SCN-NF-014-A1**
@@ -1656,9 +1657,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-015-A (Normal-operation pending backlog SLO)
 
-**Linked Requirement:** REQ-NF-015  
-**Description:** Validates operational backlog SLO for `recipe_version_pending_archives`.  
-**Validation Condition:** Production telemetry window marked as normal operating conditions is analyzed.  
+**Linked Requirement:** REQ-NF-015
+**Description:** Validates operational backlog SLO for `recipe_version_pending_archives`.
+**Validation Condition:** Production telemetry window marked as normal operating conditions is analyzed.
 **Expected Result:** `recipe_version_pending_archives` row count remains below 100 throughout the analyzed normal window.
 
 - **User Scenario: SCN-NF-015-A1**
@@ -1672,9 +1673,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-016-A (CloudWatch alarm threshold and duration rule)
 
-**Linked Requirement:** REQ-NF-016  
-**Description:** Validates CloudWatch alarm is configured to trigger only when pending count exceeds 100 continuously for >15 minutes.  
-**Validation Condition:** Alarm definition and evaluation periods are inspected, then threshold breach simulation is executed.  
+**Linked Requirement:** REQ-NF-016
+**Description:** Validates CloudWatch alarm is configured to trigger only when pending count exceeds 100 continuously for >15 minutes.
+**Validation Condition:** Alarm definition and evaluation periods are inspected, then threshold breach simulation is executed.
 **Expected Result:** Alarm transitions to ALARM state when count >100 persists beyond 15 minutes and remains non-ALARM for shorter spikes.
 
 - **User Scenario: SCN-NF-016-A1**
@@ -1688,9 +1689,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-017-A (CloudWatch age-based alarm rule)
 
-**Linked Requirement:** REQ-NF-017  
-**Description:** Validates alarm trigger on oldest pending archive record age exceeding 1 hour.  
-**Validation Condition:** Alarm metric/threshold configuration is inspected and age-threshold breach is simulated.  
+**Linked Requirement:** REQ-NF-017
+**Description:** Validates alarm trigger on oldest pending archive record age exceeding 1 hour.
+**Validation Condition:** Alarm metric/threshold configuration is inspected and age-threshold breach is simulated.
 **Expected Result:** Alarm enters ALARM state when oldest pending row age crosses >1 hour.
 
 - **User Scenario: SCN-NF-017-A1**
@@ -1704,9 +1705,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-018-A (Use NEXT_PUBLIC_API_URL when set)
 
-**Linked Requirement:** REQ-NF-018  
-**Description:** Validates web frontend uses configured `NEXT_PUBLIC_API_URL` when provided.  
-**Validation Condition:** Web app starts with `NEXT_PUBLIC_API_URL` set to non-default value.  
+**Linked Requirement:** REQ-NF-018
+**Description:** Validates web frontend uses configured `NEXT_PUBLIC_API_URL` when provided.
+**Validation Condition:** Web app starts with `NEXT_PUBLIC_API_URL` set to non-default value.
 **Expected Result:** Web app API client base URL equals configured environment value.
 
 - **User Scenario: SCN-NF-018-A1**
@@ -1716,9 +1717,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-018-B (Fallback to localhost:4000 when unset)
 
-**Linked Requirement:** REQ-NF-018  
-**Description:** Validates default web API base URL when env variable is missing.  
-**Validation Condition:** Web app starts with `NEXT_PUBLIC_API_URL` unset.  
+**Linked Requirement:** REQ-NF-018
+**Description:** Validates default web API base URL when env variable is missing.
+**Validation Condition:** Web app starts with `NEXT_PUBLIC_API_URL` unset.
 **Expected Result:** API client base URL defaults to `http://localhost:4000`.
 
 - **User Scenario: SCN-NF-018-B1**
@@ -1732,9 +1733,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-019-A (Use EXPO_PUBLIC_API_URL when set)
 
-**Linked Requirement:** REQ-NF-019  
-**Description:** Validates mobile frontend uses configured `EXPO_PUBLIC_API_URL` when provided.  
-**Validation Condition:** Mobile app starts with `EXPO_PUBLIC_API_URL` set to non-default value.  
+**Linked Requirement:** REQ-NF-019
+**Description:** Validates mobile frontend uses configured `EXPO_PUBLIC_API_URL` when provided.
+**Validation Condition:** Mobile app starts with `EXPO_PUBLIC_API_URL` set to non-default value.
 **Expected Result:** Mobile API client base URL equals configured environment value.
 
 - **User Scenario: SCN-NF-019-A1**
@@ -1744,9 +1745,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-019-B (Fallback to localhost:4000 when unset)
 
-**Linked Requirement:** REQ-NF-019  
-**Description:** Validates default mobile API base URL when env variable is missing.  
-**Validation Condition:** Mobile app starts with `EXPO_PUBLIC_API_URL` unset.  
+**Linked Requirement:** REQ-NF-019
+**Description:** Validates default mobile API base URL when env variable is missing.
+**Validation Condition:** Mobile app starts with `EXPO_PUBLIC_API_URL` unset.
 **Expected Result:** Mobile API client base URL defaults to `http://localhost:4000`.
 
 - **User Scenario: SCN-NF-019-B1**
@@ -1760,9 +1761,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-NF-020-A (Port mapping audit for all required services)
 
-**Linked Requirement:** REQ-NF-020  
-**Description:** Validates fixed local-development port assignments for API, web, metro, Postgres, and LocalStack.  
-**Validation Condition:** Local environment configuration files are inspected for port bindings.  
+**Linked Requirement:** REQ-NF-020
+**Description:** Validates fixed local-development port assignments for API, web, metro, Postgres, and LocalStack.
+**Validation Condition:** Local environment configuration files are inspected for port bindings.
 **Expected Result:** Ports are configured exactly as API `4000`, web `3000`, Expo Metro `8081`, Postgres `5432`, LocalStack `4566`.
 
 - **User Scenario: SCN-NF-020-A1**
@@ -1776,26 +1777,26 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-IF-001-A (Queued job returns HTTP 202 existing job id)
 
-**Linked Requirement:** REQ-IF-001a, REQ-IF-001b  
-**Description:** Validates idempotent response for users with existing queued erasure job.  
-**Validation Condition:** Caller already has one queued erasure job and re-calls `POST /api/account/erasure`.  
+**Linked Requirement:** REQ-IF-001a, REQ-IF-001b
+**Description:** Validates idempotent response for users with existing queued erasure job.
+**Validation Condition:** Caller already has one queued erasure job and re-calls `POST /api/v1/account/erasure`.
 **Expected Result:** HTTP 202 is returned with existing job ID; queue depth does not increase.
 
 - **User Scenario: SCN-IF-001-A1**
     - **Given** an authenticated user already has erasure job `E1` in `queued` state
-    - **When** the user calls `POST /api/account/erasure` again
+    - **When** the user calls `POST /api/v1/account/erasure` again
     - **Then** the response is HTTP 202 with job id `E1` and no second job is enqueued
 
 #### Test Case: ATP-IF-001-B (Running job returns HTTP 202 existing job id)
 
-**Linked Requirement:** REQ-IF-001a, REQ-IF-001b  
-**Description:** Validates idempotent response for users with existing running erasure job.  
-**Validation Condition:** Caller already has one running erasure job and re-calls endpoint.  
+**Linked Requirement:** REQ-IF-001a, REQ-IF-001b
+**Description:** Validates idempotent response for users with existing running erasure job.
+**Validation Condition:** Caller already has one running erasure job and re-calls endpoint.
 **Expected Result:** HTTP 202 is returned with existing running job ID; queue depth remains unchanged.
 
 - **User Scenario: SCN-IF-001-B1**
     - **Given** an authenticated user already has erasure job `E2` in `running` state
-    - **When** the user calls `POST /api/account/erasure` again
+    - **When** the user calls `POST /api/v1/account/erasure` again
     - **Then** the response is HTTP 202 with job id `E2` and no additional job is created
 
 ---
@@ -1804,14 +1805,14 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-IF-002-A (Completed job yields Gone)
 
-**Linked Requirement:** REQ-IF-002  
-**Description:** Validates terminal-state contract for completed erasure jobs.  
-**Validation Condition:** Caller's most recent erasure job status is `completed`.  
-**Expected Result:** `POST /api/account/erasure` returns HTTP 410 (Gone).
+**Linked Requirement:** REQ-IF-002
+**Description:** Validates terminal-state contract for completed erasure jobs.
+**Validation Condition:** Caller's most recent erasure job status is `completed`.
+**Expected Result:** `POST /api/v1/account/erasure` returns HTTP 410 (Gone).
 
 - **User Scenario: SCN-IF-002-A1**
     - **Given** an authenticated user has most recent erasure job `E3` in `completed` state
-    - **When** the user calls `POST /api/account/erasure`
+    - **When** the user calls `POST /api/v1/account/erasure`
     - **Then** the API responds with HTTP 410
 
 ---
@@ -1820,14 +1821,14 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-IF-003-A (Failed state creates new job and returns HTTP 202)
 
-**Linked Requirement:** REQ-IF-003  
-**Description:** Validates retry semantics when latest erasure job failed.  
-**Validation Condition:** Caller's most recent erasure job is `failed`.  
+**Linked Requirement:** REQ-IF-003
+**Description:** Validates retry semantics when latest erasure job failed.
+**Validation Condition:** Caller's most recent erasure job is `failed`.
 **Expected Result:** Endpoint enqueues a new erasure job with new ID and returns HTTP 202 containing that new ID.
 
 - **User Scenario: SCN-IF-003-A1**
     - **Given** an authenticated user's most recent erasure job `E4` is in `failed` state
-    - **When** the user calls `POST /api/account/erasure`
+    - **When** the user calls `POST /api/v1/account/erasure`
     - **Then** the API returns HTTP 202 with a newly created job id different from `E4`
 
 ---
@@ -1836,9 +1837,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-IF-004-A (Parity matrix complete across both platforms)
 
-**Linked Requirement:** REQ-IF-004a, REQ-IF-004b, REQ-IF-004c  
-**Description:** Validates full functional parity between web and mobile for every functional requirement.  
-**Validation Condition:** A parity matrix maps all 83 functional requirements (REQ-001 through REQ-057, including all functional sub-IDs) to implemented and tested capabilities on both web and mobile.  
+**Linked Requirement:** REQ-IF-004a, REQ-IF-004b, REQ-IF-004c
+**Description:** Validates full functional parity between web and mobile for every functional requirement.
+**Validation Condition:** A parity matrix maps all 83 functional requirements (REQ-001 through REQ-057, including all functional sub-IDs) to implemented and tested capabilities on both web and mobile.
 **Expected Result:** Matrix shows 83/83 functional requirements implemented and validated on both platforms, with no parity gaps.
 
 - **User Scenario: SCN-IF-004-A1**
@@ -1852,9 +1853,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-IF-005-A (All protected APIs reject unauthenticated callers)
 
-**Linked Requirement:** REQ-IF-005a, REQ-IF-005c  
-**Description:** Validates unauthenticated access denial across functional API endpoints.  
-**Validation Condition:** Anonymous caller requests each functional API endpoint without valid session/JWT.  
+**Linked Requirement:** REQ-IF-005a, REQ-IF-005c
+**Description:** Validates unauthenticated access denial across functional API endpoints.
+**Validation Condition:** Anonymous caller requests each functional API endpoint without valid session/JWT.
 **Expected Result:** Each protected endpoint returns HTTP 401/403 and performs no protected state change.
 
 - **User Scenario: SCN-IF-005-A1**
@@ -1864,9 +1865,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-IF-005-B (UI surfaces gate functional actions behind authentication)
 
-**Linked Requirement:** REQ-IF-005b, REQ-IF-005c  
-**Description:** Validates unauthenticated users cannot execute functional UI capabilities.  
-**Validation Condition:** Anonymous visitor navigates to recipe-management UI surfaces.  
+**Linked Requirement:** REQ-IF-005b, REQ-IF-005c
+**Description:** Validates unauthenticated users cannot execute functional UI capabilities.
+**Validation Condition:** Anonymous visitor navigates to recipe-management UI surfaces.
 **Expected Result:** Visitor is redirected to/authenticated gate and cannot perform create/edit/delete/clone actions until authenticated.
 
 - **User Scenario: SCN-IF-005-B1**
@@ -1880,9 +1881,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-CN-001-A (Only public/private collection visibility options exist)
 
-**Linked Requirement:** REQ-CN-001a, REQ-CN-001b  
-**Description:** Validates out-of-scope guardrail that named-user collection sharing is absent.  
-**Validation Condition:** API contracts, DB schema, and UI controls for collection sharing are inspected.  
+**Linked Requirement:** REQ-CN-001a, REQ-CN-001b
+**Description:** Validates out-of-scope guardrail that named-user collection sharing is absent.
+**Validation Condition:** API contracts, DB schema, and UI controls for collection sharing are inspected.
 **Expected Result:** No per-user sharing endpoints/fields/actions exist; visibility options are limited to public/private.
 
 - **User Scenario: SCN-CN-001-A1**
@@ -1896,9 +1897,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-CN-002-A (Friends subsystem absent)
 
-**Linked Requirement:** REQ-CN-002  
-**Description:** Validates out-of-scope guardrail excluding friends/discovery features.  
-**Validation Condition:** Feature codebase and routes are inspected for QR codes, friend codes, friend requests, and discovery flows.  
+**Linked Requirement:** REQ-CN-002
+**Description:** Validates out-of-scope guardrail excluding friends/discovery features.
+**Validation Condition:** Feature codebase and routes are inspected for QR codes, friend codes, friend requests, and discovery flows.
 **Expected Result:** No friends-system entities, endpoints, or UI flows are implemented in this feature.
 
 - **User Scenario: SCN-CN-002-A1**
@@ -1912,9 +1913,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-CN-003-A (Reject public visibility for paid-source recipe always)
 
-**Linked Requirement:** REQ-CN-003  
-**Description:** Validates legal constraint blocking public visibility on paid-source imports regardless of tier or edits.  
-**Validation Condition:** Owner of paid-source recipe attempts to set visibility to public under multiple subscription/edit states.  
+**Linked Requirement:** REQ-CN-003
+**Description:** Validates legal constraint blocking public visibility on paid-source imports regardless of tier or edits.
+**Validation Condition:** Owner of paid-source recipe attempts to set visibility to public under multiple subscription/edit states.
 **Expected Result:** Every attempt is rejected with policy error; recipe remains non-public.
 
 - **User Scenario: SCN-CN-003-A1**
@@ -1928,9 +1929,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-CN-004-A (Existing private recipes remain private after lapse)
 
-**Linked Requirement:** REQ-CN-004a  
-**Description:** Validates that previously private recipes stay private when premium lapses.  
-**Validation Condition:** User had premium, set recipe private, then subscription becomes inactive.  
+**Linked Requirement:** REQ-CN-004a
+**Description:** Validates that previously private recipes stay private when premium lapses.
+**Validation Condition:** User had premium, set recipe private, then subscription becomes inactive.
 **Expected Result:** Existing private recipe visibility remains private after lapse.
 
 - **User Scenario: SCN-CN-004-A1**
@@ -1940,9 +1941,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-CN-004-B (Reject setting additional recipes private while lapsed)
 
-**Linked Requirement:** REQ-CN-004b  
-**Description:** Validates capability lockout for additional private settings during lapsed period.  
-**Validation Condition:** Lapsed user attempts to set another owned public recipe to private.  
+**Linked Requirement:** REQ-CN-004b
+**Description:** Validates capability lockout for additional private settings during lapsed period.
+**Validation Condition:** Lapsed user attempts to set another owned public recipe to private.
 **Expected Result:** Request is rejected with subscription-required error until premium is renewed.
 
 - **User Scenario: SCN-CN-004-B1**
@@ -1956,9 +1957,9 @@ strict Given/When/Then format.
 
 #### Test Case: ATP-CN-005-A (Physical-copy import created as private by default)
 
-**Linked Requirement:** REQ-CN-005  
-**Description:** Validates origin-based default visibility for physical-copy imported recipes.  
-**Validation Condition:** User creates/imports recipe flagged with physical-copy (photo/OCR) origin metadata.  
+**Linked Requirement:** REQ-CN-005
+**Description:** Validates origin-based default visibility for physical-copy imported recipes.
+**Validation Condition:** User creates/imports recipe flagged with physical-copy (photo/OCR) origin metadata.
 **Expected Result:** Newly created recipe persists with `visibility="private"` by default.
 
 - **User Scenario: SCN-CN-005-A1**
@@ -1972,14 +1973,14 @@ strict Given/When/Then format.
 
 | Metric                   | Count            |
 | ------------------------ | ---------------- |
-| Total Requirements (REQ) | 129              |
+| Total Requirements (REQ) | 134              |
 | Total Test Cases (ATP)   | 129              |
 | Total Scenarios (SCN)    | 134              |
-| Requirements with ≥1 ATP | 129 / 129 (100%) |
+| Requirements with ≥1 ATP | 134 / 134 (100%) |
 | Test Cases with ≥1 SCN   | 129 / 129 (100%) |
 | **Overall Coverage**     | **100%**         |
 
-Coverage note: REQ-035a/035b, REQ-038a/038b/038c, and REQ-049a/049b are explicitly linked in ATP linked-requirement fields. REQ-049b cap-boundary execution remains blocked pending resolution of `[TBD: per-user collection cap]` in `requirements.md`.
+Coverage note: The ATP count (129) reflects test cases with dedicated `Linked Requirement` rows. Five functional REQs (REQ-002a, REQ-002b, REQ-003a, REQ-003b, REQ-030f) have no dedicated ATP row — their individual fields are validated as part of their parent REQ's ATP (ATP-002-A for REQ-002a/b, ATP-003-A/B for REQ-003a/b, ATP-030-A for REQ-030f). Coverage is complete at 134/134. REQ-035a/035b, REQ-038a/038b/038c, and REQ-049a/049b are explicitly linked in ATP linked-requirement fields. REQ-049b cap-boundary execution remains blocked pending resolution of `[TBD: per-user collection cap]` in `requirements.md`.
 
 ## Uncovered Requirements
 
@@ -1987,12 +1988,12 @@ None — full coverage achieved.
 
 ## Peer-Review Remediation Log
 
-- **PRF-ACC-001** (source: PRF-ATP-001): Updated Coverage Summary baseline to 129 requirements and added traceability-policy note for atomic sub-ID linking.
+- **PRF-ACC-001** (source: PRF-ATP-001): Updated Coverage Summary baseline to 134 requirements and added traceability-policy note for atomic sub-ID linking.
 - **PRF-ACC-002** (source: PRF-ATP-002): Updated Linked Requirement fields to include explicit atomic IDs for ATP-035-A/B, ATP-038-A/B, and ATP-049-A/B.
 - **PRF-ACC-003** (source: PRF-ATP-003): Added ATP-057-B with measurable `<=300 ms` latency validation and 1-character/2-character trigger boundary scenarios (SCN-057-B1/B2).
 - **PRF-ACC-004** (source: PRF-ATP-004): Updated ATP-IF-004-A validation/expected/scenario from 57 to 83 functional requirements (including sub-IDs) and made scenario query-driven.
 - **PRF-ACC-005** (source: PRF-ATP-005): Renamed ATP-020-B1 -> ATP-020-B and ATP-020-B2 -> ATP-020-C; updated scenario ID SCN-020-B2 -> SCN-020-C1.
-- **PRF-ACC-006** (source: PRF-ATP-006): Added explicit traceability policy note that REQ-010c is an upstream anomaly excluded from coverage accounting unless formalized in `requirements.md`.
+- **PRF-ACC-006** (source: PRF-ATP-006): Clarified that `REQ-010c` in the atomization preamble is a conceptual reference only (not a formal row), and that the 134 baseline is derived from actual table rows only.
 - **PRF-ACC-007** (source: PRF-ATP-007): Added document-level "Verification Method Notes" section classifying affected ATPs as Inspection/Analysis non-executable checks per ISO 29119.
 - **PRF-ACC-008** (source: PRF-ATP-008): Added placeholder ATP-049-C (SCN-049-C1) for cap-boundary rejection with explicit blocked status until REQ-049b `[TBD]` is resolved.
 - **PRF-ACC-009** (source: PRF-ATP-009): Rewrote SCN-NF-013-A1 Then clause with concrete `userId`/`recipeId`/`collectionId` fixture-constant equality assertions.

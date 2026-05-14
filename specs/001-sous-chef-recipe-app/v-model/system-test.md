@@ -27,7 +27,7 @@ Each test case identifies its technique by name:
 - **Decision Table Testing** — Systematically verifies multi-condition policy combinations and expected outcomes
 - **State Transition Testing** — Verifies valid/invalid transitions and terminal-state guards for defined lifecycle state machines
 - **Error Guessing** — Exercises high-risk undocumented edge cases and defensive error paths beyond formal partitions
-- **Performance Testing** — Verifies non-functional response-time behavior and load objectives under defined environments (ISO 29119-10)
+- **Performance Testing** — Verifies non-functional response-time behavior and load objectives under defined environments (ISO 29119-10). Applied via Analysis verification method for STP-NF-004-A, STP-NF-015-A. Executable performance test cases (STP-005-C) demonstrate the technique when executed programmatically.
 
 ## System Tests
 
@@ -43,7 +43,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-001-A1**
     - **Given** an Auth0-issued bearer token signed by a known JWKS key with unexpired `exp` and required scopes
-    - **When** the guard processes `GET /api/recipes/{id}` for a resource the principal can access
+    - **When** the guard processes `GET /api/v1/recipes/{id}` for a resource the principal can access
     - **Then** the request pipeline receives principal context (`userId`, tier, claims) and the endpoint continues with HTTP 200 response behavior
 
 - **System Scenario: STS-001-A2**
@@ -63,7 +63,7 @@ Each test case identifies its technique by name:
     - **Then** the guard fails closed with HTTP 401 and no protected route logic runs
 
 - **System Scenario: STS-001-B2**
-    - **Given** a valid authenticated principal attempts `PATCH /api/recipes/{id}` for a recipe owned by a different principal
+    - **Given** a valid authenticated principal attempts `PATCH /api/v1/recipes/{id}` for a recipe owned by a different principal
     - **When** owner authorization is evaluated
     - **Then** the guard returns HTTP 403 and no recipe mutation SQL statements are issued
 
@@ -102,17 +102,17 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-002-A1**
     - **Given** a valid `CreateRecipeRequest` payload with title, ingredients, ordered steps, times, servings, and tags
-    - **When** `POST /api/recipes` is processed
+    - **When** `POST /api/v1/recipes` is processed
     - **Then** the service commits metadata tables atomically, creates recipe version `1`, defaults visibility to `public`, and returns HTTP 201 with persisted fields
 
 - **System Scenario: STS-002-A2**
     - **Given** an existing recipe and a valid update payload referencing the current version
-    - **When** `PATCH /api/recipes/{id}` is executed
+    - **When** `PATCH /api/v1/recipes/{id}` is executed
     - **Then** the update increments version, persists mutation state, and response contracts conform to documented status codes
 
 - **System Scenario: STS-002-A3**
     - **Given** an existing recipe eligible for owner deletion
-    - **When** `DELETE /api/recipes/{id}` is executed
+    - **When** `DELETE /api/v1/recipes/{id}` is executed
     - **Then** delete applies tombstone semantics with HTTP 204 and command response contracts conform to documented status codes
 
 #### Test Case: STP-002-B (Command Payload Boundary Enforcement)
@@ -226,12 +226,12 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-004-A1**
     - **Given** ingredient catalog records indexed by normalized names and nutrition attributes per unit
-    - **When** `GET /api/ingredients/search?q=chick` is processed with `limit=10`
+    - **When** `GET /api/v1/ingredients/search?q=chick` is processed with `limit=10`
     - **Then** the response returns ranked ingredient suggestions with stable IDs, names, and linked nutrition metadata for matched records
 
 - **System Scenario: STS-004-A2**
     - **Given** no catalog match for a submitted ingredient text
-    - **When** `POST /api/ingredients` receives freeform payload with optional manual macro values
+    - **When** `POST /api/v1/ingredients` receives freeform payload with optional manual macro values
     - **Then** the service creates a user-entered ingredient record with `userEntered=true`, stores provided manual nutrition values when present, and returns HTTP 201
 
 #### Test Case: STP-004-B (Ingredient Data-Class Partitioning)
@@ -264,7 +264,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-005-A1**
     - **Given** recipe corpus includes active and tombstoned rows with tags, cuisine, dietary flags, ingredient links, and time fields
-    - **When** `GET /api/search/recipes` is executed with combined keyword and structured filter parameters
+    - **When** `GET /api/v1/search/recipes` is executed with combined keyword and structured filter parameters
     - **Then** results include only active recipes, return `results/total/page/pageSize/facets/appliedFilters`, and preserve deterministic ordering for selected `sortBy`
 
 - **System Scenario: STS-005-A2**
@@ -308,7 +308,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-006-A1**
     - **Given** a recipe with 9 existing photos and an upload request containing `fileSize=5242880`
-    - **When** `POST /api/recipes/{recipeId}/photos/upload-url` is processed
+    - **When** `POST /api/v1/recipes/{recipeId}/photos/upload-url` is processed
     - **Then** the service returns HTTP 200 with a presigned URL and object key because both boundaries are valid
 
 - **System Scenario: STS-006-A2**
@@ -324,7 +324,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-006-B1**
     - **Given** an uploaded object whose declared `contentType=image/jpeg` does not match inspected magic bytes
-    - **When** `POST /api/recipes/{recipeId}/photos/confirm` validates object metadata and content signature
+    - **When** `POST /api/v1/recipes/{recipeId}/photos/confirm` validates object metadata and content signature
     - **Then** the service rejects confirmation with per-file reason details, marks retryability, and avoids persisting a valid recipe-photo reference for the failed object
 
 - **System Scenario: STS-006-B2**
@@ -340,7 +340,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-006-C1**
     - **Given** a multipart upload with missing or incomplete parts where confirm is requested before object completeness is guaranteed
-    - **When** `POST /api/recipes/{recipeId}/photos/confirm` validates staged object integrity
+    - **When** `POST /api/v1/recipes/{recipeId}/photos/confirm` validates staged object integrity
     - **Then** confirmation is rejected deterministically, retryability is preserved, and no finalized photo attachment is persisted
 
 - **System Scenario: STS-006-C2**
@@ -401,6 +401,7 @@ Each test case identifies its technique by name:
     - **Given** a photo is in `PHOTO_PENDING` and processing prerequisites are not satisfied (missing/invalid staged object)
     - **When** confirmation or completion is attempted before processing can start
     - **Then** the invalid transition is rejected, the record does not move to `complete`, and state moves to or remains in `PHOTO_FAILED` with explicit reason
+    - **Note**: Scenario independence — STS-007-C2 requires a photo in `PHOTO_PENDING` state as fixture; it does not depend on the outcome of STS-007-C1 or STS-007-C3. Execute in isolated test environment.
 
 - **System Scenario: STS-007-C3**
     - **Given** a photo is already in terminal `complete` state
@@ -421,7 +422,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-008-A1**
     - **Given** a recipe at server version `7` and an update payload with `expectedVersion=7`
-    - **When** `PATCH /api/recipes/{id}` executes
+    - **When** `PATCH /api/v1/recipes/{id}` executes
     - **Then** the mutation succeeds, a new recipe version row is created, and the resulting recipe version increments to `8`
 
 - **System Scenario: STS-008-A2**
@@ -437,12 +438,13 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-008-B1**
     - **Given** a recipe with 12 pre-seeded version rows (versions `1..12`) established via deterministic seed fixtures
-    - **When** `GET /api/recipes/{recipeId}/versions` is requested
+    - **When** `GET /api/v1/recipes/{recipeId}/versions` is requested
     - **Then** exactly the most recent 10 versions (`3..12`) are returned from primary database storage
+    - **Note**: Scenario independence — STS-008-B1 requires a recipe with ≥12 version rows as a fixture; it is independent of STS-008-A1 but shares the recipe fixture. Execute in isolated test environment.
 
 - **System Scenario: STS-008-B2**
     - **Given** a restore request for historical version `5`
-    - **When** `POST /api/recipes/{recipeId}/versions/5/restore` executes
+    - **When** `POST /api/v1/recipes/{recipeId}/versions/5/restore` executes
     - **Then** a new current version is created from snapshot `5` while pre-existing version snapshots remain immutable
 
 #### Test Case: STP-008-C (Conflict/Concurrency Error-Path Guesses)
@@ -587,12 +589,12 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-011-A1**
     - **Given** authenticated ownership context and valid collection payloads
-    - **When** `POST /api/collections`, `PATCH /api/collections/{id}`, and `POST /api/collections/{id}/recipes` execute
+    - **When** `POST /api/v1/collections`, `PATCH /api/v1/collections/{id}`, and `POST /api/v1/collections/{id}/recipes` execute
     - **Then** collection rows are created/updated and membership rows are created with deterministic response bodies
 
 - **System Scenario: STS-011-A2**
     - **Given** one recipe mapped into multiple collections and one collection selected for deletion
-    - **When** `DELETE /api/collections/{id}` executes
+    - **When** `DELETE /api/v1/collections/{id}` executes
     - **Then** collection and membership rows for that collection are removed while recipe rows and other collection memberships remain intact (non-cascade invariant)
 
 #### Test Case: STP-011-B (Collection Policy Class Partitioning)
@@ -625,7 +627,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-012-A1**
     - **Given** a public source collection with accessible and inaccessible recipe memberships relative to caller permissions
-    - **When** `POST /api/collections/{id}/clone` executes
+    - **When** `POST /api/v1/collections/{id}/clone` executes
     - **Then** cloned collection is created under caller ownership, `sourceCollectionId` references source, and inaccessible source recipes are excluded from clone membership
 
 - **System Scenario: STS-012-A2**
@@ -641,7 +643,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-012-B1**
     - **Given** cloned collection with source linkage and source collection gains new public recipes while losing access to others
-    - **When** `POST /api/collections/{id}/pull-from-source` executes
+    - **When** `POST /api/v1/collections/{id}/pull-from-source` executes
     - **Then** reconcile adds newly accessible source recipes and removes source-derived recipes that are no longer accessible
 
 - **System Scenario: STS-012-B2**
@@ -663,12 +665,12 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-013-A1**
     - **Given** an account with an existing erasure job in `queued` or `running` state
-    - **When** `POST /api/account/erasure` is invoked repeatedly
+    - **When** `POST /api/v1/account/erasure` is invoked repeatedly
     - **Then** endpoint returns HTTP 202 with existing job ID and does not enqueue a duplicate job
 
 - **System Scenario: STS-013-A2**
     - **Given** terminal erasure states for an account
-    - **When** `POST /api/account/erasure` is invoked with most recent state `completed` or `failed`
+    - **When** `POST /api/v1/account/erasure` is invoked with most recent state `completed` or `failed`
     - **Then** endpoint returns HTTP 410 for completed state and returns HTTP 202 with a new job ID for failed state
 
 #### Test Case: STP-013-B (Erasure Dependency Failure and Recovery)
@@ -700,7 +702,7 @@ Each test case identifies its technique by name:
 
 - **System Scenario: STS-013-C2**
     - **Given** an account whose latest erasure job is already in terminal `ERASURE_COMPLETED`
-    - **When** `POST /api/account/erasure` is invoked again
+    - **When** `POST /api/v1/account/erasure` is invoked again
     - **Then** no new S3 delete calls, no new DB purge operations, and no new erasure job rows are created; state remains `ERASURE_COMPLETED` and API response is HTTP 410
 
 #### Test Case: STP-013-D (Erasure Concurrency Error-Path Guesses)
@@ -819,7 +821,7 @@ Each test case identifies its technique by name:
 
 #### Test Case: STP-016-B (Web Input-Class and Accessibility Partitions)
 
-**Technique**: Equivalence Partitioning
+**Technique**: Equivalence Partitioning + Error Guessing
 **Target View**: Decomposition View
 **Description**: Verifies client-side file validation classes and accessibility invariants across upload and conflict components.
 
@@ -1058,14 +1060,15 @@ None — full coverage achieved.
 
 ## Peer-Review Remediation Log
 
-| Finding ID  | Action Taken                                                                                                                                                                                                                                                                                                                                                                              |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PRF-STP-001 | Remapped affected technique declarations from `Interface Contract Testing` to `Specification-Based Testing` in the ISO techniques section and test cases `STP-001-A`, `STP-002-A`, `STP-004-A`, `STP-005-A`, `STP-006-B`, `STP-007-A`, `STP-008-A`, `STP-009-A`, `STP-010-A`, `STP-011-A`, `STP-012-A`, `STP-013-A`, `STP-015-A`, `STP-016-A`, `STP-017-A`, `STP-019-A`, and `STP-020-A`. |
-| PRF-STP-002 | Remapped affected technique declarations from `Fault Injection` to `Error Guessing` in `STP-001-B`, `STP-007-B`, `STP-009-B`, `STP-010-B`, `STP-013-B`, `STP-014-B`, `STP-015-B`, and `STP-019-B`.                                                                                                                                                                                        |
-| PRF-STP-003 | Added `STP-010-C` (State Transition Testing) with `STS-010-C1..C5` covering success path, failure path, DLQ replay, invalid transition on `NORMAL`, and terminal-state re-entry guard.                                                                                                                                                                                                    |
-| PRF-STP-004 | Split compound `STS-003-B2` into atomic cases: updated `STS-003-B2` (clone exists with zero edits) and added `STS-003-B3` (metadata/photo-only edits).                                                                                                                                                                                                                                    |
-| PRF-STP-005 | Extracted latency/load scenario to new `STP-005-C` (`Performance Testing`) with explicit non-functional conditions; retained `STP-005-B` as boundary-only coverage.                                                                                                                                                                                                                       |
-| PRF-STP-006 | Added `STP-003-C` using `Decision Table Testing` with explicit tier × source × edit-state matrix outcomes for `private` transition decisions.                                                                                                                                                                                                                                             |
-| PRF-STP-007 | Added Error Guessing cases for additional high-risk components: `STP-001-C` (JWT edge cases), `STP-006-C` (upload/confirm race conditions), and `STP-013-D` (erasure/session concurrency).                                                                                                                                                                                                |
-| PRF-STP-008 | Clarified `STS-008-B1` Given clause to deterministic seeded setup: recipe with 12 pre-seeded version rows (`1..12`).                                                                                                                                                                                                                                                                      |
-| PRF-STP-009 | Added flat `STS Index (Grouped by STP)` under Coverage Summary so scenario totals are independently verifiable from document structure.                                                                                                                                                                                                                                                   |
+| Finding ID  | Action Taken                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PRF-STP-001 | Remapped affected technique declarations from `Interface Contract Testing` to `Specification-Based Testing` in the ISO techniques section and test cases `STP-001-A`, `STP-002-A`, `STP-004-A`, `STP-005-A`, `STP-006-B`, `STP-007-A`, `STP-008-A`, `STP-009-A`, `STP-010-A`, `STP-011-A`, `STP-012-A`, `STP-013-A`, `STP-015-A`, `STP-016-A`, `STP-017-A`, `STP-019-A`, and `STP-020-A`.               |
+| PRF-STP-002 | Remapped affected technique declarations from `Fault Injection` to `Error Guessing` in `STP-001-B`, `STP-007-B`, `STP-009-B`, `STP-010-B`, `STP-013-B`, `STP-014-B`, `STP-015-B`, and `STP-019-B`.                                                                                                                                                                                                      |
+| PRF-STP-003 | Added `STP-010-C` (State Transition Testing) with `STS-010-C1..C5` covering success path, failure path, DLQ replay, invalid transition on `NORMAL`, and terminal-state re-entry guard.                                                                                                                                                                                                                  |
+| PRF-STP-004 | Split compound `STS-003-B2` into atomic cases: updated `STS-003-B2` (clone exists with zero edits) and added `STS-003-B3` (metadata/photo-only edits).                                                                                                                                                                                                                                                  |
+| PRF-STP-005 | Extracted latency/load scenario to new `STP-005-C` (`Performance Testing`) with explicit non-functional conditions; retained `STP-005-B` as boundary-only coverage.                                                                                                                                                                                                                                     |
+| PRF-STP-006 | Added `STP-003-C` using `Decision Table Testing` with explicit tier × source × edit-state matrix outcomes for `private` transition decisions.                                                                                                                                                                                                                                                           |
+| PRF-STP-007 | Added Error Guessing cases for additional high-risk components: `STP-001-C` (JWT edge cases), `STP-006-C` (upload/confirm race conditions), and `STP-013-D` (erasure/session concurrency).                                                                                                                                                                                                              |
+| PRF-STP-008 | Clarified `STS-008-B1` Given clause to deterministic seeded setup: recipe with 12 pre-seeded version rows (`1..12`).                                                                                                                                                                                                                                                                                    |
+| PRF-STP-009 | Added flat `STS Index (Grouped by STP)` under Coverage Summary so scenario totals are independently verifiable from document structure.                                                                                                                                                                                                                                                                 |
+| PRF-STP-010 | Updated `STP-016-B` technique from `Equivalence Partitioning` to `Equivalence Partitioning + Error Guessing` to cover accessibility partition (STS-016-B2) as error-guessing target. Added scenario independence notes to STS-007-C2 and STS-008-B1. Updated Performance Testing technique description to document Analysis verification for STP-NF-004-A, STP-NF-015-A, and executable case STP-005-C. |

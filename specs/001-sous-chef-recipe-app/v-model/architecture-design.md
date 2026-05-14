@@ -34,41 +34,41 @@ This architecture decomposes the 20 system components from `system-design.md` in
 
 ## Logical View — Component Breakdown (IEEE 42010 / Kruchten 4+1)
 
-| ARCH ID                  | Name                             | Description                                                                                                                                       | Parent System Components                             | Type      |
-| ------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | --------- |
-| ARCH-001                 | Auth0 JWT Verifier               | Validates incoming bearer tokens against Auth0 JWKS, decodes claims, and produces a typed `Principal` for downstream guards.                      | SYS-001                                              | Service   |
-| ARCH-002                 | Owner & Tier Authorization Guard | Enforces per-resource ownership and subscription-tier checks (free/premium) on protected NestJS routes.                                           | SYS-001                                              | Component |
-| ARCH-003                 | Recipe HTTP Controller           | NestJS controller exposing `/api/recipes`, `/api/recipes/{id}`, `/api/recipes/{id}/clone`, `/api/recipes/{id}/visibility`; binds DTOs to service. | SYS-002                                              | Component |
-| ARCH-004                 | Recipe Command Service           | Application service orchestrating create/update/delete/clone, transactional save, version snapshot creation, and archive enqueue.                 | SYS-002, SYS-008                                     | Service   |
-| ARCH-005                 | Recipe DTO Validator             | `class-validator` schemas for `CreateRecipeRequest`, `UpdateRecipeRequest`, visibility payload, and clone parameters.                             | SYS-002                                              | Library   |
-| ARCH-006                 | Visibility Policy Engine         | Pure-function policy evaluator returning `{ allowed, reason, ruleId }` for tier × source × visibility combinations; fail-closed on errors.        | SYS-003                                              | Library   |
-| ARCH-007                 | Substantive Edit Detector        | Compares pre/post recipe diffs over ingredients and instructions to determine whether a privacy unlock is permitted on imported clones.           | SYS-003                                              | Library   |
-| ARCH-008                 | Ingredient Resolver Service      | Resolves linked ingredient IDs and free-text ingredient strings against the catalog; powers autocomplete and save-time linkage.                   | SYS-004                                              | Service   |
-| ARCH-009                 | Nutrition Calculator             | Computes per-recipe nutrition aggregates from resolved ingredient quantities and unit conversions.                                                | SYS-004                                              | Library   |
-| ARCH-010                 | Recipe Search Service            | Application service for `/api/search/recipes` performing keyword + structured filter queries with pagination and facet projection.                | SYS-005                                              | Service   |
-| ARCH-011                 | Search Query Builder             | Translates filter DTOs into parameterized SQL/Drizzle queries against PostgreSQL `tsvector` and `pg_trgm` indexes; latency-aware plan shaping.    | SYS-005                                              | Library   |
-| ARCH-012                 | Photo Presign Service            | Issues S3 presigned PUT URLs scoped to a recipe and user, recording per-upload metadata for later validation.                                     | SYS-006                                              | Service   |
-| ARCH-013                 | Photo Confirm Service            | Server-side magic-byte revalidation, attaches confirmed object key to recipe, manages per-file retry semantics.                                   | SYS-006                                              | Service   |
-| ARCH-014                 | Photo Processing Lambda Handler  | AWS Lambda function consuming S3 ObjectCreated events, generating renditions via Sharp, and updating photo state in RDS.                          | SYS-007                                              | Service   |
-| ARCH-015                 | Version Snapshot Writer          | Writes JSONB version snapshots to `recipe_versions` and inserts the corresponding `recipe_version_pending_archives` row in the same transaction.  | SYS-008                                              | Service   |
-| ARCH-016                 | Optimistic Concurrency Guard     | Enforces row-versioned compare-and-set on recipe updates; emits explicit 409 conflict payloads with current/incoming snapshots.                   | SYS-008                                              | Library   |
-| ARCH-017                 | Archive Queue Producer           | Sends archive job messages to the version-archive SQS queue; tolerates send failures by leaving pending row for the reconciler.                   | SYS-009                                              | Service   |
-| ARCH-018                 | Archive Worker Lambda            | Consumes SQS archive messages, serializes the snapshot, writes `versions/{recipe_id}/v{n}.json` to S3, then transitions pending row state.        | SYS-010                                              | Service   |
-| ARCH-019                 | Pending Archive Reconciler       | Scheduled sweeper that re-enqueues pending-archive rows whose age exceeds threshold and increments attempt counters.                              | SYS-010                                              | Service   |
-| ARCH-020                 | Collection Service               | CRUD and membership management for collections, including non-cascade delete semantics and visibility checks via ARCH-006.                        | SYS-011                                              | Service   |
-| ARCH-021                 | Collection Clone & Pull Service  | Snapshot-clone source collections and execute user-initiated pull-from-source reconciliation under explicit add/remove/no-overwrite rules.        | SYS-012                                              | Service   |
-| ARCH-022                 | GDPR Erasure Orchestrator        | Enqueues, leases, and progresses `account_erasure_jobs` ledger rows; coordinates RDS purge + S3 purge with idempotent state transitions.          | SYS-013                                              | Service   |
-| ARCH-023                 | Erasure Storage Purger           | Lists user-owned object prefixes in S3 (photos + version archives) and performs batched deletes with retries.                                     | SYS-013, SYS-015                                     | Adapter   |
-| ARCH-024                 | Drizzle Repository Layer         | Encapsulates all PostgreSQL access (recipes, ingredients, photos, versions, pending archives, collections, erasure ledger) via Drizzle ORM.       | SYS-014                                              | Adapter   |
-| ARCH-025                 | S3 & CloudFront Adapter          | Wraps `@aws-sdk/client-s3` and presigner SDKs, owns bucket/key conventions, signs URLs, and exposes object lifecycle helpers.                     | SYS-015                                              | Adapter   |
-| ARCH-026                 | Web Recipe & Collection UI       | Next.js App Router pages, client-side validation, conflict UI, accessibility primitives, and Auth0 web SDK session integration.                   | SYS-016                                              | Component |
-| ARCH-027                 | Mobile Recipe & Collection UI    | Expo React Native screens, client-side validation, conflict UI, accessibility props, secure-store token persistence, and mobile API base URL.     | SYS-017                                              | Component |
-| ARCH-028                 | API Error Mapper                 | NestJS exception filter translating domain errors (validation, conflict, policy denial, not-found) into structured HTTP responses with codes.     | SYS-002                                              | Library   |
-| ARCH-029                 | Config Loader                    | `@nestjs/config` + Zod-validated environment loader exposing typed config tokens to all modules; resolves API/web/mobile defaults and ports.      | SYS-018                                              | Utility   |
-| ARCH-030                 | Telemetry & Logger               | Powertools/structured logger and metric emitter wired into all NestJS providers and Lambdas; correlation IDs and Sentry breadcrumb propagation.   | SYS-019                                              | Utility   |
-| ARCH-031                 | Archive Backlog Alarm            | CloudWatch alarm definitions on archive failure count, pending-row depth, and oldest-pending-age metrics emitted by ARCH-018/ARCH-019.            | SYS-019                                              | Utility   |
-| ARCH-032                 | CI & Test Governance Harness     | Turborepo + ESLint + tsc + vitest + LocalStack orchestration enforcing strict TS, JSDoc, TDD gates, and out-of-scope constraint checks in CI.     | SYS-020                                              | Utility   |
-| ARCH-033 [CROSS-CUTTING] | NestJS Module Wiring             | Root `AppModule` and feature modules composing providers, guards, filters, and adapters; binds DI tokens for testability.                         | SYS-001, SYS-002, SYS-014, SYS-018, SYS-019, SYS-020 | Utility   |
+| ARCH ID                  | Name                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Parent System Components                             | Type      |
+| ------------------------ | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | --------- |
+| ARCH-001                 | Auth0 JWT Verifier               | Validates incoming bearer tokens against Auth0 JWKS, decodes claims, and produces a typed `Principal` for downstream guards.                                                                                                                                                                                                                                                                                                                                                                         | SYS-001                                              | Service   |
+| ARCH-002                 | Owner & Tier Authorization Guard | Enforces per-resource ownership and subscription-tier checks (free/premium) on protected NestJS routes.                                                                                                                                                                                                                                                                                                                                                                                              | SYS-001                                              | Component |
+| ARCH-003                 | Recipe HTTP Controller           | NestJS controller exposing `/api/v1/recipes`, `/api/v1/recipes/{id}`, `/api/v1/recipes/{id}/clone`, `/api/v1/recipes/{id}/visibility`; binds DTOs to service.                                                                                                                                                                                                                                                                                                                                        | SYS-002                                              | Component |
+| ARCH-004                 | Recipe Command Service           | Application service orchestrating create/update/delete/clone, transactional save, version snapshot creation, and archive enqueue.                                                                                                                                                                                                                                                                                                                                                                    | SYS-002, SYS-008                                     | Service   |
+| ARCH-005                 | Recipe DTO Validator             | `class-validator` schemas for `CreateRecipeRequest`, `UpdateRecipeRequest`, visibility payload, and clone parameters.                                                                                                                                                                                                                                                                                                                                                                                | SYS-002                                              | Library   |
+| ARCH-006                 | Visibility Policy Engine         | Pure-function policy evaluator returning `{ allowed, reason, ruleId }` for tier × source × visibility combinations; fail-closed on errors.                                                                                                                                                                                                                                                                                                                                                           | SYS-003                                              | Library   |
+| ARCH-007                 | Substantive Edit Detector        | Compares pre/post recipe diffs over ingredients and instructions to determine whether a privacy unlock is permitted on imported clones.                                                                                                                                                                                                                                                                                                                                                              | SYS-003                                              | Library   |
+| ARCH-008                 | Ingredient Resolver Service      | Resolves linked ingredient IDs and free-text ingredient strings against the catalog; powers autocomplete and save-time linkage.                                                                                                                                                                                                                                                                                                                                                                      | SYS-004                                              | Service   |
+| ARCH-009                 | Nutrition Calculator             | Computes per-recipe nutrition aggregates from resolved ingredient quantities and unit conversions.                                                                                                                                                                                                                                                                                                                                                                                                   | SYS-004                                              | Library   |
+| ARCH-010                 | Recipe Search Service            | Application service for `/api/v1/search/recipes` performing keyword + structured filter queries with pagination and facet projection.                                                                                                                                                                                                                                                                                                                                                                | SYS-005                                              | Service   |
+| ARCH-011                 | Search Query Builder             | Translates filter DTOs into parameterized SQL/Drizzle queries against PostgreSQL `tsvector` and `pg_trgm` indexes; latency-aware plan shaping.                                                                                                                                                                                                                                                                                                                                                       | SYS-005                                              | Library   |
+| ARCH-012                 | Photo Presign Service            | Issues S3 presigned PUT URLs scoped to a recipe and user, recording per-upload metadata for later validation.                                                                                                                                                                                                                                                                                                                                                                                        | SYS-006                                              | Service   |
+| ARCH-013                 | Photo Confirm Service            | Server-side magic-byte revalidation, attaches confirmed object key to recipe, manages per-file retry semantics.                                                                                                                                                                                                                                                                                                                                                                                      | SYS-006                                              | Service   |
+| ARCH-014                 | Photo Processing Lambda Handler  | AWS Lambda function consuming S3 ObjectCreated events, generating renditions via Sharp, and updating photo state in RDS.                                                                                                                                                                                                                                                                                                                                                                             | SYS-007                                              | Service   |
+| ARCH-015                 | Version Snapshot Writer          | Writes JSONB version snapshots to `recipe_versions` and inserts the corresponding `recipe_version_pending_archives` row in the same transaction.                                                                                                                                                                                                                                                                                                                                                     | SYS-008                                              | Service   |
+| ARCH-016                 | Optimistic Concurrency Guard     | Enforces row-versioned compare-and-set on recipe updates; emits explicit 409 conflict payloads with current/incoming snapshots.                                                                                                                                                                                                                                                                                                                                                                      | SYS-008                                              | Library   |
+| ARCH-017                 | Archive Queue Producer           | Sends archive job messages to the version-archive SQS queue; tolerates send failures by leaving pending row for the reconciler.                                                                                                                                                                                                                                                                                                                                                                      | SYS-009                                              | Service   |
+| ARCH-018                 | Archive Worker Lambda            | Consumes SQS archive messages, serializes the snapshot, writes `versions/{recipe_id}/v{n}.json` to S3, then transitions pending row state.                                                                                                                                                                                                                                                                                                                                                           | SYS-010                                              | Service   |
+| ARCH-019                 | Pending Archive Reconciler       | Scheduled sweeper that re-enqueues pending-archive rows whose age exceeds threshold and increments attempt counters.                                                                                                                                                                                                                                                                                                                                                                                 | SYS-010                                              | Service   |
+| ARCH-020                 | Collection Service               | CRUD and membership management for collections, including non-cascade delete semantics and visibility checks via ARCH-006.                                                                                                                                                                                                                                                                                                                                                                           | SYS-011                                              | Service   |
+| ARCH-021                 | Collection Clone & Pull Service  | Snapshot-clone source collections and execute user-initiated pull-from-source reconciliation under explicit add/remove/no-overwrite rules.                                                                                                                                                                                                                                                                                                                                                           | SYS-012                                              | Service   |
+| ARCH-022                 | GDPR Erasure Orchestrator        | Enqueues, leases, and progresses `account_erasure_jobs` ledger rows; coordinates RDS purge + S3 purge with idempotent state transitions.                                                                                                                                                                                                                                                                                                                                                             | SYS-013                                              | Service   |
+| ARCH-023                 | Erasure Storage Purger           | Lists user-owned object prefixes in S3 (photos + version archives) and performs batched deletes with retries.                                                                                                                                                                                                                                                                                                                                                                                        | SYS-013, SYS-015                                     | Adapter   |
+| ARCH-024                 | Drizzle Repository Layer         | Encapsulates all PostgreSQL access (recipes, ingredients, photos, versions, pending archives, collections, erasure ledger) via Drizzle ORM.                                                                                                                                                                                                                                                                                                                                                          | SYS-014                                              | Adapter   |
+| ARCH-025                 | S3 & CloudFront Adapter          | Wraps `@aws-sdk/client-s3` and presigner SDKs, owns bucket/key conventions, signs URLs, and exposes object lifecycle helpers.                                                                                                                                                                                                                                                                                                                                                                        | SYS-015                                              | Adapter   |
+| ARCH-026                 | Web Recipe & Collection UI       | Next.js App Router pages, client-side validation, conflict UI, accessibility primitives, and Auth0 web SDK session integration.                                                                                                                                                                                                                                                                                                                                                                      | SYS-016                                              | Component |
+| ARCH-027                 | Mobile Recipe & Collection UI    | Expo React Native screens, client-side validation, conflict UI, accessibility props, secure-store token persistence, and mobile API base URL.                                                                                                                                                                                                                                                                                                                                                        | SYS-017                                              | Component |
+| ARCH-028                 | API Error Mapper                 | NestJS exception filter translating domain errors (validation, conflict, policy denial, not-found) into structured HTTP responses with codes.                                                                                                                                                                                                                                                                                                                                                        | SYS-002                                              | Library   |
+| ARCH-029                 | Config Loader                    | `@nestjs/config` + Zod-validated environment loader exposing typed config tokens to all modules; resolves API/web/mobile defaults and ports.                                                                                                                                                                                                                                                                                                                                                         | SYS-018                                              | Utility   |
+| ARCH-030                 | Telemetry & Logger               | Powertools/structured logger and metric emitter wired into all NestJS providers and Lambdas; correlation IDs and Sentry breadcrumb propagation.                                                                                                                                                                                                                                                                                                                                                      | SYS-019                                              | Utility   |
+| ARCH-031                 | Archive Backlog Alarm            | CloudWatch alarm definitions on archive failure count, pending-row depth, and oldest-pending-age metrics emitted by ARCH-018/ARCH-019.                                                                                                                                                                                                                                                                                                                                                               | SYS-019                                              | Utility   |
+| ARCH-032                 | CI & Test Governance Harness     | Turborepo + ESLint + tsc + vitest + LocalStack orchestration enforcing strict TS, JSDoc, TDD gates, and out-of-scope constraint checks in CI.                                                                                                                                                                                                                                                                                                                                                        | SYS-020                                              | Utility   |
+| ARCH-033 [CROSS-CUTTING] | NestJS Module Wiring             | Root `AppModule` and feature modules composing providers, guards, filters, and adapters; binds DI tokens for testability. **Rationale: NestJS dependency-injection wiring is inherently cross-cutting — it composes providers from multiple domain-boundary modules (auth, recipe, persistence, config, telemetry) into a single `AppModule`. Attributing it to any single SYS would misrepresent its actual multi-SYS scope. Classified [CROSS-CUTTING] per the tagging convention in §ID Schema.** | SYS-001, SYS-002, SYS-014, SYS-018, SYS-019, SYS-020 | Utility   |
 
 ### SYS→ARCH Reverse Traceability
 
@@ -116,7 +116,7 @@ sequenceDiagram
     participant Q as ARCH-017 Archive Queue Producer
     participant ERR as ARCH-028 Error Mapper
 
-    CLI->>CTRL: PUT /api/recipes/{id} (Bearer JWT, body)
+    CLI->>CTRL: PUT /api/v1/recipes/{id} (Bearer JWT, body)
     CTRL->>AUTH: verify(token)
     AUTH-->>CTRL: Principal
     CTRL->>GUARD: authorize(principal, recipeId, "write")
@@ -158,7 +158,7 @@ sequenceDiagram
     participant LAM as ARCH-014 Photo Processing Lambda
     participant REPO as ARCH-024 Drizzle Repository
 
-    UI->>CTRL: POST /api/recipes/{id}/photos:presign
+    UI->>CTRL: POST /api/v1/recipes/{id}/photos:presign
     CTRL->>PRE: createPresign(recipeId, userId, mime, size)
     PRE->>S3: signPutUrl(key, conditions)
     S3-->>PRE: {url, fields, key}
@@ -166,7 +166,7 @@ sequenceDiagram
     PRE-->>UI: {url, fields, key}
     UI->>S3: PUT object (direct upload)
     S3-->>UI: 200 OK
-    UI->>CTRL: POST /api/recipes/{id}/photos:confirm {key}
+    UI->>CTRL: POST /api/v1/recipes/{id}/photos:confirm {key}
     CTRL->>CONF: confirm(recipeId, userId, key)
     CONF->>S3: HEAD + getObject(range=0..N) for magic-byte check
     S3-->>CONF: bytes
@@ -231,14 +231,14 @@ sequenceDiagram
     participant POL as ARCH-006 Visibility Policy Engine
     participant REPO as ARCH-024 Drizzle Repository
 
-    UI->>CTRL: POST /api/collections/{id}/clone
+    UI->>CTRL: POST /api/v1/collections/{id}/clone
     CTRL->>CLONE: cloneFromSource(sourceCollectionId, userId)
     CLONE->>POL: assertSourceVisible(source, principal)
     CLONE->>REPO: snapshot source members (recipe_ids @ snapshot_at)
     CLONE->>REPO: insert new collection + memberships + source_link
     CLONE-->>UI: ClonedCollectionView
 
-    UI->>CTRL: POST /api/collections/{id}/pull
+    UI->>CTRL: POST /api/v1/collections/{id}/pull
     CTRL->>CLONE: pullFromSource(targetId, userId)
     CLONE->>REPO: load target + source_link
     CLONE->>REPO: diff(source.current_members, target.members_at_last_pull)
@@ -337,16 +337,16 @@ sequenceDiagram
 
 ### Development Allocation Matrix
 
-| Repository Area                                  | Primary Modules (ARCH)                                                                   | Responsibility                                                     |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `packages/apps/sous-chef/api/src/auth`           | ARCH-001, ARCH-002                                                                       | AuthN/AuthZ pipeline and route guards                              |
-| `packages/apps/sous-chef/api/src/recipes`        | ARCH-003, ARCH-004, ARCH-005, ARCH-010, ARCH-011, ARCH-028                               | Recipe command/query endpoints and validation/error contracts      |
-| `packages/apps/sous-chef/api/src/domain`         | ARCH-006, ARCH-007, ARCH-008, ARCH-009, ARCH-015, ARCH-016, ARCH-020, ARCH-021, ARCH-022 | Domain policies and orchestrators                                  |
-| `packages/apps/sous-chef/api/src/infrastructure` | ARCH-024, ARCH-025, ARCH-029, ARCH-030, ARCH-033                                         | Persistence, cloud adapters, config, telemetry, module composition |
-| `packages/apps/sous-chef/workers/*`              | ARCH-014, ARCH-018, ARCH-019                                                             | Event/schedule-driven worker runtimes                              |
-| `packages/apps/sous-chef/web`                    | ARCH-026                                                                                 | Web user interface and client orchestration                        |
-| `packages/apps/sous-chef/mobile`                 | ARCH-027                                                                                 | Mobile user interface and secure token/API handling                |
-| `infra/` + CI workflows (`.github/workflows`)    | ARCH-031, ARCH-032                                                                       | Deployment topology definitions, alarms, and governance gates      |
+| Repository Area                                     | Primary Modules (ARCH)                                                                   | Responsibility                                                     |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `packages/apps/sous-chef/api/v1/src/auth`           | ARCH-001, ARCH-002                                                                       | AuthN/AuthZ pipeline and route guards                              |
+| `packages/apps/sous-chef/api/v1/src/recipes`        | ARCH-003, ARCH-004, ARCH-005, ARCH-010, ARCH-011, ARCH-028                               | Recipe command/query endpoints and validation/error contracts      |
+| `packages/apps/sous-chef/api/v1/src/domain`         | ARCH-006, ARCH-007, ARCH-008, ARCH-009, ARCH-015, ARCH-016, ARCH-020, ARCH-021, ARCH-022 | Domain policies and orchestrators                                  |
+| `packages/apps/sous-chef/api/v1/src/infrastructure` | ARCH-024, ARCH-025, ARCH-029, ARCH-030, ARCH-033                                         | Persistence, cloud adapters, config, telemetry, module composition |
+| `packages/apps/sous-chef/workers/*`                 | ARCH-014, ARCH-018, ARCH-019                                                             | Event/schedule-driven worker runtimes                              |
+| `packages/apps/sous-chef/web`                       | ARCH-026                                                                                 | Web user interface and client orchestration                        |
+| `packages/apps/sous-chef/mobile`                    | ARCH-027                                                                                 | Mobile user interface and secure token/API handling                |
+| `infra/` + CI workflows (`.github/workflows`)       | ARCH-031, ARCH-032                                                                       | Deployment topology definitions, alarms, and governance gates      |
 
 ## Interface View — API Contracts (IEEE 42010 §8 Extension)
 
@@ -671,6 +671,137 @@ This section is an **IEEE 42010 interface-specification extension** and is not o
 | Output    | app                  | INestApplication | running app server | All providers resolved; no missing tokens           |
 | Exception | DI_RESOLUTION_FAILED | startup          | string trace       | Process exits non-zero at boot                      |
 
+## Scenarios View (+1) — Critical End-to-End Flows (Kruchten +1)
+
+The +1 Scenarios View exercises the architecture through five end-to-end flows. Each scenario has a trigger, primary actor, precondition, basic flow, expected outcome, and at least one alternate/exception path per ISO 42010 §7.4 guidance.
+
+### Scenario Map
+
+| Scenario ID | Flow Name                              | Primary Actor           | Trigger                                               | Expected Outcome                                          |
+| ----------- | -------------------------------------- | ----------------------- | ----------------------------------------------------- | --------------------------------------------------------- |
+| SCN-001     | Authenticated Recipe Save + Versioning | Authenticated user      | User submits recipe form with expectedVersion current | Version incremented; snapshot archived to S3              |
+| SCN-002     | Photo Upload Pipeline                  | Authenticated user      | User attaches photo file to recipe form               | Photo confirmed, processed, renditions available          |
+| SCN-003     | Async Archive Lifecycle with DLQ Retry | System (queue consumer) | Archive message processed; S3 write succeeds/fails    | Archive object written OR redriven to DLQ after 3 retries |
+| SCN-004     | Collection Clone + Pull Reconciliation | Authenticated user      | User clones public collection and optionally pulls    | Members copied; pull report shows add/remove/skipped      |
+| SCN-005     | GDPR Erasure Orchestration             | System (erasure job)    | GDPR erasure request accepted                         | DB records soft-deleted; S3 objects purged; job completed |
+
+### SCN-001 — Authenticated Recipe Save + Versioning
+
+**Trigger:** Authenticated user submits recipe create/update form.
+
+**Precondition:** User is authenticated; recipe has `currentVersion = N`.
+
+**Basic Flow:**
+
+1. Client sends `POST /api/v1/recipes` with `expectedVersion = null` (create) or `PATCH /api/v1/recipes/{id}` with `expectedVersion = N` (update).
+2. ARCH-001 verifies JWT; ARCH-002 checks owner/tier authorization.
+3. ARCH-004 validates DTO via ARCH-005; resolves ingredient IDs via ARCH-008.
+4. ARCH-004 writes to ARCH-024 in transaction, incrementing version to `N+1`.
+5. ARCH-017 enqueues archive message to ARCH-018 via ARCH-025 (SQS).
+6. HTTP 200/201 returned with new recipe including `currentVersion = N+1`.
+
+**Alternate Path (optimistic concurrency conflict):**
+1a. Client sends `PATCH` with `expectedVersion = N` but server has `N+1`.
+2a. ARCH-004 throws 409; client receives conflict resolution UI.
+3a. User chooses keep-server / overwrite-local / merge-fields; retry succeeds.
+
+**Expected Outcome:** Version incremented atomically; archive message enqueued; no silent merge.
+
+---
+
+### SCN-002 — Photo Upload Pipeline
+
+**Trigger:** Authenticated user attaches a file to a recipe via upload widget.
+
+**Precondition:** Recipe record exists; user is owner.
+
+**Basic Flow:**
+
+1. Client requests presign URL via `POST /api/v1/recipes/{id}/photos/presign`.
+2. ARCH-012 validates MIME/size; inserts pending row via ARCH-024; returns `{ url, key }`.
+3. Client PUTs file directly to S3; S3 event triggers Lambda (ARCH-014).
+4. ARCH-014 confirms magic bytes via ARCH-025 HEAD; updates DB state to `confirmed`.
+5. ARCH-014 runs Sharp transforms; writes `thumb/medium/large` to S3; updates DB to `processed`.
+6. Client sees processed photo in recipe view.
+
+**Alternate Path (magic bytes mismatch):**
+4a. ARCH-014 detects MIME mismatch; marks photo `failed`; client receives error via polling/SSE.
+
+**Expected Outcome:** Confirmed photo with all three renditions; no spoofed MIME accepted.
+
+---
+
+### SCN-003 — Async Archive Lifecycle with DLQ Retry
+
+**Trigger:** Archive message arrives on `archive-queue` SQS queue (ARCH-017 → ARCH-018).
+
+**Precondition:** Recipe version snapshot exists; S3 writable.
+
+**Basic Flow:**
+
+1. ARCH-018 receives message `{ pendingArchiveId, recipeId, versionNumber }`.
+2. ARCH-018 loads snapshot via ARCH-024.
+3. ARCH-018 writes `versions/{recipeId}/v{versionNumber}.json` via ARCH-025 (S3).
+4. ARCH-018 marks pending row `archived`; returns empty `batchItemFailures[]`.
+5. SQS acks message; ARCH-018 ready for next.
+
+**Alternate Path (S3 write failure):**
+4a. ARCH-018 catches S3 error; returns `batchItemFailures = [{ itemIdentifier: pendingArchiveId }]`.
+5a. SQS redrives message to same consumer; attempt count increments.
+6a. After 3 attempts, message moves to DLQ; ARCH-019 detects via `ApproximateNumberOfMessagesVisible > 0` alarm.
+7a. On-call operator replay via runbook.
+
+**Expected Outcome:** Archive object written; DLQ alerts if exhausted retries.
+
+---
+
+### SCN-004 — Collection Clone + Pull Reconciliation
+
+**Trigger:** Authenticated user clones a public collection OR triggers "Pull updates" on an existing clone.
+
+**Precondition:** Source collection is public and owned by another user.
+
+**Basic Flow:**
+
+1. Client sends `POST /api/v1/collections/{id}/clone`.
+2. ARCH-020 validates source visibility via ARCH-006; acquires advisory lock.
+3. ARCH-021 snapshots source and target; computes diff.
+4. ARCH-021 writes clone memberships via ARCH-024 in single transaction; releases lock.
+5. ARCH-021 returns `{ added[], removed[], skipped[], snapshotAt }` with attribution preserved.
+
+**Pull Updates Path:**
+
+1. Client sends `POST /api/v1/collections/{cloneId}/pull`.
+2. ARCH-021 re-snapshots source; diffs against clone; applies adds/removes.
+3. Returns pull report with same envelope.
+
+**Expected Outcome:** Clone has snapshot-time members; pull report is deterministic.
+
+---
+
+### SCN-005 — GDPR Erasure Orchestration
+
+**Trigger:** Authenticated user or operator initiates account erasure.
+
+**Precondition:** User consent captured; erasure job accepted.
+
+**Basic Flow:**
+
+1. ARCH-022 creates `account_erasure_jobs` row `queued`.
+2. ARCH-022 emits `ERASURE_REQUESTED` operational state; transitions job to `running`.
+3. ARCH-023 issues DB deletes via ARCH-024 per GDPR-safe ordering (recipes → ingredients → users).
+4. ARCH-023 issues S3 prefix deletes via ARCH-025 (`users/{userId}/photos/`, `users/{userId}/versions/`).
+5. ARCH-023 marks job `completed`; emits `ERASURE_COMPLETED` state.
+
+**Partial Failure Path:**
+4a. S3 batch partially fails; ARCH-023 returns `STORAGE_PURGE_PARTIAL` with `remaining[]`.
+5a. Operator reruns via archival on remaining keys.
+5b. On retry exhaustion, job marked `failed` with remaining keys logged.
+
+**Expected Outcome:** All PII removed from DB and S3; audit trail retained; job reaches terminal state.
+
+---
+
 ## Data Flow View — Data Transformation Chains (Extension beyond Kruchten 4+1)
 
 This section is an architectural extension beyond Kruchten 4+1 and provides additional traceability of data transformations between module interfaces defined in the Interface View.
@@ -722,7 +853,7 @@ This section is an architectural extension beyond Kruchten 4+1 and provides addi
 
 | Stage | Module                                   | Input Format           | Transformation                                         | Output Format       |
 | ----- | ---------------------------------------- | ---------------------- | ------------------------------------------------------ | ------------------- |
-| 1     | ARCH-026 / ARCH-027 UI                   | user click             | POST `/api/collections/{id}/pull`                      | HTTP request        |
+| 1     | ARCH-026 / ARCH-027 UI                   | user click             | POST `/api/v1/collections/{id}/pull`                   | HTTP request        |
 | 2     | ARCH-021 Collection Clone & Pull Service | `{ targetId, userId }` | Acquire advisory lock; load source + target snapshots  | snapshot pair       |
 | 3     | ARCH-021 Collection Clone & Pull Service | snapshot pair          | Diff: compute add/remove/skipped (preserve user-added) | `PullPlan`          |
 | 4     | ARCH-024 Drizzle Repository              | `PullPlan`             | Apply membership changes in single TX                  | updated memberships |
@@ -758,15 +889,15 @@ None — all modules trace to existing system components. ARCH-033 is tagged `[C
 
 ## Peer-Review Remediation Log
 
-| Finding ID   | Action Taken                                                                                                                                                                                                                                                                                           | Location(s) Updated                                                              |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| PRF-ARCH-001 | Added dedicated **Architectural Decisions** section with Decision ID, Decision Statement, Alternatives Considered, Rationale for Selection, and Constraints/Assumptions; covered NestJS, SQS, optimistic concurrency, Lambda photo processing, and Drizzle ORM (plus ARCH-033 cross-cutting decision). | `## Architectural Decisions`                                                     |
-| PRF-ARCH-002 | Added **SYS→ARCH Reverse Traceability** table with columns SYS ID, SYS Name, Implementing ARCH IDs, ARCH Count for all 20 SYS components.                                                                                                                                                              | `### SYS→ARCH Reverse Traceability`                                              |
-| PRF-ARCH-003 | Committed Physical View runtime target to **ECS Fargate** and replaced App Runner alternatives in topology and runtime allocation matrix.                                                                                                                                                              | `## Physical View` runtime bullets + Runtime Allocation Matrix                   |
-| PRF-ARCH-004 | Expanded ARCH-003 interface contract with explicit guard/controller boundary exceptions: INVALID_TOKEN (401), FORBIDDEN_OWNER (403), FORBIDDEN_TIER (403), RECIPE_NOT_FOUND (404), METHOD_NOT_ALLOWED (405), with ARCH-028 surfacing notes.                                                            | `### ARCH-003: Recipe HTTP Controller`                                           |
-| PRF-ARCH-005 | Added ARCH-028 domain error-code mapping table enumerating error code, source module, HTTP mapping, and response body shape for codes expected through the global filter.                                                                                                                              | `#### ARCH-028 Error Code Mapping`                                               |
-| PRF-ARCH-006 | Removed ARCH-033 rationale prose from Parent System Components cell and moved rationale to dedicated decision record AD-006. Parent cell now contains only SYS IDs with `[CROSS-CUTTING]` tagging in ARCH ID.                                                                                          | Logical View row `ARCH-033 [CROSS-CUTTING]`; `AD-006`                            |
-| PRF-ARCH-007 | Explicitly identified **Process View (+1 Scenarios)** as the +1 slot and added statement explaining how the five scenarios exercise Logical, Physical, and Development views.                                                                                                                          | `## Process View (+1 Scenarios)` heading + intro sentence                        |
-| PRF-ARCH-008 | Renamed coverage metric to **Modules tagged [CROSS-CUTTING]** and added separate Utility/Infrastructure Modules metric for full cross-cutting surface clarity.                                                                                                                                         | `## Coverage Summary`                                                            |
-| PRF-ARCH-009 | Relabeled Data Flow section as an **extension beyond Kruchten 4+1** and added explicit clarification note.                                                                                                                                                                                             | `## Data Flow View — Data Transformation Chains (Extension beyond Kruchten 4+1)` |
-| PRF-ARCH-010 | Relabeled Interface section as **IEEE 42010 §8 Extension**, clarified it is not a named Kruchten 4+1 view, and linked it to Logical View usage.                                                                                                                                                        | `## Interface View — API Contracts (IEEE 42010 §8 Extension)`                    |
+| Finding ID   | Action Taken                                                                                                                                                                                                                                                                                                                                                                                        | Location(s) Updated                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| PRF-ARCH-001 | Added dedicated **Architectural Decisions** section with Decision ID, Decision Statement, Alternatives Considered, Rationale for Selection, and Constraints/Assumptions; covered NestJS, SQS, optimistic concurrency, Lambda photo processing, and Drizzle ORM (plus ARCH-033 cross-cutting decision). Added explicit cross-cutting rationale to ARCH-033 row in §Logical View per IEEE 42010 §5.2. | `## Architectural Decisions`, `§Logical View — Component Breakdown` (ARCH-033 rationale) |
+| PRF-ARCH-002 | Added **SYS→ARCH Reverse Traceability** table with columns SYS ID, SYS Name, Implementing ARCH IDs, ARCH Count for all 20 SYS components.                                                                                                                                                                                                                                                           | `### SYS→ARCH Reverse Traceability`                                                      |
+| PRF-ARCH-003 | Committed Physical View runtime target to **ECS Fargate** and replaced App Runner alternatives in topology and runtime allocation matrix.                                                                                                                                                                                                                                                           | `## Physical View` runtime bullets + Runtime Allocation Matrix                           |
+| PRF-ARCH-004 | Expanded ARCH-003 interface contract with explicit guard/controller boundary exceptions: INVALID_TOKEN (401), FORBIDDEN_OWNER (403), FORBIDDEN_TIER (403), RECIPE_NOT_FOUND (404), METHOD_NOT_ALLOWED (405), with ARCH-028 surfacing notes.                                                                                                                                                         | `### ARCH-003: Recipe HTTP Controller`                                                   |
+| PRF-ARCH-005 | Added ARCH-028 domain error-code mapping table enumerating error code, source module, HTTP mapping, and response body shape for codes expected through the global filter.                                                                                                                                                                                                                           | `#### ARCH-028 Error Code Mapping`                                                       |
+| PRF-ARCH-006 | Removed ARCH-033 rationale prose from Parent System Components cell and moved rationale to dedicated decision record AD-006. Parent cell now contains only SYS IDs with `[CROSS-CUTTING]` tagging in ARCH ID.                                                                                                                                                                                       | Logical View row `ARCH-033 [CROSS-CUTTING]`; `AD-006`                                    |
+| PRF-ARCH-007 | Explicitly identified **Process View (+1 Scenarios)** as the +1 slot and added statement explaining how the five scenarios exercise Logical, Physical, and Development views.                                                                                                                                                                                                                       | `## Process View (+1 Scenarios)` heading + intro sentence                                |
+| PRF-ARCH-008 | Renamed coverage metric to **Modules tagged [CROSS-CUTTING]** and added separate Utility/Infrastructure Modules metric for full cross-cutting surface clarity.                                                                                                                                                                                                                                      | `## Coverage Summary`                                                                    |
+| PRF-ARCH-009 | Relabeled Data Flow section as an **extension beyond Kruchten 4+1** and added explicit clarification note.                                                                                                                                                                                                                                                                                          | `## Data Flow View — Data Transformation Chains (Extension beyond Kruchten 4+1)`         |
+| PRF-ARCH-010 | Relabeled Interface section as **IEEE 42010 §8 Extension**, clarified it is not a named Kruchten 4+1 view, and linked it to Logical View usage.                                                                                                                                                                                                                                                     | `## Interface View — API Contracts (IEEE 42010 §8 Extension)`                            |

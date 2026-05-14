@@ -1,6 +1,6 @@
 # Data Model: Sous Chef Recipe Management Core
 
-**Branch**: `001-sous-chef-recipe-app` | **Date**: 2026-04-18  
+**Branch**: `001-sous-chef-recipe-app` | **Date**: 2026-04-18
 **Spec**: [spec.md](./spec.md) | **Research**: [research.md](./research.md)
 
 ## Design Constraints
@@ -343,7 +343,7 @@ CREATE INDEX idx_recipe_collections_recipe_id    ON recipe_collections (recipe_i
 
 - Cloning a collection inserts a new `collections` row with `source_collection_id` set to the source, plus one `recipe_collections` row per source recipe with `added_via = 'clone_seed'`.
 - Subsequent edits to the source collection do **not** propagate automatically.
-- The owner of the cloned collection may invoke `POST /api/collections/{id}/pull-from-source` to fetch new recipes added to the source since the last pull; new memberships are inserted with `added_via = 'pull'`. Removed recipes in the source are **not** removed from the clone.
+- The owner of the cloned collection may invoke `POST /api/v1/collections/{id}/pull-from-source` to fetch new recipes added to the source since the last pull; new memberships are inserted with `added_via = 'pull'`. Removed recipes in the source are **not** removed from the clone.
 
 ---
 
@@ -388,7 +388,7 @@ HAVING count(DISTINCT ingredient_id) = array_length($1::uuid[], 1);
 ## Image Processing Pipeline
 
 ```
-POST /api/recipes/{id}/photos/upload-url
+POST /api/v1/recipes/{id}/photos/upload-url
   → Lambda generates S3 presigned PUT URL
   → Returns { uploadUrl, key, expiresIn: 900 }
 
@@ -567,7 +567,7 @@ CREATE INDEX idx_pending_archives_recipe_id
 
 User-initiated GDPR erasure is the **only** path that physically removes data:
 
-1. Frontend calls `POST /api/account/erasure-requests` to enumerate the user's tombstoned + active recipes, photos, versions, collections, and pending archives.
+1. Frontend calls `POST /api/v1/account/erasure-requests` to enumerate the user's tombstoned + active recipes, photos, versions, collections, and pending archives.
 2. User confirms; backend records an `erasure_request` audit row (out of scope for this feature; tracked in compliance backlog) and enqueues an erasure job.
 3. Erasure worker, in order:
     - DELETEs `recipe_version_pending_archives` rows for the user's recipes.

@@ -1,6 +1,6 @@
 # Local Development Quickstart: Sous Chef Recipe API
 
-**Branch**: `001-sous-chef-recipe-app` | **Date**: 2026-04-18 | **Spec**: [spec.md](./spec.md)  
+**Branch**: `001-sous-chef-recipe-app` | **Date**: 2026-04-18 | **Spec**: [spec.md](./spec.md)
 **Related**: [plan.md](./plan.md) | [data-model.md](./data-model.md) | [research.md](./research.md)
 
 This guide gets the Sous Chef Recipe Management API running locally in under 10 minutes. It covers infrastructure (PostgreSQL + LocalStack S3 via Docker Compose), environment configuration, migrations, seed data, and the most common dev commands.
@@ -211,7 +211,7 @@ The seed script (`packages/shared/db/src/seed.ts`) populates a baseline dataset 
 
 After seeding, the database contains:
 
-- **2 test users**: one with the `free` plan tier and one with `pro`. Both have stable IDs that match fixture tokens in `packages/apps/api/test/fixtures/`.
+- **2 test users**: one with the `free` plan tier and one with `pro`. Both have stable IDs that match fixture tokens in `packages/apps/api/v1/test/fixtures/`.
 - **5 test recipes**: a mix of visibility levels (`private`, `public`, `shared`). Each recipe has a full ingredient list, preparation steps, and at least one version snapshot. Two recipes belong to the `pro` user and three to the `free` user.
 - **1 collection**: owned by the `pro` user, containing 3 of the 5 recipes. Used to test collection membership queries and ordering.
 
@@ -407,7 +407,7 @@ A few behaviors are easy to trip over when poking at the local DB or hitting the
 
 ### Soft-deleted recipes (tombstones)
 
-`DELETE /api/recipes/{id}` is a **soft delete**. The row stays in `recipes` with `deleted_at` set to the deletion timestamp. List, search, get-by-id, and collection responses all filter out tombstoned rows, but they remain visible in Drizzle Studio and via direct SQL.
+`DELETE /api/v1/recipes/{id}` is a **soft delete**. The row stays in `recipes` with `deleted_at` set to the deletion timestamp. List, search, get-by-id, and collection responses all filter out tombstoned rows, but they remain visible in Drizzle Studio and via direct SQL.
 
 If you need to inspect or reset state during development:
 
@@ -419,15 +419,15 @@ SELECT id, title, deleted_at FROM recipes WHERE deleted_at IS NOT NULL;
 UPDATE recipes SET deleted_at = NULL WHERE id = '<uuid>';
 ```
 
-Hard deletion of recipe rows, version snapshots, photos, and S3-archived version blobs only happens via the GDPR erasure flow (`POST /api/account/erasure`), which runs asynchronously.
+Hard deletion of recipe rows, version snapshots, photos, and S3-archived version blobs only happens via the GDPR erasure flow (`POST /api/v1/account/erasure`), which runs asynchronously.
 
 ### Cloned collections and pull-from-source
 
-`POST /api/collections/{id}/clone` creates a new collection whose `source_collection_id` points back to the original. Each membership row carries an `added_via` value:
+`POST /api/v1/collections/{id}/clone` creates a new collection whose `source_collection_id` points back to the original. Each membership row carries an `added_via` value:
 
-- `manual` — direct add via `POST /api/collections/{id}/recipes`
+- `manual` — direct add via `POST /api/v1/collections/{id}/recipes`
 - `clone` — copied during the initial clone
-- `pull` — added later via `POST /api/collections/{id}/pull-from-source`
+- `pull` — added later via `POST /api/v1/collections/{id}/pull-from-source`
 
 Pulls are additive only: recipes removed from the source after the clone are **not** removed from the clone. Removing a recipe from the source collection has no effect on existing clones.
 
@@ -437,4 +437,4 @@ Version snapshots are written synchronously to PostgreSQL but archived to S3 asy
 
 ### Account erasure (local)
 
-`POST /api/account/erasure` queues an async job that hard-deletes everything owned by the calling user, including tombstoned recipes and all S3 objects. Locally this runs against LocalStack and the dev Postgres — re-seed afterward with `npm run seed --workspace=packages/shared/db` if you want the test fixtures back.
+`POST /api/v1/account/erasure` queues an async job that hard-deletes everything owned by the calling user, including tombstoned recipes and all S3 objects. Locally this runs against LocalStack and the dev Postgres — re-seed afterward with `npm run seed --workspace=packages/shared/db` if you want the test fixtures back.

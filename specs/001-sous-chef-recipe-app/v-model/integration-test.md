@@ -19,13 +19,13 @@ Integration scenarios are module-boundary-only (Given/When/Then) and avoid user-
 
 ## ISO 29119-4 Integration Test Techniques
 
-| Technique                                   | Source View                     | What It Tests                                                             |
-| ------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------- |
-| **Interface Contract Testing**              | Interface View                  | Module API contracts, data format compliance, error responses             |
-| **Data Flow Testing**                       | Data Flow View                  | End-to-end data transformation chain validation                           |
-| **Interface Fault Injection**               | Interface View + Process View   | Malformed payloads, timeouts, graceful failure                            |
-| **Concurrency & Race Condition Testing**    | Process View                    | Simultaneous access, lock handling, queue ordering                        |
-| **Consumer-Driven Contract Testing (CDCT)** | Interface View + Data Flow View | Consumer-driven contract expectations across producer/consumer boundaries |
+| Technique                                   | Source View                     | What It Tests                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Interface Contract Testing**              | Interface View                  | Module API contracts, data format compliance, error responses                                                                                                                                                                                                                                                                                                                                                               |
+| **Data Flow Testing**                       | Data Flow View                  | End-to-end data transformation chain validation                                                                                                                                                                                                                                                                                                                                                                             |
+| **Interface Fault Injection**               | Interface View + Process View   | Malformed payloads, timeouts, graceful failure                                                                                                                                                                                                                                                                                                                                                                              |
+| **Concurrency & Race Condition Testing**    | Process View                    | Simultaneous access, lock handling, queue ordering                                                                                                                                                                                                                                                                                                                                                                          |
+| **Consumer-Driven Contract Testing (CDCT)** | Interface View + Data Flow View | Consumer-driven contract expectations across producer/consumer boundaries. **Convention**: for CDCT scenarios, the consuming module and producing module are explicitly named in the scenario header (e.g., `'ARCH-003↔ARCH-004 contract'` in ITP-003-E, `'ARCH-004↔ARCH-024 contract'` in ITP-004-E, `'ARCH-017↔ARCH-018 queue contract'` in ITP-017-E). All consumer-producer pairs follow this `ARCH-M→↔ARCH-N` pattern. |
 
 ## Integration Tests
 
@@ -49,7 +49,7 @@ Integration scenarios are module-boundary-only (Given/When/Then) and avoid user-
 **Description**: Verifies 503 outage handling from ARCH-001 through ARCH-003/ARCH-028 boundary chain.
 
 - **Integration Scenario: ITS-001-B1**
-    - **Given** ARCH-003 sends a token to ARCH-001 and the JWKS endpoint is unavailable
+    - **Given** ARCH-003 sends a token to ARCH-001 and the JWKS endpoint is unavailable (simulated via network partition or timeout=3000ms ±100ms)
     - **When** the interface between ARCH-001 and ARCH-003 returns `JWKS_UNAVAILABLE` with HTTP 503
     - **Then** ARCH-028 maps the propagated boundary error to `{ code, message, retryAfter }` without contract drift
 
@@ -86,7 +86,7 @@ Integration scenarios are module-boundary-only (Given/When/Then) and avoid user-
 **Description**: Verifies ARCH-003 boundary contracts with ARCH-001/002/005/004 and JSON response envelope.
 
 - **Integration Scenario: ITS-003-A1**
-    - **Given** ARCH-026 sends `PUT /api/recipes/{id}` to ARCH-003 with bearer token and DTO body
+    - **Given** ARCH-026 sends `PUT /api/v1/recipes/{id}` to ARCH-003 with bearer token and DTO body
     - **When** ARCH-003 chains calls to ARCH-001, ARCH-002, ARCH-005, and ARCH-004
     - **Then** ARCH-003 returns 2xx JSON resource response and preserves pagination/headers contract where applicable
 
@@ -410,7 +410,7 @@ Integration scenarios are module-boundary-only (Given/When/Then) and avoid user-
 **Description**: Verifies timeout error propagation from query path to caller boundary.
 
 - **Integration Scenario: ITS-010-B1**
-    - **Given** ARCH-010 sends a planned query to ARCH-024 and the query exceeds configured timeout
+    - **Given** ARCH-010 sends a planned query to ARCH-024 and the query exceeds configured timeout (timeout=5000ms ±100ms)
     - **When** ARCH-010 handles the timeout boundary
     - **Then** the interface between ARCH-010 and ARCH-003 returns `SEARCH_TIMEOUT` with `{ code, queryHash }`
 
@@ -445,7 +445,7 @@ Integration scenarios are module-boundary-only (Given/When/Then) and avoid user-
 **Description**: Verifies whitelist enforcement at ARCH-011 boundary.
 
 - **Integration Scenario: ITS-011-B1**
-    - **Given** ARCH-010 sends a filter key outside whitelist to ARCH-011
+    - **Given** ARCH-010 sends a filter key outside whitelist to ARCH-011 (malformed filter: invalid field name, e.g., `{"invalidField": "value"}`)
     - **When** ARCH-011 validates filter keys
     - **Then** the interface between ARCH-011 and ARCH-010 returns `INVALID_FILTER` with offending `field`
 

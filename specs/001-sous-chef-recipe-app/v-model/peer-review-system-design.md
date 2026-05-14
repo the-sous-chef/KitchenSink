@@ -1,10 +1,9 @@
-# Peer Review — system-design
+# Peer Review — system-design.md
 
 **Reviewer**: AI Peer Review (spec-kit V-Model)
-**Date**: 2026-05-07
-**Artifact**: system-design.md (20 components)
+**Date**: 2026-05-08
+**Artifact**: system-design.md (20 system components, 134 requirement IDs)
 **Standard**: IEEE 1016
-**Status**: All findings remediated (Cycle 3 closed 2026-05-07)
 
 ## Summary
 
@@ -12,62 +11,10 @@
 | ------------------ | ----- |
 | Critical           | 0     |
 | Major              | 0     |
-| Minor              | 1     |
-| Observation        | 3     |
-| **Total Findings** | **4** |
-| **Open**           | **0** |
-| **Remediated**     | **4** |
-
-> **Re-review note:** All 13 findings from the prior review cycle (Cycle 2, `PRF-SYS-001..013`) were remediated per the Peer-Review Remediation Log in `system-design.md` and verified against the artifact. Cycle 3 raised 4 new findings (this file); all 4 are now remediated and recorded in the Revision History row dated `2026-05-07`. PRF IDs are scoped to this cycle.
+| Minor              | 0     |
+| Observation        | 0     |
+| **Total Findings** | **0** |
 
 ## Findings
 
-### PRF-SYS-001 — Revision History Inconsistent With Peer-Review Remediation Log
-
-| Field              | Value                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Severity**       | Minor                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Status**         | Remediated (2026-05-07)                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Location**       | Revision History vs. Peer-Review Remediation Log                                                                                                                                                                                                                                                                                                                                                                |
-| **Description**    | The Revision History entry dated `2026-04-30` describes a different set of PRF-SYS-001..012 remediations than the Peer-Review Remediation Log table (PRF-SYS-001..013). The two histories described distinct review cycles, and the Revision History had not been appended to reflect the most recent cycle. An auditor reading the artifact would see two contradictory narratives of "what changed and when." |
-| **Recommendation** | Append a new Revision History row with date, author, and summary mirroring the current Peer-Review Remediation Log. Relabel prior rows by cycle number to disambiguate.                                                                                                                                                                                                                                         |
-| **Resolution**     | Relabeled the `2026-04-30` row as `Cycle 1, PRF-SYS-001..PRF-SYS-012`, added a `2026-05-01` row for `Cycle 2, PRF-SYS-001..PRF-SYS-013` mirroring the Peer-Review Remediation Log entries, and added a `2026-05-07` row for `Cycle 3, PRF-SYS-001..PRF-SYS-004` covering this review's findings. Revision History and Peer-Review Remediation Log are now a single coherent audit trail.                        |
-
----
-
-### PRF-SYS-002 — `recipe_tags` Data-Ownership Component Column Lists Two Components
-
-| Field              | Value                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Severity**       | Observation                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Status**         | Remediated (2026-05-07)                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Location**       | Data Design View (IEEE 1016 §5.4) — `recipe_tags` row                                                                                                                                                                                                                                                                                                                                                       |
-| **Description**    | The `recipe_tags` entity row listed its Component as `SYS-002 / SYS-005`. Every other row in the Data Design View identifies a single owning component. Listing two components blurred write-vs-read ownership and broke the convention used by `recipes`, `recipe_steps`, and other tables. IEEE 1016 §5.4 expects one accountable component per data entity for retention and access-control attribution. |
-| **Recommendation** | Set Component to `SYS-014` (consistent with all other PostgreSQL tables) and document SYS-002 (writer) / SYS-005 (reader) in the Description column.                                                                                                                                                                                                                                                        |
-| **Resolution**     | Component column updated to `SYS-014`; Retention column appended with `SYS-002 owns write paths; SYS-005 consumes via read-only queries.` Convention now matches all other relational tables in the Data Design View.                                                                                                                                                                                       |
-
----
-
-### PRF-SYS-003 — REQ-NF-018 / REQ-NF-019 / REQ-NF-020 Ownership Overlap Between SYS-016, SYS-017, and SYS-018
-
-| Field              | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Severity**       | Observation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Status**         | Remediated (2026-05-07)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Location**       | Decomposition View (IEEE 1016 §5.1) — SYS-016, SYS-017, SYS-018 / Design Notes                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Description**    | `REQ-NF-018` was listed as a parent of both SYS-016 and SYS-018; `REQ-NF-019` of both SYS-017 and SYS-018; `REQ-NF-020` of SYS-018 only. Many-to-many traceability is permitted, but the responsibility split between "consumer of the configuration value" and "provider of the typed configuration loader" was not documented, leaving Matrix B test routing ambiguous.                                                                                                                                   |
-| **Recommendation** | Add a clarifying note to the Design Notes (or component Descriptions) defining provider vs. consumer responsibilities and the implied test-routing for Matrix B.                                                                                                                                                                                                                                                                                                                                            |
-| **Resolution**     | Added "Configuration ownership split (REQ-NF-018 / REQ-NF-019 / REQ-NF-020)" paragraph to Design Notes: SYS-018 is the sole provider of typed configuration loading and default resolution; SYS-016 and SYS-017 are consumers responsible for correct runtime behavior given resolved values. Matrix B verification routing is now explicit — loader/default behavior against SYS-018, consumption/runtime behavior against SYS-016 (REQ-NF-018) and SYS-017 (REQ-NF-019); REQ-NF-020 against SYS-018 only. |
-
----
-
-### PRF-SYS-004 — Coverage Summary Count Not Independently Verifiable From Decomposition View
-
-| Field              | Value                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Severity**       | Observation                                                                                                                                                                                                                                                                                                                                                 |
-| **Status**         | Remediated (2026-05-07)                                                                                                                                                                                                                                                                                                                                     |
-| **Location**       | Coverage Summary and Decomposition View Parent Requirements column                                                                                                                                                                                                                                                                                          |
-| **Description**    | The Coverage Summary asserts `Total Parent Requirements Covered = 129 / 129 (100%)` but the count is not derivable by hand from the Decomposition View — it relies on `build-matrix.sh` being re-run downstream. If that script is not re-run after subsequent edits, the figure may silently drift out of sync with `requirements.md` or the SYS coverage. |
-| **Recommendation** | Add a footnote tying the figure to `build-matrix.sh` (deterministic, not hand-edited) and ensure CI gates the artifact against drift.                                                                                                                                                                                                                       |
-| **Resolution**     | Added "Coverage regeneration note" beneath the Coverage Summary stating that `129 / 129` is regenerated by `build-matrix.sh` and MUST NOT be hand-edited; instructed re-run after any change to `requirements.md` or Parent Requirements columns; noted CI drift gate.                                                                                      |
+None.

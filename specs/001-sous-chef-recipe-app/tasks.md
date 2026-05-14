@@ -21,7 +21,7 @@
 - [ ] T001a Configure existing Next.js web app workspace via bootstrap skill: `--name sous-chef-web --location packages/apps/sous-chef/web --type nextjs --scope kitchensink` — bare `package.json` stub already exists, bootstrap populates full Next.js 15 App Router structure + `infra/` CDK stack
 - [ ] T001b Configure existing Expo mobile app workspace via bootstrap skill: `--name sous-chef-mobile --location packages/apps/sous-chef/mobile --type react-native --scope kitchensink` — bare `package.json` stub already exists, bootstrap populates full Expo 53 structure
 - [ ] T002 Scaffold serverless photo processor workspace via bootstrap skill: `--name photo-processor --location packages/api/photo-processor --type serverless --scope kitchensink` — produces Lambda handler skeleton + `infra/` CDK S3 event + IAM stack
-- [ ] T003 Scaffold shared recipe-core workspace via bootstrap skill: `--name recipe-core --location packages/shared/recipe-core --type library --scope kitchensink`
+- [ ] T003 **[BLOCKER: GR-007]** Scaffold and publish canonical shared recipe contract workspace via bootstrap skill: `--name recipe-core --location packages/shared/recipe-core --type library --scope kitchensink`. Package name MUST be `@kitchensink/shared-recipe-core`; it is the source of truth for shared recipe, ingredient, collection, visibility, and audience DTO/types before any API or UI feature imports local duplicate domain types
 - [ ] T004 Scaffold shared config workspace via bootstrap skill: `--name config --location packages/shared/config --type library --scope kitchensink`
 - [ ] T005 Scaffold shared db workspace via bootstrap skill: `--name db --location packages/shared/db --type library --scope kitchensink`
 - [ ] T006 [P] Register new workspaces in root `package.json` by adding `"packages/api/*"` and `"packages/shared/*"` to the `workspaces` array (existing entries: `packages/tools/*`, `packages/apps/sous-chef/web`, `packages/apps/sous-chef/mobile`, `packages/ui`). Add `test:integration` task to `turbo.json` (`{ "outputs": [] }`) alongside existing `test` task. Verify all workspaces resolve with `npm ls --workspaces`
@@ -128,10 +128,10 @@
 - [ ] T023 [P] [US1] Define create/update/list recipe DTOs in `packages/api/recipe/src/recipes/dto/{create-recipe.dto.ts,update-recipe.dto.ts,list-recipes.query.dto.ts}`
 - [ ] T024 [P] [US1] Implement recipe DAL queries in `packages/api/recipe/src/recipes/dal/recipes.dal.ts`
 - [ ] T025 [US1] Implement recipe create/list/get/update/delete service logic in `packages/api/recipe/src/recipes/recipes.service.ts`
-- [ ] T026 [US1] Implement recipes controller endpoints for `/api/recipes` and `/api/recipes/{id}` in `packages/api/recipe/src/recipes/recipes.controller.ts`
+- [ ] T026 [US1] Implement recipes controller endpoints for `/api/v1/recipes` and `/api/v1/recipes/{id}` in `packages/api/recipe/src/recipes/recipes.controller.ts`
 - [ ] T027 [P] [US1] Implement ingredient search DAL with pg_trgm + tsvector strategy in `packages/api/recipe/src/ingredients/dal/ingredients.dal.ts`
 - [ ] T028 [US1] Implement ingredient service for USDA-backed lookup and freeform creation in `packages/api/recipe/src/ingredients/ingredients.service.ts`
-- [ ] T029 [US1] Implement ingredients controller endpoints for `/api/ingredients/search` and `/api/ingredients` in `packages/api/recipe/src/ingredients/ingredients.controller.ts`
+- [ ] T029 [US1] Implement ingredients controller endpoints for `/api/v1/ingredients/search` and `/api/v1/ingredients` in `packages/api/recipe/src/ingredients/ingredients.controller.ts`
 - [ ] T030 [P] [US1] Implement recipe version snapshot DAL in `packages/api/recipe/src/versions/dal/versions.dal.ts`
 - [ ] T031 [US1] Implement versioning service for snapshot writes, DB retention (last 10), and S3 archive writes in `packages/api/recipe/src/versions/versions.service.ts`
 - [ ] T032 [US1] Implement versions controller endpoints for list/get/restore in `packages/api/recipe/src/versions/versions.controller.ts`
@@ -145,7 +145,7 @@
 - [ ] T040 [US1] Implement collections service for CRUD and recipe membership in `packages/api/recipe/src/collections/collections.service.ts`
 - [ ] T041 [US1] Implement collections controller endpoints in `packages/api/recipe/src/collections/collections.controller.ts`
 - [ ] T042 [P] [US1] Implement search DAL with FTS rank sampling CTE and facet aggregation in `packages/api/recipe/src/search/dal/search.dal.ts`
-- [ ] T043 [US1] Implement search service/controller for `/api/search/recipes` in `packages/api/recipe/src/search/{search.service.ts,search.controller.ts}`
+- [ ] T043 [US1] Implement search service/controller for `/api/v1/search/recipes` in `packages/api/recipe/src/search/{search.service.ts,search.controller.ts}`
 
 ### Integration Tests (TDD — against real DB + LocalStack)
 
@@ -181,7 +181,7 @@
 - [ ] T048 [US2] Implement C-004 visibility policy evaluator for source type, tier, and substantive edit state in `packages/api/recipe/src/recipes/domain/visibility-policy.ts`
 - [ ] T049 [US2] Implement substantive edit detection for ingredient/step mutations updating `hasSubstantiveEdit` in `packages/api/recipe/src/recipes/recipes.service.ts`
 - [ ] T139 [US2] Extend substantive-edit detector to handle imported-recipe lineage per FR-005 + C-004 (preserve source-import flag through versioning so premium users can unlock private visibility only after a substantive edit) in `packages/api/recipe/src/recipes/recipes.service.ts`
-- [ ] T050 [US2] Implement `/api/recipes/{id}/clone` and `/api/recipes/{id}/visibility` endpoints in `packages/api/recipe/src/recipes/recipes.controller.ts`
+- [ ] T050 [US2] Implement `/api/v1/recipes/{id}/clone` and `/api/v1/recipes/{id}/visibility` endpoints in `packages/api/recipe/src/recipes/recipes.controller.ts`
 
 ### Integration Tests
 
@@ -206,14 +206,14 @@
 - [ ] T123 Update recipe DAL to soft-delete (UPDATE … SET deleted_at = now()) and add `WHERE deleted_at IS NULL` filter to all read queries in `packages/api/recipe/src/recipes/dal/recipes.dal.ts`
 - [ ] T124 Update search DAL to exclude tombstoned recipes (`WHERE deleted_at IS NULL`) in `packages/api/recipe/src/search/dal/search.dal.ts`
 - [ ] T125 Update collections DAL to exclude tombstoned recipes from membership list responses in `packages/api/recipe/src/collections/dal/collections.dal.ts`
-- [ ] T126 [US1] Add integration test asserting `DELETE /api/recipes/{id}` returns 204, row remains with `deleted_at` set, and recipe is excluded from list/search/get/collection responses in `packages/api/recipe/__tests__/integration/recipes/soft-delete.integration.spec.ts`
+- [ ] T126 [US1] Add integration test asserting `DELETE /api/v1/recipes/{id}` returns 204, row remains with `deleted_at` set, and recipe is excluded from list/search/get/collection responses in `packages/api/recipe/__tests__/integration/recipes/soft-delete.integration.spec.ts`
 
 ### Collection Clone & Pull-from-Source (FR-011)
 
 - [ ] T127-test Write unit tests for collection clone service (creates new collection with `source_collection_id`, copies memberships with `added_via=clone`, owner reassignment) in `packages/api/recipe/src/collections/__tests__/clone-collection.service.test.ts`
 - [ ] T128-test Write unit tests for pull-from-source service (additive only, `added_via=pull`, no-op when no new recipes, 400 when collection has no source) in `packages/api/recipe/src/collections/__tests__/pull-from-source.service.test.ts`
 - [ ] T127 [US2] Implement `cloneCollection` and `pullFromSource` in `packages/api/recipe/src/collections/collections.service.ts`
-- [ ] T128 [US2] Add `CloneCollectionRequest` DTO + controller endpoints `POST /api/collections/{id}/clone` and `POST /api/collections/{id}/pull-from-source` in `packages/api/recipe/src/collections/{dto/clone-collection.dto.ts,collections.controller.ts}`
+- [ ] T128 [US2] Add `CloneCollectionRequest` DTO + controller endpoints `POST /api/v1/collections/{id}/clone` and `POST /api/v1/collections/{id}/pull-from-source` in `packages/api/recipe/src/collections/{dto/clone-collection.dto.ts,collections.controller.ts}`
 - [ ] T129 [US2] Update existing T103 collection-clone integration test to assert `source_collection_id` and `added_via=clone` are set, and add a follow-up `pull-from-source` integration test in `packages/api/recipe/__tests__/integration/collections/pull-from-source.integration.spec.ts`
 
 ### Async Version Archive Worker (FR-007b-i)
@@ -230,7 +230,7 @@
 - [ ] T134-test Write unit tests for erasure service (queues job; duplicate request while job is `queued` or `running` returns HTTP 202 with existing job id; request after `completed` returns 410; request after `failed` enqueues a fresh job and returns 202; validates optional confirmation phrase) in `packages/api/recipe/src/account/__tests__/erasure.service.test.ts`
 - [ ] T135-test Write unit tests for erasure worker (hard-deletes recipes incl. tombstoned, versions, photos, collections, S3 photo + version objects, marks job completed) in `packages/api/recipe/src/account/__tests__/erasure-worker.test.ts`
 - [ ] T134 Implement `AccountModule` with `ErasureService` (job queueing) and `ErasureRequest` / `ErasureRequestAcceptedResponse` DTOs in `packages/api/recipe/src/account/{account.module.ts,erasure.service.ts,dto/erasure.dto.ts}`
-- [ ] T135 Implement `POST /api/account/erasure` controller in `packages/api/recipe/src/account/account.controller.ts`
+- [ ] T135 Implement `POST /api/v1/account/erasure` controller in `packages/api/recipe/src/account/account.controller.ts`
 - [ ] T136 Implement erasure worker that hard-deletes all user-owned data (recipes incl. tombstoned, versions, pending-archive rows, photos, collections, memberships, S3 photo objects, S3 version-archive objects) in `packages/api/recipe/src/account/erasure.worker.ts`
 - [ ] T137 Add integration test for end-to-end erasure: seed user with recipes (some tombstoned), photos in LocalStack S3, version archives, collections → trigger erasure → assert all rows + S3 objects gone, job row marked `completed` in `packages/api/recipe/__tests__/integration/account/erasure.integration.spec.ts`
 
@@ -240,7 +240,19 @@
 
 ## Phase 5: Frontend — Web (Next.js 15) & Mobile (Expo 53)
 
-**Purpose**: Deliver platform-parity UI for recipe CRUD, search, collections, sharing/cloning, and photo management.
+**Purpose**: Deliver platform-parity UI for recipe CRUD, search, collections, sharing/cloning, photo management, and the post-login Home screen. Every task in this phase must satisfy the parity rule from FR-044a: cover both platforms explicitly, have a paired task for the other platform, or carry a `[PARITY-EXCEPTION]` note.
+
+### Parity Checklist (Phase 5 gate)
+
+Before Phase 5 is marked complete, verify every implementation task below satisfies one of:
+
+- [ ] **Both platforms named** in the task description (file paths or "web + mobile" explicit)
+- [ ] **Paired tasks** exist and reference each other (e.g., T104-web + T104-mobile)
+- [ ] **`[PARITY-EXCEPTION]`** note present in the task body with reason and future spec reference
+
+This checklist is a blocking gate. Phase 6 cannot start until all Phase 5 tasks pass.
+
+---
 
 ### Setup & Shared
 
@@ -248,6 +260,18 @@
 - [ ] T062 [P] Configure Expo 53 with Auth0 native SDK (`react-native-auth0` v5.5) in `packages/apps/sous-chef/mobile/src/app/_layout.tsx`
 - [ ] T063 [P] Set up shared design tokens (colors, spacing, typography) in `packages/ui/src/tokens/` consumable by both web (Tailwind v4) and mobile (Tamagui)
 - [ ] T064 [P] Create shared API client (TanStack Query v5) with typed hooks for recipe endpoints in `packages/shared/recipe-core/src/hooks/` — reads `NEXT_PUBLIC_API_URL` / `EXPO_PUBLIC_API_URL` for base URL (NFR-009)
+
+### Home Screen (US-011) — P1
+
+> **Parity**: Both web and mobile tasks are required. They are listed as separate tasks so each can be tracked, reviewed, and tested independently.
+
+- [ ] T104-shared [P] Create shared Home section components in `packages/ui/src/home/` — `RecentRecipesSection`, `MealPlanSummarySection`, `NutritionSnapshotSection`, `ShoppingListStatusSection`, `AiSuggestionSection`, `ResumeCookingCard`, `SubscriptionNudge` — each with accessible names, skeleton loader variant, and empty state variant; exported from `packages/ui/src/index.ts`
+- [ ] T104-web [US11] Implement Home screen web — `packages/apps/sous-chef/web/src/app/(home)/page.tsx` — parallel TanStack Query calls for all six sections (recent recipes, meal plan summary, nutrition snapshot, shopping list status, AI suggestion, resume-cooking card); skeleton loaders per section; responsive 2-column grid ≥768px / 1-column below; subscription nudge bottom sheet on premium-gated tap (once per session, component state only)
+- [ ] T104-mobile [US11] Implement Home screen mobile — `packages/apps/sous-chef/mobile/src/screens/HomeScreen.tsx` — parallel TanStack Query calls for all six sections; skeleton loaders per section; vertical ScrollView; resume-cooking card at top when active session present; subscription nudge modal on premium-gated tap (once per session, component state only)
+- [ ] T104-test-web Write component tests for Home screen web (all six sections: loading state, empty state, populated state; nudge appears once per session; resume card hidden when no active session) in `packages/apps/sous-chef/web/src/app/(home)/__tests__/page.test.tsx` — MSW mocks for all six endpoints
+- [ ] T104-test-mobile Write component tests for Home screen mobile (all six sections: loading state, empty state, populated state; nudge appears once per session; resume card hidden when no active session) in `packages/apps/sous-chef/mobile/src/__tests__/HomeScreen.test.tsx` — MSW mocks for all six endpoints
+- [ ] T104-e2e-web Add Playwright E2E test for Home screen: login → verify all six sections render → tap each entry point → verify navigation in `packages/apps/sous-chef/web/tests/e2e/home.spec.ts`
+- [ ] T104-e2e-mobile Add Maestro E2E flow for Home screen: login → verify all six sections render → tap each entry point → verify navigation in `packages/apps/sous-chef/mobile/tests/e2e/home.yaml`
 
 ### Frontend Unit/Component Tests (TDD Red — mocks + fixtures only)
 
@@ -325,7 +349,7 @@
 - [ ] T057 Verify integration tests include requirement traceability comments and avoid prohibited test patterns in `packages/api/recipe/__tests__/integration/**/*.spec.ts` (Principle IV)
 - [ ] T058 Verify workspace governance entries and task pipelines remain correct in `/home/brandon/Development/KitchenSink/package.json` and `/home/brandon/Development/KitchenSink/turbo.json` (Principle V)
 - [ ] T059 Run and validate `turbo run typecheck lint format:check test` from `/home/brandon/Development/KitchenSink` with all exit codes 0 (Principle VI)
-- [ ] T060 Verify platform parity and accessibility constraints in API contracts and shared models via `specs/001-sous-chef-recipe-app/contracts/{api.openapi.yaml,recipe.types.ts}` (Principle VII)
+- [ ] T060 Verify platform parity (FR-044 / FR-044a) across all Phase 5 frontend tasks: (a) confirm every implementation task covers both web and mobile explicitly, has a paired task, or carries a `[PARITY-EXCEPTION]` note; (b) confirm the Home screen (T104-web + T104-mobile) is present and tested on both platforms; (c) confirm no user-facing screen exists on one platform without a corresponding screen on the other; (d) confirm API contracts and shared models in `specs/001-sous-chef-recipe-app/contracts/{api.openapi.yaml,recipe.types.ts}` reflect all Home screen endpoints (Principle VII)
 
 ---
 
@@ -411,6 +435,8 @@ All phases follow red-green-refactor:
 | Phase 3: US1              | 21             | 14         | 7                 | 0         | 0              | 42      |
 | Phase 4: US2              | 6              | 4          | 2                 | 0         | 0              | 12      |
 | Phase 4.5: Clarifications | 10             | 6          | 4                 | 0         | 2              | 22      |
-| Phase 5: Frontend         | 16             | 5          | 0                 | 11        | 0              | 32      |
+| Phase 5: Frontend         | 23             | 9          | 0                 | 13        | 0              | 45      |
 | Phase 6: Polish           | 11             | 0          | 0                 | 0         | 2              | 13      |
-| **Total**                 | **90**         | **35**     | **13**            | **11**    | **24**         | **173** |
+| **Total**                 | **97**         | **39**     | **13**            | **13**    | **24**         | **186** |
+
+> Phase 5 count includes 7 Home screen tasks (T104-shared, T104-web, T104-mobile, T104-test-web, T104-test-mobile, T104-e2e-web, T104-e2e-mobile) added 2026-05-10 for FR-046 (post-login Home screen) and FR-044a (parity enforcement). Previous total was 173.

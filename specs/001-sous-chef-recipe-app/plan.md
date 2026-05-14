@@ -34,15 +34,15 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 Verify compliance with each KitchenSink Constitution principle (v1.1.0) before proceeding:
 
-| #   | Principle                                                                                                                          | Status  | Notes                                                                                                                                                                                                                                                                     |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| I   | **Correctness & Type Safety** — strict TS, no `any`, proper error types, ISO dates                                                 | ☑️ Pass | Strict TS via shared `typescript` base config (`strict: true`). Drizzle schema provides end-to-end type safety. ISO 8601 timestamps in all date columns (`created_at`, `updated_at`, `deleted_at`). New error codes (`RECIPE_DELETED`, `ARCHIVE_PENDING`) extend `Error`. |
-| II  | **Readability & JSDoc** — JSDoc on all exports, braces, blank-line rules, named exports                                            | ☑️ Pass | All new exported functions/types (pending-archive worker, erasure service, collection-pull service) carry JSDoc. Named exports only. ESLint rules enforced via shared config.                                                                                             |
-| III | **Code Organization & Imports** — aliased imports, `.js` extensions, `utils/`/`lib/`/`dal/` layout, no `helpers/`                  | ☑️ Pass | Monorepo workspace imports via `@kitchensink/*` aliases. NestJS modules follow `dal/`/`lib/`/`utils/` convention. New `versions/archive/` and `users/erasure/` modules follow same structure. No `helpers/`. `.js` extensions in ESM imports.                             |
-| IV  | **Testing Discipline** — pyramid ratios, `getByRole`/`getByLabel` only, no `waitForTimeout`, test-plan comments                    | ☑️ Pass | Vitest for unit + integration; Playwright for E2E. New flows (per-photo retry, pending-archive replay, erase-my-data, pull-from-source) get unit + integration coverage. `getByRole`/`getByLabel` selectors only. Pyramid: ≥70% unit / ≤20% integration / ≤10% E2E.       |
-| V   | **Monorepo & Workspace Governance** — workspace registered, shared tooling extended, Turbo tasks declared, per-PR schema isolation | ☑️ Pass | All workspaces registered in root `package.json`. Shared `tsconfig`, ESLint, Prettier configs extended from `packages/tools/`. Turbo tasks declared in `turbo.json`. Per-PR schema isolation via Drizzle migrations + Docker Compose local PostgreSQL.                    |
-| VI  | **Formatting & Tooling** — Prettier/ESLint shared configs, git hooks active, CI gates passing, `generate:types` runs first         | ☑️ Pass | Prettier + ESLint shared. Git hooks (lint-staged) active. CI gates enforce lint + typecheck + test. Drizzle `generate:types` in Turbo dependency graph before build. New SQS/LocalStack service container in CI for archive-worker integration tests.                     |
-| VII | **Accessibility & UX Consistency** — accessible names, design tokens, design-token–driven components, platform parity              | ☑️ Pass | FR-044 platform parity (web + mobile). New UX surfaces — per-photo error/retry control, "Erase my data" confirmation, "Pull updates from source" action — carry accessible names and pair color status with icon/text. Design tokens from `packages/ui/`.                 |
+| #   | Principle                                                                                                                          | Status  | Notes                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I   | **Correctness & Type Safety** — strict TS, no `any`, proper error types, ISO dates                                                 | ☑️ Pass | Strict TS via shared `typescript` base config (`strict: true`). Drizzle schema provides end-to-end type safety. ISO 8601 timestamps in all date columns (`created_at`, `updated_at`, `deleted_at`). New error codes (`RECIPE_DELETED`, `ARCHIVE_PENDING`) extend `Error`.                                                                                                                 |
+| II  | **Readability & JSDoc** — JSDoc on all exports, braces, blank-line rules, named exports                                            | ☑️ Pass | All new exported functions/types (pending-archive worker, erasure service, collection-pull service) carry JSDoc. Named exports only. ESLint rules enforced via shared config.                                                                                                                                                                                                             |
+| III | **Code Organization & Imports** — aliased imports, `.js` extensions, `utils/`/`lib/`/`dal/` layout, no `helpers/`                  | ☑️ Pass | Monorepo workspace imports via `@kitchensink/*` aliases. NestJS modules follow `dal/`/`lib/`/`utils/` convention. New `versions/archive/` and `users/erasure/` modules follow same structure. No `helpers/`. `.js` extensions in ESM imports.                                                                                                                                             |
+| IV  | **Testing Discipline** — pyramid ratios, `getByRole`/`getByLabel` only, no `waitForTimeout`, test-plan comments                    | ☑️ Pass | Vitest for unit + integration; Playwright for E2E. New flows (per-photo retry, pending-archive replay, erase-my-data, pull-from-source) get unit + integration coverage. `getByRole`/`getByLabel` selectors only. Pyramid: ≥70% unit / ≤20% integration / ≤10% E2E.                                                                                                                       |
+| V   | **Monorepo & Workspace Governance** — workspace registered, shared tooling extended, Turbo tasks declared, per-PR schema isolation | ☑️ Pass | All workspaces registered in root `package.json`. Shared `tsconfig`, ESLint, Prettier configs extended from `packages/tools/`. Turbo tasks declared in `turbo.json`. Per-PR schema isolation via Drizzle migrations + Docker Compose local PostgreSQL.                                                                                                                                    |
+| VI  | **Formatting & Tooling** — Prettier/ESLint shared configs, git hooks active, CI gates passing, `generate:types` runs first         | ☑️ Pass | Prettier + ESLint shared. Git hooks (lint-staged) active. CI gates enforce lint + typecheck + test. Drizzle `generate:types` in Turbo dependency graph before build. New SQS/LocalStack service container in CI for archive-worker integration tests.                                                                                                                                     |
+| VII | **Accessibility & UX Consistency** — accessible names, design tokens, design-token–driven components, platform parity              | ☑️ Pass | FR-044 platform parity (web + mobile). FR-044a parity enforcement rule: every user-facing task must cover both platforms or carry a documented exception. New UX surfaces — per-photo error/retry control, "Erase my data" confirmation, "Pull updates from source" action, Home screen — carry accessible names and pair color status with icon/text. Design tokens from `packages/ui/`. |
 
 Any justified deviation MUST be documented in the **Complexity Tracking** table below.
 
@@ -68,9 +68,11 @@ packages/
 │   └── sous-chef/
 │       ├── web/                        # Next.js 15 App Router (Auth0 web SDK)
 │       │   ├── src/
-│       │   │   ├── app/                # Next.js app directory (routes)
-│       │   │   ├── components/         # Domain-grouped UI components
-│       │   │   │   ├── recipe-form/    # Recipe create/edit + per-photo retry UI (FR-001a)
+│   │   │   ├── app/                # Next.js app directory (routes)
+│   │   │   │   └── (home)/         # Post-login Home screen route (FR-046)
+│   │   │   ├── components/         # Domain-grouped UI components
+│   │   │   │   ├── home/           # Home screen sections (recent-recipes, meal-plan-summary, nutrition-snapshot, shopping-list-status, ai-suggestion, resume-cooking)
+│   │   │   │   ├── recipe-form/    # Recipe create/edit + per-photo retry UI (FR-001a)
 │       │   │   │   ├── account/        # "Erase my data" confirmation flow (C-007)
 │       │   │   │   └── collections/    # Pull-from-source action (FR-011)
 │       │   │   └── lib/                # Client-side utilities
@@ -80,7 +82,8 @@ packages/
 │       └── mobile/                     # Expo 53 + React Native (Auth0 native SDK)
 │           ├── src/
 │           │   ├── screens/            # Screen components
-│           │   ├── components/         # Domain-grouped UI components (recipe-form, account, collections)
+│           │   │   └── HomeScreen.tsx  # Post-login Home screen (FR-046)
+│           │   ├── components/         # Domain-grouped UI components (home, recipe-form, account, collections)
 │           │   └── lib/                # Mobile utilities
 │           └── tests/
 │               ├── unit/
@@ -148,7 +151,7 @@ packages/
 
 ```
 Client                       NestJS RecipesService                   PostgreSQL
-  │  POST /api/recipes          │                                      │
+  │  POST /api/v1/recipes          │                                      │
   │ ───────────────────────────►│                                      │
   │                             │  BEGIN TX                            │
   │                             │  INSERT recipes + recipe_steps +     │
@@ -216,7 +219,7 @@ Key invariants:
 
 ```
 Recipe deletion (FR-002):
-  DELETE /api/recipes/{id}
+  DELETE /api/v1/recipes/{id}
     UPDATE recipes SET deleted_at = now() WHERE id = $1 AND owner_id = $user
   Side effects:
     DELETE FROM recipe_collections WHERE recipe_id = $1     -- remove from collections
@@ -224,7 +227,7 @@ Recipe deletion (FR-002):
   No DB rows or S3 archives removed.
 
 GDPR hard purge ("Erase my data"):
-  POST /api/users/me/erase
+  POST /api/v1/users/me/erase
     For each recipe owned by user where deleted_at IS NOT NULL:
       LIST s3://versions-bucket/{recipe_id}/   → DELETE all objects
       DELETE FROM recipe_versions WHERE recipe_id = $r
@@ -236,17 +239,17 @@ GDPR hard purge ("Erase my data"):
 ```
 
 - Every recipe read path (`GET /recipes`, `GET /recipes/:id`, `GET /search/recipes`, `POST /recipes/:id/clone`, collection membership reads) MUST add `WHERE deleted_at IS NULL` (enforced at DAL layer, not in callers).
-- Tombstoned recipes remain available to the owner via a future `GET /api/users/me/erasure-preview` endpoint (read-only listing of what hard-purge would remove). This endpoint is the only read path permitted to return rows where `deleted_at IS NOT NULL`.
+- Tombstoned recipes remain available to the owner via a future `GET /api/v1/users/me/erasure-preview` endpoint (read-only listing of what hard-purge would remove). This endpoint is the only read path permitted to return rows where `deleted_at IS NOT NULL`.
 - The hard-purge transaction must be idempotent (safe to retry on partial failure). S3 deletes are issued per object; failures are logged and re-tried; the DB rows are deleted only after S3 reports success on every object.
 
 ### Collection Snapshot Clone with Opt-In Pull (FR-011)
 
 ```
-POST /api/collections/{id}/clone
+POST /api/v1/collections/{id}/clone
   INSERT collections (..., source_collection_id = $id)
   Copy current accessible recipe memberships at clone time
 
-POST /api/collections/{id}/pull-from-source     ← user-initiated, opt-in
+POST /api/v1/collections/{id}/pull-from-source     ← user-initiated, opt-in
   IF collections.source_collection_id IS NULL  → 409 NOT_CLONED
   Compute diff:
     add    = source.public_membership − clone.membership − clone.user_added_recipe_ids
@@ -386,6 +389,71 @@ new_jobs: # ADD these
 - **LocalStack 3**: `localstack/localstack:3` with `SERVICES=s3,sqs`, provisions buckets and the `souschef-version-archive` queue + DLQ in job setup step.
 - **Playwright**: Browser binaries cached by `playwright-version + runner-os` key. Traces/reports uploaded on failure only.
 - **Maestro**: Installed via `maestro-cli` action; flows run against Expo dev build on emulator/simulator.
+
+## Post-Login Home Screen (FR-046)
+
+The Home screen is the first screen rendered after the Auth0 post-login redirect. It is a client-side composed view: the frontend makes parallel API calls to assemble the six sections. No new backend endpoint is required for v1 — the Home screen consumes existing endpoints.
+
+### Data Sources (existing endpoints)
+
+| Section            | Endpoint                                                                            | Empty state                             |
+| ------------------ | ----------------------------------------------------------------------------------- | --------------------------------------- |
+| Resume cooking     | `GET /api/v1/cooking-sessions/active` (spec 008)                                    | Section hidden                          |
+| Recent recipes     | `GET /api/v1/recipes?sort=viewed_at&limit=4`                                        | "Create your first recipe" CTA          |
+| Meal plan summary  | `GET /api/v1/meal-plans/current-week` (spec 006)                                    | "Plan your meals" CTA                   |
+| Nutrition snapshot | `GET /api/v1/nutrition-goals/me` + `GET /api/v1/meal-plans/today/totals` (spec 009) | "Set a nutrition goal" CTA              |
+| Shopping list      | `GET /api/v1/shopping-lists/active` (spec 007)                                      | "No active list" with "Create list" CTA |
+| AI suggestion      | `GET /api/v1/ai/suggestions/recipe?limit=1` (spec 005)                              | "Try AI suggestions" CTA                |
+
+All six calls are issued in parallel (Promise.all / TanStack Query parallel queries). The Home screen renders immediately with skeleton loaders; each section populates independently as its call resolves. A single section failure does not block the rest.
+
+### Subscription Nudge
+
+When a free-tier user taps a premium-gated entry point on Home (private recipe visibility, advanced nutrition), a bottom sheet / modal appears with an upgrade prompt. The nudge is suppressed for the remainder of the session after the first appearance, tracked in component state (not persisted). No backend call is needed for nudge suppression.
+
+### Platform Layout
+
+| Platform      | Layout                                                                                                      |
+| ------------- | ----------------------------------------------------------------------------------------------------------- |
+| Web (Next.js) | Responsive CSS grid: 2-column on ≥768px, 1-column below. Resume cooking card spans full width when present. |
+| Mobile (Expo) | Vertical ScrollView. Resume cooking card at top when present. All six sections in order below.              |
+
+Both platforms use the same shared section components from `packages/ui/` where possible. Platform-specific layout wrappers live in `packages/apps/sous-chef/web/src/components/home/` and `packages/apps/sous-chef/mobile/src/components/home/` respectively.
+
+### Route
+
+- **Web**: `packages/apps/sous-chef/web/src/app/(home)/page.tsx` — the `/` route after login redirect.
+- **Mobile**: `packages/apps/sous-chef/mobile/src/screens/HomeScreen.tsx` — the initial tab/stack screen after auth.
+
+---
+
+## Web/Mobile Parity Enforcement
+
+FR-044 requires feature parity across web and mobile. FR-044a (added 2026-05-10) makes this enforceable at task level.
+
+### Rule
+
+Every frontend implementation task MUST satisfy one of:
+
+1. **Covers both platforms explicitly** — the task description names both web and mobile file paths or says "web + mobile".
+2. **Has a paired task** — a separate task exists for the other platform, and both tasks reference each other.
+3. **Carries a documented exception** — the task body includes a `[PARITY-EXCEPTION]` note explaining why parity is deferred and which future spec closes the gap.
+
+A task that covers only one platform without a documented exception is a **blocking defect** and must not be marked complete.
+
+### Pre-Approved Exceptions (no task-level note required)
+
+| Exception                                     | Reason                                               |
+| --------------------------------------------- | ---------------------------------------------------- |
+| Auth0 SDK integration (web vs. mobile)        | Covered by spec 002; different SDKs are expected     |
+| Expo device APIs (camera, haptics, push)      | No web equivalent; noted per feature                 |
+| Playwright (web E2E) vs. Maestro (mobile E2E) | Different tools for the same flow; both are required |
+
+### Audit
+
+T060 (Phase 6 parity audit) remains in place as a final gate. It now checks that every frontend task in Phase 5 satisfies one of the three conditions above, not just that the API contracts mention parity.
+
+---
 
 ## Complexity Tracking
 

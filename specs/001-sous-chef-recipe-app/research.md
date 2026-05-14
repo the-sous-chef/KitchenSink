@@ -1,6 +1,6 @@
 # Phase 0 Research: Sous Chef Recipe Management Core
 
-**Branch**: `001-sous-chef-recipe-app` | **Date**: 2026-04-18  
+**Branch**: `001-sous-chef-recipe-app` | **Date**: 2026-04-18
 **Spec**: [spec.md](./spec.md) | **Status**: Complete
 
 ## Research Questions
@@ -54,7 +54,7 @@ This converts 1 981 ms → 58 ms on 4 M row datasets.
 
 ### Decision
 
-**PostgreSQL FTS is viable** for the recipe app at projected scale (< 5 M recipes initially). Persistent tsvector + GIN + rank sampling reaches well under p95 ≤ 500 ms target.
+**PostgreSQL FTS is viable** for the recipe app at projected scale (< 5 M recipes initially). Persistent tsvector + GIN + rank sampling is the recommended starting architecture. **Load testing is required** to validate p95 latency targets under real concurrent load with auth filters, joins, and faceting — the cited benchmarks (OneRuby.dev, Daniela Baron, Timescale) validate the pattern and provide credible reference points, but none reproduces our exact workload.
 
 ---
 
@@ -62,14 +62,14 @@ This converts 1 981 ms → 58 ms on 4 M row datasets.
 
 ### Aurora DSQL Blockers (Why NOT Aurora DSQL)
 
-| Feature                      | Aurora DSQL Status   | Impact on Spec 001                                                                      |
-| ---------------------------- | -------------------- | --------------------------------------------------------------------------------------- |
-| `CREATE EXTENSION` (pg_trgm) | ❌ NOT supported     | Cannot do fuzzy ingredient search / autocomplete                                        |
-| GIN indexes on custom types  | ❌ NOT supported     | Full-text search requires sequential scans at 330k+ rows                                |
-| JSONB type                   | ❌ NOT supported     | Cannot store flexible recipe metadata; schema must be fully columnar                    |
-| Triggers                     | ❌ NOT supported     | Cannot auto-maintain `search_vector` tsvector on row change                             |
-| Views                        | ❌ NOT supported     | No materialized views for search optimization                                           |
-| Transaction row limit        | ⚠️ 3,000–10,000 rows | Bulk operations (version archival, ingredient import) require chunking with retry logic |
+| Feature                      | Aurora DSQL Status     | Impact on Spec 001                                                                      |
+| ---------------------------- | ---------------------- | --------------------------------------------------------------------------------------- |
+| `CREATE EXTENSION` (pg_trgm) | ❌ NOT supported       | Cannot do fuzzy ingredient search / autocomplete                                        |
+| GIN indexes on custom types  | ❌ NOT supported       | Full-text search requires sequential scans at 330k+ rows                                |
+| JSONB type                   | ⚠️ Partial (JSON only) | JSON supported, but JSONB (binary) not available; trade-off acceptable for spec         |
+| Triggers                     | ❌ NOT supported       | Cannot auto-maintain `search_vector` tsvector on row change                             |
+| Materialized views           | ❌ NOT supported       | Ordinary views supported, but not materialized views for search optimization            |
+| Transaction row limit        | ⚠️ 3,000–10,000 rows   | Bulk operations (version archival, ingredient import) require chunking with retry logic |
 
 Source: [docs/architecture/usda/05-event-driven-queue-based.md](../../docs/architecture/usda/05-event-driven-queue-based.md) lines 956–975.
 
@@ -141,16 +141,16 @@ Use `ts_stat()` on the ingredients tsvector column to build a lexeme frequency t
 
 ## RQ-4: Dedicated Search Engine Comparison
 
-| Engine         | p50 Latency | p99 Latency | RAM (1 M docs) | Typo Tolerance   | Faceting         | Notes                               |
-| -------------- | ----------- | ----------- | -------------- | ---------------- | ---------------- | ----------------------------------- |
-| PostgreSQL FTS | 28–65 ms    | ~200 ms     | Shared with DB | Manual (pg_trgm) | Via SQL          | No extension support on Aurora DSQL |
-| **Typesense**  | **3 ms**    | **12 ms**   | ~2.5 GB        | Built-in         | Built-in         | Easiest self-host; REST API         |
-| Meilisearch    | 5–15 ms     | ~40 ms      | ~3 GB          | Built-in         | Built-in         | Schemaless; strong DX               |
-| OpenSearch     | 8–25 ms     | ~80 ms      | ~6 GB          | Via analyzer     | Via aggregations | Best for complex aggregations       |
+| Engine         | Expected Latency | Typo Tolerance   | Faceting         | Notes                                             |
+| -------------- | ---------------- | ---------------- | ---------------- | ------------------------------------------------- |
+| PostgreSQL FTS | ~28–65 ms (p50)  | Manual (pg_trgm) | Via SQL          | No extension support on Aurora DSQL               |
+| **Typesense**  | ~3–12 ms (p50)   | Built-in         | Built-in         | Self-host; REST API; recommended migration target |
+| Meilisearch    | ~5–40 ms (p50)   | Built-in         | Built-in         | Schemaless; strong DX                             |
+| OpenSearch     | ~8–80 ms (p50)   | Via analyzer     | Via aggregations | Best for complex aggregations                     |
 
 ### Decision
 
-**Start with PostgreSQL FTS.** Recipe search is secondary to CRUD at launch. Add Typesense if:
+**Start with PostgreSQL FTS.** Recipe search is secondary to CRUD at launch. Latency figures are reference benchmarks (Typesense ~3 ms p50 on 2.2M docs from public recipe test; PostgreSQL ~28–65 ms p50 on 100k–1M rows per OneRuby.dev benchmarks) — treat as directional, not guaranteed SLA. Add Typesense if:
 
 - Typo tolerance becomes a P1 UX requirement
 - p95 exceeds 400 ms under real load testing
@@ -165,10 +165,10 @@ Typesense is the recommended migration target if needed — lowest operational o
 ### Upload Flow (presigned URL pattern)
 
 ```
-Client → POST /api/recipes/{id}/photos/upload-url
+Client → POST /api/v1/recipes/{id}/photos/upload-url
        ← { url: "https://s3.../key?X-Amz-Signature=...", key: "..." }
 Client → PUT {url} (direct S3, never touches API server)
-Client → POST /api/recipes/{id}/photos/confirm { key }
+Client → POST /api/v1/recipes/{id}/photos/confirm { key }
 ```
 
 Presigned URL expiry: **15 minutes** (upload window). Generated by Lambda with `@aws-sdk/client-s3` `PutObjectCommand` + `getSignedUrl`.
@@ -421,7 +421,7 @@ Each module is fully self-contained: `*.module.ts`, `*.controller.ts`, `*.servic
 `@Global()` module with lazy connection proxy:
 
 ```typescript
-// apps/api/src/db/db.module.ts
+// apps/api/v1/src/db/db.module.ts
 export const DB_TOKEN = Symbol('DRIZZLE_DB');
 
 @Global()
@@ -444,11 +444,11 @@ Services inject via `@Inject(DB_TOKEN) private db: DrizzleDB`.
 
 ### CDK Deployment (Fargate)
 
-Multi-stage Dockerfile at `apps/api/Dockerfile`:
+Multi-stage Dockerfile at `apps/api/v1/Dockerfile`:
 
 1. Builder stage: `npm ci --workspace=apps/api` from monorepo root context
 2. Runtime stage: copy `dist/` + `node_modules`, expose port 3000
-3. CDK `ecs.ContainerImage.fromAsset()` builds from monorepo root with `file: apps/api/Dockerfile`
+3. CDK `ecs.ContainerImage.fromAsset()` builds from monorepo root with `file: apps/api/v1/Dockerfile`
 
 **esbuild gotcha** (CDK issue #37545): `esbuild` must be declared in **root** `package.json` devDependencies for `NodejsFunction` to find it in npm workspaces.
 

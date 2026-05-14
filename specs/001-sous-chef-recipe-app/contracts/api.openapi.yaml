@@ -22,7 +22,7 @@ tags:
     - name: Search
     - name: Account
 paths:
-    /api/recipes:
+    /api/v1/recipes:
         post:
             tags: [Recipes]
             summary: Create recipe
@@ -75,7 +75,7 @@ paths:
                 '401':
                     $ref: '#/components/responses/Unauthorized'
 
-    /api/recipes/{id}:
+    /api/v1/recipes/{id}:
         get:
             tags: [Recipes]
             summary: Get recipe by ID
@@ -131,7 +131,7 @@ paths:
                 Marks the recipe as deleted by setting `deletedAt`. The row is retained
                 for audit and version-restore purposes and is excluded from all list,
                 search, and detail responses. Hard purge of recipe rows only happens
-                via the GDPR account erasure flow (`POST /api/account/erasure`).
+                via the GDPR account erasure flow (`POST /api/v1/account/erasure`).
             operationId: deleteRecipe
             parameters:
                 - $ref: '#/components/parameters/RecipeId'
@@ -145,7 +145,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{id}/clone:
+    /api/v1/recipes/{id}/clone:
         post:
             tags: [Recipes]
             summary: Clone a public recipe
@@ -166,7 +166,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{id}/visibility:
+    /api/v1/recipes/{id}/visibility:
         patch:
             tags: [Recipes]
             summary: Set recipe visibility
@@ -195,7 +195,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/ingredients/search:
+    /api/v1/ingredients/search:
         get:
             tags: [Ingredients]
             summary: Search ingredients by name (autocomplete, fuzzy)
@@ -228,7 +228,7 @@ paths:
                 '401':
                     $ref: '#/components/responses/Unauthorized'
 
-    /api/ingredients:
+    /api/v1/ingredients:
         post:
             tags: [Ingredients]
             summary: Create freeform ingredient
@@ -251,7 +251,7 @@ paths:
                 '401':
                     $ref: '#/components/responses/Unauthorized'
 
-    /api/recipes/{recipeId}/versions:
+    /api/v1/recipes/{recipeId}/versions:
         get:
             tags: [Versions]
             summary: List recipe versions
@@ -275,7 +275,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{recipeId}/versions/{versionNumber}:
+    /api/v1/recipes/{recipeId}/versions/{versionNumber}:
         get:
             tags: [Versions]
             summary: Get specific version snapshot
@@ -297,7 +297,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{recipeId}/versions/{versionNumber}/restore:
+    /api/v1/recipes/{recipeId}/versions/{versionNumber}/restore:
         post:
             tags: [Versions]
             summary: Restore recipe to a prior version
@@ -321,7 +321,7 @@ paths:
                 '409':
                     $ref: '#/components/responses/VersionConflict'
 
-    /api/recipes/{recipeId}/photos/upload-url:
+    /api/v1/recipes/{recipeId}/photos/upload-url:
         post:
             tags: [Photos]
             summary: Get presigned S3 upload URL
@@ -349,7 +349,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{recipeId}/photos/confirm:
+    /api/v1/recipes/{recipeId}/photos/confirm:
         post:
             tags: [Photos]
             summary: Confirm photo upload completed
@@ -379,7 +379,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{recipeId}/photos:
+    /api/v1/recipes/{recipeId}/photos:
         get:
             tags: [Photos]
             summary: List photos for recipe
@@ -400,7 +400,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{recipeId}/photos/{photoId}:
+    /api/v1/recipes/{recipeId}/photos/{photoId}:
         delete:
             tags: [Photos]
             summary: Delete photo
@@ -418,7 +418,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/recipes/{recipeId}/photos/reorder:
+    /api/v1/recipes/{recipeId}/photos/reorder:
         patch:
             tags: [Photos]
             summary: Reorder photos
@@ -447,7 +447,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/collections:
+    /api/v1/collections:
         post:
             tags: [Collections]
             summary: Create collection
@@ -493,7 +493,7 @@ paths:
                 '401':
                     $ref: '#/components/responses/Unauthorized'
 
-    /api/collections/{id}:
+    /api/v1/collections/{id}:
         get:
             tags: [Collections]
             summary: Get collection with recipes
@@ -556,7 +556,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/collections/{id}/recipes:
+    /api/v1/collections/{id}/recipes:
         post:
             tags: [Collections]
             summary: Add recipe to collection
@@ -585,7 +585,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/collections/{id}/recipes/{recipeId}:
+    /api/v1/collections/{id}/recipes/{recipeId}:
         delete:
             tags: [Collections]
             summary: Remove recipe from collection
@@ -603,7 +603,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/collections/{id}/clone:
+    /api/v1/collections/{id}/clone:
         post:
             tags: [Collections]
             summary: Clone a collection
@@ -612,7 +612,7 @@ paths:
                 points back to the original. Each membership row in the new collection
                 records `addedVia=clone`. The clone is independent — subsequent
                 additions to the source collection are not propagated automatically;
-                the owner must call `POST /api/collections/{id}/pull-from-source`.
+                the owner must call `POST /api/v1/collections/{id}/pull-from-source`.
             operationId: cloneCollection
             parameters:
                 - $ref: '#/components/parameters/CollectionId'
@@ -636,7 +636,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/collections/{id}/pull-from-source:
+    /api/v1/collections/{id}/pull-from-source:
         post:
             tags: [Collections]
             summary: Pull new recipes from source collection
@@ -672,7 +672,7 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
 
-    /api/search/recipes:
+    /api/v1/search/recipes:
         get:
             tags: [Search]
             summary: Full-text recipe search with facets
@@ -750,7 +750,7 @@ paths:
                 '401':
                     $ref: '#/components/responses/Unauthorized'
 
-    /api/account/erasure:
+    /api/v1/account/erasure:
         post:
             tags: [Account]
             summary: Request GDPR account erasure
@@ -1476,7 +1476,7 @@ components:
                     nullable: true
                     description: |
                         If set, this collection was cloned from the referenced collection.
-                        Used by `POST /api/collections/{id}/pull-from-source` to add
+                        Used by `POST /api/v1/collections/{id}/pull-from-source` to add
                         recipes that were added to the source after the clone.
                 createdAt:
                     type: string

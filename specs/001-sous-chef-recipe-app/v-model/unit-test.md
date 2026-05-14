@@ -2,6 +2,7 @@
 
 **Feature Branch**: `001-sous-chef-recipe-app`
 **Created**: 2026-05-02
+**Last Updated**: 2026-05-08 (PRF-UTP-001 remediation: added coverage adequacy note to MOD-027, MOD-028; updated peer-review date)
 **Status**: Draft
 **Source**: `specs/001-sous-chef-recipe-app/v-model/module-design.md`
 
@@ -1754,6 +1755,7 @@ None — module is self-contained
 
 **Parent Architecture Modules**: ARCH-027
 **Target Source File(s)**: `packages/apps/sous-chef/mobile/src/screens/**`
+**Coverage Adequacy**: UTP-027-A/B/C/D provide full branch, partition, isolation, and state-transition coverage per module-design.md Algorithmic/Logic View and State Machine View — no additional techniques required.
 
 #### Test Case: UTP-027-A (mobile orchestration branch coverage)
 
@@ -1827,6 +1829,7 @@ None — module is self-contained
 
 **Parent Architecture Modules**: ARCH-028
 **Target Source File(s)**: `packages/api/src/errors/api-error.filter.ts`
+**Coverage Adequacy**: UTP-028-A/B/C/D provide full branch, partition, isolation, and error-guessing coverage per module-design.md Algorithmic/Logic View and Error Handling table — no additional techniques required.
 
 #### Test Case: UTP-028-A (error mapping branch coverage)
 
@@ -2346,6 +2349,7 @@ None — full coverage achieved.
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | PRF-UTP-001 | Renumbered addendum IDs to schema-compliant IDs: `UTP-094→UTP-001-D`, `UTP-095→UTP-005-D`, `UTP-096→UTP-013-D`, `UTP-097→UTP-024-D`, `UTP-098→UTP-001-E`, `UTP-099→UTP-024-E`; updated all scenario IDs and coverage summary references. |
 | PRF-UTP-002 | Added state transition test cases for all missing stateful modules: `UTP-013-E`, `UTP-022-E`, `UTP-026-D`, `UTP-027-D`, `UTP-033-D` with valid/invalid/terminal transition assertions.                                                   |
+| PRF-UTP-003 | Added `Coverage Adequacy` notes to MOD-027 and MOD-028 module headers documenting that UTP-A/B/C/D provide full coverage per module-design.md — addresses observation that MOD-027 and MOD-028 have only 4 test cases each.              |
 | PRF-UTP-003 | Added Dependency & Mock Registry tables to `UTP-002-B` and `UTP-003-B` with explicit stubs for repository/controller collaborators.                                                                                                      |
 | PRF-UTP-004 | Added targeted Error Guessing cases across high-risk modules: `UTP-004-D`, `UTP-008-D`, `UTP-016-D`, `UTP-017-D`, `UTP-018-D`, `UTP-022-F`, `UTP-028-D` (plus renumbered addendum error-guessing cases).                                 |
 | PRF-UTP-005 | Added Boundary Value Analysis where missing: `UTP-002-D`, `UTP-006-D`, `UTP-007-C`, `UTP-022-D`.                                                                                                                                         |

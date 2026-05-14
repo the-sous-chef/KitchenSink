@@ -23,6 +23,29 @@ This is the **foundational spec** for the Sous Chef product. All other specs dep
 
 ## User Scenarios & Testing _(mandatory)_
 
+### User Story 0 - Post-Login Home Screen (Priority: P1)
+
+A user completes login and lands on the Home screen. The Home screen is the first thing they see every session. It is not a generic welcome page or a bare recipe list. It shows the user's most recent recipes (up to 4), a compact summary of today's and tomorrow's meal plan, today's nutrition snapshot vs. their goal, the count of unchecked items on their active shopping list, one AI-generated recipe suggestion based on their history, and a prominent "Resume cooking" card if they have an active cooking-mode session. Free-tier users see a contextual subscription nudge (at most once per session) when they tap a premium-gated entry point. The Home screen is present on both web and mobile with identical entry points; layout adapts to screen size.
+
+**Why this priority**: The Home screen is the product's first impression on every return visit. Without a valuable, personalized entry point, users have no clear next action after login. Every other feature (meal planning, nutrition, shopping, cooking mode, AI, subscriptions) must be reachable from Home. This screen is the connective tissue of the entire product.
+
+**Independent Test**: Log in as a new user (no data) and verify all six sections render with appropriate empty states. Log in as a returning user with recipes, a meal plan, a nutrition goal, a shopping list, and an active cooking session, and verify all six sections show real data and navigate correctly.
+
+**Acceptance Scenarios**:
+
+1. **Given** a user completes login, **When** the app redirects post-auth, **Then** the Home screen loads within 2 seconds and all six entry-point sections are visible.
+2. **Given** a user has an active cooking-mode session, **When** they view Home, **Then** a "Resume cooking" card appears at the top of the screen above all other sections.
+3. **Given** a user has no active cooking session, **When** they view Home, **Then** no "Resume cooking" card is shown.
+4. **Given** a user has recipes, **When** they view Home, **Then** up to 4 most recently viewed or edited recipes appear in the Recent Recipes section.
+5. **Given** a user has no recipes, **When** they view Home, **Then** the Recent Recipes section shows an empty state with a "Create your first recipe" call to action.
+6. **Given** a user has a meal plan with entries for today or tomorrow, **When** they view Home, **Then** the Meal Plan section shows those entries with recipe names and meal type.
+7. **Given** a user has a nutrition goal set, **When** they view Home, **Then** the Nutrition section shows today's planned macro totals vs. their goal.
+8. **Given** a user has an active shopping list with unchecked items, **When** they view Home, **Then** the Shopping List section shows the unchecked item count and a "View list" link.
+9. **Given** a free-tier user taps a premium-gated entry point on Home, **When** the tap occurs, **Then** a subscription upgrade nudge appears. The nudge appears at most once per session regardless of how many premium entry points the user taps.
+10. **Given** the Home screen on web, **When** compared to the Home screen on mobile, **Then** all six entry-point sections are present on both platforms. No section is absent on either platform.
+
+---
+
 ### User Story 1 - Create and Manage Personal Recipes (Priority: P1)
 
 A user opens Sous Chef, creates an account, and begins building their personal recipe collection. They can create new recipes from scratch by entering a title, description, ingredients (backed by real food data with nutritional information), step-by-step instructions, prep/cook times, servings, tags, and photos. They can edit or delete recipes they own. They can view their recipes in a searchable, filterable list. They can organize recipes into collections (folders/groups) for personal categorization.
@@ -97,7 +120,9 @@ A user wants to share a recipe they own with the community. They can make a reci
 
 **Platform**
 
+- **FR-046**: System MUST present a personalized Home screen immediately after login. The Home screen MUST surface: (a) a "Resume cooking" card when an active cooking-mode session exists, (b) up to 4 most recently viewed or edited recipes, (c) a compact summary of today's and tomorrow's meal plan entries, (d) today's planned macro totals vs. the user's nutrition goal, (e) the count of unchecked items on the active shopping list, and (f) one AI-generated recipe suggestion based on the user's history. Each section MUST show a contextually appropriate empty state when no data exists. Free-tier users MUST see a subscription upgrade nudge (at most once per session) when they interact with a premium-gated entry point on Home. The Home screen MUST be present on both web and mobile with all six sections on both platforms.
 - **FR-044**: System MUST be available as both a mobile application and a web application with feature parity.
+- **FR-044a** _(Parity Enforcement Rule)_: Every user-facing feature task MUST either (a) cover both web and mobile explicitly, or (b) be accompanied by a paired task for the other platform, or (c) carry a documented exception in the task body stating why parity is deferred and which future spec closes the gap. A task that implements a user-facing screen or flow for only one platform without a documented exception is a blocking defect. This rule applies at task-creation time, not only at final audit.
 - **FR-045**: System MUST require user authentication for all features. There is no unauthenticated/anonymous access.
 
 ### Non-Functional Requirements _(constitution-derived)_
@@ -148,7 +173,7 @@ A user wants to share a recipe they own with the community. They can make a reci
     - **On premium lapse**: Previously private user-created recipes stay private; no new recipes can be set to private until renewal. Paid-source recipes remain private regardless.
 - **C-005 (Concurrent Edit Conflict Resolution)**: Every recipe save creates a new version. The last 10 versions are stored in the database for user access; all versions are archived to S3 indefinitely. On concurrent edit conflict (same recipe edited from two devices), the system detects the conflict, warns the user, and presents both versions for the user to choose or manually merge.
 - **C-006 (Freeform Ingredients)**: When a user adds an ingredient not found in the food database, they may enter it as freeform text and optionally supply nutrition values manually. Such ingredients are flagged as "user-entered" to distinguish from database-backed data. Recipes with user-entered ingredients display a notice that nutrition data is partially user-supplied.
-- **C-007 (Recipe Deletion & GDPR Erasure)**: Recipe deletion (FR-002) is a soft delete (tombstone). Tombstoned recipes are immediately removed from all listings, search, collections, and clone targets, but DB rows and S3 version archives are retained indefinitely. Hard purge (DB + all S3 version archives) is irreversible and only occurs via an explicit user-initiated "Erase my data" action satisfying GDPR right-to-erasure. This overrides FR-007b's indefinite-retention guarantee only for recipes the user explicitly chooses to erase. The `POST /api/account/erasure` endpoint MUST be idempotent: a duplicate request while a job is already `queued` or `running` for the user MUST return HTTP 202 with the existing job's id (not enqueue a second job); a request after a `completed` job MUST return HTTP 410 (account already erased); a request after a `failed` job MUST enqueue a fresh retry and return HTTP 202 with the new job id.
+- **C-007 (Recipe Deletion & GDPR Erasure)**: Recipe deletion (FR-002) is a soft delete (tombstone). Tombstoned recipes are immediately removed from all listings, search, collections, and clone targets, but DB rows and S3 version archives are retained indefinitely. Hard purge (DB + all S3 version archives) is irreversible and only occurs via an explicit user-initiated "Erase my data" action satisfying GDPR right-to-erasure. This overrides FR-007b's indefinite-retention guarantee only for recipes the user explicitly chooses to erase. The `POST /api/v1/account/erasure` endpoint MUST be idempotent: a duplicate request while a job is already `queued` or `running` for the user MUST return HTTP 202 with the existing job's id (not enqueue a second job); a request after a `completed` job MUST return HTTP 410 (account already erased); a request after a `failed` job MUST enqueue a fresh retry and return HTTP 202 with the new job id.
 
 ### Session 2026-04-30
 
