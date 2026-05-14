@@ -1,8 +1,8 @@
 # USDA FoodData Central — Architecture Proposals
 
-> **Status**: Proposal  
-> **Date**: 2026-04-07  
-> **Purpose**: Decision-making — select one architecture for the recipe application's food/nutrition data layer  
+> **Status**: Proposal
+> **Date**: 2026-04-07
+> **Purpose**: Decision-making — select one architecture for the recipe application's food/nutrition data layer
 > **Data Source**: [USDA FoodData Central](https://fdc.nal.usda.gov/) (CC0 Public Domain, 330K+ food items)
 
 ---

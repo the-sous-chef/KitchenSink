@@ -1,0 +1,138 @@
+# UX Patterns: USDA Food Data Integration
+
+**Branch**: `003-usda-food-data` | **Date**: 2026-05-09
+**Status**: Complete | **Source**: [spec.md](../spec.md), [research.md](../research.md), [plan.md](../plan.md)
+
+---
+
+## 1. Food Search and Selection
+
+### 1.1 Search-as-You-Type Pattern
+
+Food lookup starts with local-store query (never USDA request-path call), with incremental results as users type.
+
+- Debounce input 150–250ms.
+- Minimum query length: 2 characters.
+- Empty-state guidance: “No local match yet; save ingredient to trigger background fetch.”
+- Typo tolerance via `pg_trgm` (e.g., “avacado” → “avocado”).
+
+**FR references**: FR-008, FR-009, FR-010.
+
+---
+
+### 1.2 Food Disambiguation (Brand vs Generic)
+
+When multiple candidates are returned, each row includes:
+
+- Data type badge: Foundation / SR Legacy / Branded.
+- Brand owner/name (when present).
+- Per-100g calories and key macros.
+
+Primary interaction:
+
+1. User types ingredient name.
+2. System returns ranked candidates.
+3. User selects the most appropriate record.
+4. Selection persists `fdcId` link on ingredient when available.
+
+**FR references**: FR-002, FR-008, FR-028.
+
+---
+
+## 2. Async Fetch Lifecycle UX
+
+### 2.1 Pending-State Contract (202 Accepted)
+
+On cache miss:
+
+- Immediate response with `status: pending` + `estimatedWaitSeconds`.
+- UI renders pending chip (not color-only).
+- User can continue recipe authoring without blocking.
+
+**FR references**: FR-003, FR-004, FR-011, FR-013, FR-033.
+
+---
+
+### 2.2 Polling-First Completion Pattern
+
+Polling endpoint drives status transitions:
+
+- `pending` → spinner + ETA
+- `fetched` → auto-refresh nutrition panel
+- `not_found` → inline guidance for manual/fallback ingredient handling
+- `failed` → retry affordance + non-blocking warning
+
+**FR references**: FR-007, FR-033.
+
+---
+
+### 2.3 Optional Push Enhancement
+
+WebSocket push is a UX enhancement layer over polling, not launch dependency.
+
+**FR references**: FR-034, A-007.
+
+---
+
+## 3. Ingredient Matcher and Nutrition Panel
+
+### 3.1 Ingredient Picker Pattern
+
+Recipe ingredient rows expose match status:
+
+- Matched: shows selected food description and data type.
+- Pending: shows wait state and last poll timestamp.
+- Unmatched: allows freeform ingredient entry (no forced hard block).
+
+**FR references**: FR-002, FR-003, FR-033, A-008.
+
+---
+
+### 3.2 Nutrition Panel Pattern
+
+Panel shows per-selected-food nutrient breakdown and aggregate contribution hints. Unit toggle controls are presented as UX aids.
+
+**FR references**: FR-002, FR-028, SC-008.
+**Warning linkage**: explicit conversion semantics are not a dedicated FR (tracked in verify warning).
+
+---
+
+## 4. Error and Recovery Patterns
+
+### 4.1 Tombstone / Not Found Pattern
+
+If USDA returns 404:
+
+- Status shown as “Not found in USDA dataset”.
+- No retry loop.
+- User can keep freeform ingredient (downstream recipe UX decides nutrition treatment).
+
+**FR references**: FR-005, FR-025.
+
+---
+
+### 4.2 Rate-Limit Backpressure Pattern
+
+When token bucket depleted:
+
+- User-facing reads remain functional from local store.
+- Pending requests continue queued with realistic ETA.
+- System avoids false promise of immediate fetch.
+
+**FR references**: FR-019, FR-020, FR-021, FR-022, SC-002.
+
+---
+
+### 4.3 DLQ Visibility Pattern
+
+Operational, not end-user UI: failures after retries are surfaced in monitoring dashboards and alerts.
+
+**FR references**: FR-016, FR-018, SC-006.
+
+---
+
+## 5. Accessibility and Clarity Constraints
+
+- Pending/fetched/failed/not_found must be conveyed via text/icon + color (NFR-005).
+- Interactive picker/search/status controls need accessible names (NFR-004).
+- Any food-state badges must remain keyboard/screen-reader discoverable.
