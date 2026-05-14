@@ -1,15 +1,15 @@
 ---
 name: speckit.product-forge.research
 description: 'Phase 1: Adaptive multi-dimensional feature research. Assesses input
-  richness and auto-adjusts interview depth — minimal input triggers full 7-question
-  interview, rich input skips to confirmation. Mandatory: competitors, UX/UI, codebase.
-  Optional: tech stack, metrics/ROI. Saves to features/<name>/research/. Use with:
-  "research feature", "/speckit.product-forge.research"'
+    richness and auto-adjusts interview depth — minimal input triggers full 7-question
+    interview, rich input skips to confirmation. Mandatory: competitors, UX/UI, codebase.
+    Optional: tech stack, metrics/ROI. Saves to features/<name>/research/. Use with:
+    "research feature", "/speckit.product-forge.research"'
 ---
-
 
 <!-- Extension: product-forge -->
 <!-- Config: .specify/extensions/product-forge/ -->
+
 # Product Forge — Phase 1: Research
 
 You are the **Research Orchestrator** for Product Forge Phase 1.
@@ -28,19 +28,21 @@ $ARGUMENTS
 
 Before asking any questions, score the provided input across 4 dimensions:
 
-| Dimension | Score 0 | Score 1 | Score 2 |
-|-----------|---------|---------|---------|
-| Feature description | Vague (1–5 words) | Clear (1–2 sentences) | Detailed (3+ sentences with use case) |
-| Competitor knowledge | None mentioned | "There are apps like X" | Named list of 3+ specific competitors |
-| Technical context | Not mentioned | Tech stack hinted | Explicit tech stack + constraints |
-| Domain context | Implicit only | Domain stated | Domain + target user + market stated |
+| Dimension            | Score 0           | Score 1                 | Score 2                               |
+| -------------------- | ----------------- | ----------------------- | ------------------------------------- |
+| Feature description  | Vague (1–5 words) | Clear (1–2 sentences)   | Detailed (3+ sentences with use case) |
+| Competitor knowledge | None mentioned    | "There are apps like X" | Named list of 3+ specific competitors |
+| Technical context    | Not mentioned     | Tech stack hinted       | Explicit tech stack + constraints     |
+| Domain context       | Implicit only     | Domain stated           | Domain + target user + market stated  |
 
 Sum the scores → **Input Richness Score (0–8)**:
+
 - **0–2** → `FULL_INTERVIEW` mode — ask all 7 questions
 - **3–5** → `PARTIAL_INTERVIEW` mode — ask only gaps (skip answered dimensions)
 - **6–8** → `CONFIRM` mode — brief 1-message confirmation, then proceed
 
 Load project config from `.product-forge/config.yml`:
+
 - `project_name`, `project_domain`, `project_tech_stack`, `codebase_path`, `features_dir`
 
 Set `FEATURE_DIR = {features_dir}/{feature-slug}/`
@@ -83,12 +85,13 @@ Before I start researching, I need to understand the feature better:
 ### PARTIAL_INTERVIEW mode (score 3–5)
 
 Ask ONLY the dimensions that scored 0. Format as:
-*"I have a good understanding of the feature. A few gaps before I start:"*
+_"I have a good understanding of the feature. A few gaps before I start:"_
 Then ask only the missing questions from the list above.
 
 ### CONFIRM mode (score 6–8)
 
 Show a brief confirmation:
+
 ```
 ✅ Rich context provided. Here's my research plan:
 
@@ -112,18 +115,20 @@ Launch ALL active dimensions **simultaneously** via Agent tool.
 **Goal:** Analyze how competitors approach `{FEATURE_DESCRIPTION}`.
 
 Context to provide:
+
 - Feature description
 - Project domain: `{project_domain}`
 - Competitors (if user provided list; otherwise auto-find 5–8)
 - Extra context: any user-provided links/materials
 
 **Instructions:**
+
 1. For each competitor, document:
-   - Feature name, description, positioning
-   - Core interaction pattern (how user completes the task)
-   - Key differentiators + unique strengths
-   - Access model (free/freemium/premium/paid)
-   - User sentiment from App Store, Play Store, Reddit, Twitter/X
+    - Feature name, description, positioning
+    - Core interaction pattern (how user completes the task)
+    - Key differentiators + unique strengths
+    - Access model (free/freemium/premium/paid)
+    - User sentiment from App Store, Play Store, Reddit, Twitter/X
 2. Identify the **top 3 best implementations** with rationale
 3. Find any open-source or publicly described reference implementations
 4. Identify **gaps** — what no competitor does well (= our opportunity)
@@ -137,11 +142,13 @@ Context to provide:
 > Generated: {date} | Dimensions: {N competitors analyzed}
 
 ## Executive Summary
+
 {2–3 paragraphs: dominant patterns, gaps, top recommendation}
 
 ## Competitors Analyzed
 
 ### 1. {Name} — [{score}/5]
+
 - **Feature:** {how they implement it}
 - **Core UX pattern:** {how user interacts}
 - **Differentiator:** {unique strength}
@@ -152,12 +159,15 @@ Context to provide:
 [repeat for each competitor]
 
 ## Common Patterns
+
 {What 80%+ of competitors do — table stakes}
 
 ## Differentiation Opportunities
+
 {What no one does well — ranked by impact}
 
 ## Top 3 Reference Implementations
+
 1. {Name} — {why it's best}
 2. {Name} — {why}
 3. {Name} — {why}
@@ -172,6 +182,7 @@ Context to provide:
 Context: feature, domain, tech stack (mobile/web implications), any user-provided links.
 
 **Instructions:**
+
 1. Research UX best practices (Baymard, Nielsen Norman, UX Collective, Mobbin, Dribbble)
 2. Document: primary flows, edge cases, empty/loading/error states
 3. Find 3–5 concrete UI pattern examples with descriptions
@@ -190,37 +201,46 @@ Context: feature, domain, tech stack (mobile/web implications), any user-provide
 ## Core User Flows
 
 ### Primary (Happy Path)
+
 {Step-by-step with expected user mental model at each step}
 
 ### Alternative Paths
+
 {List of key alternative scenarios}
 
 ## State Inventory
-| State | Trigger | Recommended Pattern |
-|-------|---------|---------------------|
-| Empty | No data yet | {recommendation} |
-| Loading | Data fetching | {skeleton/spinner} |
-| Error | Request failed | {user-friendly error} |
-| Success | Action complete | {confirmation} |
+
+| State   | Trigger           | Recommended Pattern    |
+| ------- | ----------------- | ---------------------- |
+| Empty   | No data yet       | {recommendation}       |
+| Loading | Data fetching     | {skeleton/spinner}     |
+| Error   | Request failed    | {user-friendly error}  |
+| Success | Action complete   | {confirmation}         |
 | Partial | Some data missing | {graceful degradation} |
 
 ## UI Pattern Library
+
 {3–5 proven patterns with sources and descriptions}
 
 ## Micro-interactions & Animations
+
 {Key moments worth animating — entry, transition, confirmation, error}
 
 ## Accessibility Requirements (WCAG 2.1 AA)
+
 {Specific criteria relevant to this feature — not generic}
 
 ## Platform Considerations
+
 {Mobile: touch targets ≥44px, gesture conflicts, safe areas}
 {Web: keyboard navigation, focus management}
 
 ## Anti-patterns to Avoid
+
 {Common mistakes for this feature type — with explanations}
 
 ## Recommended Approach
+
 {3–5 sentences synthesizing the best UX for our context}
 ```
 
@@ -233,23 +253,24 @@ Context: feature, domain, tech stack (mobile/web implications), any user-provide
 Context: feature, codebase path, tech stack.
 
 **Instructions:**
+
 1. Explore project structure (top-level dirs, architecture, key modules)
 2. Find existing code relevant to this feature:
-   - Similar features already implemented (reference implementations)
-   - Shared components/services that can be reused
-   - Data models/schemas that overlap
-   - API endpoints that can be extended
+    - Similar features already implemented (reference implementations)
+    - Shared components/services that can be reused
+    - Data models/schemas that overlap
+    - API endpoints that can be extended
 3. Identify integration points (where new code plugs in)
 4. Assess technical complexity:
-   - New module needed or extension of existing?
-   - Database/schema changes?
-   - Breaking changes risk?
+    - New module needed or extension of existing?
+    - Database/schema changes?
+    - Breaking changes risk?
 5. Document current tech capabilities relevant to this feature
 6. **Identify architectural constraints** (critical — prevents design mistakes in spec/plan):
-   - Mandatory patterns the project enforces (e.g., resilience wrappers for external calls, specific naming conventions, ID format requirements from external services)
-   - Project constitution or ADRs (architectural decision records) that apply to this feature's domain
-   - Existing event or message patterns: exact identifiers, payload shapes, delivery guarantees
-   - Shared utilities already available (e.g., caching helpers, retry decorators, GDPR handlers) — reuse instead of reinventing
+    - Mandatory patterns the project enforces (e.g., resilience wrappers for external calls, specific naming conventions, ID format requirements from external services)
+    - Project constitution or ADRs (architectural decision records) that apply to this feature's domain
+    - Existing event or message patterns: exact identifiers, payload shapes, delivery guarantees
+    - Shared utilities already available (e.g., caching helpers, retry decorators, GDPR handlers) — reuse instead of reinventing
 
 **Output:** `{RESEARCH_DIR}/codebase-analysis.md`
 
@@ -259,62 +280,70 @@ Context: feature, codebase path, tech stack.
 > Generated: {date} | Codebase: {codebase_path}
 
 ## Architecture Overview
+
 {High-level: what layers exist, how they're organized}
 
 ## Reusable Existing Code
-| Component/Service | Location | How to Reuse |
-|------------------|----------|--------------|
-| {name} | {path} | {description} |
+
+| Component/Service | Location | How to Reuse  |
+| ----------------- | -------- | ------------- |
+| {name}            | {path}   | {description} |
 
 ## Reference Implementations (Similar Features)
-| Feature | Location | Key Pattern |
-|---------|----------|-------------|
-| {name} | {path} | {what to learn from it} |
+
+| Feature | Location | Key Pattern             |
+| ------- | -------- | ----------------------- |
+| {name}  | {path}   | {what to learn from it} |
 
 ## Integration Points
-| Layer | Location | Change Type | Description |
-|-------|----------|-------------|-------------|
-| API | {path} | New endpoint | {description} |
-| Service | {path} | Extend | {description} |
-| DB | {schema} | New collection | {description} |
-| UI | {path} | New component | {description} |
+
+| Layer   | Location | Change Type    | Description   |
+| ------- | -------- | -------------- | ------------- |
+| API     | {path}   | New endpoint   | {description} |
+| Service | {path}   | Extend         | {description} |
+| DB      | {schema} | New collection | {description} |
+| UI      | {path}   | New component  | {description} |
 
 ## Codebase Constraints
 
 > Non-negotiable patterns and limitations discovered in the codebase.
 > These MUST be reflected in spec.md and plan.md — ignoring them causes design bugs.
 
-| Constraint | Source (file / ADR) | Impact on Feature Design |
-|------------|---------------------|--------------------------|
-| {e.g., all external service calls require a circuit breaker} | {path or ADR-NNN} | {must wrap X with circuit breaker} |
-| {e.g., external service requires UUID v4 IDs, not sequential} | {path} | {ID generation strategy must change} |
-| {e.g., cache keys follow `{module}:{entity}:{id}` pattern} | {constitution §IV} | {cache key design constraint} |
-| {e.g., events emitted only after DB persist} | {constitution §V / path} | {event emission order} |
+| Constraint                                                    | Source (file / ADR)      | Impact on Feature Design             |
+| ------------------------------------------------------------- | ------------------------ | ------------------------------------ |
+| {e.g., all external service calls require a circuit breaker}  | {path or ADR-NNN}        | {must wrap X with circuit breaker}   |
+| {e.g., external service requires UUID v4 IDs, not sequential} | {path}                   | {ID generation strategy must change} |
+| {e.g., cache keys follow `{module}:{entity}:{id}` pattern}    | {constitution §IV}       | {cache key design constraint}        |
+| {e.g., events emitted only after DB persist}                  | {constitution §V / path} | {event emission order}               |
 
 ## Event / Message Patterns (if applicable)
 
 > If the project uses event-driven architecture, document existing patterns here.
 > These exact identifiers and payload shapes must be used in spec.md — invented names cause silent failures.
 
-| Event / Topic | Exact Identifier | Payload Interface | Source File | Notes |
-|---------------|-----------------|-------------------|-------------|-------|
-| {event name} | `{EXACT_VALUE}` | `{InterfaceName}` | {path} | {emitted by / consumed by} |
+| Event / Topic | Exact Identifier | Payload Interface | Source File | Notes                      |
+| ------------- | ---------------- | ----------------- | ----------- | -------------------------- |
+| {event name}  | `{EXACT_VALUE}`  | `{InterfaceName}` | {path}      | {emitted by / consumed by} |
 
 > Leave empty and note "N/A — no EDA patterns detected" if not applicable.
 
 ## Data Model Impact
+
 {New schemas, migrations, relationships}
 
 ## Technical Complexity
+
 - **Overall:** Low / Medium / High
 - **New modules:** {list or "none"}
 - **Breaking change risk:** None / Low / Medium / High
 - **Estimated touch points:** {N files/modules}
 
 ## Current Tech Capabilities
+
 {What the project already supports that this feature leverages}
 
 ## Implementation Guidance
+
 {2–3 key technical decisions or constraints for planning phase}
 ```
 
@@ -325,13 +354,14 @@ Context: feature, codebase path, tech stack.
 **Goal:** Compare libraries, APIs, packages for `{FEATURE_DESCRIPTION}`.
 
 **Instructions:**
+
 1. Identify the main technical sub-problems to solve
 2. For each, compare 2–3 solutions:
-   - npm/pip stats (weekly downloads, GitHub stars, last release)
-   - API stability, breaking-change history
-   - Bundle size (frontend) or memory footprint (backend)
-   - License compatibility
-   - Community/ecosystem health
+    - npm/pip stats (weekly downloads, GitHub stars, last release)
+    - API stability, breaking-change history
+    - Bundle size (frontend) or memory footprint (backend)
+    - License compatibility
+    - Community/ecosystem health
 3. Produce a decision matrix with recommendation
 
 **Output:** `{RESEARCH_DIR}/tech-stack.md`
@@ -342,24 +372,28 @@ Context: feature, codebase path, tech stack.
 > Generated: {date}
 
 ## Sub-problems to Solve
+
 {List of technical challenges this feature needs to address}
 
 ## Option Comparison
 
 ### Sub-problem 1: {name}
-| Option | Stars | Downloads/wk | Bundle | License | Verdict |
-|--------|-------|--------------|--------|---------|---------|
-| {lib} | 12k | 800k | 45KB | MIT | ✅ Recommended |
-| {lib} | 5k | 200k | 120KB | Apache | ⚠️ Heavy |
+
+| Option | Stars | Downloads/wk | Bundle | License | Verdict        |
+| ------ | ----- | ------------ | ------ | ------- | -------------- |
+| {lib}  | 12k   | 800k         | 45KB   | MIT     | ✅ Recommended |
+| {lib}  | 5k    | 200k         | 120KB  | Apache  | ⚠️ Heavy       |
 
 **Recommendation:** {option} — {rationale}
 
 [repeat per sub-problem]
 
 ## Final Recommendation Stack
+
 {Summary table: what to use for each need}
 
 ## Integration Notes
+
 {How recommended libs fit into the existing tech stack}
 ```
 
@@ -370,6 +404,7 @@ Context: feature, codebase path, tech stack.
 **Goal:** Estimate business impact of `{FEATURE_DESCRIPTION}`.
 
 **Instructions:**
+
 1. Industry benchmarks for this feature type
 2. User impact: retention, engagement, NPS-relevant metrics
 3. Revenue impact: direct or indirect
@@ -384,25 +419,31 @@ Context: feature, codebase path, tech stack.
 > Generated: {date}
 
 ## Industry Benchmarks
+
 {What impact do similar features typically have? Sources cited.}
 
 ## User Impact Signals
-| Metric | Expected Impact | Confidence | Source |
-|--------|----------------|------------|--------|
-| {metric} | +X% | High/Med/Low | {source} |
+
+| Metric   | Expected Impact | Confidence   | Source   |
+| -------- | --------------- | ------------ | -------- |
+| {metric} | +X%             | High/Med/Low | {source} |
 
 ## Revenue Impact
+
 {Direct/indirect revenue analysis}
 
 ## Effort vs. Impact
+
 {Quick assessment: high/medium/low for both dimensions}
 
 ## Recommended KPIs
-| KPI | Baseline | Target | Measurement |
-|-----|----------|--------|-------------|
-| {metric} | {current} | {goal} | {how} |
+
+| KPI      | Baseline  | Target | Measurement |
+| -------- | --------- | ------ | ----------- |
+| {metric} | {current} | {goal} | {how}       |
 
 ## Measurement Plan
+
 - Day 1: {early signal}
 - Week 1: {leading indicator}
 - Month 1: {primary KPI review}
@@ -433,32 +474,35 @@ Create `{RESEARCH_DIR}/README.md`:
 
 ## Key Findings
 
-| Dimension | Top Insight |
-|-----------|-------------|
-| 🏆 Competitors | {1-sentence finding} |
-| 🎨 UX/UI | {1-sentence finding} |
-| 🔧 Codebase | {1-sentence finding} |
+| Dimension      | Top Insight                                          |
+| -------------- | ---------------------------------------------------- |
+| 🏆 Competitors | {1-sentence finding}                                 |
+| 🎨 UX/UI       | {1-sentence finding}                                 |
+| 🔧 Codebase    | {1-sentence finding}                                 |
 | 🔒 Constraints | {top codebase constraint that will affect spec/plan} |
-| 📦 Tech Stack | {1-sentence finding — if researched} |
-| 📊 Metrics | {1-sentence finding — if researched} |
+| 📦 Tech Stack  | {1-sentence finding — if researched}                 |
+| 📊 Metrics     | {1-sentence finding — if researched}                 |
 
 ## Research Documents
 
-| Document | Status | Key Insight |
-|----------|--------|-------------|
-| [competitors.md](./competitors.md) | ✅ | {insight} |
-| [ux-patterns.md](./ux-patterns.md) | ✅ | {insight} |
-| [codebase-analysis.md](./codebase-analysis.md) | ✅ | {insight} |
-| [tech-stack.md](./tech-stack.md) | ✅ Optional | {insight} |
-| [metrics-roi.md](./metrics-roi.md) | ✅ Optional | {insight} |
+| Document                                       | Status      | Key Insight |
+| ---------------------------------------------- | ----------- | ----------- |
+| [competitors.md](./competitors.md)             | ✅          | {insight}   |
+| [ux-patterns.md](./ux-patterns.md)             | ✅          | {insight}   |
+| [codebase-analysis.md](./codebase-analysis.md) | ✅          | {insight}   |
+| [tech-stack.md](./tech-stack.md)               | ✅ Optional | {insight}   |
+| [metrics-roi.md](./metrics-roi.md)             | ✅ Optional | {insight}   |
 
 ## Synthesis: Recommended Approach
+
 {4–6 sentences: what to build, how to build it, what to prioritize}
 
 ## Open Questions for Product Spec
+
 {Questions research raised but couldn't answer — to resolve in Phase 2}
 
 ## Red Flags / Risks Identified
+
 {Any significant risks discovered during research}
 ```
 
@@ -469,46 +513,46 @@ Create `{RESEARCH_DIR}/README.md`:
 ```yaml
 # {FEATURE_DIR}/.forge-status.yml
 schema_version: 2
-feature: "{feature-slug}"
-created_at: "{ISO date}"
+feature: '{feature-slug}'
+created_at: '{ISO date}'
 phases:
-  research: completed
-  product_spec: pending
-  revalidation: pending
-  bridge: pending
-  plan: pending
-  tasks: pending
-  pre_impl_review: pending
-  implement: pending
-  code_review: pending
-  verify: pending
-  test_plan: pending
-  test_run: pending
-  release_readiness: pending
-  retrospective: pending
-speckit_mode: ""
+    research: completed
+    product_spec: pending
+    revalidation: pending
+    bridge: pending
+    plan: pending
+    tasks: pending
+    pre_impl_review: pending
+    implement: pending
+    code_review: pending
+    verify: pending
+    test_plan: pending
+    test_run: pending
+    release_readiness: pending
+    retrospective: pending
+speckit_mode: ''
 testing:
-  final_pass_rate: ""
-  bugs_found: 0
-  bugs_fixed: 0
-  bugs_deferred: 0
-  test_runs_total: 0
+    final_pass_rate: ''
+    bugs_found: 0
+    bugs_fixed: 0
+    bugs_deferred: 0
+    test_runs_total: 0
 gates: []
 sync_runs:
-  last_run: ""
-  total_runs: 0
-  last_drift_count: 0
-  last_critical_count: 0
-  last_verdict: ""
+    last_run: ''
+    total_runs: 0
+    last_drift_count: 0
+    last_critical_count: 0
+    last_verdict: ''
 change_requests: []
 research_dimensions:
-  competitors: completed
-  ux_patterns: completed
-  codebase: completed
-  tech_stack: completed   # or: skipped
-  metrics_roi: skipped    # or: completed
-input_richness_score: {0-8}
-last_updated: "{ISO timestamp}"
+    competitors: completed
+    ux_patterns: completed
+    codebase: completed
+    tech_stack: completed # or: skipped
+    metrics_roi: skipped # or: completed
+input_richness_score: { 0-8 }
+last_updated: '{ISO timestamp}'
 ```
 
 > **Note:** If `.forge-status.yml` already exists (e.g., from Phase 0 Problem Discovery),
@@ -520,11 +564,12 @@ last_updated: "{ISO timestamp}"
 ## Step 7: Present Results
 
 Show:
+
 1. Summary table of completed dimensions
 2. Top 3 most important findings
 3. Open questions that need answers in Phase 2
 4. Any red flags or risks
 
-Ask: *"Research complete — {N} dimensions analyzed, saved to `{RESEARCH_DIR}/`. Ready to proceed to Phase 2: Product Spec creation?"*
+Ask: _"Research complete — {N} dimensions analyzed, saved to `{RESEARCH_DIR}/`. Ready to proceed to Phase 2: Product Spec creation?"_
 
-If standalone: *"Next: `/speckit.product-forge.product-spec`"*
+If standalone: _"Next: `/speckit.product-forge.product-spec`"_

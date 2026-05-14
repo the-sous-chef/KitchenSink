@@ -1,6 +1,5 @@
 ---
-
-description: "Task list template for feature implementation"
+description: 'Task list template for feature implementation'
 ---
 
 # Tasks: [FEATURE NAME]
@@ -25,21 +24,21 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
+<!--
   ============================================================================
   IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
+
   The /speckit.tasks command MUST replace these with actual tasks based on:
   - User stories from spec.md (with their priorities P1, P2, P3...)
   - Feature requirements from plan.md
   - Entities from data-model.md
   - Endpoints from contracts/
-  
+
   Tasks MUST be organized by user story so each story can be:
   - Implemented independently
   - Tested independently
   - Delivered as an MVP increment
-  
+
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
 -->
@@ -52,10 +51,10 @@ description: "Task list template for feature implementation"
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
 - [ ] T003a [P] Add workspace to root `package.json` workspaces array and wire Turbo tasks
-  (Constitution Principle V — monorepo governance)
+      (Constitution Principle V — monorepo governance)
 - [ ] T003b [P] Extend `@armoury/typescript`, `@armoury/eslint`, `@armoury/prettier`,
-  `@armoury/vitest` configs in new workspace `tsconfig.json`, `eslint.config.js`,
-  `prettier.config.js`, `vitest.config.ts` (Constitution Principle VI — shared tooling)
+      `@armoury/vitest` configs in new workspace `tsconfig.json`, `eslint.config.js`,
+      `prettier.config.js`, `vitest.config.ts` (Constitution Principle VI — shared tooling)
 
 ---
 
@@ -71,10 +70,10 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T005 [P] Implement authentication/authorization framework
 - [ ] T006 [P] Setup API routing and middleware structure
 - [ ] T007 Create base models/entities that all stories depend on — all interfaces/types MUST use
-  strict TypeScript with no `any`, ISO 8601 dates, and exported JSDoc comments
-  (Constitution Principles I & II)
+      strict TypeScript with no `any`, ISO 8601 dates, and exported JSDoc comments
+      (Constitution Principles I & II)
 - [ ] T008 Configure error handling and logging infrastructure — each error class MUST extend
-  `Error` and expose a type guard `isXxxError` (Constitution Principle I)
+      `Error` and expose a type guard `isXxxError` (Constitution Principle I)
 - [ ] T009 Setup environment configuration management
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -91,8 +90,8 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test\_[name].py
+- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test\_[name].py
 
 ### Implementation for User Story 1
 
@@ -115,8 +114,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T019 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T018 [P] [US2] Contract test for [endpoint] in tests/contract/test\_[name].py
+- [ ] T019 [P] [US2] Integration test for [user journey] in tests/integration/test\_[name].py
 
 ### Implementation for User Story 2
 
@@ -137,8 +136,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T025 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T024 [P] [US3] Contract test for [endpoint] in tests/contract/test\_[name].py
+- [ ] T025 [P] [US3] Integration test for [user journey] in tests/integration/test\_[name].py
 
 ### Implementation for User Story 3
 
@@ -168,19 +167,19 @@ Examples of foundational tasks (adjust based on your project):
 ### Constitution Compliance Checklist (run before marking phase complete)
 
 - [ ] TXXX-I All new TypeScript compiles with `strict: true`; zero `any` outside test doubles;
-  custom errors extend `Error` and expose type guards. (Principle I)
+      custom errors extend `Error` and expose type guards. (Principle I)
 - [ ] TXXX-II All exported functions, interfaces, and types carry JSDoc with `@param`/`@returns`/
-  `@throws`; every source file has a module-level JSDoc summary. (Principle II)
+      `@throws`; every source file has a module-level JSDoc summary. (Principle II)
 - [ ] TXXX-III All imports are aliased with `.js` extensions; no relative cross-workspace imports;
-  no `helpers/` directories introduced. (Principle III)
+      no `helpers/` directories introduced. (Principle III)
 - [ ] TXXX-IV Test files open with requirement-traceability plan comment; `getByRole`/`getByLabel`
-  used exclusively in Playwright; no `waitForTimeout`; global registries cleared in `beforeEach`.
-  (Principle IV)
+      used exclusively in Playwright; no `waitForTimeout`; global registries cleared in `beforeEach`.
+      (Principle IV)
 - [ ] TXXX-V Any new workspace is registered in root workspaces array and Turbo `turbo.json`;
-  tooling configs extend shared packages. (Principle V)
+      tooling configs extend shared packages. (Principle V)
 - [ ] TXXX-VI `turbo run typecheck lint format:check test` all exit 0 locally before pushing. (Principle VI)
 - [ ] TXXX-VII All interactive elements have accessible names; design tokens used for color; no
-  hard-coded hex/oklch values in component styles. (Principle VII)
+      hard-coded hex/oklch values in component styles. (Principle VII)
 
 ---
 
@@ -191,8 +190,8 @@ Examples of foundational tasks (adjust based on your project):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+    - User stories can then proceed in parallel (if staffed)
+    - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -258,9 +257,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+    - Developer A: User Story 1
+    - Developer B: User Story 2
+    - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

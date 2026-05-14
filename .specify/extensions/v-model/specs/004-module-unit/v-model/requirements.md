@@ -1,8 +1,8 @@
 # V-Model Requirements Specification: Module Design ↔ Unit Testing
 
-**Feature Branch**: `004-module-unit-testing`  
-**Created**: 2026-02-21  
-**Status**: Approved  
+**Feature Branch**: `004-module-unit-testing`
+**Created**: 2026-02-21
+**Status**: Approved
 **Source**: `specs/004-module-unit/spec.md`
 
 ## Overview
@@ -151,6 +151,6 @@ This document formalizes the requirements for extending the V-Model Extension Pa
 
 ---
 
-**Total Requirements**: 71  
-**By Priority**: P1: 58 | P2: 11 | P3: 2  
+**Total Requirements**: 71
+**By Priority**: P1: 58 | P2: 11 | P3: 2
 **By Verification Method**: Test: 47 | Inspection: 24 | Analysis: 0 | Demonstration: 0

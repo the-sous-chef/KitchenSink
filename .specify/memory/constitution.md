@@ -1,27 +1,52 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: [unversioned template] → 1.0.0
+Version change: 1.2.0 → 1.3.0
 
-Modified principles: N/A (initial authoring from template placeholders)
+Modified principles: N/A
 
 Added sections:
-  - Core Principles (7 principles derived from Armoury documentation)
-  - Quality Gates
-  - Governance
+  - Quality Gates → Release Readiness Gate (Non-Negotiable)
+    (three-condition rule: all Test Case IDs mapped, all scenarios executed or
+     waived with justification, waivers.md present; supersedes auto-generated
+     audit report status; enforced by specs/governance-rules.md GR-001)
 
-Removed sections: N/A (all prior content was unfilled template placeholders)
+Removed sections: N/A
 
 Templates updated:
-  ✅ .specify/templates/plan-template.md  — Constitution Check gates updated to reference all 7 principles
-  ✅ .specify/templates/spec-template.md  — Requirements section guidance aligned with type-safety and
-     accessibility constraints; testing section references pyramid and accessible-selector rules
-  ✅ .specify/templates/tasks-template.md — Task categories updated to include accessibility, JSDoc,
-     import-convention, and tooling setup tasks
+  ⚠ v-model/release-audit-report.md (all features) — MUST carry AUDIT INTEGRITY
+     NOTICE and BLOCKED status until all three release readiness conditions are met.
 
 Follow-up TODOs:
-  - TODO(RATIFICATION_DATE): Confirm original project ratification date; currently set to first-authoring
-    date 2026-04-06 as no prior record exists.
+  - Update plan/tasks templates to include Release Readiness Gate check.
+  - Audit all existing release-audit-report.md files for RELEASE READY claims
+    (completed 2026-05-10 — all corrected to BLOCKED).
+  - Create docs/api-conventions.md (GR-002 prerequisite).
+  - Create docs/offline-strategy.md (GR-005 prerequisite).
+  - Create specs/cross-feature-FR-index.md (GR-003 prerequisite).
+
+Version change: 1.1.0 → 1.2.0
+
+Modified principles: N/A
+
+Added sections:
+  - Principle VIII. Cross-Platform Parity and Code Sharing
+    (lockstep web+mobile release, parallel development, shared-code-first,
+     `.native.*` colocation as the single canonical convention)
+
+Removed sections: N/A
+
+Templates updated:
+  ⚠ .specify/templates/plan-template.md  — Constitution Check gate SHOULD be
+     updated to reference Principle VIII (web/mobile parity + `.native.*`).
+  ⚠ .specify/templates/tasks-template.md — Task generation SHOULD enforce paired
+     web + mobile tasks for every user-facing requirement.
+  ✅ docs/CODING_STANDARDS.md — §14 Cross-Platform File Conventions added; codifies
+     `.native.ts(x)` suffix, prohibits `.mobile.*`, mandates shared-code-first.
+
+Follow-up TODOs:
+  - Update plan/tasks templates to enforce Principle VIII at gate time.
+  - Audit existing `specs/**/tasks.md` for missing mobile counterparts.
 -->
 
 # KitchenSink Constitution
@@ -202,6 +227,43 @@ Playwright's exclusive `getByRole`/`getByLabel` selector policy (Principle IV).
 Consistent visual language across platforms reduces cognitive load and accelerates
 feature delivery across workspaces.
 
+### VIII. Cross-Platform Parity and Code Sharing
+
+Web (Next.js) and mobile (Expo) are first-class peers. Every user-facing feature
+MUST ship to both platforms together, and platform-specific code MUST be the
+exception, not the default.
+
+- **Lockstep release**: No user-facing feature MAY ship to one platform before the
+  other. A feature is "shipped" only when it is enabled and verified on both web
+  and mobile in the same release. Phased single-platform rollouts are prohibited
+  unless an explicit constitutional waiver is recorded in the feature's `plan.md`
+  Complexity Tracking table and approved in the PR.
+- **Parallel development**: Web and mobile implementations of a feature MUST be
+  planned, tracked, and merged together. `tasks.md` MUST include both web and
+  mobile tasks for any user-facing requirement; a feature branch MAY NOT be
+  merged with only one platform completed.
+- **Shared-code-first**: All reasonable attempts MUST be made to share TypeScript
+  code, UI primitives, data-flow, and state-management patterns across web and
+  mobile. Domain logic, types, validation, API clients, and hooks MUST live in a
+  shared workspace (e.g., `packages/`) and be consumed by both platform apps.
+  Duplicating logic per platform requires a documented justification.
+- **Platform forks via `.native.` suffix**: When a module genuinely requires
+  platform-specific implementations, the mobile variant MUST live next to the
+  shared/web file using the `.native.ts` or `.native.tsx` suffix (e.g.,
+  `RecipeCard.tsx` + `RecipeCard.native.tsx`, `storage.ts` + `storage.native.ts`).
+  The `.mobile.` suffix is prohibited; `.native.` is the single canonical
+  convention. Metro/Expo resolves `.native.*` automatically on mobile; web
+  bundlers MUST NOT include `.native.*` files.
+- **Shared visual language**: Per Principle VII, the design system, tokens,
+  typography, and motion rules apply equally to both platforms; platform-specific
+  adaptations are limited to interaction patterns (hover → press + haptics), not
+  visual identity.
+
+**Rationale**: Treating mobile as a second-class deliverable causes platform
+drift, duplicated bugs, and inconsistent UX. Lockstep parity, shared code, and a
+single colocation convention (`.native.*`) keep both platforms genuinely
+equivalent and minimize the maintenance tax of supporting two runtimes.
+
 ## Quality Gates
 
 Every pull request MUST satisfy all of the following before merge:
@@ -218,6 +280,26 @@ Every pull request MUST satisfy all of the following before merge:
 
 Integration and E2E test results are informational for PRs but MUST pass on `main`
 before a production deploy proceeds.
+
+### Release Readiness Gate (Non-Negotiable)
+
+A V-Model release audit report (`v-model/release-audit-report.md`) MUST NOT claim
+`RELEASE READY` unless all three conditions are simultaneously true:
+
+1. Every requirement row in every traceability matrix carries a mapped Test Case ID
+   (ATP). No row may show `❌ MISSING` in the Test Case ID column.
+2. Every mapped test scenario has a non-zero executed result: `passed`, `failed`, or
+   `waived`. A result of `⬜ Untested` is not acceptable for any row.
+3. Every waived scenario carries a written justification approved by the product
+   owner, recorded in `v-model/waivers.md`. Waivers without justification are
+   treated as failures.
+
+A report that claims `RELEASE READY` while any scenario is untested, any Test Case
+ID is missing, or `waivers.md` is absent is **invalid** and must be corrected to
+`❌ BLOCKED` before it can be used in any handoff, review, or gate decision.
+
+This rule is enforced by `specs/governance-rules.md` GR-001 and supersedes any
+auto-generated audit report status.
 
 ## Governance
 
@@ -243,4 +325,4 @@ All agents and reviewers MUST check this constitution before beginning any
 implementation. The plan template's **Constitution Check** gate MUST be completed
 before Phase 0 research and re-checked after Phase 1 design.
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-06 | **Last Amended**: 2026-04-19
+**Version**: 1.3.0 | **Ratified**: 2026-04-06 | **Last Amended**: 2026-05-10

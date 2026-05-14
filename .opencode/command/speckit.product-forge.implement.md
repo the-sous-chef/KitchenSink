@@ -1,15 +1,15 @@
 ---
 name: speckit.product-forge.implement
 description: 'Phase 6: Execute implementation from tasks.md with progressive verification.
-  Delegates to SpecKit implement, monitors task completion, runs mini-verify every
-  N tasks, surfaces product-spec context to implementation agents. Standalone — run
-  after pre-impl-review (or after any custom step inserted before coding). Use: "implement",
-  "start coding", "/speckit.product-forge.implement"'
+    Delegates to SpecKit implement, monitors task completion, runs mini-verify every
+    N tasks, surfaces product-spec context to implementation agents. Standalone — run
+    after pre-impl-review (or after any custom step inserted before coding). Use: "implement",
+    "start coding", "/speckit.product-forge.implement"'
 ---
-
 
 <!-- Extension: product-forge -->
 <!-- Config: .specify/extensions/product-forge/ -->
+
 # Product Forge — Phase 6: Implementation (with Progressive Verification)
 
 You are the **Implementation Coordinator** for Product Forge Phase 6.
@@ -36,6 +36,7 @@ $ARGUMENTS
 3. Verify `plan.md` and `spec.md` exist
 
 If all tasks are already `[x]`:
+
 > ✅ All tasks in `tasks.md` are already completed.
 > Run `/speckit.product-forge.verify-full` for full traceability verification.
 
@@ -71,14 +72,14 @@ Key context for implementation agents:
 
 **Delegate to SpecKit `implement`** with the enriched context note:
 
-> *"Product Forge context:
+> _"Product Forge context:
 > — Wireframes and mockups are in `product-spec/mockups/` — use them for UI implementation.
-> — User journeys are in `product-spec/user-journey*.md` — match UX flows exactly.
-> — Acceptance criteria are in `spec.md` — each task must satisfy its linked AC.
-> — If you need to clarify a product decision, check `product-spec/product-spec.md` first
->   before asking the user.
+> — User journeys are in `product-spec/user-journey_.md`— match UX flows exactly.
+— Acceptance criteria are in`spec.md`— each task must satisfy its linked AC.
+— If you need to clarify a product decision, check`product-spec/product-spec.md` first
+> before asking the user.
 > After all tasks are completed, do NOT run verification — stop and return control
-> to the Product Forge orchestrator."*
+> to the Product Forge orchestrator."\*
 
 ---
 
@@ -87,8 +88,8 @@ Key context for implementation agents:
 During implementation, if the agent asks a product question that is answered
 in the product spec, redirect:
 
-> *"Check `{FEATURE_DIR}/product-spec/product-spec.md § {section}` —
-> this decision was made in the product spec."*
+> _"Check `{FEATURE_DIR}/product-spec/product-spec.md § {section}` —
+> this decision was made in the product spec."_
 
 If a blocker arises that requires changing the plan or tasks, surface it to the user
 before proceeding. Do not silently deviate from `tasks.md`.
@@ -110,12 +111,12 @@ pause implementation and run a mini-verify checkpoint:
 ```markdown
 ## Checkpoint #{N} — After task {task-range}
 
-| Check | Status | Notes |
-|-------|:------:|-------|
-| Task-Code correspondence | {✅/⚠️/❌} | {details} |
-| Spec AC alignment | {✅/⚠️/❌} | {which AC checked} |
-| Unplanned changes | {✅ None / ⚠️ {N} files} | {file list} |
-| Plan alignment | {✅/⚠️/❌} | {details} |
+| Check                    |          Status          | Notes              |
+| ------------------------ | :----------------------: | ------------------ |
+| Task-Code correspondence |        {✅/⚠️/❌}        | {details}          |
+| Spec AC alignment        |        {✅/⚠️/❌}        | {which AC checked} |
+| Unplanned changes        | {✅ None / ⚠️ {N} files} | {file list}        |
+| Plan alignment           |        {✅/⚠️/❌}        | {details}          |
 
 **Verdict:** {CLEAN — continue / WARNING — review needed / CRITICAL — pause required}
 ```
@@ -144,6 +145,7 @@ If CLEAN: continue silently (just append to implementation-log.md).
 After SpecKit implement returns, verify all tasks in `tasks.md` are `[x]`.
 
 If incomplete tasks remain:
+
 > ⚠️ {N} tasks still pending. Resume implementation? Or mark as skipped with a reason?
 
 If all `[x]`:
@@ -175,14 +177,14 @@ Update `.forge-status.yml`:
 
 ```yaml
 phases:
-  implement: completed
+    implement: completed
 implement:
-  tasks_completed: {N}
-  tasks_total: {N}
-  progressive_checkpoints: {N}
-  progressive_warnings: {N}
-  progressive_critical: {N}
-last_updated: "{ISO timestamp}"
+    tasks_completed: { N }
+    tasks_total: { N }
+    progressive_checkpoints: { N }
+    progressive_warnings: { N }
+    progressive_critical: { N }
+last_updated: '{ISO timestamp}'
 ```
 
 ---

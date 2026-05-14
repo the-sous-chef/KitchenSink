@@ -1,14 +1,14 @@
 ---
 name: speckit.product-forge.tasks
 description: 'Phase 5B: Generate task breakdown from plan.md with cross-validation
-  against product-spec. Ensures every Must Have story and functional requirement has
-  at least one task. Standalone — run after plan, before implement (or after any custom
-  step). Use: "generate tasks", "task breakdown", "/speckit.product-forge.tasks"'
+    against product-spec. Ensures every Must Have story and functional requirement has
+    at least one task. Standalone — run after plan, before implement (or after any custom
+    step). Use: "generate tasks", "task breakdown", "/speckit.product-forge.tasks"'
 ---
-
 
 <!-- Extension: product-forge -->
 <!-- Config: .specify/extensions/product-forge/ -->
+
 # Product Forge — Phase 5B: Task Breakdown
 
 You are the **Task Breakdown Coordinator** for Product Forge Phase 5B.
@@ -31,9 +31,9 @@ $ARGUMENTS
 1. Read `.forge-status.yml` — `plan` must be `completed`
 2. Verify `plan.md` exists in FEATURE_DIR
 3. If `tasks.md` already exists with unchecked tasks:
-   > ℹ️ `tasks.md` already exists with {N} pending tasks.
-   > Regenerating will overwrite it. Confirm to proceed, or run
-   > `/speckit.product-forge.implement` to continue with existing tasks.
+    > ℹ️ `tasks.md` already exists with {N} pending tasks.
+    > Regenerating will overwrite it. Confirm to proceed, or run
+    > `/speckit.product-forge.implement` to continue with existing tasks.
 
 ---
 
@@ -59,13 +59,13 @@ Functional requirements: {N}
 
 **Delegate to SpecKit `tasks`** with the enriched context note:
 
-> *"Product Forge context: Decompose `plan.md` into granular, implementation-ready tasks.
+> _"Product Forge context: Decompose `plan.md` into granular, implementation-ready tasks.
 > Reference `product-spec/product-spec.md` for acceptance criteria — each task group
 > should satisfy one or more acceptance criteria explicitly.
 > Group tasks by the feature breakdown sections in `product-spec.md` where possible.
 > Tasks should be sized for safe, incremental implementation — avoid tasks that touch
 > too many layers at once.
-> After returning tasks.md, do NOT begin implementation — stop and return control."*
+> After returning tasks.md, do NOT begin implementation — stop and return control."_
 
 ---
 
@@ -73,14 +73,14 @@ Functional requirements: {N}
 
 After SpecKit tasks returns, read `tasks.md` and check:
 
-| Check | Status | Notes |
-|-------|--------|-------|
-| Every Must Have US-NNN has ≥1 implementation task? | ✅/⚠️/❌ | List missing stories |
-| Every FR-NNN has ≥1 corresponding task? | ✅/⚠️/❌ | |
-| Test / validation tasks included per task group? | ✅/⚠️/❌ | |
-| No orphan tasks (tasks without traceable requirement)? | ✅/⚠️/❌ | |
-| Task granularity appropriate? (not too large, not trivial) | ✅/⚠️/❌ | |
-| Dependency order is sensible? (data model before service before controller) | ✅/⚠️/❌ | |
+| Check                                                                       | Status   | Notes                |
+| --------------------------------------------------------------------------- | -------- | -------------------- |
+| Every Must Have US-NNN has ≥1 implementation task?                          | ✅/⚠️/❌ | List missing stories |
+| Every FR-NNN has ≥1 corresponding task?                                     | ✅/⚠️/❌ |                      |
+| Test / validation tasks included per task group?                            | ✅/⚠️/❌ |                      |
+| No orphan tasks (tasks without traceable requirement)?                      | ✅/⚠️/❌ |                      |
+| Task granularity appropriate? (not too large, not trivial)                  | ✅/⚠️/❌ |                      |
+| Dependency order is sensible? (data model before service before controller) | ✅/⚠️/❌ |                      |
 
 If ❌ found: surface specific gaps (e.g., "US-003 has no task"), ask user how to resolve.
 If only ✅/⚠️: proceed to approval gate.
@@ -111,19 +111,19 @@ Estimated implementation surface:
   Files to modify:  {N}
 ```
 
-Ask: *"Task breakdown ready — {N} tasks across {N} groups.
-All {N} Must Have stories covered. Approve and begin implementation?"*
+Ask: _"Task breakdown ready — {N} tasks across {N} groups.
+All {N} Must Have stories covered. Approve and begin implementation?"_
 
 On approval → update `.forge-status.yml`:
 
 ```yaml
 phases:
-  tasks: completed
+    tasks: completed
 tasks:
-  total: {N}
-  groups: {N}
-  story_coverage: "{N}/{N}"
-last_updated: "{ISO timestamp}"
+    total: { N }
+    groups: { N }
+    story_coverage: '{N}/{N}'
+last_updated: '{ISO timestamp}'
 ```
 
 ---

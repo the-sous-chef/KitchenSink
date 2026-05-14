@@ -1,14 +1,14 @@
 ---
 name: speckit.product-forge.retrospective
 description: 'Post-launch retrospective comparing predicted metrics from research/metrics-roi.md
-  against real data from NewRelic, Analytics MCP, or manual input. Closes the loop
-  on the full product lifecycle. Run 2+ weeks after shipping. Use: "retrospective",
-  "/speckit.product-forge.retrospective {feature-slug}"'
+    against real data from NewRelic, Analytics MCP, or manual input. Closes the loop
+    on the full product lifecycle. Run 2+ weeks after shipping. Use: "retrospective",
+    "/speckit.product-forge.retrospective {feature-slug}"'
 ---
-
 
 <!-- Extension: product-forge -->
 <!-- Config: .specify/extensions/product-forge/ -->
+
 # Product Forge — Post-Launch Retrospective
 
 You are the **Post-Launch Analyst** for Product Forge.
@@ -33,11 +33,13 @@ $ARGUMENTS
 5. Check `tracking/tracking-plan.md` (if exists) — know which events to query
 
 If `research/metrics-roi.md` is missing:
+
 > ⚠️ No predicted metrics found (research/metrics-roi.md missing or metrics-roi phase was skipped).
 > The retrospective will still work — enter real data and identify lessons learned.
 > Predicted vs actual comparison will be marked as N/A.
 
 Ask the user:
+
 ```
 Retrospective for: {feature-slug}
 Shipped: {date from .forge-status.yml}
@@ -117,6 +119,7 @@ SINCE '{launch_date}' FACET dateOf(timestamp)
 ### 3B: Analytics Data
 
 If `tracking/tracking-plan.md` exists, ask the user to provide:
+
 - `{feature}_viewed` unique users count (adoption)
 - `{feature}_completed` / `{feature}_viewed` ratio (completion rate)
 - `{feature}_abandoned` rate and last_step distribution
@@ -127,6 +130,7 @@ Alternatively, ask for a screenshot or paste of the analytics dashboard.
 ### 3C: Manual Entry
 
 If no integrations:
+
 ```
 Please provide the following metrics for the period since launch ({launch_date} → today):
 
@@ -150,19 +154,20 @@ Create `{FEATURE_DIR}/retrospective.md`:
 > Days since launch: {N} | Feature: `{feature-slug}`
 
 ## Lifecycle Summary
-
 ```
-Phase 0 Problem Discovery  → {date} — {duration}
-Phase 1 Research           → {date} — {duration}
-Phase 2 Product Spec       → {date} — {duration}
-Phase 3 Revalidation       → {date} — N iterations
-Phase 4 Bridge             → {date}
-Phase 5-6 Implement        → {date} — {duration}
-Phase 7 Verify             → {date}
-Phase 8A Test Plan         → {date}
-Phase 8B Test Run          → {date} — {N} bugs found, {N} fixed
-Ship Date                  → {date}
-Retrospective              → {today} ({N} days post-launch)
+
+Phase 0 Problem Discovery → {date} — {duration}
+Phase 1 Research → {date} — {duration}
+Phase 2 Product Spec → {date} — {duration}
+Phase 3 Revalidation → {date} — N iterations
+Phase 4 Bridge → {date}
+Phase 5-6 Implement → {date} — {duration}
+Phase 7 Verify → {date}
+Phase 8A Test Plan → {date}
+Phase 8B Test Run → {date} — {N} bugs found, {N} fixed
+Ship Date → {date}
+Retrospective → {today} ({N} days post-launch)
+
 ```
 
 Total time: research → ship = {N} days
@@ -192,14 +197,16 @@ Total time: research → ship = {N} days
 ## Analytics Funnel
 
 ```
-{feature}_viewed:    {N} unique users ({N}% of DAU)
-{feature}_started:   {N} users ({conversion}%)
-{feature}_completed: {N} users ({conversion}%)
-{feature}_abandoned: {N} users ({abandonment}%)
+
+{feature}\_viewed: {N} unique users ({N}% of DAU)
+{feature}\_started: {N} users ({conversion}%)
+{feature}\_completed: {N} users ({conversion}%)
+{feature}\_abandoned: {N} users ({abandonment}%)
 
 Completion rate: {N}% (target was {N}%)
 Abandonment rate: {N}%
-  Top drop-off step: {step} ({N}% abandon here)
+Top drop-off step: {step} ({N}% abandon here)
+
 ```
 
 ## Error Analysis
@@ -273,17 +280,17 @@ Update `.forge-status.yml`:
 
 ```yaml
 phases:
-  retrospective: completed
+    retrospective: completed
 retrospective:
-  date: "{today}"
-  days_post_launch: {N}
-  adoption_actual: "{N}%"
-  adoption_predicted: "{N}%"
-  completion_rate: "{N}%"
-  error_rate: "{N}%"
-  open_issues: {N}
-  research_accuracy: "{N}/10"
-last_updated: "{ISO timestamp}"
+    date: '{today}'
+    days_post_launch: { N }
+    adoption_actual: '{N}%'
+    adoption_predicted: '{N}%'
+    completion_rate: '{N}%'
+    error_rate: '{N}%'
+    open_issues: { N }
+    research_accuracy: '{N}/10'
+last_updated: '{ISO timestamp}'
 ```
 
 ---

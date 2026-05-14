@@ -1,15 +1,15 @@
 ---
 name: speckit.product-forge.pre-impl-review
 description: 'Phase 5C: Combined design review, architecture review, and risk assessment
-  gate before writing any code. Loads wireframes, UX patterns, plan architecture,
-  and codebase analysis to produce a structured review with risk register. Optional
-  for features with <=5 tasks and no UI. Use: "pre-impl review", "review before coding",
-  "/speckit.product-forge.pre-impl-review"'
+    gate before writing any code. Loads wireframes, UX patterns, plan architecture,
+    and codebase analysis to produce a structured review with risk register. Optional
+    for features with <=5 tasks and no UI. Use: "pre-impl review", "review before coding",
+    "/speckit.product-forge.pre-impl-review"'
 ---
-
 
 <!-- Extension: product-forge -->
 <!-- Config: .specify/extensions/product-forge/ -->
+
 # Product Forge — Pre-Implementation Review (Phase 5C)
 
 You are the **Pre-Implementation Reviewer** for Product Forge.
@@ -31,6 +31,7 @@ $ARGUMENTS
 3. If tasks phase is not completed: **STOP** — "Phase 5B (Tasks) must be completed first."
 
 Load all required artifacts:
+
 - `{FEATURE_DIR}/spec.md` — requirements and acceptance criteria
 - `{FEATURE_DIR}/plan.md` — technical architecture and data model
 - `{FEATURE_DIR}/tasks.md` — task breakdown and file paths
@@ -61,6 +62,7 @@ Review sections:
 ```
 
 If total tasks <= 5 AND no UI tasks, offer to skip:
+
 ```
 This feature has {N} tasks and no UI components.
 Pre-implementation review is optional for small backend features.
@@ -79,9 +81,9 @@ Load wireframes/mockups from `product-spec/` and UX recommendations from `resear
 
 For each screen/view identified in wireframes or user journeys:
 
-| Screen | Happy State | Empty State | Loading State | Error State | Partial State | Offline State |
-|--------|:-----------:|:-----------:|:-------------:|:-----------:|:-------------:|:------------:|
-| {screen} | {✅/❌} | {✅/❌} | {✅/❌} | {✅/❌} | {✅/❌/N-A} | {✅/❌/N-A} |
+| Screen   | Happy State | Empty State | Loading State | Error State | Partial State | Offline State |
+| -------- | :---------: | :---------: | :-----------: | :---------: | :-----------: | :-----------: |
+| {screen} |   {✅/❌}   |   {✅/❌}   |    {✅/❌}    |   {✅/❌}   |  {✅/❌/N-A}  |  {✅/❌/N-A}  |
 
 **Missing states are flagged as findings.**
 
@@ -89,28 +91,28 @@ For each screen/view identified in wireframes or user journeys:
 
 Compare wireframes against `research/ux-patterns.md` recommendations:
 
-| UX Recommendation | Addressed in Wireframes? | Notes |
-|-------------------|:------------------------:|-------|
-| {recommendation from ux-patterns.md} | {✅/❌/Partially} | {details} |
+| UX Recommendation                    | Addressed in Wireframes? | Notes     |
+| ------------------------------------ | :----------------------: | --------- |
+| {recommendation from ux-patterns.md} |    {✅/❌/Partially}     | {details} |
 
 ### 2C: Accessibility Pre-Check
 
-| Check | Status | Notes |
-|-------|:------:|-------|
-| Color contrast (text on backgrounds) | {✅/⚠️/❌} | |
-| Touch target sizes (≥44×44px mobile) | {✅/⚠️/❌} | |
-| Focus order logical | {✅/⚠️/❌} | |
-| Screen reader landmarks defined | {✅/⚠️/❌} | |
-| Error messages descriptive | {✅/⚠️/❌} | |
-| Form labels present | {✅/⚠️/❌} | |
+| Check                                |   Status   | Notes |
+| ------------------------------------ | :--------: | ----- |
+| Color contrast (text on backgrounds) | {✅/⚠️/❌} |       |
+| Touch target sizes (≥44×44px mobile) | {✅/⚠️/❌} |       |
+| Focus order logical                  | {✅/⚠️/❌} |       |
+| Screen reader landmarks defined      | {✅/⚠️/❌} |       |
+| Error messages descriptive           | {✅/⚠️/❌} |       |
+| Form labels present                  | {✅/⚠️/❌} |       |
 
 ### 2D: Component Reuse Check
 
 From `research/codebase-analysis.md`, identify existing components that should be reused:
 
-| Existing Component | Applicable For | Reuse Planned? |
-|-------------------|---------------|:--------------:|
-| {component from codebase-analysis} | {where in this feature} | {✅/❌} |
+| Existing Component                 | Applicable For          | Reuse Planned? |
+| ---------------------------------- | ----------------------- | :------------: |
+| {component from codebase-analysis} | {where in this feature} |    {✅/❌}     |
 
 Flag if new components are planned where reusable ones exist.
 
@@ -122,31 +124,31 @@ Load `plan.md` architecture section and `research/codebase-analysis.md`.
 
 ### 3A: Structural Checks
 
-| Check | Status | Evidence |
-|-------|:------:|---------|
-| Separation of concerns (controller/service/repo layers) | {✅/⚠️/❌} | {from plan.md} |
-| Dependency direction correct (no circular deps) | {✅/⚠️/❌} | |
-| API contracts complete (request/response schemas) | {✅/⚠️/❌} | |
-| Data model consistent with spec.md entities | {✅/⚠️/❌} | |
-| Migration strategy defined (if DB changes) | {✅/⚠️/❌/N-A} | |
-| Error handling patterns defined | {✅/⚠️/❌} | |
-| Authentication/authorization approach defined | {✅/⚠️/❌/N-A} | |
-| Caching strategy defined (if needed) | {✅/⚠️/❌/N-A} | |
+| Check                                                   |     Status     | Evidence       |
+| ------------------------------------------------------- | :------------: | -------------- |
+| Separation of concerns (controller/service/repo layers) |   {✅/⚠️/❌}   | {from plan.md} |
+| Dependency direction correct (no circular deps)         |   {✅/⚠️/❌}   |                |
+| API contracts complete (request/response schemas)       |   {✅/⚠️/❌}   |                |
+| Data model consistent with spec.md entities             |   {✅/⚠️/❌}   |                |
+| Migration strategy defined (if DB changes)              | {✅/⚠️/❌/N-A} |                |
+| Error handling patterns defined                         |   {✅/⚠️/❌}   |                |
+| Authentication/authorization approach defined           | {✅/⚠️/❌/N-A} |                |
+| Caching strategy defined (if needed)                    | {✅/⚠️/❌/N-A} |                |
 
 ### 3B: Integration Point Validation
 
 From `research/codebase-analysis.md`, verify each integration point has a plan:
 
-| Integration Point | Plan Coverage | Risk Level |
-|------------------|:------------:|:----------:|
-| {integration from codebase-analysis} | {✅ Covered / ⚠️ Partial / ❌ Missing} | {H/M/L} |
+| Integration Point                    |             Plan Coverage              | Risk Level |
+| ------------------------------------ | :------------------------------------: | :--------: |
+| {integration from codebase-analysis} | {✅ Covered / ⚠️ Partial / ❌ Missing} |  {H/M/L}   |
 
 ### 3C: NFR Coverage
 
 From `spec.md` non-functional requirements:
 
-| NFR | Plan Approach | Adequate? |
-|-----|:-------------|:---------:|
+| NFR                | Plan Approach           | Adequate?  |
+| ------------------ | :---------------------- | :--------: |
 | {NFR from spec.md} | {approach from plan.md} | {✅/⚠️/❌} |
 
 ---
@@ -158,23 +160,27 @@ Analyze all loaded artifacts to build a risk register.
 ### Risk Categories
 
 **Technical Risks:**
+
 - New technology/library being introduced for the first time
 - Complex data migrations
 - Performance-sensitive operations without defined targets
 - External API dependencies with uncertain reliability
 
 **Scope Risks:**
+
 - Ambiguous acceptance criteria in spec.md
 - Large number of tasks (>15) increasing coordination complexity
 - Dependencies between tasks creating critical path bottleneck
 
 **Integration Risks:**
+
 - External API dependencies (availability, rate limits, breaking changes)
 - Third-party library compatibility
 - Database schema changes affecting existing features
 - Shared state/cache invalidation
 
 **Rollback Risks:**
+
 - Database migrations that can't be reversed
 - Breaking API changes for existing clients
 - Feature flag needed but not planned
@@ -182,12 +188,13 @@ Analyze all loaded artifacts to build a risk register.
 
 ### Risk Register Format
 
-| ID | Category | Risk | Likelihood | Impact | Severity | Mitigation |
-|----|----------|------|:----------:|:------:|:--------:|-----------|
-| R-001 | Technical | {description} | H/M/L | H/M/L | {H×H=Critical, etc.} | {strategy} |
-| R-002 | Integration | {description} | H/M/L | H/M/L | {severity} | {strategy} |
+| ID    | Category    | Risk          | Likelihood | Impact |       Severity       | Mitigation |
+| ----- | ----------- | ------------- | :--------: | :----: | :------------------: | ---------- |
+| R-001 | Technical   | {description} |   H/M/L    | H/M/L  | {H×H=Critical, etc.} | {strategy} |
+| R-002 | Integration | {description} |   H/M/L    | H/M/L  |      {severity}      | {strategy} |
 
 Severity matrix:
+
 - **Critical** (H×H): Must have mitigation before coding
 - **High** (H×M, M×H): Should have mitigation planned
 - **Medium** (M×M, H×L, L×H): Document and monitor
@@ -197,12 +204,12 @@ Severity matrix:
 
 Based on risk profile:
 
-| Risk Profile | Recommended Rollout |
-|-------------|-------------------|
-| ≥1 Critical risk | Feature flag + canary (1% → 10% → 50% → 100%) |
-| ≥3 High risks | Feature flag + staged rollout (10% → 50% → 100%) |
-| Mostly Medium/Low | Feature flag recommended but not required |
-| All Low | Direct release acceptable |
+| Risk Profile      | Recommended Rollout                              |
+| ----------------- | ------------------------------------------------ |
+| ≥1 Critical risk  | Feature flag + canary (1% → 10% → 50% → 100%)    |
+| ≥3 High risks     | Feature flag + staged rollout (10% → 50% → 100%) |
+| Mostly Medium/Low | Feature flag recommended but not required        |
+| All Low           | Direct release acceptable                        |
 
 ---
 
@@ -219,11 +226,11 @@ Write `{FEATURE_DIR}/pre-impl-review.md`:
 
 ## Summary
 
-| Section | Findings |
-|---------|----------|
-| Design Review | {N} issues ({N} critical, {N} warning) {or "Skipped — no UI"} |
-| Architecture Review | {N} issues ({N} critical, {N} warning) |
-| Risk Assessment | {N} risks ({N} critical, {N} high, {N} medium, {N} low) |
+| Section             | Findings                                                      |
+| ------------------- | ------------------------------------------------------------- |
+| Design Review       | {N} issues ({N} critical, {N} warning) {or "Skipped — no UI"} |
+| Architecture Review | {N} issues ({N} critical, {N} warning)                        |
+| Risk Assessment     | {N} risks ({N} critical, {N} high, {N} medium, {N} low)       |
 
 **Recommendation:** {PROCEED / PROCEED WITH CONDITIONS / REVISE PLAN}
 
@@ -232,21 +239,25 @@ Write `{FEATURE_DIR}/pre-impl-review.md`:
 ## Design Review
 
 ### State Completeness
+
 {table from Step 2A}
 
 ### UX Pattern Compliance
+
 {table from Step 2B}
 
 ### Accessibility Pre-Check
+
 {table from Step 2C}
 
 ### Component Reuse
+
 {table from Step 2D}
 
 ### Design Findings
 
-| ID | Severity | Finding | Recommendation |
-|----|:--------:|---------|---------------|
+| ID    |        Severity         | Finding   | Recommendation   |
+| ----- | :---------------------: | --------- | ---------------- |
 | D-001 | {CRITICAL/WARNING/INFO} | {finding} | {recommendation} |
 
 ---
@@ -254,18 +265,21 @@ Write `{FEATURE_DIR}/pre-impl-review.md`:
 ## Architecture Review
 
 ### Structural Checks
+
 {table from Step 3A}
 
 ### Integration Points
+
 {table from Step 3B}
 
 ### NFR Coverage
+
 {table from Step 3C}
 
 ### Architecture Findings
 
-| ID | Severity | Finding | Recommendation |
-|----|:--------:|---------|---------------|
+| ID    |        Severity         | Finding   | Recommendation   |
+| ----- | :---------------------: | --------- | ---------------- |
 | A-001 | {CRITICAL/WARNING/INFO} | {finding} | {recommendation} |
 
 ---
@@ -273,9 +287,11 @@ Write `{FEATURE_DIR}/pre-impl-review.md`:
 ## Risk Assessment
 
 ### Risk Register
+
 {table from Step 4}
 
 ### Rollout Strategy
+
 {recommendation from Step 4}
 
 ### Risk Mitigations Required Before Coding
@@ -327,6 +343,7 @@ Condition 1: Add loading state to settings screen wireframe
 ```
 
 Gate options:
+
 - **Approve** — all conditions accepted, proceed to Phase 6
 - **Approve with conditions** — proceed but conditions tracked as tasks
 - **Revise** — go back to Phase 5 (Plan) or Phase 5B (Tasks) to address issues
@@ -340,23 +357,23 @@ Update `.forge-status.yml`:
 
 ```yaml
 phases:
-  pre_impl_review: completed  # or "skipped" if user skipped
+    pre_impl_review: completed # or "skipped" if user skipped
 ```
 
 Record gate decision:
 
 ```yaml
 gates:
-  - phase: pre_impl_review
-    decision: "{approved / approved_with_conditions / skipped}"
-    timestamp: "{ISO timestamp}"
-    notes: "{user's decision context}"
-    conditions:
-      - "{condition 1}"
-      - "{condition 2}"
-    risks_accepted:
-      critical: {N}
-      high: {N}
+    - phase: pre_impl_review
+      decision: '{approved / approved_with_conditions / skipped}'
+      timestamp: '{ISO timestamp}'
+      notes: "{user's decision context}"
+      conditions:
+          - '{condition 1}'
+          - '{condition 2}'
+      risks_accepted:
+          critical: { N }
+          high: { N }
 ```
 
 If conditions were accepted, add corresponding tasks to `tasks.md` (with user confirmation).

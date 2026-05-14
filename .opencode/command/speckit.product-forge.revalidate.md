@@ -1,14 +1,14 @@
 ---
 name: speckit.product-forge.revalidate
 description: 'Phase 3: Iterative revalidation and correction cycle. Shows product
-  spec summary, collects user feedback in chat, applies corrections via a dedicated
-  agent, and loops until explicit user approval. All revision history recorded in
-  review.md. Use with: "revalidate spec", "review product spec", "/speckit.product-forge.revalidate"'
+    spec summary, collects user feedback in chat, applies corrections via a dedicated
+    agent, and loops until explicit user approval. All revision history recorded in
+    review.md. Use with: "revalidate spec", "review product spec", "/speckit.product-forge.revalidate"'
 ---
-
 
 <!-- Extension: product-forge -->
 <!-- Config: .specify/extensions/product-forge/ -->
+
 # Product Forge — Phase 3: Revalidation
 
 You are the **Product Spec Revalidation Coordinator** for Product Forge Phase 3.
@@ -26,6 +26,7 @@ $ARGUMENTS
 ## Step 1: Load All Artifacts
 
 Read the full product-spec/ folder:
+
 - `{FEATURE_DIR}/product-spec/README.md` — document index
 - `{FEATURE_DIR}/product-spec/product-spec.md` — main PRD
 - `{FEATURE_DIR}/product-spec/user-journey*.md` — all journey files
@@ -48,8 +49,9 @@ Also initialize `{FEATURE_DIR}/review.md` if it doesn't exist:
 > Track how open questions from product-spec.md were answered during revalidation.
 > Move resolved questions here instead of marking them ~~strikethrough~~ in the spec.
 
-| # | Question | Decision | Rationale | Resolved in Revision |
-|---|----------|----------|-----------|----------------------|
+| #   | Question | Decision | Rationale | Resolved in Revision |
+| --- | -------- | -------- | --------- | -------------------- |
+
 <!-- Add rows as questions are resolved -->
 
 ## Decision Log
@@ -57,7 +59,8 @@ Also initialize `{FEATURE_DIR}/review.md` if it doesn't exist:
 > Key decisions made during revalidation — not individual edits, but significant choices.
 
 | Date | Decision | Rationale |
-|------|----------|-----------|
+| ---- | -------- | --------- |
+
 <!-- Append decisions as they are made -->
 
 ## Change History
@@ -112,10 +115,11 @@ Open questions in spec: {N}
 ```
 
 Then ask:
-*"Please review the summary above. Read the full documents in `{FEATURE_DIR}/product-spec/` and tell me:*
-- *What needs to be changed, added, or removed?*
-- *You can list multiple changes in a single message.*
-- *When everything looks good, say: **APPROVED** or **LGTM***"*
+_"Please review the summary above. Read the full documents in `{FEATURE_DIR}/product-spec/` and tell me:_
+
+- _What needs to be changed, added, or removed?_
+- _You can list multiple changes in a single message._
+- \*When everything looks good, say: **APPROVED** or **LGTM\***"\*
 
 ---
 
@@ -126,6 +130,7 @@ This is a loop. Repeat until the user approves.
 ### 3A. Receive Feedback
 
 Wait for the user's response. It will be one of:
+
 1. **List of changes** — proceed to 3B
 2. **Questions** — answer them directly, then ask again for changes
 3. **"APPROVED" / "LGTM" / "все ок" / "approve"** — proceed to Step 4 (approval)
@@ -156,7 +161,7 @@ Parse the user's feedback into a structured change list:
 Total changes: {N}
 ```
 
-Ask: *"I've identified {N} changes. Should I apply all of them, or adjust the list first?"*
+Ask: _"I've identified {N} changes. Should I apply all of them, or adjust the list first?"_
 
 ### 3C. Apply Changes
 
@@ -171,6 +176,7 @@ For each change, launch a **Revision Agent** with these instructions:
 > User's exact words: `{user's original text}`
 >
 > Rules:
+>
 > 1. Read the current file content first
 > 2. Apply ONLY the requested change — do not add unrequested improvements
 > 3. Preserve all cross-links and relative paths
@@ -189,6 +195,7 @@ After all changes are applied, append to `{FEATURE_DIR}/review.md`:
 ## Revision #{N} — {date}
 
 **User feedback:**
+
 > {user's original feedback verbatim}
 
 **Changes applied:**
@@ -212,6 +219,7 @@ After all changes are applied, append to `{FEATURE_DIR}/review.md`:
 ### 3E. Show Updated Summary
 
 After all changes applied, show:
+
 ```
 ✅ Revision #{N} applied — {N} changes made
 
@@ -224,7 +232,7 @@ Key changes summary:
 ```
 
 Then ask again:
-*"Does everything look good now? Review the updated documents in `{FEATURE_DIR}/product-spec/` and let me know if anything else needs changing, or say **APPROVED** to lock the spec."*
+_"Does everything look good now? Review the updated documents in `{FEATURE_DIR}/product-spec/` and let me know if anything else needs changing, or say **APPROVED** to lock the spec."_
 
 ### 3F. Loop Back
 
@@ -239,12 +247,14 @@ When the user approves (keywords: "APPROVED", "LGTM", "все ок", "👍", "ap
 ### 4A. Final Consistency Check
 
 Before locking, run a quick consistency pass:
+
 1. Are all cross-links in product-spec/README.md still valid?
 2. Do all wireframe files exist that are referenced?
 3. Are there any open questions in product-spec.md that should be answered before proceeding?
 4. Do user stories in product-spec.md align with journeys in user-journey files?
 
 If consistency issues found:
+
 - Minor (broken link, typo) → fix silently and note in review.md
 - Moderate (story/journey mismatch) → flag to user, ask if should fix now or proceed anyway
 
@@ -261,8 +271,8 @@ Update `{FEATURE_DIR}/review.md` final status:
 | Document | Lines | Last Modified |
 |----------|-------|---------------|
 | product-spec.md | {N} | {date} |
-| user-journey-*.md | {N} | {date} |
-| wireframes* | {N} | {date} |
+| user-journey-_.md | {N} | {date} |
+| wireframes_ | {N} | {date} |
 | metrics.md | {N} | {date} |
 | mockups/ | {N} files | {date} |
 
@@ -270,13 +280,15 @@ Update `{FEATURE_DIR}/review.md` final status:
 ```
 
 Update `{FEATURE_DIR}/.forge-status.yml`:
+
 ```yaml
 phases:
-  revalidation: approved
-last_updated: "{ISO timestamp}"
+    revalidation: approved
+last_updated: '{ISO timestamp}'
 ```
 
 Update `{FEATURE_DIR}/README.md` phase status table:
+
 - Phase 3 Revalidation → ✅ Approved
 
 ### 4B-post. Drift Check (Automatic)
@@ -284,9 +296,9 @@ Update `{FEATURE_DIR}/README.md` phase status table:
 If `spec.md` already exists in `{FEATURE_DIR}/` (i.e., a previous bridge run created it):
 
 1. Compare key sections of `product-spec.md` against `spec.md`:
-   - User stories (Must Have): check for any added or removed stories during revalidation
-   - Out-of-scope list: check for scope changes
-   - Open Questions: check for newly resolved or added questions
+    - User stories (Must Have): check for any added or removed stories during revalidation
+    - Out-of-scope list: check for scope changes
+    - Open Questions: check for newly resolved or added questions
 2. If divergence found, append a warning to `review.md`:
 
 ```markdown
@@ -294,6 +306,7 @@ If `spec.md` already exists in `{FEATURE_DIR}/` (i.e., a previous bridge run cre
 
 Product-spec was updated after spec.md was last generated.
 The following sections diverged:
+
 - {section}: {description of divergence}
 
 Action required: re-run `/speckit.product-forge.bridge` to regenerate spec.md.
@@ -329,4 +342,4 @@ Run: /speckit.product-forge.bridge
 4. **Preserve user intent.** When in doubt about a change, ask for clarification — do not interpret freely.
 5. **No scope creep.** During revalidation, only fix what the user asks. Do not add new sections spontaneously.
 6. **Cross-link integrity.** Any file split, rename, or restructure must update all links in README.md files.
-7. **Revision count.** If the loop exceeds 5 revisions, suggest: *"We've gone through {N} rounds of revisions. Would it help to step back and restructure the approach?"*
+7. **Revision count.** If the loop exceeds 5 revisions, suggest: _"We've gone through {N} rounds of revisions. Would it help to step back and restructure the approach?"_

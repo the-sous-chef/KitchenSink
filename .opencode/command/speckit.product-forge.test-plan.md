@@ -1,15 +1,15 @@
 ---
 name: speckit.product-forge.test-plan
 description: 'Phase 8A: Creates a comprehensive test plan from feature artifacts.
-  Asks about test types (smoke, E2E Playwright, API/integration, regression), environment
-  setup, credentials, auto-detects project test framework, and generates test cases
-  mapped to user stories. Saves to features/<name>/testing/. Use with: "create test
-  plan", "/speckit.product-forge.test-plan"'
+    Asks about test types (smoke, E2E Playwright, API/integration, regression), environment
+    setup, credentials, auto-detects project test framework, and generates test cases
+    mapped to user stories. Saves to features/<name>/testing/. Use with: "create test
+    plan", "/speckit.product-forge.test-plan"'
 ---
-
 
 <!-- Extension: product-forge -->
 <!-- Config: .specify/extensions/product-forge/ -->
+
 # Product Forge — Phase 8A: Test Planning
 
 You are the **Test Plan Architect** for Product Forge Phase 8A.
@@ -28,10 +28,10 @@ $ARGUMENTS
 
 Product Forge supports **two complementary test execution models**. This phase generates artifacts for both:
 
-| Model | Artifacts | When to use |
-|-------|-----------|------------|
-| **Agent-driven** (Phase 8B) | `testing/test-cases.md` — step-by-step cases translated to `playwright-cli` commands by the AI agent | Interactive execution, visual verification, evidence capture |
-| **CI/CD pipeline** | `testing/playwright-tests/*.spec.ts` — runnable Playwright spec files | Automated test runs, pull request checks, scheduled regression |
+| Model                       | Artifacts                                                                                            | When to use                                                    |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Agent-driven** (Phase 8B) | `testing/test-cases.md` — step-by-step cases translated to `playwright-cli` commands by the AI agent | Interactive execution, visual verification, evidence capture   |
+| **CI/CD pipeline**          | `testing/playwright-tests/*.spec.ts` — runnable Playwright spec files                                | Automated test runs, pull request checks, scheduled regression |
 
 > **Primary execution in Phase 8B uses [`playwright-cli`](https://github.com/microsoft/playwright-cli)** — an interactive browser agent tool.
 > The AI agent reads each test case from `test-cases.md` and drives the browser step-by-step using
@@ -50,6 +50,7 @@ Product Forge supports **two complementary test execution models**. This phase g
 3. Verify all implementation tasks in `tasks.md` are `[x]`
 
 If not ready:
+
 > ⚠️ Phase 7 (verify-full) must be completed before test planning.
 > Run: `/speckit.product-forge.verify-full`
 
@@ -67,24 +68,26 @@ Scanning project for test configuration...
 ```
 
 Detect:
+
 1. **Test framework:** Vitest / Jest / Mocha / pytest / RSpec / other
-   - Look for: `vitest.config.*`, `jest.config.*`, `package.json scripts.test`, `.mocharc.*`
+    - Look for: `vitest.config.*`, `jest.config.*`, `package.json scripts.test`, `.mocharc.*`
 2. **E2E framework:** Playwright / Cypress / Selenium
-   - Look for: `playwright.config.*`, `cypress.json`, `cypress.config.*`
+    - Look for: `playwright.config.*`, `cypress.json`, `cypress.config.*`
 3. **Frontend entry point:** Guess from config files
-   - Look for: `vite.config.*`, `next.config.*`, `nuxt.config.*`
-   - Extract `server.port` or `dev` script port
+    - Look for: `vite.config.*`, `next.config.*`, `nuxt.config.*`
+    - Extract `server.port` or `dev` script port
 4. **Backend entry point:**
-   - Look for: `nest-cli.json`, `package.json` main script, `.env` PORT variable
+    - Look for: `nest-cli.json`, `package.json` main script, `.env` PORT variable
 5. **Existing test files:**
-   - Count `*.spec.*`, `*.test.*`, `e2e/**`, `tests/**`
+    - Count `*.spec.*`, `*.test.*`, `e2e/**`, `tests/**`
 6. **Docker / CI config:**
-   - Look for: `docker-compose.yml`, `.github/workflows/`, `Dockerfile`
+    - Look for: `docker-compose.yml`, `.github/workflows/`, `Dockerfile`
 7. **Environment files:**
-   - Look for: `.env.example`, `.env.test`, `.env.local`
-   - Extract public variable names (NEVER log values)
+    - Look for: `.env.example`, `.env.test`, `.env.local`
+    - Extract public variable names (NEVER log values)
 
 Report findings:
+
 ```
 🔍 Auto-detected:
   Test framework:    Vitest (vitest.config.ts found)
@@ -154,24 +157,28 @@ Create `{TESTING_DIR}/env.md` — stores test environment config (NOT a .env fil
 
 ## Environment
 
-| Variable | Value | Source |
-|----------|-------|--------|
-| FRONTEND_URL | {url} | User input |
-| API_URL | {url} | User input / auto-detected |
-| TEST_SCOPE | {scope} | User selection |
+| Variable     | Value   | Source                     |
+| ------------ | ------- | -------------------------- |
+| FRONTEND_URL | {url}   | User input                 |
+| API_URL      | {url}   | User input / auto-detected |
+| TEST_SCOPE   | {scope} | User selection             |
 
 ## Auth Credentials (test account)
+
 {If auth required — stored here for reference during test execution}
 Test email: {email}
 Test password: {password}
 
 ## Additional Variables
+
 {list of additional env vars with values if provided}
 
 ## Browser Targets
+
 {list of selected browsers}
 
 ## Notes
+
 {Any special setup steps: seed data, feature flags to enable, etc.}
 ```
 
@@ -182,6 +189,7 @@ Also update `.gitignore` to add `testing/env.md` if not already present.
 ## Step 5: Extract Test Cases from Feature Artifacts
 
 Read and synthesize:
+
 1. `product-spec/product-spec.md` → Must Have user stories + acceptance criteria
 2. `product-spec/user-journey*.md` → All user flows, steps, decision branches
 3. `spec.md` → Acceptance criteria (may be more detailed than product-spec)
@@ -196,16 +204,18 @@ Derive 4–8 critical-path scenarios that answer: "does the feature basically wo
 ```markdown
 ## Smoke Tests (TC-SMK-NNN)
 
-| ID | Title | Steps | Expected | Priority |
-|----|-------|-------|----------|----------|
-| TC-SMK-001 | Feature loads without error | 1. Navigate to {URL} 2. Feature renders | No JS errors, content visible | P0 |
-| TC-SMK-002 | Primary action works | 1. Perform {main action} | {expected outcome} | P0 |
+| ID         | Title                       | Steps                                   | Expected                      | Priority |
+| ---------- | --------------------------- | --------------------------------------- | ----------------------------- | -------- |
+| TC-SMK-001 | Feature loads without error | 1. Navigate to {URL} 2. Feature renders | No JS errors, content visible | P0       |
+| TC-SMK-002 | Primary action works        | 1. Perform {main action}                | {expected outcome}            | P0       |
+
 [...]
 ```
 
 ### 5B: E2E Test Cases (per user journey)
 
 For each user journey file, create test cases for:
+
 - Primary happy path (all steps complete)
 - Each alternative path
 - Each error scenario from the journey
@@ -213,16 +223,18 @@ For each user journey file, create test cases for:
 ```markdown
 ## E2E Tests: {Journey Name} (TC-E2E-NNN)
 
-| ID | Journey | Scenario | Preconditions | Steps | Expected | Story |
-|----|---------|----------|--------------|-------|----------|-------|
-| TC-E2E-001 | {journey} | Happy path | {preconditions} | {numbered steps} | {outcome} | US-001 |
-| TC-E2E-002 | {journey} | Empty state | No data | Navigate to feature | Empty state UI shown | US-001 |
+| ID         | Journey   | Scenario    | Preconditions   | Steps               | Expected             | Story  |
+| ---------- | --------- | ----------- | --------------- | ------------------- | -------------------- | ------ |
+| TC-E2E-001 | {journey} | Happy path  | {preconditions} | {numbered steps}    | {outcome}            | US-001 |
+| TC-E2E-002 | {journey} | Empty state | No data         | Navigate to feature | Empty state UI shown | US-001 |
+
 [...]
 ```
 
 ### 5C: API Test Cases (if API tests selected)
 
 For each API endpoint identified in the plan:
+
 - Happy path (200/201)
 - Invalid input (400)
 - Unauthorized (401)
@@ -232,25 +244,28 @@ For each API endpoint identified in the plan:
 ```markdown
 ## API Tests (TC-API-NNN)
 
-| ID | Endpoint | Method | Input | Expected Status | Expected Body |
-|----|----------|--------|-------|----------------|---------------|
-| TC-API-001 | /api/feature | GET | valid token | 200 | {schema} |
-| TC-API-002 | /api/feature | GET | no token | 401 | error message |
+| ID         | Endpoint     | Method | Input       | Expected Status | Expected Body |
+| ---------- | ------------ | ------ | ----------- | --------------- | ------------- |
+| TC-API-001 | /api/feature | GET    | valid token | 200             | {schema}      |
+| TC-API-002 | /api/feature | GET    | no token    | 401             | error message |
+
 [...]
 ```
 
 ### 5D: Regression Test Cases (if selected)
 
 Identify existing features that could be affected by this change:
+
 - Look at integration points from `research/codebase-analysis.md`
 - Look at shared components identified in `plan.md`
 
 ```markdown
 ## Regression Tests (TC-REG-NNN)
 
-| ID | Existing Feature | Risk | Test Scenario | Expected |
-|----|----------------|------|--------------|----------|
-| TC-REG-001 | {feature name} | {how new feature could break it} | {test} | {expected} |
+| ID         | Existing Feature | Risk                             | Test Scenario | Expected   |
+| ---------- | ---------------- | -------------------------------- | ------------- | ---------- |
+| TC-REG-001 | {feature name}   | {how new feature could break it} | {test}        | {expected} |
+
 [...]
 ```
 
@@ -325,6 +340,7 @@ test.describe('{Feature Name} — {Journey Name}', () => {
 ```
 
 **Important notes in generated tests:**
+
 - Use `data-testid` selectors by default (most stable)
 - Add comments mapping each test to US-NNN and AC text
 - Use `process.env` for credentials (never hardcode)
@@ -372,23 +388,26 @@ Create `{TESTING_DIR}/test-plan.md`:
 ## Scope
 
 ### In Scope
+
 {Features and flows being tested}
 
 ### Out of Scope
+
 {What is explicitly NOT being tested — and why}
 
 ## Test Types & Estimated Duration
 
-| Type | Count | Est. Duration | Files |
-|------|-------|--------------|-------|
-| Smoke | {N} | ~5 min | playwright-tests/{slug}-smoke.spec.ts |
-| E2E Playwright | {N} | ~{N*2} min | playwright-tests/{slug}-*.spec.ts |
-| API/Integration | {N} | ~{N} min | — |
-| Regression | {N} | ~{N*3} min | playwright-tests/{slug}-regression.spec.ts |
+| Type            | Count | Est. Duration | Files                                      |
+| --------------- | ----- | ------------- | ------------------------------------------ |
+| Smoke           | {N}   | ~5 min        | playwright-tests/{slug}-smoke.spec.ts      |
+| E2E Playwright  | {N}   | ~{N\*2} min   | playwright-tests/{slug}-\*.spec.ts         |
+| API/Integration | {N}   | ~{N} min      | —                                          |
+| Regression      | {N}   | ~{N\*3} min   | playwright-tests/{slug}-regression.spec.ts |
 
 **Total estimated:** ~{N} minutes
 
 ## Environment
+
 - Frontend: {FRONTEND_URL}
 - API: {API_URL}
 - Browsers: {list}
@@ -398,15 +417,17 @@ Create `{TESTING_DIR}/test-plan.md`:
 
 ### Coverage Matrix
 
-| User Story | Smoke | E2E | API | Regression | Coverage |
-|------------|-------|-----|-----|-----------|---------|
-| US-001: {title} | TC-SMK-001 | TC-E2E-001,002 | TC-API-001 | — | ✅ Full |
-| US-002: {title} | — | TC-E2E-005 | TC-API-003,004 | TC-REG-001 | ✅ Full |
+| User Story      | Smoke      | E2E            | API            | Regression | Coverage |
+| --------------- | ---------- | -------------- | -------------- | ---------- | -------- |
+| US-001: {title} | TC-SMK-001 | TC-E2E-001,002 | TC-API-001     | —          | ✅ Full  |
+| US-002: {title} | —          | TC-E2E-005     | TC-API-003,004 | TC-REG-001 | ✅ Full  |
 
 ### Complete Test Case Index
+
 {Link to test-cases.md}
 
 ## Entry Criteria (before testing starts)
+
 - [ ] All Phase 7 verify-full CRITICAL issues resolved
 - [ ] Feature deployed to test environment
 - [ ] Test data seeded / reset
@@ -414,6 +435,7 @@ Create `{TESTING_DIR}/test-plan.md`:
 - [ ] Credentials configured in `testing/env.md`
 
 ## Exit Criteria (testing complete when)
+
 - [ ] All P0 smoke tests PASS
 - [ ] All E2E happy paths PASS
 - [ ] ≥80% of all test cases PASS
@@ -421,17 +443,19 @@ Create `{TESTING_DIR}/test-plan.md`:
 - [ ] All P2 bugs documented with workarounds
 
 ## Bug Severity Definition
-| Severity | Definition | Examples |
-|----------|-----------|---------|
-| P0 Blocker | Cannot proceed with testing | App crashes, auth broken |
-| P1 Critical | Core user journey broken | Primary action fails |
-| P2 High | Important feature broken | Edge case fails, UX degraded |
-| P3 Medium | Minor issue | Wrong text, small layout issue |
-| P4 Low | Cosmetic | Typo, pixel misalignment |
+
+| Severity    | Definition                  | Examples                       |
+| ----------- | --------------------------- | ------------------------------ |
+| P0 Blocker  | Cannot proceed with testing | App crashes, auth broken       |
+| P1 Critical | Core user journey broken    | Primary action fails           |
+| P2 High     | Important feature broken    | Edge case fails, UX degraded   |
+| P3 Medium   | Minor issue                 | Wrong text, small layout issue |
+| P4 Low      | Cosmetic                    | Typo, pixel misalignment       |
 
 ## How to Run Tests
 
 ### Agent-driven execution (Phase 8B — recommended)
+
 Run `/speckit.product-forge.test-run` — the AI agent reads `test-cases.md` and executes
 each step interactively using `playwright-cli`.
 
@@ -439,20 +463,27 @@ each step interactively using `playwright-cli`.
 > See project README → Requirements.
 
 ### CI/CD pipeline execution
+
 \`\`\`bash
+
 # Smoke tests (run first)
+
 npx playwright test --grep @smoke
 
 # All E2E tests for this feature
-npx playwright test testing/playwright-tests/{slug}-*.spec.ts
+
+npx playwright test testing/playwright-tests/{slug}-\*.spec.ts
 
 # Regression tests
+
 npx playwright test --grep @regression
 
 # Single test by ID
+
 npx playwright test --grep "TC-E2E-001"
 
 # Run with UI mode (debug)
+
 npx playwright test --ui
 \`\`\`
 ```
@@ -465,6 +496,7 @@ Create `{TESTING_DIR}/test-cases.md` — all test cases in one searchable docume
 **This is the primary input for Phase 8B `playwright-cli` execution.**
 
 Include all TC-SMK, TC-E2E, TC-API, TC-REG cases in full detail with:
+
 - Preconditions
 - Step-by-step instructions **written as discrete UI actions** (navigate, click, fill, wait, assert) so Phase 8B can translate each step directly to a `playwright-cli` command
 - Expected result (what to verify via snapshot / screenshot / DOM assertion)
@@ -479,13 +511,13 @@ Write each test case step at the **`playwright-cli` action granularity**:
 **Preconditions:** User is logged in. No data exists for {feature}.
 **Story:** US-001 | **AC:** 1.1, 1.2
 
-| # | Action | playwright-cli equivalent |
-|---|--------|--------------------------|
-| 1 | Navigate to {url} | `playwright-cli goto {url}` |
-| 2 | Click "{button label}" | `playwright-cli click "text={button label}"` |
-| 3 | Fill "{field label}" with "{value}" | `playwright-cli fill "[name={field}]" "{value}"` |
-| 4 | Click "Submit" | `playwright-cli click "[data-testid=submit]"` |
-| 5 | Assert: success toast appears | `playwright-cli snapshot` → verify "Success" visible |
+| #   | Action                              | playwright-cli equivalent                            |
+| --- | ----------------------------------- | ---------------------------------------------------- |
+| 1   | Navigate to {url}                   | `playwright-cli goto {url}`                          |
+| 2   | Click "{button label}"              | `playwright-cli click "text={button label}"`         |
+| 3   | Fill "{field label}" with "{value}" | `playwright-cli fill "[name={field}]" "{value}"`     |
+| 4   | Click "Submit"                      | `playwright-cli click "[data-testid=submit]"`        |
+| 5   | Assert: success toast appears       | `playwright-cli snapshot` → verify "Success" visible |
 
 **Expected result:** {outcome}
 **Screenshot point:** After step 4
@@ -506,21 +538,22 @@ Initialize `{BUGS_DIR}/README.md`:
 
 ## Dashboard
 
-| Severity | Open | Fixed | Retested ✅ | Won't Fix |
-|----------|------|-------|------------|-----------|
-| P0 Blocker | 0 | 0 | 0 | 0 |
-| P1 Critical | 0 | 0 | 0 | 0 |
-| P2 High | 0 | 0 | 0 | 0 |
-| P3 Medium | 0 | 0 | 0 | 0 |
-| P4 Low | 0 | 0 | 0 | 0 |
-| **Total** | **0** | **0** | **0** | **0** |
+| Severity    | Open  | Fixed | Retested ✅ | Won't Fix |
+| ----------- | ----- | ----- | ----------- | --------- |
+| P0 Blocker  | 0     | 0     | 0           | 0         |
+| P1 Critical | 0     | 0     | 0           | 0         |
+| P2 High     | 0     | 0     | 0           | 0         |
+| P3 Medium   | 0     | 0     | 0           | 0         |
+| P4 Low      | 0     | 0     | 0           | 0         |
+| **Total**   | **0** | **0** | **0**       | **0**     |
 
 ## Bug List
 
-| ID | Title | Severity | Status | Test Case | Assigned |
-|----|-------|----------|--------|-----------|---------|
+| ID  | Title | Severity | Status | Test Case | Assigned |
+| --- | ----- | -------- | ------ | --------- | -------- |
 
 ## Status Legend
+
 🔴 Open · 🟡 In Progress · 🟢 Fixed · ✅ Verified · ❌ Won't Fix
 ```
 
@@ -530,13 +563,13 @@ Initialize `{BUGS_DIR}/README.md`:
 
 ```yaml
 phases:
-  test_plan: completed
+    test_plan: completed
 testing:
-  types: [smoke, e2e, api, regression]
-  test_case_count: {N}
-  playwright_files: {N}
-  environment_url: "{FRONTEND_URL}"
-last_updated: "{ISO timestamp}"
+    types: [smoke, e2e, api, regression]
+    test_case_count: { N }
+    playwright_files: { N }
+    environment_url: '{FRONTEND_URL}'
+last_updated: '{ISO timestamp}'
 ```
 
 Update feature `README.md` — add Phase 8A as ✅ Complete.
@@ -573,4 +606,4 @@ Before running (either mode):
   4. Ensure app is running at {FRONTEND_URL}
 ```
 
-Ask: *"Test plan ready. Proceed to Phase 8B: Test Execution?"*
+Ask: _"Test plan ready. Proceed to Phase 8B: Test Execution?"_

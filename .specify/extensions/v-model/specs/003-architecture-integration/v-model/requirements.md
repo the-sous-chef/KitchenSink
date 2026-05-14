@@ -1,8 +1,8 @@
 # V-Model Requirements Specification: Architecture Design ↔ Integration Testing
 
-**Feature Branch**: `003-architecture-integration`  
-**Created**: 2026-02-21  
-**Status**: Approved  
+**Feature Branch**: `003-architecture-integration`
+**Created**: 2026-02-21
+**Status**: Approved
 **Source**: `specs/003-architecture-integration/spec.md`
 
 ## Overview
@@ -137,6 +137,6 @@ This document formalizes the requirements for extending the V-Model Extension Pa
 
 ---
 
-**Total Requirements**: 61  
-**By Priority**: P1: 49 | P2: 10 | P3: 2  
+**Total Requirements**: 61
+**By Priority**: P1: 49 | P2: 10 | P3: 2
 **By Verification Method**: Test: 41 | Inspection: 20 | Analysis: 0 | Demonstration: 0

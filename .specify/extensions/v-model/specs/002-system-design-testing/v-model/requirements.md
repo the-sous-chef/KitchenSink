@@ -1,8 +1,8 @@
 # V-Model Requirements Specification: System Design ↔ System Testing
 
-**Feature Branch**: `002-system-design-testing`  
-**Created**: 2026-02-20  
-**Status**: Approved  
+**Feature Branch**: `002-system-design-testing`
+**Created**: 2026-02-20
+**Status**: Approved
 **Source**: `specs/002-system-design-testing/spec.md`
 
 ## Overview
@@ -117,6 +117,6 @@ This document formalizes the requirements for extending the V-Model Extension Pa
 
 ---
 
-**Total Requirements**: 49  
-**By Priority**: P1: 41 | P2: 6 | P3: 2  
+**Total Requirements**: 49
+**By Priority**: P1: 41 | P2: 6 | P3: 2
 **By Verification Method**: Test: 31 | Inspection: 17 | Analysis: 0 | Demonstration: 0

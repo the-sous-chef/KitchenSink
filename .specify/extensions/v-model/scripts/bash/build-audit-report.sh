@@ -306,9 +306,11 @@ while IFS= read -r line; do
     # Parse header row
     if [[ -z "$current_header" ]]; then
         current_header="$line"
+        status_col_idx=-1
+        test_id_col_idx=-1
         for ci in "${!COLUMNS[@]}"; do
             col_lower=$(echo "${COLUMNS[$ci]}" | tr '[:upper:]' '[:lower:]')
-            if [[ "$col_lower" == *"status"* ]]; then
+            if [[ "$col_lower" == "status" || "$col_lower" == "test status" || "$col_lower" == "execution status" ]]; then
                 status_col_idx=$ci
             fi
             if [[ "$col_lower" == *"scenario id"* || "$col_lower" == *"(scn)"* || "$col_lower" == *"(sts)"* || "$col_lower" == *"(its)"* || "$col_lower" == *"(uts)"* ]]; then
@@ -349,20 +351,20 @@ while IFS= read -r line; do
     fi
 
     # Count test statuses
-    if [[ "$local_status" == *"✅"* || "$local_status" == *"Passed"* ]]; then
+    if [[ "$local_status" == "✅" || "$local_status" == "✅ Passed" || "$local_status" == "Passed" ]]; then
         ((total_passed++)) || true
-    elif [[ "$local_status" == *"❌"* || "$local_status" == *"Failed"* ]]; then
+    elif [[ "$local_status" == "❌" || "$local_status" == "❌ Failed" || "$local_status" == "Failed" ]]; then
         ((total_failed++)) || true
         # Record anomaly (MOD-006)
         if [[ -n "$local_test_id" ]]; then
             printf '%s\t%s\t%s\n' "$local_test_id" "Failed Test" "$current_matrix_id" >> "$WORK_DIR/anomalies.tsv"
         fi
-    elif [[ "$local_status" == *"⏭️"* || "$local_status" == *"Skipped"* ]]; then
+    elif [[ "$local_status" == "⏭️" || "$local_status" == "⏭️ Skipped" || "$local_status" == "Skipped" || "$local_status" == "Waived" ]]; then
         ((total_skipped++)) || true
         if [[ -n "$local_test_id" ]]; then
             printf '%s\t%s\t%s\n' "$local_test_id" "Skipped Test" "$current_matrix_id" >> "$WORK_DIR/anomalies.tsv"
         fi
-    elif [[ "$local_status" == *"⬜"* || "$local_status" == *"Untested"* || "$local_status" == *"Pending"* ]]; then
+    elif [[ "$local_status" == "⬜" || "$local_status" == "⬜ Untested" || "$local_status" == "Untested" || "$local_status" == "Pending" ]]; then
         ((total_untested++)) || true
     fi
 
@@ -490,6 +492,9 @@ done
 # Compute compliance status
 if [[ $blocking_count -gt 0 ]]; then
     COMPLIANCE_STATUS="❌ NOT READY — Unwaived anomalies detected"
+    EXIT_CODE=1
+elif [[ $total_untested -gt 0 ]]; then
+    COMPLIANCE_STATUS="❌ BLOCKED — $total_untested test scenarios untested"
     EXIT_CODE=1
 elif [[ $anomaly_count -gt 0 ]]; then
     COMPLIANCE_STATUS="✅ RELEASE CANDIDATE — All anomalies waived"
