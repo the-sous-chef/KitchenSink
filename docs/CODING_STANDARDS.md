@@ -4,7 +4,7 @@ Tactical conventions for the KitchenSink monorepo. This document is the authorit
 reference for day-to-day coding decisions. The [Constitution](../.specify/memory/constitution.md)
 defines immutable principles; this document translates them into enforceable rules.
 
-**Version**: 1.1.0 | **Created**: 2026-04-19 | **Last Updated**: 2026-04-19
+**Version**: 1.2.0 | **Created**: 2026-04-19 | **Last Updated**: 2026-05-10
 
 ---
 
@@ -15,6 +15,7 @@ defines immutable principles; this document translates them into enforceable rul
 | Default (utilities, services, types, configs) | `camelCase.ts`                 | `recipeService.ts`, `parseIngredient.ts`        |
 | React components                              | `PascalCase.tsx`               | `RecipeCard.tsx`, `IngredientList.tsx`          |
 | Classes (non-component)                       | `PascalCase.ts`                | `RecipeRepository.ts`, `ImageProcessor.ts`      |
+| Mobile (Expo/React Native) variant            | `<source>.native.ts(x)`        | `RecipeCard.native.tsx`, `storage.native.ts`    |
 | Test files                                    | `<source>.test.ts`             | `recipeService.test.ts`, `RecipeCard.test.tsx`  |
 | Integration tests                             | `<source>.integration.test.ts` | `recipeApi.integration.test.ts`                 |
 | E2E tests (Playwright)                        | `<feature>.spec.ts`            | `recipeSearch.spec.ts`                          |
@@ -26,6 +27,8 @@ defines immutable principles; this document translates them into enforceable rul
 - One class or component per file. No exceptions.
 - The filename MUST match the exported class or component name exactly.
 - Barrel `index.ts` files MUST contain only named re-exports. No logic, no side effects.
+- The `.mobile.ts` / `.mobile.tsx` suffix is **prohibited**. Use `.native.ts(x)` —
+  see [§14 Cross-Platform File Conventions](#14-cross-platform-file-conventions).
 
 ---
 
@@ -681,3 +684,82 @@ try {
 
 Never use empty catch blocks. Every `catch` must either handle the error meaningfully
 or re-throw it.
+
+---
+
+## 14. Cross-Platform File Conventions
+
+Implements [Constitution Principle VIII](../.specify/memory/constitution.md#viii-cross-platform-parity-and-code-sharing).
+Web (Next.js) and mobile (Expo) are first-class peers — these rules are mandatory
+and enforced in code review.
+
+### 14.1 Lockstep Parity (Hard Rule)
+
+- Every user-facing feature MUST ship to **both** web and mobile in the same release.
+- A PR introducing a user-facing capability MUST include both web and mobile
+  implementations, or it MUST NOT be merged.
+- `tasks.md` for any user-facing requirement MUST contain paired web + mobile
+  tasks. Reviewers MUST reject task lists missing the mobile counterpart.
+- Single-platform rollouts require an explicit waiver recorded in the feature's
+  `plan.md` Complexity Tracking table and approved in the PR description.
+
+### 14.2 Shared-Code-First (Hard Rule)
+
+All reasonable attempts MUST be made to share code across platforms. The default
+location for new code is a shared workspace; per-platform code is the exception.
+
+| Code type                                | Default location                      | Allowed to fork per platform? |
+| ---------------------------------------- | ------------------------------------- | ----------------------------- |
+| Domain types, models, validation schemas | `packages/models` (or shared package) | No                            |
+| Business logic, pure utilities           | shared package                        | No                            |
+| API clients, hooks, query definitions    | shared package                        | No (transport may fork)       |
+| State management (stores, reducers)      | shared package                        | No                            |
+| UI primitives & design-system tokens     | shared package                        | Render layer only (see §14.3) |
+| Screen / page composition                | per-app                               | Yes                           |
+| Navigation, routing                      | per-app                               | Yes (Next.js vs Expo Router)  |
+| Native-only APIs (haptics, secure store) | `*.native.ts` shim                    | Yes                           |
+
+Duplicating logic across platforms requires a code-review-visible justification
+comment (`// PLATFORM-FORK: <reason>`).
+
+### 14.3 The `.native.ts(x)` Suffix (Hard Rule)
+
+When a module genuinely requires a platform-specific implementation, the mobile
+variant MUST be colocated with the shared/web file using the `.native.` suffix.
+
+**Canonical convention**: `.native.ts` and `.native.tsx`.
+**Prohibited**: `.mobile.ts`, `.mobile.tsx`, `.ios.ts`, `.android.ts`
+(unless an iOS- or Android-only fork is unavoidable, in which case Metro's
+`.ios.*` / `.android.*` resolution is permitted with a `PLATFORM-FORK` comment).
+
+```
+src/recipes/
+├── RecipeCard.tsx              # Shared + web implementation
+├── RecipeCard.native.tsx       # Mobile-only override (Expo/React Native)
+├── storage.ts                  # Web (localStorage) + shared interface
+├── storage.native.ts           # Mobile (expo-secure-store) implementation
+└── RecipeCard.test.tsx         # One test file covers both via shared logic
+```
+
+### 14.4 Resolution & Bundler Rules
+
+- Metro / Expo automatically resolves `Foo.native.tsx` over `Foo.tsx` on mobile.
+  Imports MUST use the bare name (`import { RecipeCard } from './RecipeCard'`),
+  never `./RecipeCard.native`.
+- Web bundlers (Next.js / webpack / Turbopack) MUST NOT bundle `.native.*` files.
+  If a web build pulls in a `.native.*` file, the bundler config is broken — fix
+  the config, do not rename the file.
+- Both files MUST export the **same public API** (identical exported names and
+  type signatures). Type checking MUST pass for both with the same consumer code.
+
+### 14.5 Review Checklist
+
+PR reviewers MUST verify:
+
+1. New user-facing feature → both web and mobile changes present.
+2. New shared logic → lives in a shared package, not duplicated in `apps/web` and
+   `apps/mobile`.
+3. Any new `.native.*` file → has a same-named non-native sibling with matching
+   public API.
+4. No `.mobile.*` files introduced.
+5. `tasks.md` (if present) lists paired web + mobile tasks.
