@@ -18,6 +18,36 @@ const unauthorized = (): never => {
 };
 
 /** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
+const redactSensitiveText = (value: string): string =>
+    value
+        .replace(/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, 'Bearer [REDACTED]')
+        .replace(/\b[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, '[REDACTED_JWT]');
+
+/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
+const sanitizeErrorCause = (error: unknown): unknown => {
+    const cause = getErrorCause(error);
+
+    if (cause && typeof cause === 'object') {
+        const { stack: _stack, ...rest } = cause as Record<string, unknown>;
+
+        if (typeof rest.message === 'string') {
+            return {
+                ...rest,
+                message: redactSensitiveText(rest.message),
+            };
+        }
+
+        return rest;
+    }
+
+    if (typeof cause === 'string') {
+        return redactSensitiveText(cause);
+    }
+
+    return cause;
+};
+
+/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
 const createPolicy = (params: {
     principalId: string;
     effect: 'Allow' | 'Deny';
@@ -49,6 +79,14 @@ const parseBearerToken = (event: APIGatewayRequestAuthorizerEvent): string => {
     const [scheme, token] = raw.trim().split(/\s+/);
 
     if (!scheme || !token || scheme.toLowerCase() !== 'bearer') {
+        return unauthorized();
+    }
+
+    if (raw.trim().split(/\s+/).length !== 2) {
+        return unauthorized();
+    }
+
+    if (token.length === 0) {
         return unauthorized();
     }
 
@@ -152,7 +190,7 @@ const innerHandler = async (
             'AUTHORIZER_VALIDATION_FAILED',
             'Failed to validate request authorization token',
             requestId,
-            getErrorCause(error),
+            sanitizeErrorCause(error),
         );
 
         logger.warn('authorizer unauthorized', { ...envelope });

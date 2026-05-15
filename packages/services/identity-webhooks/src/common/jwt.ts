@@ -18,6 +18,9 @@ let jwksProvider: ReturnType<typeof jwksClient> | null = null;
 let cachedIssuerAudience: Promise<{ issuer: string; audience: string }> | null = null;
 
 /** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
+const allowedSigningAlgorithms = new Set(['RS256']);
+
+/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
 const decodeJwtHeader = (token: string): { kid?: string; alg?: string } => {
     const [headerSegment] = token.split('.');
 
@@ -102,6 +105,10 @@ export const verifyAuth0Jwt = async (params: {
 
     if (!decodedHeader.alg) {
         throw new Error('JWT header missing alg');
+    }
+
+    if (!allowedSigningAlgorithms.has(decodedHeader.alg)) {
+        throw new Error('JWT header uses unsupported alg');
     }
 
     const client = getJwksClient(issuer);
