@@ -73,3 +73,7 @@ jobs:
 
             - name: Build
               run: npm run build --workspace=${{ matrix.workspace }}
+
+            - name: CDK Synth (infra only)
+              if: matrix.workspace == '@kitchensink/identity-infra'
+              run: npm run synth:quiet --workspace=${{ matrix.workspace }}
