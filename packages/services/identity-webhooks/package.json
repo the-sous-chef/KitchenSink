@@ -1,0 +1,40 @@
+{
+    "name": "@kitchensink/identity-webhooks",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "test": "vitest run",
+        "lint": "eslint .",
+        "typecheck": "tsc --noEmit",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "package": "echo 'TODO: replace stub esbuild packaging command with finalized bundling config' && esbuild src/handlers/*.ts --outdir=dist/handlers --platform=node --format=esm"
+    },
+    "devDependencies": {
+        "@kitchensink/eslint": "*",
+        "@kitchensink/prettier": "*",
+        "@kitchensink/typescript": "*",
+        "@kitchensink/vitest": "*",
+        "@types/aws-lambda": "^8.10.147",
+        "@types/node": "^24.0.0",
+        "esbuild": "^0.27.3",
+        "eslint": "^10.0.3",
+        "prettier": "^3.0.0",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.0"
+    },
+    "dependencies": {
+        "@aws-lambda-powertools/logger": "^2.29.0",
+        "@aws-sdk/client-secrets-manager": "^3.935.0",
+        "@aws-sdk/client-sqs": "^3.935.0",
+        "@kitchensink/auth-types": "*",
+        "@sentry/aws-serverless": "^10.23.0",
+        "auth0": "^5.4.0",
+        "drizzle-orm": "^0.45.2",
+        "jose": "^6.1.0",
+        "jwks-rsa": "^3.2.0",
+        "pg": "^8.16.3"
+    }
+}

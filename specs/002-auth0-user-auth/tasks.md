@@ -1,690 +1,672 @@
 # Tasks: Auth0 User Authentication
 
-**Feature**: `002-auth0-user-auth`
-**Generated**: 2026-05-09
-**Source**: plan.md + spec.md
-**Total Tasks**: 52
+**Feature**: `002-auth0-user-auth`  
+**Updated**: 2026-05-13  
+**Source**: `spec.md`, `plan.md`, `v-model/requirements.md`, `v-model/architecture-design.md`, `v-model/module-design.md`
 
 ---
 
-## Dependency Graph
+## Dependency Graph (topology-aligned)
 
-```
-[SETUP] T-001 → T-002 → T-003
-   ↓
-[US-1: Sign Up + DB Sync] T-010 → T-011 → T-012 → T-013 → T-014
-   ↓
-[US-2: Login + Session] T-020 → T-021 → T-022 → T-023 → T-024 → T-025
-   ↓
-[US-3: Logout] T-030 → T-031 → T-032
-   ↓
-[US-4: Profile Page] T-040 → T-041 → T-042
-   ↓
-[US-5: Edit Account] T-050 → T-051 → T-052
-   ↓
-[US-6: Account Deletion] T-060 → T-061 → T-062 → T-063 → T-064
-   ↓
-[US-7: Social Linking] T-070 → T-071 → T-072
-   ↓
-[US-8: MFA] T-080 → T-081
-   ↓
-[ADMIN: Suspension] T-090 → T-091 → T-092
-   ↓
-[INFRA: Reconciliation] T-100 → T-101 → T-102 → T-103
-   ↓
-[INFRA: Observability] T-110 → T-111 → T-112
-   ↓
-[CDK: Infrastructure] T-120 → T-121 → T-122 → T-123 → T-124
-   ↓
-[TESTS] T-130 → T-131 → T-132 → T-133 → T-134
+```text
+[P0 Shared Contracts]
+T-001 -> T-002
+   |
+   +--> [P0 Infra Foundation]
+        T-010 -> T-011 -> T-012 -> T-013 -> T-014 -> T-015
+             |        |        |        |
+             |        |        |        +--> T-020..T-024 (identity-webhooks lambdas)
+             |        |        +------------> T-030..T-041 (identity service modules)
+             |        +---------------------> T-050..T-056 (web integration)
+             +------------------------------> T-060..T-066 (mobile integration)
+
+[P1 Local Runtime + E2E]
+T-070 -> T-071 -> T-072 -> T-073 -> T-074 -> T-075
+
+[P2 Hardening + Traceability Closure]
+T-080 -> T-081 -> T-082 -> T-083
 ```
 
 ---
 
-## Phase 0 — Setup & Shared Infrastructure
+## Phase 0 — `packages/shared/auth-types/`
 
-### T-001 · Project scaffolding and shared types
+### T-001 · Create shared auth contracts package [P]
 
-**Priority**: P0 | **Story**: Foundation | **Depends on**: —
+**Depends on**: —  
+**Implements**: REQ-001, REQ-005, REQ-006, REQ-009, REQ-039, REQ-040, REQ-CN-008, FR-001, FR-005, FR-006, FR-009, FR-039, FR-040, ARCH-001, ARCH-003, ARCH-024, MOD-001, MOD-003, MOD-024
 
-- Create `src/auth/types/user.entity.ts` — Drizzle schema for `users` and `accounts` tables (UUIDv4 PK, `auth0Id`, `status`, `subscriptionTier`, timestamps)
-- Create `src/auth/types/auth-session.ts` — `AuthSession` interface (`accessToken`, `refreshToken`, `expiresAt`, `userId`)
-- Create `src/auth/types/errors.ts` — `AuthError`, `SuspendedUserError` custom error classes with type guards
-- Add `drizzle.config.ts` pointing at RDS PostgreSQL 16 connection string from env
-- Configure `@nestjs/config` with Zod env schema: `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_AUDIENCE`, `DATABASE_URL`, `SQS_DELETION_QUEUE_URL`, `SQS_DLQ_URL`
+- Scaffold `packages/shared/auth-types/` workspace with strict TS config and exports map.
+- Add canonical interfaces/types:
+    - JWT claims (including custom `userId` claim), authorizer context, session payload contracts.
+    - `User`, `Account`, `Profile` read/write DTOs used across service + lambdas.
+    - deletion queue message shape, reconciliation diff payload shape.
+- Add versioned contract barrels to avoid cross-package circular imports.
 
-**Acceptance**: TypeScript compiles; Drizzle schema generates valid SQL migration; env validation throws on missing vars.
-
----
-
-### T-002 · Database migrations — users and accounts tables
-
-**Priority**: P0 | **Story**: Foundation | **Depends on**: T-001
-
-- Generate Drizzle migration: `users` table (`id UUID PK DEFAULT gen_random_uuid()`, `auth0Id TEXT UNIQUE NOT NULL`, `displayName TEXT`, `email TEXT NOT NULL`, `avatarUrl TEXT`, `status TEXT DEFAULT 'active'`, `createdAt TIMESTAMPTZ`, `updatedAt TIMESTAMPTZ`)
-- Generate Drizzle migration: `accounts` table (`id UUID PK`, `userId UUID FK → users.id ON DELETE CASCADE`, `subscriptionTier TEXT DEFAULT 'free'`, `createdAt TIMESTAMPTZ`, `updatedAt TIMESTAMPTZ`)
-- Add `pg_trgm` extension migration for future FTS
-- Write migration rollback scripts
-
-**Acceptance**: `drizzle-kit push` succeeds against local PostgreSQL 16; `\d users` and `\d accounts` show correct schema.
+**Acceptance**: All dependent packages import shared contracts from `@.../auth-types`; no duplicated identity contract types.
 
 ---
 
-### T-003 · Observability bootstrap
+### T-002 · Publish shared Drizzle schema contract from shared boundary
 
-**Priority**: P0 | **Story**: Foundation | **Depends on**: T-001
+**Depends on**: T-001  
+**Implements**: REQ-013, REQ-014, REQ-015, REQ-017, REQ-018, REQ-019, REQ-025, REQ-CN-003, FR-013, FR-014, FR-015, FR-017, FR-018, FR-019, FR-025, ARCH-011, ARCH-012, ARCH-015, MOD-011, MOD-012, MOD-015
 
-- Create `src/auth/observability/logger.ts` — `@aws-lambda-powertools/logger` singleton with service name `auth0-user-auth`
-- Create `src/auth/observability/metrics.ts` — CloudWatch embedded metrics setup (namespace `SousChef/Auth`)
-- Create `src/auth/observability/tracing.ts` — X-Ray active tracing setup; wrap Lambda handlers with `@tracer.captureLambdaHandler()`
-- Configure `@sentry/aws-serverless` init in each Lambda entry point
+- Define Drizzle table contracts for `users`, `accounts`, `profiles` with indexes and FK cascade semantics.
+- Export schema + query helper types for both ECS service and raw Lambda handlers.
+- Enforce canonical ID and status enums (`active`/`suspended`) in shared types.
 
-**Acceptance**: Logger emits structured JSON; Sentry DSN env var validated at startup.
-
----
-
-## Phase 1 — User Story 1: Sign Up and Database Sync (P1)
-
-### T-010 · Auth0 post-registration Action (webhook handler)
-
-**Priority**: P1 | **Story**: US-1 | **Depends on**: T-001, T-002
-
-- Create `src/auth/webhook/index.ts` — Lambda handler for `POST /v1/auth/webhook` (Auth0 post-registration trigger)
-- Validate Auth0 webhook signature (shared secret from env `AUTH0_WEBHOOK_SECRET`)
-- Generate UUIDv4 for `userId`
-- Insert `users` row: `{ id: userId, auth0Id: event.user.user_id, email: event.user.email, displayName: event.user.name }`
-- Insert `accounts` row: `{ id: uuid(), userId, subscriptionTier: 'free' }`
-- Implement retry logic: up to 3 attempts with exponential backoff (100ms → 200ms → 400ms) on transient DB errors
-- Return `{ userId }` in response body so Auth0 Action can store in `app_metadata`
-
-**Acceptance**: POST with valid Auth0 payload creates User + Account rows; duplicate `auth0Id` returns 409; invalid signature returns 401; DB failure after 3 retries returns 500.
+**Acceptance**: Identity service and webhook lambdas compile against the same schema contract package.
 
 ---
 
-### T-011 · Auth0 Action configuration (Auth0 tenant)
+## Phase 1 — `packages/infra/identity/` (CDK + Serverless, self-contained)
 
-**Priority**: P1 | **Story**: US-1 | **Depends on**: T-010
+### T-010 · Bootstrap infra package and workspace wiring [P]
 
-- Document Auth0 Action script that calls the webhook endpoint and stores `userId` in `app_metadata`
-- Document Auth0 Action trigger: `post-user-registration`
-- Document required Auth0 Action secrets: `WEBHOOK_URL`, `WEBHOOK_SECRET`
-- Add `app_metadata.userId` to Auth0 token custom claims via Auth0 Action (so `userId` appears in JWT)
+**Depends on**: T-001  
+**Implements**: REQ-049, REQ-050, REQ-CN-008, FR-045, ARCH-027, ARCH-031, ARCH-032, MOD-027, MOD-031, MOD-032
 
-**Acceptance**: Auth0 Action script documented in `docs/auth0-actions/post-registration.js`; custom claim `https://sous-chef.io/userId` present in issued JWTs.
+- Initialize `packages/infra/identity/` with CDK app entrypoint + `serverless.yml` skeleton.
+- Register npm workspace scripts and Turbo tasks for synth/deploy/dev-local flows.
+- Add environment contract docs for dev/staging/prod Auth0 tenants and AWS accounts.
 
----
-
-### T-012 · Lambda REQUEST authorizer — JWKS verification
-
-**Priority**: P1 | **Story**: US-1 (foundation for all auth) | **Depends on**: T-001, T-003
-
-- Create `src/auth/authorizer/jwks-client.ts` — module-scope `jwks-rsa` client (survives Lambda warm starts); LRU cache with 10-min TTL; `rateLimit: true`
-- Create `src/auth/authorizer/token-verifier.ts` — `verifyToken(jwt: string): Promise<JWTPayload>` using `jose`; validates `iss`, `aud`, `exp`; extracts `sub` and custom claim `https://sous-chef.io/userId`
-- Create `src/auth/authorizer/context-injector.ts` — builds `$context.authorizer` payload: `{ userId, auth0Id, status, subscriptionTier }`
-- Create `src/auth/authorizer/errors.ts` — `AuthError` (→ 401 Deny policy), `SuspendedUserError` (→ 403 Deny policy)
-- Create `src/auth/authorizer/index.ts` — Lambda handler: verify token → lookup user status in DB → inject context → return IAM policy (`Allow` or `Deny`)
-
-**Acceptance**: Valid JWT → Allow policy with `userId` in context; expired JWT → Deny 401; suspended user → Deny 403; JWKS fetched once per 10 min (LRU cache hit on second call).
+**Acceptance**: `npm run turbo -- filter infra/identity` targets resolve; package is self-contained in this repo.
 
 ---
 
-### T-013 · Authorizer — suspension enforcement and policy cache
+### T-011 · Implement NetworkStack (VPC, subnets, SGs, routing)
 
-**Priority**: P1 | **Story**: US-1 | **Depends on**: T-012
+**Depends on**: T-010  
+**Implements**: REQ-050, REQ-IF-007, REQ-CN-007, FR-038, ARCH-031, MOD-031
 
-- Authorizer checks `users.status` from DB on every request (after token verification)
-- `status = 'suspended'` → return Deny policy with `context: { reason: 'suspended' }`
-- Configure API Gateway policy cache: 5-min TTL (set in CDK stack)
-- Document suspension lag: max `token_lifetime + 5 min` before suspended user is blocked
+- CDK `NetworkStack` with VPC/subnets/security groups for ECS service + DB connectivity.
+- Define ingress path ALB -> ECS and controlled egress for Auth0 Management API calls.
+- Export stack outputs consumed by `IdentityServiceStack` and `DataStack`.
 
-**Acceptance**: Suspend user in DB → within 5 min all new requests return 403; active user → 200.
-
----
-
-### T-014 · Unit tests — authorizer and webhook handler
-
-**Priority**: P1 | **Story**: US-1 | **Depends on**: T-010, T-012, T-013
-
-- Vitest unit tests for `token-verifier.ts`: valid JWT, expired JWT, wrong audience, wrong issuer
-- Vitest unit tests for `context-injector.ts`: all fields present, missing custom claim
-- Vitest unit tests for webhook handler: valid payload, duplicate auth0Id, invalid signature, DB retry logic
-- Mock `jwks-rsa` client and DB calls with `vi.mock`
-
-**Acceptance**: `npm test` passes; ≥90% branch coverage on authorizer and webhook modules.
+**Acceptance**: `cdk synth` emits NetworkStack resources and cross-stack exports with no unresolved refs.
 
 ---
 
-## Phase 2 — User Story 2: Login and Session Persistence (P1)
+### T-012 · Implement DataStack (RDS, SQS+DLQ, S3, secrets)
 
-### T-020 · Web auth — `@auth0/nextjs-auth0` v4.x route handler
+**Depends on**: T-011  
+**Implements**: REQ-013, REQ-014, REQ-017, REQ-025, REQ-026, REQ-050, REQ-IF-007, REQ-CN-007, FR-013, FR-014, FR-017, FR-025, FR-026, ARCH-017, ARCH-031, MOD-017, MOD-031
 
-**Priority**: P1 | **Story**: US-2 | **Depends on**: T-001
+- CDK `DataStack` resources:
+    - RDS PostgreSQL 16 (`db.t4g.small`)
+    - SQS deletion queue + DLQ (`maxReceiveCount=5`)
+    - S3 bucket(s) required by feature boundary
+    - Secrets Manager entries for DB/Auth0 credentials
+- Enable `pg_trgm` extension bootstrap migration hooks in deployment plan.
 
-- Create `packages/apps/sous-chef/web/auth/[...auth0].ts` — `@auth0/nextjs-auth0` catch-all route handler
-- Configure `AUTH0_SECRET`, `AUTH0_BASE_URL`, `AUTH0_ISSUER_BASE_URL`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_AUDIENCE` in Next.js env
-- Implement `GET /auth/login` → redirect to Auth0 Universal Login
-- Implement `GET /auth/callback` → exchange code for tokens, set httpOnly Secure SameSite=Lax cookie
-- Implement `POST /auth/logout` → revoke refresh token, clear cookie, redirect to Auth0 `/v2/logout`
-- Implement `GET /auth/session` → return `{ user, accessToken }` or `null`
-
-**Acceptance**: Browser login flow completes; cookie set with `HttpOnly; Secure; SameSite=Lax`; `/auth/session` returns user after login; returns null after logout.
-
----
-
-### T-021 · Web auth — session hook and provider
-
-**Priority**: P1 | **Story**: US-2 | **Depends on**: T-020
-
-- Create `packages/apps/sous-chef/web/auth/use-session.ts` — client-side hook wrapping `@auth0/nextjs-auth0` `useUser()`; returns `{ user, isLoading, isAuthenticated }`
-- Create `packages/apps/sous-chef/web/auth/providers.tsx` — `UserProvider` wrapper from `@auth0/nextjs-auth0`; wrap `_app.tsx` or root layout
-- Implement route guard: redirect unauthenticated users to `/auth/login` on protected pages
-
-**Acceptance**: `useSession()` returns user on authenticated pages; unauthenticated access to `/profile` redirects to `/auth/login`.
+**Acceptance**: Synth shows RDS/SQS/DLQ/S3/secrets defined; queue redrive policy correct.
 
 ---
 
-### T-022 · Mobile auth — `react-native-auth0` v5.5 provider
+### T-013 · Implement IdentityServiceStack (ECR, ECS/Fargate, ALB, IAM)
 
-**Priority**: P1 | **Story**: US-2 | **Depends on**: T-001
+**Depends on**: T-011, T-012  
+**Implements**: REQ-018, REQ-019, REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-035, REQ-036, REQ-037, REQ-038, REQ-050, FR-018..FR-024, FR-035..FR-038, ARCH-015, ARCH-016, ARCH-026, ARCH-031, MOD-015, MOD-016, MOD-026, MOD-031
 
-- Create `packages/apps/sous-chef/mobile/auth/Auth0Provider.tsx` — `Auth0Provider` from `react-native-auth0`; configure `domain` and `clientId` from Expo env
-- Create `packages/apps/sous-chef/mobile/auth/use-auth.ts` — hook: `{ isAuthenticated, user, login, logout, getAccessToken }`; uses `authorize()` (PKCE) and `clearSession()`
-- Create `packages/apps/sous-chef/mobile/auth/screens/LoginScreen.tsx` — shown automatically when `!isAuthenticated`; calls `login()` on mount
-- Store tokens via `expo-secure-store` (handled by `react-native-auth0` v5.5 natively)
+- CDK `IdentityServiceStack`:
+    - ECR repo and image deployment pipeline hooks
+    - ECS task/service (Fargate) for NestJS identity API (Node 24)
+    - ALB + target group + health checks
+    - IAM role policies for DB/SQS/secrets access
+    - CloudWatch log groups and alarms baseline
 
-**Acceptance**: App launch with no session → LoginScreen shown; after Auth0 login → home screen shown; tokens in Keychain/Keystore (verified via `expo-secure-store` read).
-
----
-
-### T-023 · Token refresh — web (silent refresh via `@auth0/nextjs-auth0`)
-
-**Priority**: P1 | **Story**: US-2 | **Depends on**: T-020
-
-- Configure `@auth0/nextjs-auth0` to use refresh tokens (`useRefreshTokens: true`)
-- Implement NestJS API interceptor (or Next.js middleware) that detects 401 from API Gateway → calls `/auth/session` to refresh → retries original request
-- Handle refresh token expiry: clear cookie → redirect to `/auth/login`
-
-**Acceptance**: Access token expires → next API call silently refreshes and succeeds; refresh token expired → user redirected to login.
+**Acceptance**: Synth includes ECS service reachable through ALB; IAM least-privilege policies in place.
 
 ---
 
-### T-024 · Token refresh — mobile (silent refresh via `react-native-auth0`)
+### T-014 · Implement WebhooksStack boundary (Serverless owns Lambda + REST API + authorizer)
 
-**Priority**: P1 | **Story**: US-2 | **Depends on**: T-022
+**Depends on**: T-012, T-013  
+**Implements**: REQ-039, REQ-040, REQ-042, REQ-050, REQ-IF-007, REQ-IF-009, FR-038, FR-039, FR-040, FR-042, ARCH-024, ARCH-031, MOD-024, MOD-031
 
-- Implement Axios/fetch interceptor in mobile app: on 401 → call `getCredentials()` (triggers silent refresh) → retry
-- Handle refresh failure: call `clearSession()` → navigate to LoginScreen
+- In `serverless.yml`, define Lambda functions and API Gateway REST resources.
+- Wire REQUEST authorizer Lambda to protected routes.
+- Ensure ALB-backed identity API routes are integrated through API Gateway mapping.
+- Keep CDK as owner of shared infra resources; serverless references exported ARNs/IDs.
 
-**Acceptance**: Background token refresh succeeds without user interaction; expired refresh token → LoginScreen shown.
-
----
-
-### T-025 · Integration tests — login and session flows
-
-**Priority**: P1 | **Story**: US-2 | **Depends on**: T-020, T-021, T-022, T-023, T-024
-
-- Vitest integration tests for web auth callback handler (mock Auth0 token endpoint)
-- Vitest integration tests for mobile `use-auth` hook (mock `react-native-auth0`)
-- Playwright E2E: web login flow → profile page accessible → logout → redirected to login
-
-**Acceptance**: All integration tests pass; Playwright E2E login flow completes in CI.
+**Acceptance**: `serverless print` resolves all references; REQUEST authorizer attached to protected endpoints.
 
 ---
 
-## Phase 3 — User Story 3: Logout (P1)
+### T-015 · LocalStack local infrastructure plan (docker-compose + health checks)
 
-### T-030 · Web logout — token revocation and cookie clear
+**Depends on**: T-010, T-012, T-014  
+**Implements**: REQ-049, REQ-050, REQ-017, REQ-025, REQ-026, FR-017, FR-025, FR-026, ARCH-012, ARCH-017, ARCH-031, MOD-012, MOD-017, MOD-031
 
-**Priority**: P1 | **Story**: US-3 | **Depends on**: T-020
+- Add `docker-compose.yml` plan in `packages/infra/identity/` with:
+    - LocalStack Community service (SQS, S3, EventBridge)
+    - sibling Postgres container
+- Add LocalStack readiness and Postgres health check scripts.
+- Add local seed/migration script wiring for test bootstrap.
+- Add `npm run dev:local` turbo target orchestrating local infra + service + lambdas.
 
-- `POST /auth/logout` handler: call Auth0 `/oauth/revoke` with `refresh_token`; clear httpOnly cookie; redirect to Auth0 `/v2/logout?returnTo=<base_url>`
-- Handle Auth0 revocation failure gracefully (log error, still clear local cookie)
-
-**Acceptance**: After logout, `/auth/session` returns null; old access token rejected by authorizer within TTL; cookie absent in browser.
-
----
-
-### T-031 · Mobile logout — token clear and session end
-
-**Priority**: P1 | **Story**: US-3 | **Depends on**: T-022
-
-- `logout()` in `use-auth.ts`: call `clearSession()` (revokes refresh token at Auth0 + clears Keychain/Keystore)
-- After logout, `isAuthenticated` → false → LoginScreen shown automatically
-
-**Acceptance**: After `logout()`, `expo-secure-store` has no tokens; LoginScreen displayed; old access token rejected by API.
+**Acceptance**: Local runtime bootstrap sequence documented and executable end-to-end.
 
 ---
 
-### T-032 · Unit tests — logout flows
+## Phase 2 — `packages/services/identity-webhooks/` (raw Lambda handlers)
 
-**Priority**: P1 | **Story**: US-3 | **Depends on**: T-030, T-031
+### T-020 · Implement REQUEST authorizer Lambda [P]
 
-- Vitest: web logout handler revokes token and clears cookie
-- Vitest: mobile `logout()` calls `clearSession()` and updates auth state
+**Depends on**: T-002, T-014  
+**Implements**: REQ-038, REQ-039, REQ-040, REQ-041, REQ-042, REQ-IF-004, REQ-CN-001, FR-038, FR-039, FR-040, FR-041, FR-042, ARCH-024, ARCH-025, MOD-024, MOD-025
 
-**Acceptance**: All tests pass.
+- Build Node 22 raw handler (no NestJS) for API Gateway REQUEST authorizer.
+- Validate JWT signature/issuer/audience/expiry via JWKS.
+- Inject canonical `userId` into authorizer context.
+- Enforce suspension by returning deny policy for blocked/suspended users.
 
----
-
-## Phase 4 — User Story 4: View Profile Page (P1)
-
-### T-040 · API endpoint — `GET /v1/users/me`
-
-**Priority**: P1 | **Story**: US-4 | **Depends on**: T-012, T-002
-
-- Create `src/users/users.controller.ts` — NestJS controller
-- `GET /v1/users/me`: extract `userId` from `$context.authorizer.userId` (injected by Lambda authorizer); query `users` table; return `{ id, displayName, email, avatarUrl, createdAt }`
-- Return 404 if user not found (should not happen in normal flow; log as anomaly)
-- Apply authorizer guard on all `/v1/users/*` routes
-
-**Acceptance**: Authenticated request returns user JSON; unauthenticated request returns 401 (blocked by authorizer).
+**Acceptance**: Valid token => allow+context; invalid/missing token => 401; suspended => 403.
 
 ---
 
-### T-041 · Web profile page UI
+### T-021 · Implement post-registration sync Lambda (reuse existing Actions/Triggers)
 
-**Priority**: P1 | **Story**: US-4 | **Depends on**: T-040, T-021
+**Depends on**: T-002, T-012  
+**Implements**: REQ-013, REQ-014, REQ-015, REQ-016, REQ-IF-008, REQ-CN-003, FR-013, FR-014, FR-015, FR-016, ARCH-010, ARCH-011, MOD-010, MOD-011
 
-- Create `packages/apps/sous-chef/web/app/profile/page.tsx` — server component; fetch `/v1/users/me` with access token from session
-- Display: display name, email, avatar (or default placeholder), account creation date
-- Redirect to `/auth/login` if unauthenticated (middleware guard)
+- Implement raw Lambda invoked by existing Auth0 post-registration trigger chain.
+- Idempotently create `users + accounts + profiles` transaction.
+- Write back `app_metadata.userId` through Auth0 Management API.
+- Explicitly document: **reuse existing Auth0 Actions/Triggers; do not create new Actions**.
 
-**Acceptance**: Profile page shows correct user data from DB; no avatar → placeholder shown; unauthenticated → redirect.
-
----
-
-### T-042 · Mobile profile screen UI
-
-**Priority**: P1 | **Story**: US-4 | **Depends on**: T-040, T-022
-
-- Create `packages/apps/sous-chef/mobile/screens/ProfileScreen.tsx` — fetch `/v1/users/me` with Bearer token; display name, email, avatar, creation date
-- Show default avatar placeholder when `avatarUrl` is null
-
-**Acceptance**: ProfileScreen shows correct data; default avatar shown when no avatar set.
+**Acceptance**: Signup creates canonical DB rows and updates Auth0 metadata once.
 
 ---
 
-## Phase 5 — User Story 5: Edit Account Details (P2)
+### T-022 · Implement async deletion-worker Lambda (SQS consumer)
 
-### T-050 · API endpoint — `PATCH /v1/users/me`
+**Depends on**: T-012  
+**Implements**: REQ-025, REQ-026, REQ-IF-005, REQ-CN-001, FR-025, FR-026, ARCH-017, MOD-017
 
-**Priority**: P2 | **Story**: US-5 | **Depends on**: T-040
+- Consume deletion messages from SQS queue.
+- Retry Auth0 delete with exponential backoff policy; move to DLQ after 5 receives.
+- Emit structured logs and retry metrics.
 
-- `PATCH /v1/users/me`: accept `{ displayName?, avatarUrl? }`; validate with `class-validator` (displayName non-empty, avatarUrl valid URL or null)
-- Update `users` row; return updated user
-- Validate avatar: supported formats (JPEG, PNG, WebP), max 5MB (validate Content-Type + Content-Length)
-
-**Acceptance**: Valid PATCH updates DB and returns updated user; empty displayName → 400; invalid avatar format → 400.
-
----
-
-### T-051 · Web account edit page UI
-
-**Priority**: P2 | **Story**: US-5 | **Depends on**: T-050, T-021
-
-- Create `packages/apps/sous-chef/web/app/account/edit/page.tsx` — form with display name input, avatar upload, email (read-only)
-- On submit: `PATCH /v1/users/me`; show success/error toast
-- Avatar upload: client-side format/size validation before submit
-
-**Acceptance**: Form submits successfully; display name updated in DB; email field is read-only; invalid inputs show validation errors.
+**Acceptance**: transient Auth0 failures retry correctly; permanent failures land in DLQ.
 
 ---
 
-### T-052 · Mobile account edit screen UI
+### T-023 · Implement nightly reconciliation Lambda (EventBridge Scheduler)
 
-**Priority**: P2 | **Story**: US-5 | **Depends on**: T-050, T-022
+**Depends on**: T-002, T-012, T-014  
+**Implements**: REQ-017, REQ-IF-010, FR-017, ARCH-012, MOD-012
 
-- Create `packages/apps/sous-chef/mobile/screens/AccountEditScreen.tsx` — display name input, avatar picker (Expo ImagePicker), email read-only
-- On save: `PATCH /v1/users/me`; navigate back to ProfileScreen on success
+- Build scheduled raw Lambda to diff Auth0 users vs DB users (`auth0_id` key).
+- Create missing rows (users/accounts/profiles) via shared schema.
+- Emit reconciliation counters (scanned/repaired/skipped/errors).
 
-**Acceptance**: Account edit saves to DB; email read-only; avatar picker works on iOS and Android.
-
----
-
-## Phase 6 — User Story 6: Account Deletion (P2)
-
-### T-060 · API endpoint — `DELETE /v1/users/me`
-
-**Priority**: P2 | **Story**: US-6 | **Depends on**: T-040, T-002
-
-- `DELETE /v1/users/me`: require confirmation header `X-Confirm-Delete: DELETE` (or body `{ confirm: 'DELETE' }`)
-- Synchronously delete `users` row (cascades to `accounts` and all user-owned data via FK `ON DELETE CASCADE`)
-- Attempt Auth0 Management API `deleteUser(auth0Id)` — if success, done
-- If Auth0 deletion fails: enqueue `{ auth0Id, userId, attempt: 1 }` to SQS deletion queue; return 200 (user is logged out)
-- Return 400 if confirmation missing
-
-**Acceptance**: DELETE with confirmation → user row deleted; Auth0 deletion attempted; SQS message enqueued on Auth0 failure; missing confirmation → 400.
+**Acceptance**: Nightly run creates only missing rows and is idempotent on repeated runs.
 
 ---
 
-### T-061 · Async deletion — SQS consumer Lambda
+### T-024 · Implement webhook package observability and error envelope [P]
 
-**Priority**: P2 | **Story**: US-6 | **Depends on**: T-060
+**Depends on**: T-020, T-021, T-022, T-023  
+**Implements**: REQ-IF-006, NFR-012, NFR-013, NFR-014, NFR-016, NFR-017, ARCH-027, ARCH-028, ARCH-029, MOD-027, MOD-028, MOD-029
 
-- Create `src/auth/deletion/index.ts` — SQS consumer Lambda; triggered by deletion queue
-- Create `src/auth/deletion/auth0-deleter.ts` — calls Auth0 Management API `deleteUser()`
-- Create `src/auth/deletion/backoff.ts` — on failure: `changeMessageVisibility` with backoff schedule (30s → 60s → 120s → 240s → 480s based on `attempt` in message body); increment `attempt`; after 5 attempts → let message go to DLQ
-- Create `src/auth/deletion/dlq-alarm.ts` — CloudWatch alarm: DLQ `ApproximateNumberOfMessagesVisible > 0` → SNS alert
+- Standardize structured logging and correlation IDs across all lambdas.
+- Add Sentry integration and CloudWatch custom metric emission.
+- Ensure trace headers propagate from API Gateway through handlers.
 
-**Acceptance**: SQS message processed; Auth0 deletion retried with correct backoff delays; after 5 failures → message in DLQ; CloudWatch alarm fires.
-
----
-
-### T-062 · Web account deletion UI
-
-**Priority**: P2 | **Story**: US-6 | **Depends on**: T-060, T-021
-
-- Create deletion confirmation modal: text input requiring user to type "DELETE"; submit button disabled until input matches
-- On confirm: `DELETE /v1/users/me`; on success: call logout → redirect to login page
-
-**Acceptance**: Submit disabled until "DELETE" typed; successful deletion → logged out → login page shown.
+**Acceptance**: All lambdas emit structured logs/metrics/traces and surface unhandled errors to Sentry.
 
 ---
 
-### T-063 · Mobile account deletion UI
+## Phase 3 — `packages/services/identity/` (NestJS ECS service)
 
-**Priority**: P2 | **Story**: US-6 | **Depends on**: T-060, T-022
+### T-030 · Scaffold NestJS identity service and module boundaries [P]
 
-- Create deletion confirmation screen with text input requiring "DELETE"; on confirm: `DELETE /v1/users/me`; on success: `clearSession()` → LoginScreen
+**Depends on**: T-001, T-002, T-013  
+**Implements**: REQ-018..REQ-024, REQ-035..REQ-038, REQ-CN-002, FR-018..FR-024, FR-035..FR-038, ARCH-015, ARCH-016, ARCH-026, MOD-015, MOD-016, MOD-026
 
-**Acceptance**: Same as web; works on iOS and Android.
+- Create `AuthModule`, `UsersModule`, `AccountsModule`, `ProfileModule`, `AdminModule`.
+- Wire DB layer via Drizzle + `pg` using shared schema contracts.
+- Add REST controller scaffolds with request validation pipeline.
 
----
-
-### T-064 · Unit tests — deletion flow and SQS consumer
-
-**Priority**: P2 | **Story**: US-6 | **Depends on**: T-060, T-061
-
-- Vitest: DELETE endpoint with/without confirmation header
-- Vitest: SQS consumer backoff logic (mock `changeMessageVisibility`); DLQ after 5 attempts
-- Vitest: Auth0 deleter success and failure paths
-
-**Acceptance**: All tests pass; backoff schedule verified.
+**Acceptance**: Service boots locally and exposes versioned API routes with module isolation.
 
 ---
 
-## Phase 7 — User Story 7: Social Account Linking (P2)
+### T-031 · Implement `GET /v1/users/me` profile read path
 
-### T-070 · API endpoints — social identity linking
+**Depends on**: T-030, T-020  
+**Implements**: REQ-018, FR-018, ARCH-013, ARCH-015, MOD-013, MOD-015
 
-**Priority**: P2 | **Story**: US-7 | **Depends on**: T-012
+- Resolve caller identity from authorizer context (`userId`).
+- Fetch and return profile/account read model.
 
-- `POST /v1/users/me/identities`: accept `{ provider, accessToken }`; call Auth0 Management API `linkUserAccount()`; return updated identities list
-- `DELETE /v1/users/me/identities/:provider`: call Auth0 Management API `unlinkUserAccount()`; return updated identities list
-- Validate: cannot unlink last identity (would lock user out)
-
-**Acceptance**: Link Google → Auth0 user has two identities; unlink → one identity; unlink last → 400.
+**Acceptance**: Authenticated user gets own profile payload; no anonymous access.
 
 ---
 
-### T-071 · Web social linking UI
+### T-032 · Implement `PATCH /v1/users/me` account/profile update path
 
-**Priority**: P2 | **Story**: US-7 | **Depends on**: T-070, T-021
+**Depends on**: T-031  
+**Implements**: REQ-019, REQ-020, REQ-021, REQ-CN-005, FR-019, FR-020, FR-021, ARCH-014, ARCH-015, MOD-014, MOD-015
 
-- Account settings page: list linked providers; "Link Google" button; "Unlink" button per provider
-- Show error if unlinking last identity
+- Support display name and avatar URL updates with validation.
+- Return updated representation with consistent timestamps.
 
-**Acceptance**: Linking and unlinking works; last identity unlink blocked with error message.
-
----
-
-### T-072 · Mobile social linking UI
-
-**Priority**: P2 | **Story**: US-7 | **Depends on**: T-070, T-022
-
-- Account settings screen: same as web; use `react-native-auth0` for OAuth flow
-
-**Acceptance**: Same as web on iOS and Android.
+**Acceptance**: Valid updates persist; invalid payloads return deterministic 4xx errors.
 
 ---
 
-## Phase 8 — User Story 8: MFA (P3)
+### T-033 · Implement `DELETE /v1/users/me` with cascade + async delete enqueue
 
-### T-080 · Web MFA enrollment link
+**Depends on**: T-030, T-022  
+**Implements**: REQ-025, REQ-026, REQ-CN-004, REQ-IF-005, FR-025, FR-026, ARCH-016, ARCH-017, MOD-016, MOD-017
 
-**Priority**: P3 | **Story**: US-8 | **Depends on**: T-021
+- Execute DB deletion transaction (user-owned cascades).
+- Publish deletion job to SQS for Auth0 delete worker.
+- Return safe completion response and revoke local session contract.
 
-- Account settings page: "Enable MFA" button → redirect to Auth0 MFA enrollment URL (constructed from `AUTH0_DOMAIN` + `/mfa`)
-- "Disable MFA" button → redirect to Auth0 MFA management URL
-
-**Acceptance**: Clicking "Enable MFA" opens Auth0 MFA enrollment; after enrollment, subsequent logins require second factor.
-
----
-
-### T-081 · Mobile MFA enrollment link
-
-**Priority**: P3 | **Story**: US-8 | **Depends on**: T-022
-
-- Account settings screen: "Enable MFA" → open Auth0 MFA enrollment URL in in-app browser (`expo-web-browser`)
-
-**Acceptance**: MFA enrollment accessible from mobile; TOTP works after enrollment.
+**Acceptance**: DB rows removed immediately; Auth0 deletion happens async with retry semantics.
 
 ---
 
-## Phase 9 — Admin: User Suspension (P2)
+### T-034 · Implement password reset integration endpoints/links support
 
-### T-090 · API endpoints — suspend and reactivate
+**Depends on**: T-030  
+**Implements**: REQ-027, REQ-028, FR-027, FR-028, ARCH-018, MOD-018
 
-**Priority**: P2 | **Story**: Admin | **Depends on**: T-040
+- Provide backend contract(s) needed by web/mobile for reset initiation links and responses.
+- Keep actual reset execution in Auth0-hosted flow.
 
-- `POST /v1/users/:userId/suspend`: admin-only (check `isAdmin` claim in authorizer context); set `users.status = 'suspended'`; return updated user
-- `POST /v1/users/:userId/reactivate`: admin-only; set `users.status = 'active'`; return updated user
-- Authorizer already enforces `status = 'suspended'` → 403 (T-013)
-
-**Acceptance**: Suspend user → subsequent requests return 403 within authorizer cache TTL (5 min); reactivate → requests succeed again.
+**Acceptance**: Clients can trigger Auth0 password reset journey from supported entry points.
 
 ---
 
-### T-091 · Password reset — web
+### T-035 · Implement MFA enrollment/management support endpoints
 
-**Priority**: P2 | **Story**: FR-027/FR-028 | **Depends on**: T-020
+**Depends on**: T-030  
+**Implements**: REQ-029, REQ-030, REQ-031, FR-029, FR-030, FR-031, ARCH-019, MOD-019
 
-- Login page: "Forgot Password?" link → redirect to Auth0 password reset flow (`/dbconnections/change_password` or Universal Login forgot-password)
-- No backend changes needed (Auth0 handles entirely)
+- Expose service endpoints/contracts for MFA enrollment and management links.
+- Validate access rules and response semantics.
 
-**Acceptance**: "Forgot Password" link visible on login page; clicking it initiates Auth0 password reset email flow.
-
----
-
-### T-092 · Password reset — mobile
-
-**Priority**: P2 | **Story**: FR-027/FR-028 | **Depends on**: T-022
-
-- LoginScreen: "Forgot Password?" link → open Auth0 password reset URL in `expo-web-browser`
-
-**Acceptance**: Same as web on mobile.
+**Acceptance**: Clients can route users into Auth0 MFA journey and observe state transitions.
 
 ---
 
-## Phase 10 — Reconciliation Job (P2)
+### T-036 · Implement social account linking/unlinking APIs
 
-### T-100 · Reconciliation Lambda — Auth0 user lister
+**Depends on**: T-030  
+**Implements**: REQ-032, REQ-033, REQ-034, FR-032, FR-033, FR-034, ARCH-020, ARCH-021, MOD-020, MOD-021
 
-**Priority**: P2 | **Story**: FR-017 | **Depends on**: T-001, T-003
+- Integrate with Auth0 Management API for link/unlink operations.
+- Enforce invariant: never create duplicate User/Account rows during linking changes.
 
-- Create `src/auth/reconciliation/auth0-lister.ts` — paginated Auth0 Management API user list (100/page, filter `created_at > now - 7 days`); returns `{ user_id, app_metadata }[]`
-
-**Acceptance**: Fetches all Auth0 users created in last 7 days; handles pagination correctly.
-
----
-
-### T-101 · Reconciliation Lambda — user diff and orphan creator
-
-**Priority**: P2 | **Story**: FR-017 | **Depends on**: T-100, T-002
-
-- Create `src/auth/reconciliation/user-diff.ts` — set difference: Auth0 users NOT IN `users` table (by `auth0Id`)
-- Create `src/auth/reconciliation/orphan-creator.ts` — for each orphaned user: create `users` + `accounts` rows; call Auth0 Management API to set `app_metadata.userId`
-
-**Acceptance**: Orphaned Auth0 user → DB record created; `app_metadata.userId` set in Auth0.
+**Acceptance**: link/unlink operations succeed with canonical local user ID preserved.
 
 ---
 
-### T-102 · Reconciliation Lambda — entry point and EventBridge Scheduler
+### T-037 · Implement impersonation guardrails and audit logging
 
-**Priority**: P2 | **Story**: FR-017 | **Depends on**: T-100, T-101
+**Depends on**: T-030, T-020  
+**Implements**: REQ-035, REQ-036, REQ-037, FR-035, FR-036, FR-037, ARCH-022, ARCH-023, MOD-022, MOD-023
 
-- Create `src/auth/reconciliation/index.ts` — Lambda handler; orchestrates lister → diff → orphan-creator; emits CloudWatch metric `OrphanedUsersReconciled`
-- CDK: EventBridge Scheduler rule `cron(0 3 * * ? *)` (03:00 UTC nightly) → Lambda
+- Accept impersonation context for authorized roles only.
+- Emit audit fields (`impersonatorId`, `impersonatedUserId`, flags) on all impersonated requests.
+- Block restricted operations during impersonation sessions.
 
-**Acceptance**: Lambda invoked nightly; orphaned users reconciled; metric emitted.
-
----
-
-### T-103 · Unit tests — reconciliation
-
-**Priority**: P2 | **Story**: FR-017 | **Depends on**: T-100, T-101, T-102
-
-- Vitest: `user-diff.ts` with mock Auth0 list and DB query
-- Vitest: `orphan-creator.ts` creates correct DB rows and calls Auth0 API
-
-**Acceptance**: All tests pass.
+**Acceptance**: impersonation requests are auditable and restricted per requirement.
 
 ---
 
-## Phase 11 — CDK Infrastructure
+### T-038 · Implement admin suspension/reactivation APIs
 
-### T-120 · CDK stack — API Gateway REST API + authorizer
+**Depends on**: T-030, T-020  
+**Implements**: REQ-041, REQ-042, REQ-043, REQ-044, REQ-CN-006, FR-041, FR-042, FR-043, FR-044, ARCH-025, ARCH-026, MOD-025, MOD-026
 
-**Priority**: P0 | **Story**: Infrastructure | **Depends on**: T-012
+- Admin endpoints to set user suspended/active status.
+- Sync Auth0 block/unblock state with DB status changes.
 
-- `aws-cdk-lib` stack: REST API with Lambda REQUEST authorizer (T-012 Lambda)
-- Authorizer cache TTL: 300 seconds (5 min)
-- All `/v1/*` routes use authorizer
-- `/v1/auth/webhook` route: no authorizer (Auth0 signature validation in handler)
-
-**Acceptance**: `cdk synth` succeeds; API Gateway created with authorizer attached.
+**Acceptance**: suspended users are denied by authorizer; reactivated users regain access.
 
 ---
 
-### T-121 · CDK stack — SQS deletion queue + DLQ
+### T-039 · Service-level observability baseline [P]
 
-**Priority**: P2 | **Story**: Infrastructure | **Depends on**: T-061
+**Depends on**: T-030  
+**Implements**: NFR-012, NFR-013, NFR-014, NFR-015, NFR-016, NFR-017, ARCH-027, ARCH-028, ARCH-029, ARCH-030, MOD-027, MOD-028, MOD-029, MOD-030
 
-- SQS standard queue: `visibilityTimeout = 6 × Lambda timeout (6 × 30s = 180s)`; `retentionPeriod = 14 days`
-- DLQ: `maxReceiveCount = 5`; `retentionPeriod = 14 days`
-- CloudWatch alarm: DLQ `ApproximateNumberOfMessagesVisible > 0` → SNS topic → email alert
-- Lambda event source mapping: deletion queue → deletion Lambda
+- Structured logs, metrics, tracing, and Sentry in NestJS service.
+- Ensure request correlation from API Gateway through ECS handlers.
 
-**Acceptance**: `cdk synth` succeeds; SQS queues created with correct config; alarm configured.
-
----
-
-### T-122 · CDK stack — EventBridge Scheduler (reconciliation)
-
-**Priority**: P2 | **Story**: Infrastructure | **Depends on**: T-102
-
-- EventBridge Scheduler: `cron(0 3 * * ? *)` → reconciliation Lambda
-- IAM role for scheduler with `lambda:InvokeFunction` permission
-
-**Acceptance**: `cdk synth` succeeds; scheduler rule created.
+**Acceptance**: dashboards/alerts can correlate API traffic, auth failures, and downstream errors.
 
 ---
 
-### T-123 · CDK stack — Lambda functions and IAM roles
+### T-040 · Integration tests for service modules [P]
 
-**Priority**: P0 | **Story**: Infrastructure | **Depends on**: T-001
+**Depends on**: T-031..T-039  
+**Implements**: REQ-018..REQ-044, FR-018..FR-044, ARCH-013..ARCH-030, MOD-013..MOD-030
 
-- Lambda functions: authorizer, webhook handler, deletion consumer, reconciliation job
-- Runtime: `nodejs22.x`; memory: 256MB (authorizer), 512MB (others)
-- IAM roles: least-privilege; authorizer needs `rds-data:ExecuteStatement`; deletion consumer needs `sqs:ReceiveMessage`, `sqs:DeleteMessage`, `sqs:ChangeMessageVisibility`
-- X-Ray active tracing enabled on all Lambdas
-- Sentry DSN and Auth0 credentials via SSM Parameter Store (not env vars in plain text)
+- Add module integration tests for users/accounts/profile/admin/impersonation flows.
+- Include suspension and deletion edge cases.
 
-**Acceptance**: `cdk synth` succeeds; all Lambdas defined with correct runtimes and IAM.
+**Acceptance**: integration suite passes against local Postgres and mocked external dependencies.
 
 ---
 
-### T-124 · CDK stack — RDS security group and VPC config
+### T-041 · Align API contracts with downstream specs (001/003/005/010)
 
-**Priority**: P0 | **Story**: Infrastructure | **Depends on**: T-002
+**Depends on**: T-031..T-038  
+**Implements**: REQ-045, REQ-046, REQ-047, REQ-048, FR-045
 
-- Lambda functions in VPC (same VPC as RDS); security group allows Lambda → RDS on port 5432
-- NAT Gateway for Lambda internet access (Auth0 API calls)
+- Verify auth layer contract compatibility with dependent features:
+    - 001 authentication gate and account tier linkage
+    - 003 shared authorizer expectations
+    - 005 OAuth integration dependency
+    - 010 account tier storage assumptions
 
-**Acceptance**: `cdk synth` succeeds; Lambda can reach RDS and Auth0 endpoints.
-
----
-
-## Phase 12 — End-to-End Tests
-
-### T-130 · Playwright E2E — web sign up and login
-
-**Priority**: P1 | **Story**: US-1, US-2 | **Depends on**: T-020, T-021, T-040, T-041
-
-- Playwright test: navigate to app → redirected to login → complete Auth0 login (test user) → profile page shows correct data
-- Use `getByRole` and `getByLabel` selectors throughout
-
-**Acceptance**: E2E test passes in CI against staging environment.
+**Acceptance**: no contract drift for downstream feature assumptions.
 
 ---
 
-### T-131 · Playwright E2E — web logout
+## Phase 4 — Web integration (`@auth0/nextjs-auth0` v4.x)
 
-**Priority**: P1 | **Story**: US-3 | **Depends on**: T-030
+### T-050 · Implement web protected-route middleware and login redirect [P]
 
-- Playwright test: login → click logout → redirected to login page → `/auth/session` returns null
+**Depends on**: T-030  
+**Implements**: REQ-001, REQ-003, REQ-005, REQ-IF-001, FR-001, FR-003, FR-005, ARCH-001, ARCH-002, MOD-001, MOD-002
 
-**Acceptance**: E2E test passes.
+- Configure Next.js Auth0 handlers and middleware for protected routes.
+- Redirect unauthenticated requests to Auth0 login.
 
----
-
-### T-132 · Playwright E2E — web profile and account edit
-
-**Priority**: P2 | **Story**: US-4, US-5 | **Depends on**: T-041, T-051
-
-- Playwright test: login → profile page shows data → navigate to edit → change display name → save → profile page shows updated name
-
-**Acceptance**: E2E test passes.
+**Acceptance**: protected web routes always gate through Auth0 session.
 
 ---
 
-### T-133 · Playwright E2E — web account deletion
+### T-051 · Implement secure web session persistence and refresh
 
-**Priority**: P2 | **Story**: US-6 | **Depends on**: T-062
+**Depends on**: T-050  
+**Implements**: REQ-006, REQ-007, REQ-008, REQ-009, FR-006, FR-007, FR-008, FR-009, ARCH-003, ARCH-008, MOD-003, MOD-008
 
-- Playwright test: login → account settings → delete account → type "DELETE" → confirm → redirected to login → old credentials rejected
+- Enforce httpOnly/Secure/SameSite cookies.
+- Implement silent refresh behavior and expired-session fallback to login.
 
-**Acceptance**: E2E test passes; user no longer exists in DB after deletion.
-
----
-
-### T-134 · Integration tests — authorizer performance
-
-**Priority**: P1 | **Story**: NFR | **Depends on**: T-012, T-013
-
-- Vitest integration test: authorizer cold start < 500ms; warm invocation < 50ms p99 (mock JWKS, mock DB)
-- Token refresh < 200ms p99 (mock Auth0 token endpoint)
-
-**Acceptance**: Performance assertions pass in CI.
+**Acceptance**: valid refresh token keeps user signed in without UX interruption.
 
 ---
 
-## Summary
+### T-052 · Implement web logout and refresh token revocation
 
-| Phase                              | Tasks         | Priority | User Story |
-| ---------------------------------- | ------------- | -------- | ---------- |
-| Setup                              | T-001 – T-003 | P0       | Foundation |
-| US-1: Sign Up + DB Sync            | T-010 – T-014 | P1       | US-1       |
-| US-2: Login + Session              | T-020 – T-025 | P1       | US-2       |
-| US-3: Logout                       | T-030 – T-032 | P1       | US-3       |
-| US-4: Profile Page                 | T-040 – T-042 | P1       | US-4       |
-| US-5: Edit Account                 | T-050 – T-052 | P2       | US-5       |
-| US-6: Account Deletion             | T-060 – T-064 | P2       | US-6       |
-| US-7: Social Linking               | T-070 – T-072 | P2       | US-7       |
-| US-8: MFA                          | T-080 – T-081 | P3       | US-8       |
-| Admin: Suspension + Password Reset | T-090 – T-092 | P2       | Admin      |
-| Reconciliation                     | T-100 – T-103 | P2       | FR-017     |
-| CDK Infrastructure                 | T-120 – T-124 | P0/P2    | Infra      |
-| E2E Tests                          | T-130 – T-134 | P1/P2    | All        |
+**Depends on**: T-051  
+**Implements**: REQ-010, REQ-011, REQ-012, FR-010, FR-011, FR-012, ARCH-001, MOD-001
 
-**Total: 52 tasks**
+- Clear session cookies and trigger Auth0 token revocation/logout flow.
 
-### Recommended Implementation Order
+**Acceptance**: post-logout requests require re-authentication.
 
-1. **P0 Foundation**: T-001 → T-002 → T-003 → T-120 → T-123 → T-124
-2. **P1 Core Auth**: T-012 → T-013 → T-010 → T-011 → T-014 → T-020 → T-021 → T-022 → T-023 → T-024 → T-025
-3. **P1 Logout + Profile**: T-030 → T-031 → T-032 → T-040 → T-041 → T-042 → T-130 → T-131
-4. **P2 Account Management**: T-050 → T-051 → T-052 → T-060 → T-061 → T-062 → T-063 → T-064 → T-121
-5. **P2 Social + Admin**: T-070 → T-071 → T-072 → T-090 → T-091 → T-092 → T-100 → T-101 → T-102 → T-103 → T-122
-6. **P2 E2E**: T-132 → T-133 → T-134
-7. **P3 MFA**: T-080 → T-081
+---
+
+### T-053 · Build web profile page integration
+
+**Depends on**: T-031, T-051  
+**Implements**: REQ-018, FR-018, ARCH-013, MOD-013
+
+- Wire UI route to `GET /v1/users/me`.
+
+**Acceptance**: profile page renders canonical API response.
+
+---
+
+### T-054 · Build web account edit + deletion integration
+
+**Depends on**: T-032, T-033  
+**Implements**: REQ-019, REQ-020, REQ-021, REQ-022, REQ-023, REQ-024, REQ-025, REQ-026, FR-019..FR-026, ARCH-014, ARCH-016, MOD-014, MOD-016
+
+- Integrate account edit form and deletion confirmation UX to identity API.
+
+**Acceptance**: edit and delete flows complete with expected API outcomes.
+
+---
+
+### T-055 · Build web password reset / MFA / social-link UI hooks [P]
+
+**Depends on**: T-034, T-035, T-036  
+**Implements**: REQ-027..REQ-034, FR-027..FR-034, ARCH-018, ARCH-019, ARCH-021, MOD-018, MOD-019, MOD-021
+
+- Add account settings actions for reset password, MFA enrollment, social link/unlink.
+
+**Acceptance**: all auth account-management links and callbacks work from web UX.
+
+---
+
+### T-056 · Web integration tests and accessibility assertions
+
+**Depends on**: T-050..T-055  
+**Implements**: REQ-001..REQ-034, FR-001..FR-034, NFR-004, NFR-005, NFR-008, NFR-011
+
+- Add Playwright/Vitest coverage for login/session/logout/profile/account scenarios.
+- Enforce role/label selectors (no `data-testid`) for auth UIs.
+
+**Acceptance**: web auth integration tests pass and satisfy accessibility selector constraints.
+
+---
+
+## Phase 5 — Mobile integration (`react-native-auth0` v5.5)
+
+### T-060 · Implement mobile auto-auth gate and callback [P]
+
+**Depends on**: T-030  
+**Implements**: REQ-001, REQ-002, REQ-005, REQ-IF-002, FR-001, FR-002, FR-005, ARCH-004, ARCH-006, MOD-004, MOD-006
+
+- Show auth screen automatically when no valid mobile session exists.
+- Handle callback/deeplink token exchange path.
+
+**Acceptance**: unauthenticated mobile launch always goes through Auth0 login.
+
+---
+
+### T-061 · Implement secure mobile token storage and refresh
+
+**Depends on**: T-060  
+**Implements**: REQ-006, REQ-007, REQ-008, REQ-009, REQ-IF-003, FR-006, FR-007, FR-008, FR-009, ARCH-005, ARCH-009, MOD-005, MOD-009
+
+- Persist tokens in platform secure storage (Keychain/Keystore).
+- Implement silent refresh and invalid-refresh fallback.
+
+**Acceptance**: tokens persist securely across app restarts; expired refresh forces login.
+
+---
+
+### T-062 · Implement mobile logout and revocation
+
+**Depends on**: T-061  
+**Implements**: REQ-010, REQ-011, REQ-012, FR-010, FR-011, FR-012, ARCH-004, MOD-004
+
+- Clear secure storage and trigger Auth0 revocation/logout semantics.
+
+**Acceptance**: logout ends session and shows auth screen again.
+
+---
+
+### T-063 · Build mobile profile/account integration
+
+**Depends on**: T-031, T-032, T-033, T-061  
+**Implements**: REQ-018..REQ-026, FR-018..FR-026, ARCH-013, ARCH-014, ARCH-016, MOD-013, MOD-014, MOD-016
+
+- Bind mobile screens to profile read/update/delete endpoints.
+
+**Acceptance**: mobile profile/account flows match API behavior.
+
+---
+
+### T-064 · Build mobile password reset / MFA / social-link entry points [P]
+
+**Depends on**: T-034, T-035, T-036  
+**Implements**: REQ-027..REQ-034, FR-027..FR-034, ARCH-018, ARCH-019, ARCH-021, MOD-018, MOD-019, MOD-021
+
+- Add mobile account actions for reset password, MFA enrollment, social linking.
+
+**Acceptance**: supported account-management journeys are reachable from mobile UI.
+
+---
+
+### T-065 · Mobile integration tests and secure-storage assertions
+
+**Depends on**: T-060..T-064  
+**Implements**: REQ-001..REQ-034, FR-001..FR-034, NFR-004, NFR-005, NFR-008
+
+- Add mobile auth flow test coverage including launch/login/logout/refresh behavior.
+
+**Acceptance**: mobile integration suite passes with secure storage and redirect invariants proven.
+
+---
+
+### T-066 · Validate impersonation/suspension UX messaging on mobile
+
+**Depends on**: T-037, T-038, T-064  
+**Implements**: REQ-036, REQ-037, REQ-042, REQ-043, FR-036, FR-037, FR-042, FR-043, ARCH-023, ARCH-025, MOD-023, MOD-025
+
+- Ensure suspended and impersonated states produce explicit, user-safe messaging.
+
+**Acceptance**: blocked/suspended scenarios are handled with clear UX states.
+
+---
+
+## Phase 6 — LocalStack + E2E integration runtime
+
+### T-070 · Author `docker-compose.yml` for LocalStack Community + Postgres [P]
+
+**Depends on**: T-015  
+**Implements**: REQ-049, FR-017, FR-025, FR-026, ARCH-031, MOD-031
+
+- Define compose services, networks, and startup ordering for LocalStack + Postgres.
+
+**Acceptance**: single compose command starts both services deterministically.
+
+---
+
+### T-071 · Implement LocalStack bootstrap + health checks
+
+**Depends on**: T-070  
+**Implements**: REQ-049, REQ-050, ARCH-031, MOD-031
+
+- Provision local SQS/S3/EventBridge resources and verify readiness.
+
+**Acceptance**: health script fails fast on missing local resources.
+
+---
+
+### T-072 · Implement Postgres seed/migration local scripts
+
+**Depends on**: T-070, T-002  
+**Implements**: REQ-013, REQ-014, REQ-018, REQ-019, REQ-049, FR-013, FR-014, FR-018, FR-019, ARCH-015, MOD-015
+
+- Add migration + seed scripts for local DB reset and baseline fixtures.
+
+**Acceptance**: local DB can be reset and seeded repeatedly for e2e runs.
+
+---
+
+### T-073 · Implement `npm run dev:local` turbo target
+
+**Depends on**: T-071, T-072  
+**Implements**: REQ-049, REQ-050, ARCH-032, MOD-032
+
+- Orchestrate LocalStack, Postgres, NestJS service, and lambda local invocation workflows.
+
+**Acceptance**: one command starts complete local development topology.
+
+---
+
+### T-074 · E2E: local API + authorizer + ECS-local service path
+
+**Depends on**: T-073, T-056, T-065  
+**Implements**: REQ-001..REQ-044, FR-001..FR-044, ARCH-024, ARCH-015, MOD-024, MOD-015
+
+- Execute end-to-end tests against LocalStack API Gateway/authorizer path and local identity service.
+
+**Acceptance**: auth-protected route tests pass against local emulated infrastructure.
+
+---
+
+### T-075 · E2E: local deletion-worker + reconciliation scheduled flows
+
+**Depends on**: T-073, T-022, T-023  
+**Implements**: REQ-017, REQ-025, REQ-026, FR-017, FR-025, FR-026, ARCH-012, ARCH-017, MOD-012, MOD-017
+
+- Verify local queue-driven deletion retries and scheduled reconciliation behavior.
+
+**Acceptance**: local e2e confirms deletion retry/DLQ and reconciliation repair workflows.
+
+---
+
+## Phase 7 — Hardening and closure
+
+### T-080 · Auth0 tenant rollout plan (dev/staging/prod) + existing Actions reuse ✅
+
+**Depends on**: T-021, T-014  
+**Implements**: REQ-001, REQ-004, REQ-013..REQ-017, FR-001, FR-004, FR-013..FR-017, ARCH-010, MOD-010
+
+- Document and apply tenant strategy (`kitchensink-dev/staging/prod`).
+- Confirm existing Actions/Triggers reused from tenant-template and no new Actions authored.
+- Status: Complete — see `packages/infra/identity/docs/auth0-tenant-rollout.md`.
+
+**Acceptance**: tenant config checklist passes for all environments.
+
+---
+
+### T-081 · Performance + reliability checks for authorizer and async workers [P] ✅
+
+**Depends on**: T-020, T-022, T-023, T-039  
+**Implements**: SC-003, SC-004, SC-006, REQ-039, REQ-042, REQ-025, REQ-026, FR-039, FR-042, FR-025, FR-026, ARCH-024, ARCH-017, MOD-024, MOD-017
+
+- Validate authorizer latency/error targets and deletion worker retry behavior under failure injection.
+- Status: Complete — see `packages/infra/identity/docs/perf-reliability.md`.
+
+**Acceptance**: observed metrics remain within target thresholds.
+
+---
+
+### T-082 · Traceability pass: requirements-to-implementation matrix refresh ✅
+
+**Depends on**: T-041, T-074, T-075  
+**Implements**: REQ-001..REQ-050, FR-001..FR-045, ARCH-001..ARCH-033, MOD-001..MOD-033
+
+- Update feature trace matrix to ensure no dropped REQ/FR/ARCH/MOD IDs.
+- Status: Complete — refreshed `specs/002-auth0-user-auth/v-model/requirements.md` traceability table.
+
+**Acceptance**: every requirement/module ID has at least one implementing task and test reference.
+
+---
+
+### T-083 · CI gates for lint/typecheck/tests on updated topology ✅
+
+**Depends on**: T-056, T-065, T-074, T-075  
+**Implements**: NFR-001, NFR-002, NFR-003, NFR-006, NFR-007, NFR-008, FR-045, ARCH-032, MOD-032
+
+- Wire CI jobs for all new workspaces and localstack-backed e2e stage.
+- Status: Complete — added `.github/workflows/identity-ci.yml` with parallel identity workspace jobs.
+- **Test split (added 2026-05-14)**: `@kitchensink/identity-service` exposes `npm test` (unit/integration; vitest excludes `tests/e2e/**`) and `npm run test:e2e` (separate `vitest.e2e.config.ts`, requires LocalStack + Postgres via `packages/infra/identity` `local:up`). CI runs only `npm test`; `test:e2e` is run locally or in a future `services:up`-gated CI job.
+
+**Acceptance**: CI validates strict typing/lint/tests across shared, infra, webhook, service, web, and mobile packages.
+
+---
+
+## Parallelization markers
+
+Tasks marked **[P]** are safe to run in parallel after dependencies are met:
+
+- T-001, T-010, T-020, T-024, T-030, T-039, T-050, T-055, T-060, T-064, T-070, T-081
+
+---
+
+## Coverage summary
+
+- **REQ coverage**: REQ-001..REQ-050 addressed across phases.
+- **FR coverage**: FR-001..FR-045 addressed across phases.
+- **Architecture coverage**: ARCH-001..ARCH-033 referenced.
+- **Module coverage**: MOD-001..MOD-033 referenced.
+
+No task introduces Terraform, Pulumi, SAM, hand-written CloudFormation templates, Aurora DSQL, or new Auth0 Action authoring.

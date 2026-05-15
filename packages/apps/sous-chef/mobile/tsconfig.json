@@ -1,0 +1,19 @@
+{
+    "extends": "@kitchensink/typescript/base.json",
+    "compilerOptions": {
+        "jsx": "react-native",
+        "strict": true,
+        "moduleResolution": "bundler",
+        "module": "ESNext",
+        "target": "ESNext",
+        "lib": ["ESNext"],
+        "noEmit": true,
+        "incremental": true,
+        "paths": {
+            "@kitchensink/auth-types": ["../../shared/auth-types/src/index.ts"],
+            "@kitchensink/auth-types/*": ["../../shared/auth-types/src/*"]
+        }
+    },
+    "include": ["src/**/*", "app/**/*", "tests/**/*"],
+    "exclude": ["node_modules", "dist"]
+}

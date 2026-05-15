@@ -1,0 +1,75 @@
+name: Identity CI
+
+on:
+    push:
+        branches: [main, 002-auth0-user-auth]
+        paths:
+            - 'packages/shared/auth-types/**'
+            - 'packages/infra/identity/**'
+            - 'packages/services/identity-webhooks/**'
+            - 'packages/services/identity/**'
+            - 'packages/apps/sous-chef/web/**'
+            - 'packages/apps/sous-chef/mobile/**'
+            - '.github/workflows/identity-ci.yml'
+            - 'package.json'
+            - 'package-lock.json'
+            - 'turbo.json'
+    pull_request:
+        paths:
+            - 'packages/shared/auth-types/**'
+            - 'packages/infra/identity/**'
+            - 'packages/services/identity-webhooks/**'
+            - 'packages/services/identity/**'
+            - 'packages/apps/sous-chef/web/**'
+            - 'packages/apps/sous-chef/mobile/**'
+            - '.github/workflows/identity-ci.yml'
+            - 'package.json'
+            - 'package-lock.json'
+            - 'turbo.json'
+
+permissions:
+    contents: read
+
+concurrency:
+    group: identity-ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    identity-workspace:
+        name: ${{ matrix.workspace }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - workspace: '@kitchensink/auth-types'
+                    - workspace: '@kitchensink/identity-infra'
+                    - workspace: '@kitchensink/identity-webhooks'
+                    - workspace: '@kitchensink/identity-service'
+                    - workspace: '@kitchensink/web'
+                    - workspace: '@kitchensink/mobile'
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Lint
+              run: npm run lint --workspace=${{ matrix.workspace }}
+
+            - name: Typecheck
+              run: npm run typecheck --workspace=${{ matrix.workspace }}
+
+            - name: Test
+              run: npm run test --workspace=${{ matrix.workspace }}
+
+            - name: Build
+              run: npm run build --workspace=${{ matrix.workspace }}

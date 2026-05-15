@@ -1,0 +1,169 @@
+# @implements REQ-039 REQ-040 REQ-042 REQ-050 REQ-IF-007 REQ-IF-009 FR-038 FR-039 FR-040 FR-042 ARCH-024 ARCH-031 MOD-024 MOD-031
+service: kitchensink-identity-webhooks
+
+frameworkVersion: '4'
+
+build:
+    esbuild: false
+
+provider:
+    name: aws
+    runtime: nodejs22.x
+    stage: ${opt:stage, env:STAGE, 'dev'}
+    region: ${opt:region, env:AWS_REGION, 'us-east-1'}
+    architecture: arm64
+    logRetentionInDays: 30
+    memorySize: 512
+    timeout: 30
+    deploymentMethod: direct
+    environment:
+        STAGE: ${self:provider.stage}
+        NETWORK_STACK_NAME: ${self:custom.stackNames.network}
+        DATA_STACK_NAME: ${self:custom.stackNames.data}
+        SERVICE_STACK_NAME: ${self:custom.stackNames.service}
+        DB_SECRET_ARN: ${self:custom.exports.dbSecretArn}
+        AUTH0_MANAGEMENT_SECRET_ARN: ${self:custom.exports.auth0ManagementSecretArn}
+        DELETION_QUEUE_URL: ${self:custom.exports.deletionQueueUrl}
+        DELETION_QUEUE_ARN: ${self:custom.exports.deletionQueueArn}
+        MEDIA_BUCKET_NAME: ${self:custom.exports.mediaBucketName}
+        ARCHIVE_BUCKET_NAME: ${self:custom.exports.archiveBucketName}
+        ALB_DNS_NAME: ${self:custom.exports.albDnsName}
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action:
+                      - sqs:ReceiveMessage
+                      - sqs:DeleteMessage
+                      - sqs:ChangeMessageVisibility
+                      - sqs:GetQueueAttributes
+                  Resource:
+                      - ${self:custom.exports.deletionQueueArn}
+                - Effect: Allow
+                  Action:
+                      - s3:GetObject
+                      - s3:PutObject
+                  Resource:
+                      - arn:aws:s3:::${self:custom.exports.mediaBucketName}/*
+                      - arn:aws:s3:::${self:custom.exports.archiveBucketName}/*
+                - Effect: Allow
+                  Action:
+                      - secretsmanager:GetSecretValue
+                  Resource:
+                      - ${self:custom.exports.dbSecretArn}
+                      - ${self:custom.exports.auth0ManagementSecretArn}
+
+plugins:
+    - serverless-esbuild
+    - serverless-localstack
+
+custom:
+    stackNames:
+        network: kitchensink-identity-network-${self:provider.stage}
+        data: kitchensink-identity-data-${self:provider.stage}
+        service: kitchensink-identity-service-${self:provider.stage}
+    exports:
+        deletionQueueArn: ${cf:${self:custom.stackNames.data}.IdentityDeletionQueueArn, 'arn:aws:sqs:us-east-1:000000000000:identity-deletion-queue'}
+        deletionQueueUrl: ${cf:${self:custom.stackNames.data}.IdentityDeletionQueueUrl, 'http://localhost:4566/000000000000/identity-deletion-queue'}
+        dbSecretArn: ${cf:${self:custom.stackNames.data}.IdentityDatabaseSecretArn, 'arn:aws:secretsmanager:us-east-1:000000000000:secret:identity/db'}
+        auth0ManagementSecretArn: ${cf:${self:custom.stackNames.data}.IdentityAuth0ManagementSecretArn, 'arn:aws:secretsmanager:us-east-1:000000000000:secret:identity/auth0'}
+        mediaBucketName: ${cf:${self:custom.stackNames.data}.IdentityMediaBucketName, 'kitchensink-identity-media-local'}
+        archiveBucketName: ${cf:${self:custom.stackNames.data}.IdentityArchiveBucketName, 'kitchensink-identity-archive-local'}
+        albDnsName: ${cf:${self:custom.stackNames.service}.IdentityAlbDnsName, 'localhost'}
+    localstack:
+        stages:
+            - local
+        host: http://localhost
+        edgePort: 4566
+        autostart: false
+    esbuild:
+        bundle: false
+        sourcemap: true
+        target: node22
+        platform: node
+
+package:
+    individually: true
+    patterns:
+        - '!**'
+        - 'packages/services/identity-webhooks/dist/**'
+
+functions:
+    authorizer:
+        handler: packages/services/identity-webhooks/dist/handlers/authorizer.handler
+        timeout: 10
+    postRegistration:
+        handler: packages/services/identity-webhooks/dist/handlers/post-registration.handler
+        timeout: 30
+        events:
+            - http:
+                  path: webhooks/post-registration
+                  method: post
+                  cors: true
+    deletionWorker:
+        handler: packages/services/identity-webhooks/dist/handlers/deletion-worker.handler
+        timeout: 30
+        events:
+            - sqs:
+                  arn: ${self:custom.exports.deletionQueueArn}
+                  batchSize: 10
+    reconciliation:
+        handler: packages/services/identity-webhooks/dist/handlers/reconciliation.handler
+        timeout: 60
+        events:
+            - schedule:
+                  rate: cron(0 5 * * ? *)
+                  enabled: true
+    protectedProfileWebhook:
+        handler: packages/services/identity-webhooks/dist/handlers/post-registration.handler
+        timeout: 30
+        events:
+            - http:
+                  path: webhooks/protected/profile
+                  method: post
+                  cors: true
+                  authorizer:
+                      name: authorizer
+                      type: request
+                      identitySource: method.request.header.Authorization
+                      resultTtlInSeconds: 300
+
+resources:
+    Description: '@implements REQ-039 REQ-040 REQ-042 REQ-050 REQ-IF-007 REQ-IF-009 FR-038 FR-039 FR-040 FR-042 ARCH-024 ARCH-031 MOD-024 MOD-031'
+    Resources:
+        IdentityApiGatewayResponse4xx:
+            Type: AWS::ApiGateway::GatewayResponse
+            Properties:
+                ResponseType: DEFAULT_4XX
+                RestApiId:
+                    Ref: ApiGatewayRestApi
+                ResponseParameters:
+                    gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+                    gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+        IdentityApiGatewayResponse5xx:
+            Type: AWS::ApiGateway::GatewayResponse
+            Properties:
+                ResponseType: DEFAULT_5XX
+                RestApiId:
+                    Ref: ApiGatewayRestApi
+                ResponseParameters:
+                    gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+                    gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+        IdentityApiGatewayProxyToAlb:
+            Type: AWS::ApiGateway::Method
+            Properties:
+                RestApiId:
+                    Ref: ApiGatewayRestApi
+                ResourceId:
+                    Fn::GetAtt:
+                        - ApiGatewayRestApi
+                        - RootResourceId
+                HttpMethod: ANY
+                AuthorizationType: NONE
+                Integration:
+                    Type: HTTP_PROXY
+                    IntegrationHttpMethod: ANY
+                    Uri: https://${self:custom.exports.albDnsName}/{proxy}
+                    PassthroughBehavior: WHEN_NO_MATCH
+                RequestParameters:
+                    method.request.path.proxy: false

@@ -16,6 +16,9 @@
     },
     "workspaces": [
         "packages/tools/*",
+        "packages/services/*",
+        "packages/shared/*",
+        "packages/infra/*",
         "packages/apps/sous-chef/web",
         "packages/apps/sous-chef/mobile",
         "packages/ui"
@@ -25,6 +28,7 @@
         "test": "turbo run test",
         "lint": "turbo run lint format:check",
         "typecheck": "turbo run typecheck",
+        "dev:local": "turbo run dev:local --filter=@kitchensink/identity-infra",
         "format": "turbo run format",
         "format:check": "turbo run format:check",
         "prepare": "husky || true"
