@@ -263,7 +263,7 @@ describe('AdminService.getUser', () => {
             .mockReturnValueOnce(makeChain([mockUser]))
             .mockReturnValueOnce(makeChain([mockAccount]));
 
-        const result = await adminService.getUser('user-123');
+        const result = await adminService.getUser('user-123', adminCtx);
 
         expect(result.id).toBe('user-123');
         expect(result.email).toBe('test@example.com');
@@ -278,7 +278,7 @@ describe('AdminService.getUser', () => {
             .mockReturnValueOnce(makeChain([mockUser]))
             .mockReturnValueOnce(makeChain([]));
 
-        const result = await adminService.getUser('user-123');
+        const result = await adminService.getUser('user-123', adminCtx);
 
         expect(result.subscriptionTier).toBe('free');
     });
@@ -286,7 +286,7 @@ describe('AdminService.getUser', () => {
     it('getUser throws NotFoundException when user missing', async () => {
         mockDb.select = vi.fn().mockReturnValue(makeChain([]));
 
-        await expect(adminService.getUser('missing')).rejects.toThrow();
+        await expect(adminService.getUser('missing', adminCtx)).rejects.toThrow();
     });
 });
 

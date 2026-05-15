@@ -15,8 +15,11 @@ export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
     @Get(':userId')
-    async getUser(@Param('userId') userId: string): Promise<AdminGetUserResponseDto> {
-        return this.adminService.getUser(userId);
+    async getUser(
+        @Param('userId') userId: string,
+        @CurrentAuthorizerContext() ctx: AuthorizerContext,
+    ): Promise<AdminGetUserResponseDto> {
+        return this.adminService.getUser(userId, ctx);
     }
 
     @Post(':userId/suspend')

@@ -41,10 +41,13 @@ const context = {
 } as import('aws-lambda').Context;
 
 const baseEvent = {
+    headers: {
+        Authorization: 'Bearer test-webhook-token',
+    },
     requestContext: {
         requestId: 'request-id',
     },
-} as Partial<import('aws-lambda').APIGatewayProxyEvent>;
+} as unknown as import('aws-lambda').APIGatewayProxyEvent;
 
 const invokePostRegistration = async (
     handler: import('aws-lambda').Handler<
@@ -201,5 +204,20 @@ describe('post-registration handler', () => {
         expect(envelope.requestId).toBe('request-id');
         expect(envelope.cause?.message).toContain('Missing post-registration payload body');
         expect(mocks.emitMetric).toHaveBeenCalledWith('PostRegistrationErrors', 1, { stage: 'test' });
+    });
+
+    it('UTS-010-A2 [MOD-010/missing-auth]: returns 401 when Authorization header is absent', async () => {
+        const { handler } = await import('../handlers/post-registration.js');
+
+        const result = await invokePostRegistration(handler, {
+            ...baseEvent,
+            headers: {},
+            body: JSON.stringify({ user_id: 'auth0|abc', email: 'user@test.dev' }),
+        } as import('aws-lambda').APIGatewayProxyEvent);
+
+        expect(result.statusCode).toBe(401);
+        const envelope = JSON.parse(result.body) as { code: string };
+        expect(envelope.code).toBe('POST_REGISTRATION_UNAUTHORIZED');
+        expect(mocks.ensureUserAccountProfile).not.toHaveBeenCalled();
     });
 });

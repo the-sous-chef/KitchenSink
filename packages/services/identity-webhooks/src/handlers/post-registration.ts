@@ -119,6 +119,23 @@ const toProvider = (
 /** @implements REQ-013 REQ-014 REQ-015 REQ-016 REQ-IF-008 REQ-CN-003 FR-013 FR-014 FR-015 FR-016 ARCH-010 ARCH-011 MOD-010 MOD-011 */
 const innerHandler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
     const requestId = resolveRequestId(context, event.requestContext.requestId);
+
+    const authHeader = event.headers?.['Authorization'] ?? event.headers?.['authorization'];
+
+    if (!authHeader) {
+        const envelope = buildErrorEnvelope(
+            'POST_REGISTRATION_UNAUTHORIZED',
+            'Missing Authorization header',
+            requestId,
+        );
+        logger.warn('post-registration missing auth header', { requestId });
+
+        return {
+            statusCode: 401,
+            body: JSON.stringify(envelope),
+        };
+    }
+
     const dbSecretArn = process.env.DB_SECRET_ARN;
     const auth0SecretArn = process.env.AUTH0_MANAGEMENT_SECRET_ARN;
 

@@ -25,6 +25,32 @@ vi.mock('pg', () => {
     return { default: { Pool: vi.fn(() => mockPool) } };
 });
 
+vi.mock('../../../identity-webhooks/dist/common/jwt.js', () => ({
+    verifyAuth0Jwt: vi.fn().mockResolvedValue({
+        payload: {
+            sub: 'auth0|test123',
+            aud: 'https://api.kitchensink.dev',
+        },
+    }),
+}));
+
+vi.mock('../../../identity-webhooks/dist/common/db.js', () => ({
+    ensureUserAccountProfile: vi.fn().mockResolvedValue({
+        userId: 'user-uuid-001',
+        created: true,
+    }),
+    lookupUserByIdAndAuth0Sub: vi.fn().mockResolvedValue(null),
+    listDbAuth0Subs: vi.fn().mockResolvedValue(new Set()),
+    softDeleteUserRecord: vi.fn().mockResolvedValue(undefined),
+    getUserStatusByAuth0Sub: vi.fn().mockResolvedValue({ status: 'active', userId: 'user-uuid-001' }),
+}));
+
+vi.mock('../../../identity-webhooks/dist/common/auth0.js', () => ({
+    updateUserMetadataUserId: vi.fn().mockResolvedValue(undefined),
+    deleteAuth0User: vi.fn().mockResolvedValue(undefined),
+    listAuth0Users: vi.fn().mockResolvedValue([]),
+}));
+
 type AnyHandler = (event: any, context: any) => Promise<any>;
 
 describe('T-074: E2E local API + authorizer + ECS-local service path', () => {
@@ -100,10 +126,9 @@ describe('T-074: E2E local API + authorizer + ECS-local service path', () => {
                     Authorization: `Bearer test-token`,
                 },
                 body: JSON.stringify({
-                    userId: 'auth0|newuser123',
+                    user_id: 'auth0|newuser123',
                     email: 'newuser@kitchensink.dev',
-                    displayName: 'New User',
-                    trigger: 'post-registration',
+                    name: 'New User',
                 }),
                 requestContext: {
                     requestId: `req-${Date.now()}`,
@@ -131,7 +156,7 @@ describe('T-074: E2E local API + authorizer + ECS-local service path', () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: 'auth0|newuser123',
+                    user_id: 'auth0|newuser123',
                     email: 'newuser@kitchensink.dev',
                 }),
                 requestContext: {
@@ -153,17 +178,18 @@ describe('T-074: E2E local API + authorizer + ECS-local service path', () => {
     describe('protected profile webhook (authorizer-protected route)', () => {
         it('accepts request with valid JWT and userId claim', async () => {
             const mod = (await import('../../../identity-webhooks/dist/handlers/post-registration.js')) as any;
-            const protectedProfileWebhook: AnyHandler = mod.protectedProfileWebhook ?? mod.handler ?? mod.default;
+            const postRegistration: AnyHandler = mod.handler ?? mod.default;
             const mockEvent = {
                 httpMethod: 'POST',
-                path: '/webhooks/protected/profile',
+                path: '/webhooks/post-registration',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer valid.jwt.token`,
                 },
                 body: JSON.stringify({
-                    userId: 'user-123',
-                    profileUpdates: { bio: 'Updated bio' },
+                    user_id: 'auth0|user-123',
+                    email: 'user123@kitchensink.dev',
+                    name: 'User 123',
                 }),
                 requestContext: {
                     requestId: `req-${Date.now()}`,
@@ -172,22 +198,22 @@ describe('T-074: E2E local API + authorizer + ECS-local service path', () => {
             };
             const mockContext = {
                 getRemainingTimeInMillis: () => 25000,
-                functionName: 'protectedProfileWebhook',
-                invokedFunctionArn: `arn:aws:lambda:us-east-1:000000000000:function:protectedProfileWebhook`,
+                functionName: 'postRegistration',
+                invokedFunctionArn: `arn:aws:lambda:us-east-1:000000000000:function:postRegistration`,
             } as unknown as import('aws-lambda').Context;
 
-            const result = await protectedProfileWebhook(mockEvent, mockContext);
+            const result = await postRegistration(mockEvent, mockContext);
             expect(result.statusCode).toBeGreaterThanOrEqual(200);
         });
 
         it('returns 401 for missing Authorization on protected route', async () => {
             const mod = (await import('../../../identity-webhooks/dist/handlers/post-registration.js')) as any;
-            const protectedProfileWebhook: AnyHandler = mod.protectedProfileWebhook ?? mod.handler ?? mod.default;
+            const postRegistration: AnyHandler = mod.handler ?? mod.default;
             const mockEvent = {
                 httpMethod: 'POST',
                 path: '/webhooks/protected/profile',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: 'user-123', profileUpdates: { bio: 'test' } }),
+                body: JSON.stringify({ user_id: 'auth0|user-123', email: 'user@example.com' }),
                 requestContext: {
                     requestId: `req-${Date.now()}`,
                     stage: 'local',
@@ -195,11 +221,11 @@ describe('T-074: E2E local API + authorizer + ECS-local service path', () => {
             };
             const mockContext = {
                 getRemainingTimeInMillis: () => 25000,
-                functionName: 'protectedProfileWebhook',
-                invokedFunctionArn: `arn:aws:lambda:us-east-1:000000000000:function:protectedProfileWebhook`,
+                functionName: 'postRegistration',
+                invokedFunctionArn: `arn:aws:lambda:us-east-1:000000000000:function:postRegistration`,
             } as unknown as import('aws-lambda').Context;
 
-            const result = await protectedProfileWebhook(mockEvent, mockContext);
+            const result = await postRegistration(mockEvent, mockContext);
             expect(result.statusCode).toBe(401);
         });
     });

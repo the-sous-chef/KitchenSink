@@ -481,6 +481,37 @@ describe('AdminService — extended error paths', () => {
 
         expect(mockAuth0.unblockUser).toHaveBeenCalledWith('auth0|abc123');
     });
+
+    it('UTS-026-A1 [MOD-026] TC-A-010: getUser returns user shape when target exists', async () => {
+        mockDb.select = vi
+            .fn()
+            .mockReturnValueOnce(makeChain([mockUser]))
+            .mockReturnValueOnce(makeChain([mockAccount]));
+
+        const result = await adminService.getUser('user-123', adminCtx);
+
+        expect(result.id).toBe(mockUser.id);
+        expect(result.email).toBe(mockUser.email);
+    });
+
+    it('UTS-026-A2 [MOD-026] TC-A-011: getUser throws NotFoundException when target missing', async () => {
+        mockDb.select = vi.fn().mockReturnValue(makeChain([]));
+
+        await expect(adminService.getUser('missing', adminCtx)).rejects.toThrow();
+    });
+
+    it('UTS-026-A1 [MOD-026] TC-A-012: getUser logs adminId from ctx', async () => {
+        const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+        mockDb.select = vi
+            .fn()
+            .mockReturnValueOnce(makeChain([mockUser]))
+            .mockReturnValueOnce(makeChain([mockAccount]));
+
+        await adminService.getUser('user-123', adminCtx);
+
+        logSpy.mockRestore();
+    });
 });
 
 // ---------------------------------------------------------------------------

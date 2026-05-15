@@ -16,7 +16,7 @@ export class AdminService {
         private readonly auth0: Auth0Service,
     ) {}
 
-    async getUser(targetUserId: string): Promise<AdminGetUserResponseDto> {
+    async getUser(targetUserId: string, adminCtx: AuthorizerContext): Promise<AdminGetUserResponseDto> {
         const [user] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
 
         if (!user) {
@@ -24,6 +24,8 @@ export class AdminService {
         }
 
         const [account] = await this.db.select().from(accounts).where(eq(accounts.userId, targetUserId)).limit(1);
+
+        this.logger.log('admin getUser', { adminId: adminCtx.userId, targetUserId });
 
         return {
             id: user.id,
