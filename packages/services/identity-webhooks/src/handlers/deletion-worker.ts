@@ -29,6 +29,20 @@ const parseDeletionMessage = (record: SQSRecord): UserDeletionQueueMessage => {
 };
 
 /** @implements REQ-025 REQ-026 REQ-IF-005 REQ-CN-001 FR-025 FR-026 ARCH-017 MOD-017 */
+const isValidDeletionMessage = (message: UserDeletionQueueMessage): boolean => {
+    return (
+        typeof message.userId === 'string' &&
+        message.userId.length > 0 &&
+        typeof message.auth0Sub === 'string' &&
+        message.auth0Sub.length > 0 &&
+        typeof message.correlationId === 'string' &&
+        message.correlationId.length > 0 &&
+        typeof message.requestedAt === 'string' &&
+        message.requestedAt.length > 0
+    );
+};
+
+/** @implements REQ-025 REQ-026 REQ-IF-005 REQ-CN-001 FR-025 FR-026 ARCH-017 MOD-017 */
 const getApproximateReceiveCount = (record: SQSRecord): number => {
     const raw = record.attributes.ApproximateReceiveCount;
     const parsed = Number(raw);
@@ -64,6 +78,22 @@ const processRecord = async (
     const stage = process.env.STAGE ?? 'dev';
 
     stats.processed += 1;
+
+    if (!isValidDeletionMessage(message)) {
+        const envelope = buildErrorEnvelope(
+            'DELETION_WORKER_INVALID_MESSAGE',
+            'Deletion queue message is missing required contract fields',
+            requestId,
+            {
+                messageId: record.messageId,
+                receiveCount,
+                message,
+            },
+        );
+        logger.error('deletion-worker invalid message', { ...envelope });
+        emitMetric('DeletionWorkerInvalidMessage', 1, { stage });
+        throw new Error(JSON.stringify(envelope));
+    }
 
     const persisted = await lookupUserByIdAndAuth0Sub(dbSecretArn, message.userId as UserId, message.auth0Sub);
 

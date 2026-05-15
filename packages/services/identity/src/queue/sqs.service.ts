@@ -1,5 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { randomUUID } from 'crypto';
+import type { UserDeletionQueueMessage } from '@kitchensink/auth-types';
 
 export const SQS_CLIENT = 'SQS_CLIENT';
 
@@ -9,7 +11,11 @@ export class SqsService {
 
     constructor(@Inject(SQS_CLIENT) private readonly sqs: SQSClient) {}
 
-    async enqueueDeletion(auth0Id: string, userId: string, failureReason: string): Promise<void> {
+    async enqueueDeletion(
+        auth0Sub: string,
+        userId: string,
+        reason: UserDeletionQueueMessage['reason'] = 'user_request',
+    ): Promise<void> {
         const queueUrl = process.env.DELETION_QUEUE_URL;
 
         if (!queueUrl) {
@@ -18,11 +24,13 @@ export class SqsService {
             return;
         }
 
-        const message = {
-            auth0Id,
-            userId,
-            enqueuedAt: new Date().toISOString(),
-            failureReason,
+        const message: UserDeletionQueueMessage = {
+            userId: userId as UserDeletionQueueMessage['userId'],
+            auth0Sub,
+            requestedAt: new Date().toISOString(),
+            correlationId: randomUUID(),
+            reason,
+            source: 'identity-service',
         };
 
         await this.sqs.send(
@@ -32,6 +40,6 @@ export class SqsService {
             }),
         );
 
-        this.logger.log('enqueued deletion message', JSON.stringify({ auth0Id, userId }));
+        this.logger.log('enqueued deletion message', JSON.stringify({ auth0Sub, userId }));
     }
 }

@@ -25,16 +25,16 @@ const adminCtx = {
     userId: 'admin-1',
     auth0Sub: 'auth0|admin',
     email: 'admin@example.com',
-    status: 'active',
-    isImpersonating: 'false',
+    status: 'active' as const,
+    isImpersonating: false,
 };
 
 const userCtx = {
     userId: 'user-123',
     auth0Sub: 'auth0|abc123',
     email: 'test@example.com',
-    status: 'active',
-    isImpersonating: 'false',
+    status: 'active' as const,
+    isImpersonating: false,
 };
 
 const mockUser = {
@@ -227,5 +227,103 @@ describe('AdminService', () => {
         mockDb.select = vi.fn().mockReturnValue(makeChain([]));
 
         await expect(adminService.suspendUser('missing', adminCtx)).rejects.toThrow();
+    });
+});
+
+describe('AdminService.getUser', () => {
+    let adminService: any;
+    let mockDb: any;
+    let mockAuth0: any;
+
+    const mockAccount = {
+        id: 'a-1',
+        userId: 'user-123',
+        provider: 'auth0',
+        providerAccountId: 'auth0|abc123',
+        subscriptionTier: 'premium',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
+
+    beforeEach(async () => {
+        mockDb = {
+            select: vi.fn(),
+        };
+
+        mockAuth0 = {};
+
+        const { AdminService } = await import('../src/admin/admin.service.js');
+
+        adminService = new AdminService(mockDb, mockAuth0);
+    });
+
+    it('getUser returns full user + subscription tier', async () => {
+        mockDb.select = vi
+            .fn()
+            .mockReturnValueOnce(makeChain([mockUser]))
+            .mockReturnValueOnce(makeChain([mockAccount]));
+
+        const result = await adminService.getUser('user-123');
+
+        expect(result.id).toBe('user-123');
+        expect(result.email).toBe('test@example.com');
+        expect(result.status).toBe('active');
+        expect(result.subscriptionTier).toBe('premium');
+        expect(result.deletedAt).toBeNull();
+    });
+
+    it('getUser defaults subscriptionTier to free when no account', async () => {
+        mockDb.select = vi
+            .fn()
+            .mockReturnValueOnce(makeChain([mockUser]))
+            .mockReturnValueOnce(makeChain([]));
+
+        const result = await adminService.getUser('user-123');
+
+        expect(result.subscriptionTier).toBe('free');
+    });
+
+    it('getUser throws NotFoundException when user missing', async () => {
+        mockDb.select = vi.fn().mockReturnValue(makeChain([]));
+
+        await expect(adminService.getUser('missing')).rejects.toThrow();
+    });
+});
+
+describe('SqsService.enqueueDeletion', () => {
+    it('enqueues a UserDeletionQueueMessage-shaped payload', async () => {
+        const mockSend = vi.fn().mockResolvedValue({});
+        const { SqsService } = await import('../src/queue/sqs.service.js');
+        const { SendMessageCommand } = await import('@aws-sdk/client-sqs');
+        const svc = new SqsService({ send: mockSend } as any);
+
+        process.env.DELETION_QUEUE_URL = 'https://sqs.example.com/queue';
+
+        await svc.enqueueDeletion('auth0|abc', 'user-123', 'user_request');
+
+        expect(mockSend).toHaveBeenCalledOnce();
+        const constructorArg = vi.mocked(SendMessageCommand).mock.calls[0][0];
+        const body = JSON.parse(constructorArg.MessageBody as string);
+
+        expect(body.auth0Sub).toBe('auth0|abc');
+        expect(body.userId).toBe('user-123');
+        expect(body.reason).toBe('user_request');
+        expect(body.source).toBe('identity-service');
+        expect(body.correlationId).toBeDefined();
+        expect(body.requestedAt).toBeDefined();
+
+        delete process.env.DELETION_QUEUE_URL;
+    });
+
+    it('skips enqueue when DELETION_QUEUE_URL is not set', async () => {
+        const mockSend = vi.fn();
+        const { SqsService } = await import('../src/queue/sqs.service.js');
+        const svc = new SqsService({ send: mockSend } as any);
+
+        delete process.env.DELETION_QUEUE_URL;
+
+        await svc.enqueueDeletion('auth0|abc', 'user-123');
+
+        expect(mockSend).not.toHaveBeenCalled();
     });
 });

@@ -118,7 +118,8 @@ export class UsersService {
         try {
             await this.auth0.deleteUser(auth0Sub);
         } catch (err) {
-            await this.sqs.enqueueDeletion(auth0Sub, userId, String(err));
+            this.logger.warn('auth0 delete failed, enqueuing for async deletion', { userId, error: String(err) });
+            await this.sqs.enqueueDeletion(auth0Sub, userId, 'user_request');
         }
 
         return {

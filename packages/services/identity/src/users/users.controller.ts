@@ -7,8 +7,10 @@ import {
     DeleteUserMeResponseDto,
     PasswordResetResponseDto,
     MfaEnrollResponseDto,
+    MfaUnenrollBodyDto,
     MfaUnenrollResponseDto,
     SocialLinkResponseDto,
+    SocialAccountBodyDto,
 } from './dto/user.dto.js';
 
 @Controller('v1/users')
@@ -47,7 +49,7 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     async unenrollMFA(
         @CurrentAuthorizerContext() _ctx: AuthorizerContext,
-        @Body() body: { enrollmentId: string },
+        @Body() body: MfaUnenrollBodyDto,
     ): Promise<MfaUnenrollResponseDto> {
         return this.usersService.unenrollMFA(body.enrollmentId);
     }
@@ -56,7 +58,7 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     async linkSocialAccount(
         @CurrentAuthorizerContext() ctx: AuthorizerContext,
-        @Body() body: { provider: string; accountId: string },
+        @Body() body: SocialAccountBodyDto,
     ): Promise<SocialLinkResponseDto> {
         return this.usersService.linkSocialAccount(ctx.auth0Sub, body.provider, body.accountId);
     }
@@ -65,7 +67,7 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     async unlinkSocialAccount(
         @CurrentAuthorizerContext() ctx: AuthorizerContext,
-        @Body() body: { provider: string; accountId: string },
+        @Body() body: SocialAccountBodyDto,
     ): Promise<SocialLinkResponseDto> {
         return this.usersService.unlinkSocialAccount(ctx.auth0Sub, body.provider, body.accountId);
     }

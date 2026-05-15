@@ -1,8 +1,9 @@
-import { Controller, Post, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator';
 import type { AuthorizerContext } from '../auth/decorators/current-user.decorator';
 import {
+    AdminGetUserResponseDto,
     AdminSuspendUserResponseDto,
     AdminUnsuspendUserResponseDto,
     ImpersonationStartResponseDto,
@@ -12,6 +13,11 @@ import {
 @Controller('v1/admin/users')
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
+
+    @Get(':userId')
+    async getUser(@Param('userId') userId: string): Promise<AdminGetUserResponseDto> {
+        return this.adminService.getUser(userId);
+    }
 
     @Post(':userId/suspend')
     @HttpCode(HttpStatus.OK)

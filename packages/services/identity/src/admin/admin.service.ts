@@ -2,9 +2,10 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 
-import { users, DrizzleProvider } from '../database/index';
+import { users, accounts, DrizzleProvider } from '../database/index';
 import { Auth0Service } from '../auth/auth0.service';
 import { AuthorizerContext } from '../auth/decorators/current-user.decorator';
+import type { AdminGetUserResponseDto } from './dto/admin.dto';
 
 @Injectable()
 export class AdminService {
@@ -14,6 +15,27 @@ export class AdminService {
         @Inject(DrizzleProvider) private readonly db: NodePgDatabase,
         private readonly auth0: Auth0Service,
     ) {}
+
+    async getUser(targetUserId: string): Promise<AdminGetUserResponseDto> {
+        const [user] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+
+        if (!user) {
+            throw new NotFoundException(`User ${targetUserId} not found`);
+        }
+
+        const [account] = await this.db.select().from(accounts).where(eq(accounts.userId, targetUserId)).limit(1);
+
+        return {
+            id: user.id,
+            auth0Sub: user.auth0Sub,
+            email: user.email,
+            status: user.status,
+            createdAt: user.createdAt.toISOString(),
+            updatedAt: user.updatedAt.toISOString(),
+            deletedAt: user.deletedAt ? user.deletedAt.toISOString() : null,
+            subscriptionTier: (account?.subscriptionTier as 'free' | 'premium') ?? 'free',
+        };
+    }
 
     async suspendUser(
         targetUserId: string,

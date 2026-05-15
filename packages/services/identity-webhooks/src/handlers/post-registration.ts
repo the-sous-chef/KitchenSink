@@ -6,6 +6,7 @@ import { updateUserMetadataUserId } from '../common/auth0.js';
 import { ensureUserAccountProfile } from '../common/db.js';
 import { buildErrorEnvelope, getErrorCause, resolveRequestId } from '../common/error-envelope.js';
 import { emitMetric, logger, withObservability } from '../common/observability.js';
+import { getExponentialDelayMs, withExponentialRetry } from '../common/retry.js';
 
 /**
  * Existing invoker: Auth0 post-registration Action/Trigger chain routed to `functions.postRegistration` (`/webhooks/post-registration`).
@@ -38,13 +39,6 @@ const parsePayload = (event: APIGatewayProxyEvent): PostRegistrationWebhookBody 
 };
 
 /** @implements REQ-013 REQ-014 REQ-015 REQ-016 REQ-IF-008 REQ-CN-003 FR-013 FR-014 FR-015 FR-016 ARCH-010 ARCH-011 MOD-010 MOD-011 */
-const sleep = async (ms: number): Promise<void> => {
-    await new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
-};
-
-/** @implements REQ-013 REQ-014 REQ-015 REQ-016 REQ-IF-008 REQ-CN-003 FR-013 FR-014 FR-015 FR-016 ARCH-010 ARCH-011 MOD-010 MOD-011 */
 const isTransientDbError = (error: unknown): boolean => {
     if (!(error instanceof Error)) {
         return false;
@@ -71,12 +65,24 @@ const executeCreateWithRetry = async (params: {
     providerAccountId: string;
     preferredUserId: UserId | null;
 }): Promise<{ userId: UserId; created: boolean }> => {
-    const maxAttempts = 3;
-    let lastError: unknown;
+    const stage = process.env.STAGE ?? 'dev';
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-        try {
-            return await ensureUserAccountProfile({
+    return withExponentialRetry({
+        maxAttempts: 3,
+        baseDelayMs: 200,
+        capDelayMs: 2_000,
+        run: async (attempt) => {
+            if (attempt > 1) {
+                const delayMs = getExponentialDelayMs(attempt - 1, 200, 2_000);
+                emitMetric('PostRegistrationRetry', 1, { stage });
+                logger.warn('post-registration retry', {
+                    auth0Sub: params.auth0Sub,
+                    attempt,
+                    backoffMs: delayMs,
+                });
+            }
+
+            return ensureUserAccountProfile({
                 dbSecretArn: params.dbSecretArn,
                 auth0Sub: params.auth0Sub,
                 email: params.email,
@@ -86,19 +92,9 @@ const executeCreateWithRetry = async (params: {
                 providerAccountId: params.providerAccountId,
                 preferredUserId: params.preferredUserId,
             });
-        } catch (error) {
-            lastError = error;
-
-            if (attempt >= maxAttempts || !isTransientDbError(error)) {
-                throw error;
-            }
-
-            const delayMs = Math.min(2_000, 200 * 2 ** (attempt - 1));
-            await sleep(delayMs);
-        }
-    }
-
-    throw lastError;
+        },
+        shouldRetry: isTransientDbError,
+    });
 };
 
 /** @implements REQ-013 REQ-014 REQ-015 REQ-016 REQ-IF-008 REQ-CN-003 FR-013 FR-014 FR-015 FR-016 ARCH-010 ARCH-011 MOD-010 MOD-011 */
@@ -148,8 +144,15 @@ const innerHandler = async (event: APIGatewayProxyEvent, context: Context): Prom
         }
 
         const providerMapping = toProvider(payload.user_id, payload.identities);
-        const preferredUserId = (payload.app_metadata?.userId ?? null) as UserId | null;
+        const preferredUserId: UserId | null = null;
         const displayName = payload.name?.trim() || payload.email;
+
+        if (payload.app_metadata?.userId) {
+            logger.warn('post-registration ignored unverified preferred userId from payload', {
+                requestId,
+                auth0Sub: payload.user_id,
+            });
+        }
 
         const upserted = await executeCreateWithRetry({
             dbSecretArn,

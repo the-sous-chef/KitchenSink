@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength, IsUrl, IsIn } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsUrl, ValidateIf } from 'class-validator';
 import type { UserStatus } from '@kitchensink/auth-types';
 
 export class GetUserMeResponseDto {
@@ -32,6 +32,7 @@ export class PatchUserMeBodyDto {
     displayName?: string;
 
     @IsOptional()
+    @ValidateIf((o: PatchUserMeBodyDto) => o.avatarUrl !== null)
     @IsUrl()
     avatarUrl?: string | null;
 }
@@ -44,7 +45,6 @@ export class DeleteUserMeResponseDto {
 
 export class PasswordResetRequestDto {
     @IsString()
-    @IsIn(['email'])
     readonly method!: 'email';
 }
 
@@ -57,6 +57,11 @@ export class MfaEnrollResponseDto {
     readonly enrollmentUri!: string;
 }
 
+export class MfaUnenrollBodyDto {
+    @IsString()
+    enrollmentId!: string;
+}
+
 export class MfaUnenrollResponseDto {
     readonly message!: string;
 }
@@ -65,28 +70,10 @@ export class SocialLinkResponseDto {
     readonly message!: string;
 }
 
-export class AdminSuspendUserResponseDto {
-    readonly userId!: string;
-    readonly status!: 'suspended';
-    readonly suspendedAt!: string;
-}
+export class SocialAccountBodyDto {
+    @IsString()
+    provider!: string;
 
-export class AdminUnsuspendUserResponseDto {
-    readonly userId!: string;
-    readonly status!: 'active';
-    readonly unsuspendedAt!: string;
-}
-
-export class ImpersonationStartResponseDto {
-    readonly impersonatorId!: string;
-    readonly impersonatedUserId!: string;
-    readonly sessionId!: string;
-    readonly startedAt!: string;
-}
-
-export class ImpersonationStopResponseDto {
-    readonly impersonatorId!: string;
-    readonly impersonatedUserId!: string;
-    readonly stoppedAt!: string;
-    readonly message!: string;
+    @IsString()
+    accountId!: string;
 }
