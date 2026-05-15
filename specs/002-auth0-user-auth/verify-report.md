@@ -70,4 +70,42 @@ Replacements:
 
 ## Status
 
-**Verification complete.** No critical drift remaining. The single open warning (W2) is acknowledged as low-impact and intentionally deferred.
+**Sync-verify pass complete.** No critical path drift remaining. The single open warning (W2) is acknowledged as low-impact and intentionally deferred.
+
+---
+
+## Release Audit Gate (BLOCKED)
+
+> **Updated 2026-05-15 (T21)** — This section records the release audit status after T20 regeneration.
+
+The sync-verify pass above covers artifact path consistency and test/e2e split documentation. It does **not** constitute a release gate.
+
+The V-Model release audit (`v-model/release-audit-report.md`, regenerated 2026-05-15 by T20) reports:
+
+```
+226 test scenarios: 27 passed, 0 failed, 0 skipped, 199 untested
+Compliance Status: BLOCKED — 199 test scenarios untested
+```
+
+**Implementation evidence exists** for T1-T20 across:
+
+- `packages/apps/sous-chef/mobile` (PKCE, JWT trust, secure storage)
+- `packages/apps/sous-chef/web` (session hardening, returnTo normalization, refresh endpoint)
+- `packages/services/identity` (API alignment and admin/user endpoints)
+- `packages/infra/identity` (Lambda authorizer, CDK stack, CI workflows)
+
+**Why verify is still BLOCKED:**
+
+- Only 27 of 226 V-Model scenarios have machine-readable test results ingested (Matrix D unit scenarios from T13-T16).
+- T17 E2E tests (14 tests) are unmatched because test names use descriptive `T-074`/`T-075` labels rather than V-Model scenario IDs.
+- Matrix A/B/C (validation, system-test, integration-test) scenarios have no ingested results.
+- T17 issues remain open: E2E env guards, E2E not wired in CI, authorizer allow-path JWT signature, post-registration 500 instead of 401.
+
+**Required to unblock:**
+
+1. Fix T17 issues documented in `.sisyphus/notepads/002-auth0-remediation/issues.md`.
+2. Add V-Model scenario IDs to E2E/system/integration test names.
+3. Re-ingest results and rebuild release audit via `build-audit-report.sh`.
+4. Confirm 0 untested required scenarios (or all remaining formally waived with waiver IDs).
+
+**Do NOT mark verify or test-run complete until the above steps are done.**
