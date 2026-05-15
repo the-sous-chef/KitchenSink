@@ -20,6 +20,15 @@
         },
         "format:check": {
             "outputs": []
+        },
+        "dev:local": {
+            "cache": false,
+            "persistent": false,
+            "outputs": []
+        },
+        "synth": {
+            "dependsOn": ["^build"],
+            "outputs": []
         }
     }
 }

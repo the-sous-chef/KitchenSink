@@ -1,0 +1,21 @@
+{
+    "version": "53.0.0",
+    "files": {
+        "1dc7abdda0ff7f6b4122bdc631bbdbd63b63ddc7b7609a4e68d1cf7fd04eefba": {
+            "displayName": "kitchensink-identity-network-dev Template",
+            "source": {
+                "path": "IdentityNetwork-dev.template.json",
+                "packaging": "file"
+            },
+            "destinations": {
+                "040663841500-us-east-1-5c9f4801": {
+                    "bucketName": "cdk-hnb659fds-assets-040663841500-us-east-1",
+                    "objectKey": "1dc7abdda0ff7f6b4122bdc631bbdbd63b63ddc7b7609a4e68d1cf7fd04eefba.json",
+                    "region": "us-east-1",
+                    "assumeRoleArn": "arn:${AWS::Partition}:iam::040663841500:role/cdk-hnb659fds-file-publishing-role-040663841500-us-east-1"
+                }
+            }
+        }
+    },
+    "dockerImages": {}
+}
