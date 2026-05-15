@@ -22,7 +22,7 @@ describe('POST /api/session/refresh', () => {
         vi.clearAllMocks();
     });
 
-    it('returns status ok with expiresAt when session is valid and token refreshes', async () => {
+    it('UTS-008-A1 [MOD-008]: returns status ok with expiresAt when session is valid and token refreshes', async () => {
         mocks.getSession.mockResolvedValue({ user: { sub: 'auth0|1' }, tokenSet: {} });
         mocks.getAccessToken.mockResolvedValue({ token: 'new_token', expiresAt: 9999 });
 
@@ -35,7 +35,7 @@ describe('POST /api/session/refresh', () => {
         expect(body.expiresAt).toBe(9999);
     });
 
-    it('returns 401 with status no_session when no session exists', async () => {
+    it('UTS-008-A2 [MOD-008/no-session]: returns 401 with status no_session when no session exists', async () => {
         mocks.getSession.mockResolvedValue(null);
 
         const { POST } = await import('@/app/api/session/refresh/route');
@@ -47,7 +47,7 @@ describe('POST /api/session/refresh', () => {
         expect(mocks.getAccessToken).not.toHaveBeenCalled();
     });
 
-    it('returns 401 with status expired when token refresh fails', async () => {
+    it('UTS-008-A2 [MOD-008/expired]: returns 401 with status expired when token refresh fails', async () => {
         mocks.getSession.mockResolvedValue({ user: { sub: 'auth0|1' }, tokenSet: {} });
         mocks.getAccessToken.mockRejectedValue(new Error('token expired'));
 
@@ -59,7 +59,7 @@ describe('POST /api/session/refresh', () => {
         expect(body.status).toBe('expired');
     });
 
-    it('does not leak token value into response body', async () => {
+    it('UTS-008-A1 [MOD-008/no-leak]: does not leak token value into response body', async () => {
         mocks.getSession.mockResolvedValue({ user: { sub: 'auth0|1' }, tokenSet: {} });
         mocks.getAccessToken.mockResolvedValue({ token: 'secret_access_token', expiresAt: 9999 });
 

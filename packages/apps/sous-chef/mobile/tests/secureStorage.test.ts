@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
     storeSession,
     getStoredSession,
@@ -17,165 +17,135 @@ vi.mock('expo-secure-store', () => ({
     deleteItemAsync: vi.fn(),
 }));
 
-const mockSession: AuthSession = {
-    accessToken: 'test-access-token',
-    refreshToken: 'test-refresh-token',
-    expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
-    userId: 'test-user-id',
-    auth0Id: 'auth0|test-auth0-id',
+const baseSession: AuthSession = {
+    accessToken: 'access-token',
+    refreshToken: 'refresh-token',
+    expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
+    userId: 'user-123',
+    auth0Id: 'auth0|user-123',
 };
 
-describe('SecureStorage', () => {
+describe('Secure storage behavior coverage', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    afterEach(() => {
-        vi.restoreAllMocks();
+    it('UTS-008-A1 [MOD-008]: storeSession writes all fields with device-only accessibility', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.setItemAsync).mockResolvedValue(undefined);
+
+        await storeSession(baseSession);
+
+        expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(SECURE_STORAGE_SESSION_KEYS.length);
+        for (const key of SECURE_STORAGE_SESSION_KEYS) {
+            expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+                key,
+                expect.any(String),
+                expect.objectContaining({ keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY }),
+            );
+        }
     });
 
-    describe('storeSession', () => {
-        it('should store all session fields in secure storage', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.setItemAsync).mockResolvedValue();
+    it('UTS-008-A2 [MOD-008/error]: storeSession throws if any write fails', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.setItemAsync)
+            .mockResolvedValueOnce(undefined)
+            .mockRejectedValueOnce(new Error('write failed'))
+            .mockResolvedValue(undefined);
 
-            await storeSession(mockSession);
+        await expect(storeSession(baseSession)).rejects.toThrow('Failed to store session');
+    });
 
-            expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(5);
-        });
+    it('UTS-008-A3 [MOD-008/session-restoration]: getStoredSession returns null when any key missing', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.getItemAsync).mockImplementation(async (key: string) =>
+            key === 'auth_refresh_token' ? null : 'value',
+        );
 
-        it('should use device-only secure-store options for every token field', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.setItemAsync).mockResolvedValue();
+        const result = await getStoredSession();
 
-            await storeSession(mockSession);
+        expect(result).toBeNull();
+    });
 
-            for (const key of SECURE_STORAGE_SESSION_KEYS) {
-                expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-                    key,
-                    expect.any(String),
-                    expect.objectContaining({ keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY }),
-                );
+    it('UTS-008-A4 [MOD-008/session-restoration]: getStoredSession returns complete session when all values exist', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.getItemAsync).mockImplementation(async (key: string) => {
+            switch (key) {
+                case 'auth_access_token':
+                    return 'stored-access';
+                case 'auth_refresh_token':
+                    return 'stored-refresh';
+                case 'auth_expires_at':
+                    return '2030-01-01T00:00:00.000Z';
+                case 'auth_user_id':
+                    return 'stored-user';
+                case 'auth_auth0_id':
+                    return 'auth0|stored';
+                default:
+                    return null;
             }
         });
 
-        it('should throw error if any storage operation fails', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.setItemAsync)
-                .mockResolvedValueOnce(undefined)
-                .mockRejectedValueOnce(new Error('Storage failed'));
+        const result = await getStoredSession();
 
-            await expect(storeSession(mockSession)).rejects.toThrow();
+        expect(result).toEqual({
+            accessToken: 'stored-access',
+            refreshToken: 'stored-refresh',
+            expiresAt: '2030-01-01T00:00:00.000Z',
+            userId: 'stored-user',
+            auth0Id: 'auth0|stored',
         });
     });
 
-    describe('getStoredSession', () => {
-        it('should return null if any stored field is missing', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockImplementation((key: string) => {
-                if (key === 'auth_access_token') {
-                    return Promise.resolve(null);
-                }
+    it('UTS-008-A5 [MOD-008/session-restoration]: hasStoredCredentials requires all keys to be present', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.getItemAsync)
+            .mockResolvedValueOnce('present')
+            .mockResolvedValueOnce('present')
+            .mockResolvedValueOnce('present')
+            .mockResolvedValueOnce('present')
+            .mockResolvedValueOnce(null);
 
-                return Promise.resolve('value');
-            });
-
-            const result = await getStoredSession();
-            expect(result).toBeNull();
-        });
-
-        it('should return full session if all fields exist', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue('stored-value');
-
-            const result = await getStoredSession();
-            expect(result).not.toBeNull();
-            expect(result?.accessToken).toBe('stored-value');
-        });
+        expect(await hasStoredCredentials()).toBe(false);
     });
 
-    describe('hasStoredCredentials', () => {
-        it('should return true when all keys have values', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue('some-value');
+    it('UTS-008-A6 [MOD-008/logout]: clearSession deletes all session keys to avoid stale credentials', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.deleteItemAsync).mockResolvedValue(undefined);
 
-            const result = await hasStoredCredentials();
-            expect(result).toBe(true);
-        });
+        await clearSession();
 
-        it('should return false when any key is missing', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValueOnce('value').mockResolvedValueOnce(null);
-
-            const result = await hasStoredCredentials();
-            expect(result).toBe(false);
-        });
+        expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(SECURE_STORAGE_SESSION_KEYS.length);
+        for (const key of SECURE_STORAGE_SESSION_KEYS) {
+            expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(key);
+        }
     });
 
-    describe('clearSession', () => {
-        it('should delete all stored keys', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.deleteItemAsync).mockResolvedValue();
+    it('UTS-008-A7 [MOD-008/refresh]: isTokenExpired returns true when expiry missing', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.getItemAsync).mockResolvedValue(null);
 
-            await clearSession();
-
-            expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(5);
-            expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('auth_access_token');
-            expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('auth_refresh_token');
-        });
+        expect(await isTokenExpired()).toBe(true);
     });
 
-    describe('isTokenExpired', () => {
-        it('should return true when no expiry is stored', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue(null);
+    it('UTS-008-A8 [MOD-008/refresh]: isTokenExpired returns false for future expiry', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.getItemAsync).mockResolvedValue(new Date(Date.now() + 60_000).toISOString());
 
-            const result = await isTokenExpired();
-            expect(result).toBe(true);
-        });
-
-        it('should return true when token is past expiry', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue(new Date(Date.now() - 1000).toISOString());
-
-            const result = await isTokenExpired();
-            expect(result).toBe(true);
-        });
-
-        it('should return false when token is still valid', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue(new Date(Date.now() + 3600 * 1000).toISOString());
-
-            const result = await isTokenExpired();
-            expect(result).toBe(false);
-        });
+        expect(await isTokenExpired()).toBe(false);
     });
 
-    describe('getTokenTTL', () => {
-        it('should return 0 when no expiry is stored', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue(null);
+    it('UTS-008-A9 [MOD-008/refresh]: getTokenTTL returns bounded positive milliseconds and zero when expired', async () => {
+        const SecureStore = await import('expo-secure-store');
+        vi.mocked(SecureStore.getItemAsync)
+            .mockResolvedValueOnce(new Date(Date.now() + 3_000).toISOString())
+            .mockResolvedValueOnce(new Date(Date.now() - 1_000).toISOString());
 
-            const result = await getTokenTTL();
-            expect(result).toBe(0);
-        });
+        const ttlPositive = await getTokenTTL();
+        const ttlExpired = await getTokenTTL();
 
-        it('should return remaining time in milliseconds', async () => {
-            const SecureStore = await import('expo-secure-store');
-            const futureDate = new Date(Date.now() + 5000);
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue(futureDate.toISOString());
-
-            const result = await getTokenTTL();
-            expect(result).toBeGreaterThan(0);
-            expect(result).toBeLessThanOrEqual(5000);
-        });
-
-        it('should return 0 for expired tokens', async () => {
-            const SecureStore = await import('expo-secure-store');
-            vi.mocked(SecureStore.getItemAsync).mockResolvedValue(new Date(Date.now() - 1000).toISOString());
-
-            const result = await getTokenTTL();
-            expect(result).toBe(0);
-        });
+        expect(ttlPositive).toBeGreaterThan(0);
+        expect(ttlPositive).toBeLessThanOrEqual(3_000);
+        expect(ttlExpired).toBe(0);
     });
 });

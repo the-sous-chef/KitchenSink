@@ -93,7 +93,7 @@ describe('post-registration handler', () => {
         mocks.withExponentialRetry.mockImplementation(runRetryWithoutSleeping);
     });
 
-    it('ignores unverified app_metadata userId and retries transient DB failures', async () => {
+    it('UTS-010-A1 [MOD-010]: ignores unverified app_metadata userId and retries transient DB failures', async () => {
         const transient = Object.assign(new Error('connection terminated'), { code: '08006' });
         mocks.ensureUserAccountProfile.mockRejectedValueOnce(transient).mockResolvedValueOnce({
             userId: '00000000-0000-4000-8000-000000000001',
@@ -139,7 +139,7 @@ describe('post-registration handler', () => {
         );
     });
 
-    it('returns 500 when required env is missing', async () => {
+    it('UTS-010-A2 [MOD-010/missing-env]: returns 500 when required env is missing', async () => {
         delete process.env.DB_SECRET_ARN;
 
         const { handler } = await import('../handlers/post-registration.js');
@@ -156,7 +156,7 @@ describe('post-registration handler', () => {
         expect(mocks.ensureUserAccountProfile).not.toHaveBeenCalled();
     });
 
-    it('does not retry non-transient DB errors', async () => {
+    it('UTS-010-A2 [MOD-010/non-transient]: does not retry non-transient DB errors', async () => {
         const nonTransient = Object.assign(new Error('duplicate key value violates unique constraint'), {
             code: '23505',
         });
@@ -180,5 +180,26 @@ describe('post-registration handler', () => {
             expect.any(Number),
             expect.any(Object),
         );
+    });
+
+    it('UTS-010-A2 [MOD-010/missing-body]: returns structured error envelope when payload body is missing', async () => {
+        const { handler } = await import('../handlers/post-registration.js');
+
+        const result = await invokePostRegistration(handler, {
+            ...baseEvent,
+            body: null,
+        } as unknown as import('aws-lambda').APIGatewayProxyEvent);
+
+        expect(result.statusCode).toBe(500);
+        const envelope = JSON.parse(result.body) as {
+            code: string;
+            message: string;
+            requestId: string;
+            cause?: { message?: string };
+        };
+        expect(envelope.code).toBe('POST_REGISTRATION_SYNC_FAILED');
+        expect(envelope.requestId).toBe('request-id');
+        expect(envelope.cause?.message).toContain('Missing post-registration payload body');
+        expect(mocks.emitMetric).toHaveBeenCalledWith('PostRegistrationErrors', 1, { stage: 'test' });
     });
 });

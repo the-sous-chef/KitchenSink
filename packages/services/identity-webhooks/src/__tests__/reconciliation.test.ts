@@ -75,7 +75,7 @@ describe('reconciliation handler', () => {
         mocks.withExponentialRetry.mockImplementation(runRetryWithoutSleeping);
     });
 
-    it('repairs missing DB user and retries transient db errors deterministically', async () => {
+    it('UTS-012-A1 [MOD-012]: repairs missing DB user and retries transient db errors deterministically', async () => {
         mocks.listAuth0Users.mockResolvedValue([
             {
                 sub: 'auth0|existing',
@@ -123,7 +123,7 @@ describe('reconciliation handler', () => {
         expect(mocks.emitMetric).toHaveBeenCalledWith('ReconciliationRetry', 1, { stage: 'test' });
     });
 
-    it('tracks non-transient failures without retrying', async () => {
+    it('UTS-012-A2 [MOD-012/non-transient]: tracks non-transient failures without retrying', async () => {
         mocks.listAuth0Users.mockResolvedValue([
             {
                 sub: 'auth0|missing',
@@ -159,6 +159,31 @@ describe('reconciliation handler', () => {
             'ReconciliationRetry',
             expect.any(Number),
             expect.any(Object),
+        );
+    });
+
+    it('UTS-012-A2 [MOD-012/missing-env]: fails closed with structured envelope when required env is missing', async () => {
+        delete process.env.DB_SECRET_ARN;
+
+        const { handler } = await import('../handlers/reconciliation.js');
+
+        await expect(
+            handler(
+                {
+                    id: 'event-id',
+                } as import('aws-lambda').ScheduledEvent,
+                baseContext,
+                (() => undefined) as import('aws-lambda').Callback,
+            ),
+        ).rejects.toThrow(/RECONCILIATION_MISSING_ENV/);
+
+        expect(mocks.listAuth0Users).not.toHaveBeenCalled();
+        expect(mocks.loggerError).toHaveBeenCalledWith(
+            'reconciliation invalid config',
+            expect.objectContaining({
+                code: 'RECONCILIATION_MISSING_ENV',
+                requestId: 'event-id',
+            }),
         );
     });
 });

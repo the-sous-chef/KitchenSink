@@ -101,7 +101,7 @@ describe('deletion-worker handler', () => {
         mocks.getDeletionQueueReceiveStats.mockResolvedValue({ visible: 0, inFlight: 1 });
     });
 
-    it('retries transient Auth0 failure and completes delete', async () => {
+    it('UTS-017-A1 [MOD-017]: retries transient Auth0 failure and completes delete', async () => {
         mocks.lookupUserByIdAndAuth0Sub.mockResolvedValue({
             userId: '00000000-0000-4000-8000-000000000001',
             auth0Sub: 'auth0|abc123',
@@ -124,7 +124,7 @@ describe('deletion-worker handler', () => {
         expect(mocks.emitMetric).toHaveBeenCalledWith('DeletionWorkerDeleted', 1, { stage: 'test' });
     });
 
-    it('throws on invalid message contract to preserve deterministic DLQ behavior', async () => {
+    it('UTS-017-A2 [MOD-017/invalid-contract]: throws on invalid message contract to preserve deterministic DLQ behavior', async () => {
         const { handler } = await import('../handlers/deletion-worker.js');
 
         const invalidRecord = {
@@ -151,7 +151,7 @@ describe('deletion-worker handler', () => {
         expect(mocks.deleteAuth0User).not.toHaveBeenCalled();
     });
 
-    it('skips stale deletion messages when user+sub no longer match', async () => {
+    it('UTS-017-A1 [MOD-017/stale]: skips stale deletion messages when user+sub no longer match', async () => {
         mocks.lookupUserByIdAndAuth0Sub.mockResolvedValue(null);
         const { handler } = await import('../handlers/deletion-worker.js');
 
@@ -165,5 +165,54 @@ describe('deletion-worker handler', () => {
 
         expect(mocks.emitMetric).toHaveBeenCalledWith('DeletionWorkerSkipped', 1, { stage: 'test' });
         expect(mocks.deleteAuth0User).not.toHaveBeenCalled();
+    });
+
+    it('UTS-017-A2 [MOD-017/non-transient]: rethrows non-transient deletion failures to preserve retry + DLQ redrive', async () => {
+        mocks.lookupUserByIdAndAuth0Sub.mockResolvedValue({
+            userId: '00000000-0000-4000-8000-000000000001',
+            auth0Sub: 'auth0|abc123',
+        });
+        const nonTransient = Object.assign(new Error('forbidden'), { statusCode: 403 });
+        mocks.deleteAuth0User.mockRejectedValueOnce(nonTransient);
+
+        const { handler } = await import('../handlers/deletion-worker.js');
+
+        await expect(
+            handler(
+                {
+                    Records: [baseRecord],
+                },
+                baseContext,
+                (() => undefined) as import('aws-lambda').Callback,
+            ),
+        ).rejects.toThrow('forbidden');
+
+        expect(mocks.withExponentialRetry).toHaveBeenCalledOnce();
+        expect(mocks.deleteAuth0User).toHaveBeenCalledTimes(1);
+        expect(mocks.emitMetric).toHaveBeenCalledWith('DeletionWorkerErrors', 1, { stage: 'test' });
+    });
+
+    it('UTS-017-A1 [MOD-017/queue-stats]: emits queue stats warning but does not fail completed batch when queue lookup fails', async () => {
+        mocks.lookupUserByIdAndAuth0Sub.mockResolvedValue(null);
+        mocks.getDeletionQueueReceiveStats.mockRejectedValueOnce(new Error('sqs unavailable'));
+
+        const { handler } = await import('../handlers/deletion-worker.js');
+
+        await expect(
+            handler(
+                {
+                    Records: [baseRecord],
+                },
+                baseContext,
+                (() => undefined) as import('aws-lambda').Callback,
+            ),
+        ).resolves.toBeUndefined();
+
+        expect(mocks.loggerWarn).toHaveBeenCalledWith(
+            'deletion-worker queue stats failed',
+            expect.objectContaining({
+                code: 'DELETION_WORKER_QUEUE_STATS_FAILED',
+            }),
+        );
     });
 });

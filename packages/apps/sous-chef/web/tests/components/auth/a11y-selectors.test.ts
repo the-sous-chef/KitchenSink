@@ -15,7 +15,7 @@ function sourceFiles(directory: string): string[] {
 }
 
 describe('auth UI accessibility selectors', () => {
-    it('uses accessible selectors instead of test-only attributes in auth surfaces', () => {
+    it('UTS-033-A1 [MOD-033]: uses accessible selectors instead of test-only attributes in auth surfaces', () => {
         const forbiddenAttribute = ['data', 'testid'].join('-');
         const files = [
             ...sourceFiles(join(process.cwd(), 'src/components/auth')),

@@ -13,7 +13,7 @@ describe('api-client', () => {
         window.history.replaceState(null, '', '/profile');
     });
 
-    it('redirects expired sessions to Auth0 login fallback on 401', async () => {
+    it('UTS-008-A2 [MOD-008/api-client]: redirects expired sessions to Auth0 login fallback on 401', async () => {
         global.fetch = vi.fn().mockResolvedValue({
             ok: false,
             status: 401,

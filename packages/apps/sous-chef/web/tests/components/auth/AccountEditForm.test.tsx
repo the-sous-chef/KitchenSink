@@ -38,14 +38,14 @@ describe('AccountEditForm', () => {
         });
     });
 
-    it('renders form with initial values', () => {
+    it('UTS-014-A1 [MOD-014]: renders form with initial values', () => {
         render(<AccountEditForm accessToken="test-token" initialProfile={mockProfile} />);
 
         expect(screen.getByLabelText('Display Name')).toHaveValue('Test User');
         expect(screen.getByLabelText('Avatar URL')).toHaveValue('');
     });
 
-    it('validates required display name', async () => {
+    it('UTS-014-A2 [MOD-014]: validates required display name', async () => {
         const user = userEvent.setup();
         render(<AccountEditForm accessToken="test-token" initialProfile={mockProfile} />);
 
@@ -55,7 +55,7 @@ describe('AccountEditForm', () => {
         expect(screen.getByLabelText('Display Name')).toBeInvalid();
     });
 
-    it('shows loading state when submitting', async () => {
+    it('UTS-014-A1 [MOD-014/loading]: shows loading state when submitting', async () => {
         const user = userEvent.setup();
         global.fetch = vi.fn().mockImplementation(() => new Promise<Response>((resolve) => setTimeout(resolve, 100)));
 
@@ -66,7 +66,7 @@ describe('AccountEditForm', () => {
         expect(screen.getByRole('button', { name: 'Saving...' })).toBeInTheDocument();
     });
 
-    it('displays error message on failure', async () => {
+    it('UTS-014-A2 [MOD-014/error]: displays error message on failure', async () => {
         const user = userEvent.setup();
         global.fetch = vi.fn().mockResolvedValue({
             ok: false,
@@ -80,7 +80,7 @@ describe('AccountEditForm', () => {
         expect(await screen.findByRole('alert')).toBeInTheDocument();
     });
 
-    it('has accessible form labels', () => {
+    it('UTS-014-A1 [MOD-014/a11y]: has accessible form labels', () => {
         render(<AccountEditForm accessToken="test-token" initialProfile={mockProfile} />);
 
         expect(screen.getByLabelText('Display Name')).toBeInTheDocument();

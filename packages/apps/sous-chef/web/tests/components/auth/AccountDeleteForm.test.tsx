@@ -14,7 +14,7 @@ describe('AccountDeleteForm', () => {
         vi.clearAllMocks();
     });
 
-    it('reveals an accessible deletion confirmation dialog', async () => {
+    it('UTS-016-A1 [MOD-016]: reveals an accessible deletion confirmation dialog', async () => {
         const user = userEvent.setup();
 
         render(<AccountDeleteForm accessToken="test-token" userId="user-123" />);
@@ -26,7 +26,7 @@ describe('AccountDeleteForm', () => {
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
 
-    it('calls DELETE /v1/users/me and logs out after confirmation', async () => {
+    it('UTS-016-A2 [MOD-016]: calls DELETE /v1/users/me and logs out after confirmation', async () => {
         const user = userEvent.setup();
         const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 202, json: vi.fn() });
         global.fetch = fetchMock;
