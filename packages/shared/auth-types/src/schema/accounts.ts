@@ -1,4 +1,4 @@
-import { index, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { users } from './users.js';
 
@@ -12,6 +12,9 @@ export const accounts = pgTable(
             .references(() => users.id, { onDelete: 'cascade' }),
         provider: text('provider').notNull(),
         providerAccountId: text('provider_account_id').notNull(),
+        subscriptionTier: text('subscription_tier').notNull().default('free'),
+        createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+        updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
     (table) => [
         index('accounts_user_id_idx').on(table.userId),

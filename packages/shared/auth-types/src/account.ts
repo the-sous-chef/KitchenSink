@@ -9,6 +9,7 @@ export interface AccountReadDto {
     userId: UserId;
     provider: string;
     providerAccountId: string;
+    subscriptionTier: 'free' | 'premium';
     createdAt: string;
     updatedAt: string;
 }
