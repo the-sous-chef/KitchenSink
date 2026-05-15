@@ -1,9 +1,6 @@
 import Auth0 from 'react-native-auth0';
 import * as Crypto from 'expo-crypto';
 import type { AuthSession, TokenRefreshResult, Auth0Config, Auth0AuthorizeOptions } from '../types/auth.js';
-import { isImpersonatedClaims } from '../types/auth.js';
-
-const CLAIM_USER_ID = 'https://sous-chef.io/userId';
 
 let auth0Client: Auth0 | null = null;
 let codeVerifier: string | null = null;
@@ -40,29 +37,6 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
     return toBase64Url(digest);
 }
 
-export function extractUserIdFromClaims(claims: Record<string, unknown>): string {
-    const userId = claims[CLAIM_USER_ID] as string | undefined;
-
-    if (!userId) {
-        throw new Error(`Missing or invalid "${CLAIM_USER_ID}" claim`);
-    }
-
-    return userId;
-}
-
-function decodeTokenClaims(token: string): Record<string, unknown> {
-    const parts = token.split('.');
-
-    if (parts.length !== 3) {
-        return {};
-    }
-
-    const payload = parts[1];
-    const decoded = Buffer.from(payload, 'base64').toString('utf-8');
-
-    return JSON.parse(decoded) as Record<string, unknown>;
-}
-
 function getRedirectUri(config: Auth0Config): string {
     return `${config.callbackScheme}://callback`;
 }
@@ -71,21 +45,7 @@ function getAuthorizeScope(): string {
     return 'openid profile email offline_access';
 }
 
-function buildSession(result: {
-    accessToken: string;
-    refreshToken?: string;
-    expiresAt?: number;
-    idToken?: string;
-}): AuthSession {
-    const claims = result.idToken ? decodeTokenClaims(result.idToken) : {};
-
-    if (isImpersonatedClaims(claims)) {
-        throw new Error('Administrator impersonation is blocked in the mobile app.');
-    }
-
-    const userId = extractUserIdFromClaims(claims);
-    const auth0Id = typeof claims.sub === 'string' ? claims.sub : '';
-
+function buildSession(result: { accessToken: string; refreshToken?: string; expiresAt?: number }): AuthSession {
     if (!result.refreshToken) {
         throw new Error('Missing refresh token from Auth0 response');
     }
@@ -94,8 +54,8 @@ function buildSession(result: {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
         expiresAt: new Date((result.expiresAt ?? 0) * 1000).toISOString(),
-        userId,
-        auth0Id,
+        userId: '',
+        auth0Id: '',
     };
 }
 
@@ -162,7 +122,6 @@ export async function refreshAccessToken(
         accessToken: result.accessToken,
         refreshToken: result.refreshToken ?? previousSession?.refreshToken ?? refreshToken,
         expiresAt: result.expiresAt,
-        idToken: result.idToken,
     });
 
     return {
