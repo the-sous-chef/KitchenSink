@@ -1,4 +1,5 @@
 import Auth0 from 'react-native-auth0';
+import * as Crypto from 'expo-crypto';
 import type { AuthSession, TokenRefreshResult, Auth0Config, Auth0AuthorizeOptions } from '../types/auth.js';
 import { isImpersonatedClaims } from '../types/auth.js';
 
@@ -21,17 +22,22 @@ export function getAuth0Client(config: Auth0Config): Auth0 {
 }
 
 function generateCodeVerifier(): string {
-    const array = new Uint8Array(32);
+    const randomBytes = new Uint8Array(32);
+    Crypto.getRandomValues(randomBytes);
 
-    for (let i = 0; i < array.length; i++) {
-        array[i] = Math.floor(Math.random() * 256);
-    }
-
-    return Buffer.from(array).toString('base64url');
+    return toBase64Url(Buffer.from(randomBytes).toString('base64'));
 }
 
-function generateCodeChallenge(verifier: string): string {
-    return verifier.slice(0, 43);
+function toBase64Url(base64Value: string): string {
+    return base64Value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+async function generateCodeChallenge(verifier: string): Promise<string> {
+    const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, verifier, {
+        encoding: Crypto.CryptoEncoding.BASE64,
+    });
+
+    return toBase64Url(digest);
 }
 
 export function extractUserIdFromClaims(claims: Record<string, unknown>): string {
@@ -95,7 +101,7 @@ function buildSession(result: {
 
 export async function startAuthFlow(config: Auth0Config): Promise<string> {
     codeVerifier = generateCodeVerifier();
-    const codeChallenge = generateCodeChallenge(codeVerifier);
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
 
     const authUrl = `https://${config.domain}/authorize?response_type=code&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(getRedirectUri(config))}&scope=${encodeURIComponent(getAuthorizeScope())}&audience=${encodeURIComponent(config.audience)}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
