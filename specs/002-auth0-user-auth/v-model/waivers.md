@@ -27,13 +27,16 @@
 
 ## Waiver Index
 
-| ID     | Linked Artifact(s)                                                                 | Category                      | Risk | Status | Expiry / Revisit |
-| ------ | ---------------------------------------------------------------------------------- | ----------------------------- | ---- | ------ | ---------------- |
-| WVR-01 | REQ-NF-002, REQ-NF-003                                                             | Missing system-test mapping   | Low  | Active | 2026-08-01       |
-| WVR-02 | REQ-NF-007, REQ-NF-008                                                             | Missing system-test mapping   | Low  | Active | 2026-08-01       |
-| WVR-03 | REQ-IF-001, REQ-IF-002, REQ-IF-003, REQ-IF-005, REQ-IF-006                         | Missing system-test mapping   | Low  | Active | 2026-08-01       |
-| WVR-04 | REQ-CN-001, REQ-CN-003, REQ-CN-004, REQ-CN-005, REQ-CN-006, REQ-CN-007, REQ-CN-008 | Missing system-test mapping   | Low  | Active | 2026-08-01       |
-| WVR-05 | ARCH-025 (Suspension Status Checker)                                               | Missing integration test case | Low  | Active | 2026-08-01       |
+| ID     | Linked Artifact(s)                                                                 | Category                                                               | Risk | Status | Expiry / Revisit |
+| ------ | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---- | ------ | ---------------- |
+| WVR-01 | REQ-NF-002, REQ-NF-003                                                             | Missing system-test mapping                                            | Low  | Active | 2026-08-01       |
+| WVR-02 | REQ-NF-007, REQ-NF-008                                                             | Missing system-test mapping                                            | Low  | Active | 2026-08-01       |
+| WVR-03 | REQ-IF-001, REQ-IF-002, REQ-IF-003, REQ-IF-005, REQ-IF-006                         | Missing system-test mapping                                            | Low  | Active | 2026-08-01       |
+| WVR-04 | REQ-CN-001, REQ-CN-003, REQ-CN-004, REQ-CN-005, REQ-CN-006, REQ-CN-007, REQ-CN-008 | Missing system-test mapping                                            | Low  | Active | 2026-08-01       |
+| WVR-05 | ARCH-025 (Suspension Status Checker)                                               | Missing integration test case                                          | Low  | Closed | 2026-05-14       |
+| WVR-06 | REQ-NF-001, REQ-NF-005, REQ-NF-006, REQ-NF-009, REQ-NF-010, REQ-NF-011             | Static analysis / code quality — no acceptance test applicable         | Low  | Active | 2026-08-01       |
+| WVR-07 | REQ-NF-017                                                                         | Analysis / future-proofing — Verification Method is Analysis, not Test | Low  | Active | 2026-08-01       |
+| WVR-08 | REQ-IF-004, REQ-IF-007                                                             | Inspection — Verification Method is Inspection, not Test               | Low  | Active | 2026-08-01       |
 
 ---
 
@@ -158,27 +161,95 @@
 
 ---
 
-### WVR-05 — Missing Integration Test Case: ARCH-025 Suspension Status Checker
+### WVR-05 — Missing Integration Test Case: ARCH-025 Suspension Status Checker ✅ CLOSED
 
-| Field       | Value                      |
-| ----------- | -------------------------- |
-| **ID**      | WVR-05                     |
-| **Linked**  | ARCH-025, SYS-015, SYS-016 |
-| **Owner**   | Auth0 Remediation Team     |
-| **Created** | 2026-05-14                 |
-| **Expiry**  | 2026-08-01                 |
-| **Risk**    | Low-Medium                 |
+| Field          | Value                                                                                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ID**         | WVR-05                                                                                                                                                |
+| **Linked**     | ARCH-025, SYS-015, SYS-016                                                                                                                            |
+| **Owner**      | Auth0 Remediation Team                                                                                                                                |
+| **Created**    | 2026-05-14                                                                                                                                            |
+| **Closed**     | 2026-05-14                                                                                                                                            |
+| **Risk**       | Low-Medium                                                                                                                                            |
+| **Resolution** | ITP-025-A and ITP-025-B added to `integration-test.md`; Matrix C updated with `ITS-025-A1, ITS-025-B1`. Waiver condition met per Closure Criterion 2. |
 
-**Gap description**: Matrix C (Integration Verification) shows `ARCH-025 (Suspension Status Checker)` with `❌ MISSING` for its integration test case ID. The module is mapped to SYS-015 and SYS-016 in the architecture design, and SYS-015/SYS-016 have system test coverage (STP-015-_, STP-016-_). The gap is specifically at the integration test level in `integration-test.md`.
+**Gap description**: Matrix C (Integration Verification) showed `ARCH-025 (Suspension Status Checker)` with `❌ MISSING` for its integration test case ID.
 
-**Rationale for deferral**: The suspension status check is a read-only lookup against the Sous Chef database, called by the JWT authorizer Lambda. Its behavior is fully covered at the system test level (STS-015-B1, STS-015-B2, STS-015-C1 cover suspended-user rejection). The integration test gap means the module-to-module interaction (authorizer calling the status checker) lacks a dedicated ITP scenario, but the end-to-end path is exercised by system tests.
+**Resolution**: Integration test cases `ITP-025-A` (Active User → Allow Signal) and `ITP-025-B` (Suspended User → Deny Signal) were confirmed present in `integration-test.md`. Matrix C updated accordingly. Waiver closed 2026-05-14 (T18 doc-sync).
 
-**Risk**: Low-Medium. The suspension check is a security-relevant path (suspended users must be denied). System test coverage partially compensates, but the integration-level gap means a regression in the authorizer-to-status-checker interface could go undetected until system test.
+---
 
-**Mitigation**:
+### WVR-06 — Code Quality / Static Analysis Requirements (REQ-NF-001, REQ-NF-005, REQ-NF-006, REQ-NF-009, REQ-NF-010, REQ-NF-011)
 
-1. Add `ITP-034-A` to `integration-test.md` covering ARCH-025 before the next release gate. This is the preferred resolution; the waiver should be closed, not renewed.
-2. Until ITP-034-A exists, the system test scenarios STS-015-B1, STS-015-B2, STS-015-C1 serve as compensating controls.
+| Field       | Value                                                                  |
+| ----------- | ---------------------------------------------------------------------- |
+| **ID**      | WVR-06                                                                 |
+| **Linked**  | REQ-NF-001, REQ-NF-005, REQ-NF-006, REQ-NF-009, REQ-NF-010, REQ-NF-011 |
+| **Owner**   | Auth0 Remediation Team                                                 |
+| **Created** | 2026-05-14                                                             |
+| **Expiry**  | 2026-08-01                                                             |
+| **Risk**    | Low                                                                    |
+
+**Requirement summaries**:
+
+- REQ-NF-001: TypeScript `strict: true`, no `any` outside test doubles
+- REQ-NF-005: Auth status indicators must not rely on color alone
+- REQ-NF-006: New workspaces must register in root `package.json` and extend shared configs
+- REQ-NF-009: Custom errors must extend `Error` and expose type guards
+- REQ-NF-010: Date fields must be ISO 8601 strings, never `Date` objects
+- REQ-NF-011: Login/signup UI must consume design system tokens
+
+**Rationale for deferral**: These requirements have `Verification Method: Inspection` or are enforced by static analysis tooling (TypeScript compiler, ESLint, design token linter). They do not map to acceptance test scenarios because they are verified at build/CI time or via code review, not via runtime behavior. No acceptance test scenario can meaningfully exercise "all imports use aliased paths" or "no `any` outside test doubles."
+
+**Mitigation**: Verified by:
+
+- `turbo run typecheck` (strict mode) for REQ-NF-001, REQ-NF-009, REQ-NF-010
+- ESLint + design token audit for REQ-NF-005, REQ-NF-011
+- Workspace config inspection for REQ-NF-006
+
+---
+
+### WVR-07 — Future-Proofing / Analysis Requirement (REQ-NF-017)
+
+| Field       | Value                  |
+| ----------- | ---------------------- |
+| **ID**      | WVR-07                 |
+| **Linked**  | REQ-NF-017             |
+| **Owner**   | Auth0 Remediation Team |
+| **Created** | 2026-05-14             |
+| **Expiry**  | 2026-08-01             |
+| **Risk**    | Low                    |
+
+**Requirement summary**: The observability architecture SHALL allow future integration of LogRocket / NewRelic without requiring changes to application logging/metrics instrumentation.
+
+**Rationale for deferral**: REQ-NF-017 has `Verification Method: Analysis`. It is a future-proofing architectural constraint, not a testable runtime behavior. No acceptance test scenario can verify "the architecture allows future integration" — this is verified by architecture review and the use of abstraction layers (MOD-027, MOD-028, MOD-029).
+
+**Mitigation**: Verified by architecture design review confirming MOD-027/028/029 use abstraction interfaces that do not hard-code specific vendor SDKs.
+
+---
+
+### WVR-08 — Inspection Requirements: Library and Infrastructure Selection (REQ-IF-004, REQ-IF-007)
+
+| Field       | Value                  |
+| ----------- | ---------------------- |
+| **ID**      | WVR-08                 |
+| **Linked**  | REQ-IF-004, REQ-IF-007 |
+| **Owner**   | Auth0 Remediation Team |
+| **Created** | 2026-05-14             |
+| **Expiry**  | 2026-08-01             |
+| **Risk**    | Low                    |
+
+**Requirement summaries**:
+
+- REQ-IF-004: API Gateway authorizer SHALL use `jwks-rsa`, `jose` libraries for JWT validation
+- REQ-IF-007: Infrastructure SHALL be defined using AWS CDK v2 (`aws-cdk-lib`)
+
+**Rationale for deferral**: Both requirements have `Verification Method: Inspection`. They specify which libraries/tools must be used, not runtime behavior. Verification is by `package.json` dependency inspection and CDK stack review, not by acceptance test scenarios.
+
+**Mitigation**: Verified by:
+
+- `package.json` dependency inspection confirming `jwks-rsa` and `jose` are present in `packages/services/identity-webhooks/`
+- CDK stack inspection confirming `aws-cdk-lib` v2 is used in `packages/infra/identity/`
 
 ---
 
@@ -196,12 +267,15 @@ Closed waivers SHALL be moved to the **Closed Waivers** section below with a clo
 
 ## Closed Waivers
 
-_None at this time._
+| ID     | Linked Artifact(s)                   | Closed     | Resolution                                                                                |
+| ------ | ------------------------------------ | ---------- | ----------------------------------------------------------------------------------------- |
+| WVR-05 | ARCH-025 (Suspension Status Checker) | 2026-05-14 | ITP-025-A, ITP-025-B confirmed in `integration-test.md`; Matrix C updated (T18 doc-sync). |
 
 ---
 
 ## Audit Trail
 
-| Date       | Action                         | Author                 |
-| ---------- | ------------------------------ | ---------------------- |
-| 2026-05-14 | Initial register created (T19) | Auth0 Remediation Team |
+| Date       | Action                                                                             | Author                 |
+| ---------- | ---------------------------------------------------------------------------------- | ---------------------- |
+| 2026-05-14 | Initial register created (T19)                                                     | Auth0 Remediation Team |
+| 2026-05-14 | WVR-05 closed — ITP-025-A/B confirmed; WVR-06, WVR-07, WVR-08 added (T18 doc-sync) | Auth0 Remediation Team |
