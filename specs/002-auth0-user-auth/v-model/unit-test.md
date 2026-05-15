@@ -40,7 +40,7 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 ### Module: MOD-001 (Web Auth Route Handler)
 
 **Parent Architecture Modules**: ARCH-001
-**Target Source File(s)**: `apps/web/app/api/auth/[...auth0]/route.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/app/api/auth/[...auth0]/route.ts`
 
 ---
 
@@ -119,7 +119,7 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 ### Module: MOD-002 (Web Auth Middleware Guard)
 
 **Parent Architecture Modules**: ARCH-002
-**Target Source File(s)**: `apps/web/middleware.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/middleware.ts`
 
 ---
 
@@ -171,7 +171,7 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 ### Module: MOD-003 (Web Session Cookie Manager)
 
 **Parent Architecture Modules**: ARCH-003
-**Target Source File(s)**: `apps/web/lib/auth/session-manager.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/session-manager.ts`
 
 ---
 
@@ -245,7 +245,7 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 ### Module: MOD-004 (Web JWT Decoder)
 
 **Parent Architecture Modules**: ARCH-004
-**Target Source File(s)**: `apps/web/lib/auth/jwt-decoder.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/jwt-decoder.ts`
 
 ---
 
@@ -281,7 +281,7 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 ### Module: MOD-005 (Web Route Protector)
 
 **Parent Architecture Modules**: ARCH-005
-**Target Source File(s)**: `apps/web/lib/auth/route-protector.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/route-protector.ts`
 
 ---
 
@@ -317,7 +317,7 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 ### Module: MOD-006 (Mobile Auth0 Client SDK Wrapper)
 
 **Parent Architecture Modules**: ARCH-006
-**Target Source File(s)**: `apps/mobile/lib/auth/auth0-client.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/mobile/lib/auth/auth0-client.ts`
 
 ---
 

@@ -24,7 +24,7 @@ The Auth0 User Authentication module design decomposes 33 architecture modules (
 ### Module: MOD-001 (Web Auth Route Handler)
 
 **Parent Architecture Modules**: ARCH-001
-**Target Source File(s)**: `apps/web/app/api/auth/[...auth0]/route.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/app/api/auth/[...auth0]/route.ts`
 
 #### Algorithmic / Logic View
 
@@ -102,7 +102,7 @@ N/A — Stateless
 ### Module: MOD-002 (Web Auth Middleware Guard)
 
 **Parent Architecture Modules**: ARCH-002
-**Target Source File(s)**: `apps/web/middleware.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/middleware.ts`
 
 #### Algorithmic / Logic View
 
@@ -159,7 +159,7 @@ N/A — Stateless
 ### Module: MOD-003 (Web Session Cookie Manager)
 
 **Parent Architecture Modules**: ARCH-003
-**Target Source File(s)**: `apps/web/lib/auth/session-manager.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/session-manager.ts`
 
 #### Algorithmic / Logic View
 
@@ -229,7 +229,7 @@ N/A — Stateless
 ### Module: MOD-004 (Mobile Auth Provider)
 
 **Parent Architecture Modules**: ARCH-004
-**Target Source File(s)**: `apps/mobile/contexts/AuthProvider.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/mobile/contexts/AuthProvider.tsx`
 
 #### Algorithmic / Logic View
 
@@ -303,7 +303,7 @@ N/A — Stateless (React component)
 ### Module: MOD-005 (Mobile Secure Token Store)
 
 **Parent Architecture Modules**: ARCH-005
-**Target Source File(s)**: `apps/mobile/utils/secure-token-store.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/secure-token-store.ts`
 
 #### Algorithmic / Logic View
 
@@ -361,7 +361,7 @@ N/A — Stateless
 ### Module: MOD-006 (Mobile Auth Callback Handler)
 
 **Parent Architecture Modules**: ARCH-006
-**Target Source File(s)**: `apps/mobile/utils/auth-callback.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/auth-callback.ts`
 
 #### Algorithmic / Logic View
 
@@ -423,7 +423,7 @@ N/A — Stateless
 ### Module: MOD-007 (Social Connection Configurator)
 
 **Parent Architecture Modules**: ARCH-007
-**Target Source File(s)**: `apps/web/components/auth/SocialConnections.tsx`, `apps/mobile/screens/SocialConnectionsScreen.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/web/components/auth/SocialConnections.tsx`, `packages/apps/sous-chef/mobile/screens/SocialConnectionsScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -479,7 +479,7 @@ N/A — Stateless
 ### Module: MOD-008 (Token Refresh Service — Web)
 
 **Parent Architecture Modules**: ARCH-008
-**Target Source File(s)**: `apps/web/lib/auth/token-refresh.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/token-refresh.ts`
 
 #### Algorithmic / Logic View
 
@@ -547,7 +547,7 @@ LoggedOut --> [*]
 ### Module: MOD-009 (Token Refresh Service — Mobile)
 
 **Parent Architecture Modules**: ARCH-009
-**Target Source File(s)**: `apps/mobile/utils/token-refresh.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/token-refresh.ts`
 
 #### Algorithmic / Logic View
 
@@ -812,7 +812,7 @@ N/A — Stateless
 ### Module: MOD-013 (Profile View Component)
 
 **Parent Architecture Modules**: ARCH-013
-**Target Source File(s)**: `apps/web/components/profile/ProfileView.tsx`, `apps/mobile/screens/ProfileScreen.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/web/components/profile/ProfileView.tsx`, `packages/apps/sous-chef/mobile/screens/ProfileScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -877,7 +877,7 @@ N/A — Stateless (React component)
 ### Module: MOD-014 (Account Edit Component)
 
 **Parent Architecture Modules**: ARCH-014
-**Target Source File(s)**: `apps/web/components/account/AccountEdit.tsx`, `apps/mobile/screens/AccountEditScreen.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/web/components/account/AccountEdit.tsx`, `packages/apps/sous-chef/mobile/screens/AccountEditScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1025,7 +1025,7 @@ N/A — Stateless
 ### Module: MOD-016 (Account Deletion Component)
 
 **Parent Architecture Modules**: ARCH-016
-**Target Source File(s)**: `apps/web/components/account/AccountDelete.tsx`, `apps/mobile/screens/AccountDeleteScreen.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/web/components/account/AccountDelete.tsx`, `packages/apps/sous-chef/mobile/screens/AccountDeleteScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1194,7 +1194,7 @@ Failed --> [*]
 ### Module: MOD-018 (Password Reset Link Component)
 
 **Parent Architecture Modules**: ARCH-018
-**Target Source File(s)**: `apps/web/components/auth/PasswordResetLink.tsx`, `apps/mobile/components/PasswordResetLink.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/web/components/auth/PasswordResetLink.tsx`, `packages/apps/sous-chef/mobile/components/PasswordResetLink.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1231,7 +1231,7 @@ N/A — Stateless (static component, no state)
 ### Module: MOD-019 (MFA Enrollment Component)
 
 **Parent Architecture Modules**: ARCH-019
-**Target Source File(s)**: `apps/web/components/security/MFAEnrollment.tsx`, `apps/mobile/screens/MFAScreen.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/web/components/security/MFAEnrollment.tsx`, `packages/apps/sous-chef/mobile/screens/MFAScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1355,7 +1355,7 @@ N/A — Stateless
 ### Module: MOD-021 (Social Account Linking Component)
 
 **Parent Architecture Modules**: ARCH-021
-**Target Source File(s)**: `apps/web/components/account/SocialLinking.tsx`, `apps/mobile/screens/SocialLinkingScreen.tsx`
+**Target Source File(s)**: `packages/apps/sous-chef/web/components/account/SocialLinking.tsx`, `packages/apps/sous-chef/mobile/screens/SocialLinkingScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -2165,7 +2165,7 @@ N/A — Stateless (error class definitions)
 ### Module: MOD-033 (Auth UI Design Tokens Integration)
 
 **Parent Architecture Modules**: ARCH-033
-**Target Source File(s)**: `apps/web/styles/auth-tokens.css`, `apps/mobile/theme/auth-tokens.ts`
+**Target Source File(s)**: `packages/apps/sous-chef/web/styles/auth-tokens.css`, `packages/apps/sous-chef/mobile/theme/auth-tokens.ts`
 
 #### Algorithmic / Logic View
 

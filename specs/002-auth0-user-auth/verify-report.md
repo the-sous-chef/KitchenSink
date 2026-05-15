@@ -1,147 +1,73 @@
-# Product Forge Verify-Full Report: Feature 002-auth0-user-auth
+# Sync-Verify Report — 002-auth0-user-auth
 
-**Run date**: 2026-05-12
-**Mode**: Retroactive bootstrap
-**Verifier**: Sisyphus (deterministic checks + manual cross-reference)
+**Run date**: 2026-05-14 (updated post-fix)
+**Scope (user-focused)**: Wave 8 deliverables, identity-service `test`/`test:e2e` split, app paths
+**Mode**: Fixes applied for C1 and W1. Prior report preserved as `verify-report.prev.md`.
 
 ---
 
 ## Summary
 
-| Layer                     | Status          | Findings                                                                                                                      |
-| ------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| code ↔ tasks              | ⚠️ EXPECTED-GAP | No auth implementation code committed under runtime implementation surfaces; `tasks.md` remains implementation plan of record |
-| tasks ↔ plan              | ✅ PASS         | `tasks.md` remains aligned with phases/components defined in `plan.md`                                                        |
-| plan ↔ spec.md            | ✅ PASS         | `plan.md` still implements FR-001..FR-044 and NFR/SC constraints from `spec.md`                                               |
-| spec.md ↔ product-spec/   | ✅ PASS         | Product-spec stories and wireframe/metrics artifacts remain explicitly mapped to FR IDs from `spec.md`                        |
-| product-spec/ ↔ research/ | ✅ PASS         | Story priorities, UX behavior, and technical assumptions remain supported by research artifacts                               |
-| v-model ↔ spec.md         | ✅ PASS         | `v-model/requirements.md` remains aligned to current FR/NFR scope and downstream V-model artifacts are present                |
-
-**Overall**: ✅ PASS for Product Forge traceability layers with **0 CRITICAL / 3 WARNING** findings. No blocking traceability break detected for Feature 002 at current pre-implementation state (M1 Shire context).
+| Severity | Count                          |
+| -------- | ------------------------------ |
+| CRITICAL | 0 (1 resolved)                 |
+| WARNING  | 1 (1 resolved, 1 acknowledged) |
+| PASSED   | 5                              |
 
 ---
 
-## CRITICAL Findings
+## RESOLVED
 
-_None._
+### C1 (resolved) — v-model artifacts referenced stale `apps/web/*` / `apps/mobile/*` paths
 
-The retroactive bootstrap artifacts remain internally consistent and traceable to upstream source materials.
+**Fix applied**: Bulk `sed` rewrite across:
 
----
+- `specs/002-auth0-user-auth/v-model/module-design.md`
+- `specs/002-auth0-user-auth/v-model/trace.md`
+- `specs/002-auth0-user-auth/v-model/unit-test.md`
 
-## WARNING Findings
+Replacements:
 
-### W-001: `data-model.md` storage engine wording differs from plan/runtime context
+- `apps/web/` → `packages/apps/sous-chef/web/`
+- `apps/mobile/` → `packages/apps/sous-chef/mobile/`
 
-- **Where**: `data-model.md` states Aurora DSQL (PostgreSQL-compatible); `plan.md` and AGENTS context reference PostgreSQL 16/RDS runtime assumptions.
-- **Why it's not CRITICAL**: Product Forge bootstrap artifacts do not redefine storage requirements; they reflect source materials and surface the mismatch.
-- **Recommendation**: Resolve storage wording in revalidation/implementation metadata so runtime assumptions are unambiguous.
+**Verification**: `grep -rnE "(^|[^-/])apps/(web|mobile)/" specs/002-auth0-user-auth/v-model/` → 0 matches.
 
-### W-002: Root monorepo Node engine and feature runtime context differ
+### W1 (resolved) — `test` vs `test:e2e` split documented
 
-- **Where**: root toolchain context uses Node 24.x while feature runtime context targets Node 22 Lambda runtime.
-- **Why it's not CRITICAL**: This can be valid (build/runtime split), but requires explicit documentation to avoid CI and developer-environment ambiguity.
-- **Recommendation**: Keep an explicit runtime matrix in implementation docs/config (tooling runtime vs Lambda runtime).
+**Fix applied**: Added explicit note under T-082 in `specs/002-auth0-user-auth/tasks.md`:
 
-### W-003: Tasks are phase/story-oriented rather than strict FR-indexed lines
+> **Test split (added 2026-05-14)**: `@kitchensink/identity-service` exposes `npm test` (unit/integration; vitest excludes `tests/e2e/**`) and `npm run test:e2e` (separate `vitest.e2e.config.ts`, requires LocalStack + Postgres via `packages/infra/identity` `local:up`). CI runs only `npm test`; `test:e2e` is run locally or in a future `services:up`-gated CI job.
 
-- **Where**: `tasks.md` is organized by T-IDs and story phases, not strict one-line-per-FR mapping.
-- **Why it's not CRITICAL**: Coverage remains traceable via story/plan decomposition and FR mapping in `spec.md` + `product-spec/`.
-- **Recommendation**: Optionally annotate each task block with FR tags to strengthen deterministic machine trace checks.
+**Deferred (not blocking)**:
 
----
-
-## PASS Checks (Deterministic)
-
-### 1) research/ artifact set completeness
-
-Expected files (6):
-
-- `research/README.md`
-- `research/competitors.md`
-- `research/ux-patterns.md`
-- `research/codebase-analysis.md`
-- `research/tech-stack.md`
-- `research/metrics-roi.md`
-
-**Result**: ✅ PASS — all present.
-
-### 2) product-spec/ artifact set completeness
-
-Expected files:
-
-- `product-spec/README.md`
-- `product-spec/product-spec.md`
-- `product-spec/user-journey.md`
-- `product-spec/metrics.md`
-- `product-spec/wireframes/README.md`
-- wireframe files for login/signup/MFA/session-expired/mobile-callback
-
-**Result**: ✅ PASS — all present.
-
-### 3) Root Product Forge lifecycle metadata files
-
-Expected files:
-
-- `.forge-status.yml`
-- `review.md`
-- `verify-report.md`
-
-**Result**: ✅ PASS — all present.
-
-### 4) Product-spec story traceability to FRs
-
-- `product-spec/product-spec.md` stories US-001..US-012 retain explicit FR references.
-- Coverage remains within FR-001..FR-044; no unsourced net-new FR IDs introduced by Product Forge artifacts.
-
-**Result**: ✅ PASS.
-
-### 5) Feature artifact completeness under `specs/002-auth0-user-auth/`
-
-- Core artifacts present: `spec.md`, `plan.md`, `tasks.md`, `review.md`, `.forge-status.yml`, `verify-report.md`
-- Supporting artifacts present: `research/`, `product-spec/`, `contracts/`, `checklists/`, `v-model/`, `testing/`, `data-model.md`, `research.md`, `findings.md`, `quickstart.md`
-
-**Result**: ✅ PASS — full feature artifact set is present and readable.
+- `v-model/requirements.md` REQ-045..REQ-050 still phrase the CI gate as `npm test`; the new T-082 note is authoritative.
+- `.github/workflows/identity-ci.yml` continues to call `npm test`; a future `services:up`-gated `test:e2e` job is the recommended follow-up but not required for this verification pass.
 
 ---
 
-## Traceability Chain Review
+## WARNING (acknowledged)
 
-### code ↔ tasks
+### W2 — Wave 8 deliverables only referenced in tasks.md / v-model/requirements.md
 
-Current status remains an expected pre-implementation gap. `tasks.md` is implementation-ready and mapped to planned modules/APIs; runtime implementation paths are not yet committed as production code.
-
-### tasks ↔ plan
-
-Task phase groups continue to mirror `plan.md` architecture decisions, including:
-
-- post-registration sync flow
-- authorizer/JWT validation
-- profile/account lifecycle
-- async deletion + DLQ
-- reconciliation job
-- observability and CDK infrastructure
-
-### plan ↔ spec.md
-
-`plan.md` remains consistent with `spec.md` functional and non-functional scope (session security, lifecycle operations, suspension enforcement, platform flows).
-
-### spec.md ↔ product-spec/
-
-`product-spec.md`, `user-journey.md`, `metrics.md`, and wireframes stay traceable to the `spec.md` FR set and do not introduce unsupported requirements.
-
-### product-spec/ ↔ research/
-
-Research artifacts continue to support product-spec assumptions on competitive positioning, UX patterns, architecture constraints, stack rationale, and measurable outcomes.
-
-### v-model ↔ spec.md
-
-`v-model/requirements.md` and companion V-model artifacts remain present and aligned to the current requirement envelope referenced by Product Forge materials.
+**Drift type**: Forward drift (tasks → spec/plan/product-spec).
+**Artifacts**: `.github/workflows/identity-ci.yml`, `packages/infra/identity/docs/auth0-tenant-rollout.md`, `packages/infra/identity/docs/perf-reliability.md`.
+**Not referenced in**: `spec.md`, `plan.md`, `product-spec/*`.
+**Impact**: Low — implementation/operational artifacts; spec/plan/product-spec stay product-level.
+**Action**: None. Flagged for awareness only.
 
 ---
 
-## Final Verdict
+## PASSED
 
-**✅ PASS**
+- ✅ Wave 8 deliverables exist on disk and are referenced consistently in tasks.md and v-model/requirements.md.
+- ✅ `packages/apps/sous-chef/web` and `packages/apps/sous-chef/mobile` paths are consistent in spec.md, plan.md, tasks.md, **and now v-model/\***.
+- ✅ All identity workspace CI scripts (`lint`, `typecheck`, `test`) exist and pass after the e2e split.
+- ✅ `@kitchensink/identity-service` `npm test` → 14/14 passing (e2e excluded).
+- ✅ T-082 documents the `test` / `test:e2e` split.
 
-Re-executed full verification confirms Feature `002-auth0-user-auth` Product Forge artifact chain is still coherent and traceable with **0 CRITICAL / 3 WARNING** findings as of **2026-05-12**.
+---
+
+## Status
+
+**Verification complete.** No critical drift remaining. The single open warning (W2) is acknowledged as low-impact and intentionally deferred.

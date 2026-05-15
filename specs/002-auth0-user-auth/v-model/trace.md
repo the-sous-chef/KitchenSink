@@ -221,14 +221,14 @@
 
 > Maps module designs (MOD) to unit test cases (UTP) and their scenarios (UTS). Verifies implementation completeness at the code level.
 
-| MOD-ID  | Module Name                     | Source File                                 | ARCH Parent | UTP Cases            | UTS Scenarios                                          | Implementation Status |
-| ------- | ------------------------------- | ------------------------------------------- | ----------- | -------------------- | ------------------------------------------------------ | --------------------- |
-| MOD-001 | Web Auth Route Handler          | `apps/web/app/api/auth/[...auth0]/route.ts` | ARCH-001    | UTP-001-A, UTP-001-B | UTS-001-A1 through A5, UTS-001-B1 through B3 (8 total) | ⬜                    |
-| MOD-002 | Web Auth Middleware Guard       | `apps/web/middleware.ts`                    | ARCH-002    | UTP-002-A            | UTS-002-A1 through A5 (5 total)                        | ⬜                    |
-| MOD-003 | Web Session Cookie Manager      | `apps/web/lib/auth/session-manager.ts`      | ARCH-003    | UTP-003-A, UTP-003-B | UTS-003-A1 through A4, UTS-003-B1 through B3 (7 total) | ⬜                    |
-| MOD-004 | Web JWT Decoder                 | `apps/web/lib/auth/jwt-decoder.ts`          | ARCH-004    | UTP-004-A            | UTS-004-A1 through A3 (3 total)                        | ⬜                    |
-| MOD-005 | Web Route Protector             | `apps/web/lib/auth/route-protector.ts`      | ARCH-005    | UTP-005-A            | UTS-005-A1 through A3 (3 total)                        | ⬜                    |
-| MOD-006 | Mobile Auth0 Client SDK Wrapper | `apps/mobile/lib/auth/auth0-client.ts`      | ARCH-006    | UTP-006-A            | UTS-006-A1 through A4 (4 total)                        | ⬜                    |
+| MOD-ID  | Module Name                     | Source File                                                    | ARCH Parent | UTP Cases            | UTS Scenarios                                          | Implementation Status |
+| ------- | ------------------------------- | -------------------------------------------------------------- | ----------- | -------------------- | ------------------------------------------------------ | --------------------- |
+| MOD-001 | Web Auth Route Handler          | `packages/apps/sous-chef/web/app/api/auth/[...auth0]/route.ts` | ARCH-001    | UTP-001-A, UTP-001-B | UTS-001-A1 through A5, UTS-001-B1 through B3 (8 total) | ⬜                    |
+| MOD-002 | Web Auth Middleware Guard       | `packages/apps/sous-chef/web/middleware.ts`                    | ARCH-002    | UTP-002-A            | UTS-002-A1 through A5 (5 total)                        | ⬜                    |
+| MOD-003 | Web Session Cookie Manager      | `packages/apps/sous-chef/web/lib/auth/session-manager.ts`      | ARCH-003    | UTP-003-A, UTP-003-B | UTS-003-A1 through A4, UTS-003-B1 through B3 (7 total) | ⬜                    |
+| MOD-004 | Web JWT Decoder                 | `packages/apps/sous-chef/web/lib/auth/jwt-decoder.ts`          | ARCH-004    | UTP-004-A            | UTS-004-A1 through A3 (3 total)                        | ⬜                    |
+| MOD-005 | Web Route Protector             | `packages/apps/sous-chef/web/lib/auth/route-protector.ts`      | ARCH-005    | UTP-005-A            | UTS-005-A1 through A3 (3 total)                        | ⬜                    |
+| MOD-006 | Mobile Auth0 Client SDK Wrapper | `packages/apps/sous-chef/mobile/lib/auth/auth0-client.ts`      | ARCH-006    | UTP-006-A            | UTS-006-A1 through A4 (4 total)                        | ⬜                    |
 
 ### UTP → REQ Traceability (Implementation → Requirement)
 
