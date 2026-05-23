@@ -237,9 +237,9 @@ A security-conscious user wants to enable Multi-Factor Authentication on their a
 
 **User Registration and Database Sync**
 
-- **FR-013**: On user signup, Auth0 MUST trigger a post-registration action (Auth0 Action) that generates a unique auto-generated user ID (UUIDv4) and creates a User record in the Sous Chef database.
+- **FR-013**: On user signup, Auth0 MUST trigger a post-registration action (Auth0 Action) that upserts a User record in the Sous Chef database, keyed by the Auth0 `sub` claim.
 - **FR-014**: The post-registration action MUST also create an Account record associated with the new User.
-- **FR-015**: The auto-generated user ID MUST be stored in the Auth0 user's `app_metadata` so it is available in all subsequent tokens and API calls.
+- **FR-015**: _(superseded — see 002-auth0-user-auth)_ ~~The auto-generated user ID MUST be stored in the Auth0 user's `app_metadata`.~~ No `app_metadata` writeback is required; `users.sub` (the Auth0 `sub` claim) is the canonical identifier and is available in all tokens natively.
 - **FR-016**: The post-registration action MUST retry database writes on transient failures (up to 3 attempts with exponential backoff).
 - **FR-017**: A reconciliation mechanism MUST exist to detect Auth0 users without corresponding Sous Chef database records and create the missing records.
 
@@ -285,7 +285,7 @@ A security-conscious user wants to enable Multi-Factor Authentication on their a
 
 - **FR-038**: All Sous Chef API endpoints MUST require a valid Auth0 access token. Requests without a valid token MUST receive `401 Unauthorized`.
 - **FR-039**: The API Gateway authorizer MUST validate Auth0 JWT tokens (signature, expiration, audience, issuer) on every request.
-- **FR-040**: The access token MUST include the Sous Chef user ID (from `app_metadata`) as a custom claim, enabling the API to identify the requesting user without an additional database lookup.
+- **FR-040**: The access token MUST include the Auth0 `sub` claim, enabling the API to identify the requesting user without an additional database lookup. _(superseded — see 002-auth0-user-auth)_: the previous design used a custom `app_metadata` claim for a UUID; `sub` is now used directly.
 
 **User Suspension**
 
@@ -319,11 +319,11 @@ A security-conscious user wants to enable Multi-Factor Authentication on their a
 
 ### Key Entities
 
-- **User**: Represents a registered Sous Chef user stored in our database. Key attributes: `id` (UUIDv4, auto-generated at signup — the canonical identifier across all Sous Chef systems), `auth0Id` (Auth0's `sub` claim — used only for Auth0 API calls, never as the primary identifier), `email` (synced from Auth0 at registration), `displayName`, `avatarUrl` (nullable), `status` (enum: `active` | `suspended` — default: `active`; suspended users are blocked in Auth0 and denied API access; status is managed by backend admin operations), `createdAt` (ISO 8601), `updatedAt` (ISO 8601). The User entity is the owner of all user-generated content (recipes, meal plans, etc.) and is the target of the cascade delete on account deletion. This entity fulfills Sous Chef FR-045 ("System MUST require user authentication for all features").
+- **User**: Represents a registered Sous Chef user stored in our database. Key attributes: `sub` (Auth0 `sub` claim — the canonical identifier across all Sous Chef systems, e.g., `auth0|abc123`), `email` (synced from Auth0 at registration), `displayName`, `avatarUrl` (nullable), `status` (enum: `active` | `suspended` — default: `active`; suspended users are blocked in Auth0 and denied API access; status is managed by backend admin operations), `createdAt` (ISO 8601), `updatedAt` (ISO 8601). The User entity is the owner of all user-generated content (recipes, meal plans, etc.) and is the target of the cascade delete on account deletion. This entity fulfills Sous Chef FR-045 ("System MUST require user authentication for all features"). _(superseded — see 002-auth0-user-auth)_: `id` (UUIDv4) and `auth0Id` fields have been removed; `sub` is the sole PK.
 
 - **Account**: Represents the account/profile details associated with a User. Key attributes: `id` (UUIDv4), `userId` (foreign key to User), `subscriptionTier` (free | premium — default: free, managed by subscription feature), `createdAt` (ISO 8601), `updatedAt` (ISO 8601). The Account entity is created alongside the User during signup and deleted alongside the User during account deletion. It provides the extension point for subscription management (Sous Chef FR-040/FR-041) without overloading the User entity.
 
-- **AuthSession**: Represents the client-side authentication state (not a database entity). Key attributes: `accessToken` (JWT), `refreshToken` (opaque string), `expiresAt` (ISO 8601 — when the access token expires), `userId` (extracted from the access token's custom claim). Stored in platform-specific secure storage (Keychain/Keystore on mobile, httpOnly cookies on web). Lifecycle: created on login, refreshed transparently on access token expiry, destroyed on logout or refresh token expiry.
+- **AuthSession**: Represents the client-side authentication state (not a database entity). Key attributes: `accessToken` (JWT), `refreshToken` (opaque string), `expiresAt` (ISO 8601 — when the access token expires), `sub` (the Auth0 subject claim, extracted from the JWT by the server/API layer — the canonical user identifier). Stored in platform-specific secure storage (Keychain/Keystore on mobile, httpOnly cookies on web). Lifecycle: created on login, refreshed transparently on access token expiry, destroyed on logout or refresh token expiry. _(superseded — see 002-auth0-user-auth)_: `userId` (UUID from `app_metadata`) has been removed; `sub` is the sole identity field.
 
 ## Success Criteria _(mandatory)_
 
@@ -343,7 +343,7 @@ A security-conscious user wants to enable Multi-Factor Authentication on their a
 - **A-001**: Auth0 is the sole identity provider. All credential management (password storage, social identity linking, MFA enrollment) is handled by Auth0. The Sous Chef backend never stores or processes passwords.
 - **A-002**: The Auth0 tenant is pre-configured with the required application (SPA for web, Native for mobile), API audience, social connections (Google at minimum), and MFA policies before this feature is implemented.
 - **A-003**: The mobile app uses `expo-auth-session` (or a compatible Auth0 Expo SDK) for the native auth flow. The web app uses `@auth0/nextjs-auth0` (or the Auth0 Next.js SDK) for server-side session management.
-- **A-004**: The auto-generated user ID (UUIDv4) stored in Auth0 `app_metadata` is the canonical identifier used across all Sous Chef systems. The Auth0 `sub` claim (`auth0|...`) is used only for Auth0 Management API calls.
+- **A-004**: The Auth0 `sub` claim is the canonical identifier used across all Sous Chef systems. _(superseded — see 002-auth0-user-auth)_: ~~The auto-generated user ID (UUIDv4) stored in Auth0 `app_metadata` is the canonical identifier.~~ No UUID is generated; `sub` is used directly as the database PK.
 - **A-005**: Auth0's free or Developer tier provides sufficient capacity for initial development and launch. Rate limits on the Management API (e.g., for account deletion) are handled with retry logic.
 - **A-006**: The Sous Chef database (PostgreSQL, per the USDA spec's architecture) stores User and Account records. No separate auth database is required.
 - **A-007**: Auth0 post-registration actions execute synchronously during the signup flow. If the action times out (Auth0's 20-second limit), the reconciliation job (FR-017) serves as a safety net.

@@ -89,7 +89,7 @@ Auth0 (Universal Login + existing Actions/Triggers)
             v
 Post-registration Lambda (Node 22) ---> RDS PostgreSQL 16
             |
-            +--> PATCH app_metadata.userId in Auth0
+            +--> UPSERT users ON CONFLICT (sub) DO UPDATE (no app_metadata writeback)
 
 Identity Service ---> SQS deletion queue ---> deletion-worker Lambda ---> Auth0 Management API
                                   |
@@ -176,7 +176,7 @@ This is mandatory for REQ-049 (LocalStack-backed local testing) and supports REQ
 ### `packages/services/identity-webhooks/`
 
 - `authorizer` Lambda: JWT validation, claim extraction, suspension check, context injection
-- `post-registration` Lambda: idempotent user/account/profile create + `app_metadata.userId` writeback
+- `post-registration` Lambda: idempotent UPSERT user/account/profile keyed by `sub` (no `app_metadata.userId` writeback)
 - `deletion-worker` Lambda: retries Auth0 delete via SQS receive count/backoff and DLQ threshold
 - `reconciliation` Lambda: periodic Auth0-vs-DB diff and repair
 - Traceability: REQ-013..REQ-017, REQ-025..REQ-026, REQ-039..REQ-044
@@ -193,7 +193,7 @@ This is mandatory for REQ-049 (LocalStack-backed local testing) and supports REQ
 ## Security and reliability notes
 
 - JWT verification via JWKS with in-process cache; enforce `iss`, `aud`, signature, expiration (REQ-039)
-- Authorizer denies suspended users with `403` and injects `userId` context (REQ-040, REQ-042)
+- Authorizer denies suspended users with `403` and injects `sub` context (REQ-040, REQ-042)
 - Logout/revocation and secure token storage remain platform-specific per spec (REQ-006..REQ-012)
 - Async deletion path must not block DB deletion completion; failed Auth0 deletions surface to DLQ/alarms (REQ-025, REQ-026)
 - Reconciliation produces deterministic repair actions and audit logs (REQ-017, NFR-012..NFR-017)
