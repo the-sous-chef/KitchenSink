@@ -33,9 +33,11 @@ users ──< recipes ──< recipe_ingredients >── ingredients
 ### `users`
 
 ```sql
+-- (superseded — see 002-auth0-user-auth) The users table is owned by feature 002.
+-- users.sub (VARCHAR(255) COLLATE "C" PRIMARY KEY) is the canonical user identifier.
+-- The id/auth0_id columns shown below are superseded; downstream FKs reference users(sub).
 CREATE TABLE users (
-    id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth0_id     TEXT        NOT NULL UNIQUE,           -- Auth0 sub claim
+    sub          VARCHAR(255) COLLATE "C" PRIMARY KEY,  -- Auth0 sub claim; canonical PK
     email        TEXT        NOT NULL UNIQUE,
     display_name TEXT        NOT NULL,
     tier         TEXT        NOT NULL DEFAULT 'free'    -- 'free' | 'premium'
@@ -43,8 +45,6 @@ CREATE TABLE users (
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
-CREATE INDEX idx_users_auth0_id ON users (auth0_id);
 ```
 
 ---
@@ -54,7 +54,7 @@ CREATE INDEX idx_users_auth0_id ON users (auth0_id);
 ```sql
 CREATE TABLE recipes (
     id                     UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-    owner_id               UUID        NOT NULL REFERENCES users(id),
+    owner_sub              VARCHAR(255) NOT NULL REFERENCES users(sub),
     title                  TEXT        NOT NULL,
     description            TEXT,
     prep_time_minutes      INTEGER     CHECK (prep_time_minutes >= 0),
@@ -112,7 +112,7 @@ CREATE TABLE recipes (
 CREATE INDEX idx_recipes_search_vector    ON recipes USING GIN (search_vector);
 
 -- B-tree indexes for faceted filtering
-CREATE INDEX idx_recipes_owner_id         ON recipes (owner_id);
+CREATE INDEX idx_recipes_owner_sub         ON recipes (owner_sub);
 CREATE INDEX idx_recipes_visibility       ON recipes (visibility);
 CREATE INDEX idx_recipes_cuisine          ON recipes (cuisine);
 CREATE INDEX idx_recipes_cloned_from      ON recipes (cloned_from_id);
@@ -268,7 +268,7 @@ CREATE TABLE recipe_versions (
     snapshot        JSONB       NOT NULL,    -- full recipe snapshot at this version
     base_version    INTEGER,                 -- enables 3-way merge conflict detection
     s3_key          TEXT,                    -- S3 archive key (all versions)
-    created_by      UUID        NOT NULL REFERENCES users(id),
+    created_by      VARCHAR(255) NOT NULL REFERENCES users(sub),
     change_summary  TEXT,                    -- optional: what changed
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (recipe_id, version_number)
@@ -304,7 +304,7 @@ Application purges DB rows beyond 10 most recent on each write. All versions rem
 ```sql
 CREATE TABLE collections (
     id                   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-    owner_id             UUID        NOT NULL REFERENCES users(id),
+    owner_sub            VARCHAR(255) NOT NULL REFERENCES users(sub),
     name                 TEXT        NOT NULL,
     description          TEXT,
 
@@ -333,7 +333,7 @@ CREATE TABLE recipe_collections (
     PRIMARY KEY (collection_id, recipe_id)
 );
 
-CREATE INDEX idx_collections_owner_id            ON collections (owner_id);
+CREATE INDEX idx_collections_owner_sub            ON collections (owner_sub);
 CREATE INDEX idx_collections_source_collection   ON collections (source_collection_id)
     WHERE source_collection_id IS NOT NULL;
 CREATE INDEX idx_recipe_collections_recipe_id    ON recipe_collections (recipe_id);

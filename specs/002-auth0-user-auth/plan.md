@@ -89,7 +89,7 @@ Auth0 (Universal Login + existing Actions/Triggers)
             v
 Post-registration Lambda (Node 22) ---> RDS PostgreSQL 16
             |
-            +--> PATCH app_metadata.userId in Auth0
+            +--> UPSERT users ON CONFLICT (sub) DO UPDATE (no app_metadata writeback)
 
 Identity Service ---> SQS deletion queue ---> deletion-worker Lambda ---> Auth0 Management API
                                   |
@@ -122,16 +122,18 @@ Requirements impacted: REQ-001, REQ-004, REQ-005, REQ-013..REQ-017, REQ-027..REQ
 
 ## Architectural Decisions (locked)
 
-| Decision                     | Choice                                                  | Rationale                                                                                                | Traceability                              |
-| ---------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| Identity API compute         | NestJS 11 on ECS/Fargate (Node 24)                      | Keeps REST business logic in a long-lived service with clear module boundaries and predictable DB access | REQ-018..REQ-026, REQ-032..REQ-038        |
-| Auth0 control-plane handlers | Raw Lambda (Node 22), no NestJS                         | Small, isolated handlers for auth edge-cases and scheduled/async tasks                                   | REQ-013..REQ-017, REQ-039..REQ-044        |
-| Authorizer model             | API Gateway REST + Lambda REQUEST authorizer            | Needed for custom JWT claim validation, context injection, and suspension enforcement                    | REQ-039, REQ-040, REQ-042, FR-038..FR-043 |
-| Data store                   | RDS PostgreSQL 16 (`db.t4g.small`) with Drizzle + `pg`  | Explicit replacement of obsolete Aurora DSQL assumption; aligns with broader repo standards              | REQ-013..REQ-026                          |
-| Deletion resiliency          | SQS + exponential backoff + DLQ after 5 attempts        | Guarantees eventual Auth0 delete and failure visibility under rate limits/transients                     | REQ-025, REQ-026                          |
-| Reconciliation               | EventBridge Scheduler nightly Lambda diff               | Safety net when signup action path partially fails                                                       | REQ-017                                   |
-| Infrastructure ownership     | 100% self-contained in this repo, CDK + Serverless only | Eliminates cross-repo ambiguity and external dependency drift                                            | REQ-050                                   |
-| Local integration runtime    | LocalStack Community + sibling Postgres container       | Enables queue/event/storage testing without paid emulators                                               | REQ-049                                   |
+| Decision                     | Choice                                                                                       | Rationale                                                                                                | Traceability                              |
+| ---------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Identity API compute         | NestJS 11 on ECS/Fargate (Node 24)                                                           | Keeps REST business logic in a long-lived service with clear module boundaries and predictable DB access | REQ-018..REQ-026, REQ-032..REQ-038        |
+| Auth0 control-plane handlers | Raw Lambda (Node 22), no NestJS                                                              | Small, isolated handlers for auth edge-cases and scheduled/async tasks                                   | REQ-013..REQ-017, REQ-039..REQ-044        |
+| Authorizer model             | API Gateway REST + Lambda REQUEST authorizer                                                 | Needed for custom JWT claim validation, context injection, and suspension enforcement                    | REQ-039, REQ-040, REQ-042, FR-038..FR-043 |
+| ECS trust boundary           | ECS service trusts `AuthorizerContext` headers only; never decodes client JWT                | Prevents client-supplied claim spoofing; authorizer is the sole JWT verification point                   | REQ-039, REQ-040, decisions.md T9/T11     |
+| Data store                   | RDS PostgreSQL 16 (`db.t4g.small`) with Drizzle + `pg`                                       | Explicit replacement of obsolete Aurora DSQL assumption; aligns with broader repo standards              | REQ-013..REQ-026                          |
+| Shared schema contract       | Single Drizzle schema in `packages/shared/auth-types/schema/`; both ECS and Lambda import it | Prevents column-set divergence between runtimes hitting the same RDS instance                            | REQ-013..REQ-026, T8 evidence             |
+| Deletion resiliency          | SQS + exponential backoff + DLQ after 5 attempts                                             | Guarantees eventual Auth0 delete and failure visibility under rate limits/transients                     | REQ-025, REQ-026                          |
+| Reconciliation               | EventBridge Scheduler nightly Lambda diff                                                    | Safety net when signup action path partially fails                                                       | REQ-017                                   |
+| Infrastructure ownership     | 100% self-contained in this repo, CDK + Serverless only                                      | Eliminates cross-repo ambiguity and external dependency drift                                            | REQ-050                                   |
+| Local integration runtime    | LocalStack Community + sibling Postgres container                                            | Enables queue/event/storage testing without paid emulators                                               | REQ-049                                   |
 
 ---
 
@@ -174,7 +176,7 @@ This is mandatory for REQ-049 (LocalStack-backed local testing) and supports REQ
 ### `packages/services/identity-webhooks/`
 
 - `authorizer` Lambda: JWT validation, claim extraction, suspension check, context injection
-- `post-registration` Lambda: idempotent user/account/profile create + `app_metadata.userId` writeback
+- `post-registration` Lambda: idempotent UPSERT user/account/profile keyed by `sub` (no `app_metadata.userId` writeback)
 - `deletion-worker` Lambda: retries Auth0 delete via SQS receive count/backoff and DLQ threshold
 - `reconciliation` Lambda: periodic Auth0-vs-DB diff and repair
 - Traceability: REQ-013..REQ-017, REQ-025..REQ-026, REQ-039..REQ-044
@@ -191,7 +193,7 @@ This is mandatory for REQ-049 (LocalStack-backed local testing) and supports REQ
 ## Security and reliability notes
 
 - JWT verification via JWKS with in-process cache; enforce `iss`, `aud`, signature, expiration (REQ-039)
-- Authorizer denies suspended users with `403` and injects `userId` context (REQ-040, REQ-042)
+- Authorizer denies suspended users with `403` and injects `sub` context (REQ-040, REQ-042)
 - Logout/revocation and secure token storage remain platform-specific per spec (REQ-006..REQ-012)
 - Async deletion path must not block DB deletion completion; failed Auth0 deletions surface to DLQ/alarms (REQ-025, REQ-026)
 - Reconciliation produces deterministic repair actions and audit logs (REQ-017, NFR-012..NFR-017)
