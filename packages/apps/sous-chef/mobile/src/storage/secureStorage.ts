@@ -4,9 +4,8 @@ import type { AuthSession } from '../types/auth.js';
 const ACCESS_TOKEN_KEY = 'auth_access_token';
 const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 const EXPIRES_AT_KEY = 'auth_expires_at';
-const USER_ID_KEY = 'auth_user_id';
-const AUTH0_ID_KEY = 'auth_auth0_id';
-const SESSION_KEYS = [ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, EXPIRES_AT_KEY, USER_ID_KEY, AUTH0_ID_KEY] as const;
+const SUB_KEY = 'auth_sub';
+const SESSION_KEYS = [ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, EXPIRES_AT_KEY, SUB_KEY] as const;
 
 export const SECURE_STORAGE_SESSION_KEYS: readonly string[] = SESSION_KEYS;
 
@@ -27,8 +26,7 @@ export async function storeSession(session: AuthSession): Promise<void> {
         [ACCESS_TOKEN_KEY, session.accessToken],
         [REFRESH_TOKEN_KEY, session.refreshToken],
         [EXPIRES_AT_KEY, session.expiresAt],
-        [USER_ID_KEY, session.userId],
-        [AUTH0_ID_KEY, session.auth0Id],
+        [SUB_KEY, session.sub],
     ] as const;
     const results = await Promise.allSettled(
         entries.map(([key, value]) => SecureStore.setItemAsync(key, value, getSecureStoreOptions())),
@@ -50,9 +48,9 @@ export async function getStoredSession(): Promise<AuthSession | null> {
         return null;
     }
 
-    const [accessToken, refreshToken, expiresAt, userId, auth0Id] = values as [string, string, string, string, string];
+    const [accessToken, refreshToken, expiresAt, sub] = values as [string, string, string, string];
 
-    return { accessToken, refreshToken, expiresAt, userId, auth0Id };
+    return { accessToken, refreshToken, expiresAt, sub };
 }
 
 export async function clearSession(): Promise<void> {
@@ -76,7 +74,5 @@ export async function getTokenTTL(): Promise<number> {
         return 0;
     }
 
-    const ttl = Date.parse(expiresAt) - Date.now();
-
-    return Math.max(0, ttl);
+    return Math.max(0, Date.parse(expiresAt) - Date.now());
 }
