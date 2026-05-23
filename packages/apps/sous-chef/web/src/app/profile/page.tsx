@@ -37,7 +37,7 @@ async function ProfileContent({ accessToken }: { accessToken: string }) {
                 <h2 id="account-heading">Account</h2>
                 <dl>
                     <dt>Subscription Tier</dt>
-                    <dd>{profile.account.subscriptionTier}</dd>
+                    <dd>{profile.account.tier}</dd>
                 </dl>
             </section>
             <LogoutButton />

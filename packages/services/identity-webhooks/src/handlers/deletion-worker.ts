@@ -1,9 +1,11 @@
 import type { Context, SQSEvent, SQSRecord } from 'aws-lambda';
 
-import type { UserDeletionQueueMessage, UserId } from '@kitchensink/auth-types';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import type { UserDeletionQueueMessage } from '@kitchensink/auth-types';
+import { UserDAO } from '@kitchensink/auth-types/dao';
 
 import { deleteAuth0User } from '../common/auth0.js';
-import { lookupUserByIdAndAuth0Sub } from '../common/db.js';
+import { getDb } from '../common/db.js';
 import { buildErrorEnvelope, getErrorCause, resolveRequestId } from '../common/error-envelope.js';
 import { emitMetric, logger, withObservability } from '../common/observability.js';
 import { getExponentialDelayMs, withExponentialRetry } from '../common/retry.js';
@@ -65,7 +67,11 @@ const processRecord = async (
 
     stats.processed += 1;
 
-    const persisted = await lookupUserByIdAndAuth0Sub(dbSecretArn, message.userId as UserId, message.auth0Sub);
+    const persisted = await (async () => {
+        const db = await getDb(dbSecretArn);
+        const userDao = new UserDAO(db as unknown as PostgresJsDatabase<Record<string, never>>);
+        return userDao.findBySub(message.userSub);
+    })();
 
     if (!persisted) {
         stats.skipped += 1;
@@ -73,8 +79,7 @@ const processRecord = async (
         logger.info('deletion-worker skipped stale message', {
             requestId,
             messageId: record.messageId,
-            userId: message.userId,
-            auth0Sub: message.auth0Sub,
+            userSub: message.userSub,
             receiveCount,
         });
 
@@ -93,8 +98,7 @@ const processRecord = async (
                 logger.warn('deletion-worker retry', {
                     requestId,
                     messageId: record.messageId,
-                    userId: message.userId,
-                    auth0Sub: message.auth0Sub,
+                    userSub: message.userSub,
                     attempt,
                     receiveCount,
                     backoffMs: delayMs,
@@ -103,7 +107,7 @@ const processRecord = async (
 
             await deleteAuth0User({
                 auth0SecretArn,
-                auth0Sub: message.auth0Sub,
+                auth0Sub: message.userSub,
             });
         },
         shouldRetry: isAuth0Transient,
@@ -114,8 +118,7 @@ const processRecord = async (
     logger.info('deletion-worker auth0 deletion completed', {
         requestId,
         messageId: record.messageId,
-        userId: message.userId,
-        auth0Sub: message.auth0Sub,
+        userSub: message.userSub,
         receiveCount,
         dlqContract: 'SQS redrive maxReceiveCount=5 managed by infra',
     });

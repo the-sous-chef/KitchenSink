@@ -1,7 +1,11 @@
 import type { Context, ScheduledEvent } from 'aws-lambda';
 
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import type { UserSub } from '@kitchensink/auth-types';
+import { AccountDAO, UserDAO } from '@kitchensink/auth-types/dao';
+
 import { listAuth0Users } from '../common/auth0.js';
-import { ensureUserAccountProfile, listDbAuth0Subs } from '../common/db.js';
+import { getDb } from '../common/db.js';
 import { buildErrorEnvelope, getErrorCause, resolveRequestId } from '../common/error-envelope.js';
 import { emitMetric, logger, withObservability } from '../common/observability.js';
 
@@ -16,13 +20,6 @@ type ReconciliationCounters = {
     repaired: number;
     skipped: number;
     errors: number;
-};
-
-/** @implements REQ-017 REQ-IF-010 FR-017 ARCH-012 MOD-012 */
-const providerFromSub = (auth0Sub: string): { provider: string; providerAccountId: string } => {
-    const [provider = 'auth0', providerAccountId = auth0Sub] = auth0Sub.split('|');
-
-    return { provider, providerAccountId };
 };
 
 /** @implements REQ-017 REQ-IF-010 FR-017 ARCH-012 MOD-012 */
@@ -49,34 +46,30 @@ const innerHandler = async (event: ScheduledEvent, context: Context): Promise<Re
     };
 
     const auth0Users = await listAuth0Users({ auth0SecretArn });
-    const dbAuth0Subs = await listDbAuth0Subs(dbSecretArn);
+
+    const db = await getDb(dbSecretArn);
+    const userDao = new UserDAO(db as unknown as PostgresJsDatabase<Record<string, never>>);
+    const accountDao = new AccountDAO(db as unknown as PostgresJsDatabase<Record<string, never>>);
 
     for (const auth0User of auth0Users) {
         counters.scanned += 1;
 
-        if (dbAuth0Subs.has(auth0User.sub)) {
+        const existing = await userDao.findBySub(auth0User.sub as UserSub);
+
+        if (existing) {
             counters.skipped += 1;
             continue;
         }
 
         try {
-            const provider = providerFromSub(auth0User.sub);
-            const result = await ensureUserAccountProfile({
-                dbSecretArn,
-                auth0Sub: auth0User.sub,
+            await userDao.upsert({
+                sub: auth0User.sub as UserSub,
                 email: auth0User.email,
-                displayName: auth0User.name?.trim() || auth0User.email,
-                avatarUrl: auth0User.picture,
-                provider: provider.provider,
-                providerAccountId: provider.providerAccountId,
-                preferredUserId: null,
+                name: auth0User.name ?? undefined,
+                picture: auth0User.picture ?? undefined,
             });
-
-            if (result.created) {
-                counters.repaired += 1;
-            } else {
-                counters.skipped += 1;
-            }
+            await accountDao.upsert(auth0User.sub as UserSub, 'free');
+            counters.repaired += 1;
         } catch (error) {
             counters.errors += 1;
             logger.error('reconciliation failed for user', {

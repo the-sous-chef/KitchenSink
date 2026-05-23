@@ -13,8 +13,7 @@ export function useAuthSession(): AuthSession | undefined {
         accessToken: '',
         refreshToken: '',
         expiresAt: '',
-        userId: user.sub,
-        auth0Id: user.sub,
+        sub: user.sub as import('@kitchensink/auth-types').UserSub,
     };
 }
 
