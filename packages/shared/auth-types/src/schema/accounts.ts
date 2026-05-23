@@ -1,4 +1,4 @@
-import { index, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core';
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { users } from './users.js';
 
@@ -7,14 +7,14 @@ export const accounts = pgTable(
     'accounts',
     {
         id: uuid('id').primaryKey().defaultRandom(),
-        userId: uuid('user_id')
+        userSub: varchar('user_sub', { length: 255 })
             .notNull()
-            .references(() => users.id, { onDelete: 'cascade' }),
+            .references(() => users.sub, { onDelete: 'cascade' }),
         provider: text('provider').notNull(),
         providerAccountId: text('provider_account_id').notNull(),
     },
     (table) => [
-        index('accounts_user_id_idx').on(table.userId),
+        index('accounts_user_sub_idx').on(table.userSub),
         uniqueIndex('accounts_provider_provider_account_id_unique').on(table.provider, table.providerAccountId),
     ],
 );
