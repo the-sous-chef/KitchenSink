@@ -15,6 +15,12 @@ import {
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
+    @Post('upsert')
+    @HttpCode(HttpStatus.OK)
+    async upsertUser(@Body() body: { sub: string; email: string; name?: string; picture?: string }): Promise<{ sub: string; created: boolean }> {
+        return this.usersService.upsertUser(body);
+    }
+
     @Get('me')
     async getUserMe(@CurrentAuthorizerContext() ctx: AuthorizerContext) {
         return this.usersService.getUserMe(ctx);

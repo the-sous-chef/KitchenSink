@@ -15,9 +15,9 @@
         "format:check": "prettier --check ."
     },
     "dependencies": {
-        "@kitchensink/auth-types": "*",
-        "@aws-sdk/client-sqs": "^3.723.0",
         "@aws-lambda-powertools/logger": "^2.7.0",
+        "@aws-sdk/client-sqs": "^3.723.0",
+        "@kitchensink/auth-types": "*",
         "@nestjs/common": "^11.0.0",
         "@nestjs/config": "^4.0.0",
         "@nestjs/core": "^11.0.0",
@@ -36,6 +36,7 @@
         "@kitchensink/typescript": "*",
         "@kitchensink/vitest": "*",
         "@nestjs/cli": "^11.0.0",
+        "@types/express": "^5.0.6",
         "@types/node": "^24.0.0",
         "@types/pg": "^8.11.0",
         "drizzle-kit": "^0.30.0",
