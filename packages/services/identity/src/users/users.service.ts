@@ -18,6 +18,43 @@ export class UsersService {
         private readonly sqs: SqsService,
     ) {}
 
+    async upsertUser(input: { sub: string; email: string; name?: string; picture?: string }): Promise<{ sub: string; created: boolean }> {
+        const now = new Date();
+
+        const [existing] = await this.db.select({ sub: users.sub }).from(users).where(eq(users.sub, input.sub)).limit(1);
+        const created = !existing;
+
+        await this.db
+            .insert(users)
+            .values({
+                sub: input.sub,
+                email: input.email,
+                name: input.name ?? null,
+                picture: input.picture ?? null,
+            })
+            .onConflictDoUpdate({
+                target: users.sub,
+                set: {
+                    email: input.email,
+                    name: input.name ?? null,
+                    picture: input.picture ?? null,
+                    updatedAt: now,
+                },
+            });
+
+        await this.db
+            .insert(accounts)
+            .values({ ownerSub: input.sub })
+            .onConflictDoNothing();
+
+        await this.db
+            .insert(profiles)
+            .values({ userSub: input.sub, displayName: input.name ?? '' })
+            .onConflictDoNothing();
+
+        return { sub: input.sub, created };
+    }
+
     async getUserMe(ctx: AuthorizerContext) {
         const userId = ctx.userId;
 
