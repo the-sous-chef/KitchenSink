@@ -44,3 +44,13 @@
 - DAO class mock pattern: use `function` keyword in vi.fn().mockImplementation to avoid Vitest warning
 - requireEnv reads process.env directly — set process.env in beforeEach rather than mocking the module
 - typecheck: 0 errors; tests: 12 passed (2 files)
+
+## T16 completed [2026-05-22]
+- generateCodeVerifier() now uses expo-crypto CSPRNG (32 random bytes → base64url)
+- generateCodeChallenge() now computes SHA-256(verifier) → base64url (S256)
+- decodeTokenClaims(), extractUserIdFromClaims(), CLAIM_USER_ID removed
+- buildSession() uses sub from SDK response, not manual JWT decode
+- AuthSession type: userId/auth0Id replaced with sub
+- secureStorage.ts updated: USER_ID_KEY/AUTH0_ID_KEY replaced with SUB_KEY
+- RFC 7636 test vector passes
+- Math.random usage fully removed from mobile auth code

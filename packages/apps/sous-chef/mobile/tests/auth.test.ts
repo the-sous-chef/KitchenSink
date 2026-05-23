@@ -22,8 +22,7 @@ const mockSession: AuthSession = {
     accessToken: 'test-access-token',
     refreshToken: 'test-refresh-token',
     expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
-    userId: 'test-user-id',
-    auth0Id: 'auth0|test-auth0-id',
+    sub: 'auth0|test-auth0-id',
 };
 
 describe('Auth Flow', () => {
@@ -139,8 +138,7 @@ describe('Auth Flow', () => {
         it('should have all required fields', () => {
             expect(mockSession.accessToken).toBe('test-access-token');
             expect(mockSession.refreshToken).toBe('test-refresh-token');
-            expect(mockSession.userId).toBe('test-user-id');
-            expect(mockSession.auth0Id).toBe('auth0|test-auth0-id');
+            expect(mockSession.sub).toBe('auth0|test-auth0-id');
             expect(mockSession.expiresAt).toBeDefined();
         });
 

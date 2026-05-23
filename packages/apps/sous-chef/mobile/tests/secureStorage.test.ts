@@ -21,8 +21,7 @@ const mockSession: AuthSession = {
     accessToken: 'test-access-token',
     refreshToken: 'test-refresh-token',
     expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
-    userId: 'test-user-id',
-    auth0Id: 'auth0|test-auth0-id',
+    sub: 'auth0|test-auth0-id',
 };
 
 describe('SecureStorage', () => {
@@ -41,7 +40,7 @@ describe('SecureStorage', () => {
 
             await storeSession(mockSession);
 
-            expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(5);
+            expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(4);
         });
 
         it('should use device-only secure-store options for every token field', async () => {
@@ -119,7 +118,7 @@ describe('SecureStorage', () => {
 
             await clearSession();
 
-            expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(5);
+            expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(4);
             expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('auth_access_token');
             expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('auth_refresh_token');
         });
