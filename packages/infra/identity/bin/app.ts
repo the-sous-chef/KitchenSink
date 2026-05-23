@@ -3,6 +3,7 @@ import { App } from 'aws-cdk-lib';
 import { DataStack } from '../lib/data-stack.js';
 import { IdentityServiceStack } from '../lib/identity-service-stack.js';
 import { NetworkStack } from '../lib/network-stack.js';
+import { WebhooksStack } from '../lib/webhooks-stack.js';
 
 /**
  * @implements REQ-049 REQ-050 REQ-CN-008 FR-045 ARCH-027 ARCH-031 ARCH-032 MOD-027 MOD-031 MOD-032
@@ -32,6 +33,14 @@ new IdentityServiceStack(app, `IdentityService-${stage}`, {
     env,
     description: 'KitchenSink identity ECS service boundary',
     stackName: `kitchensink-identity-service-${stage}`,
+    network: networkStack,
+    data: dataStack,
+});
+
+new WebhooksStack(app, `IdentityWebhooks-${stage}`, {
+    env,
+    description: 'KitchenSink identity webhooks — Lambda authorizer, API Gateway, webhooks handlers',
+    stackName: `kitchensink-identity-webhooks-${stage}`,
     network: networkStack,
     data: dataStack,
 });
