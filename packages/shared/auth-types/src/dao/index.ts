@@ -1,2 +1,4 @@
 export { UserDAO } from './user.dao.js';
-export type { NewUserRow, UserRow } from '../schema/users.js';
+export { AccountDAO } from './account.dao.js';
+export type { UserRow, NewUserRow } from '../schema/users.js';
+export type { AccountRow, NewAccountRow } from '../schema/accounts.js';

@@ -2,7 +2,7 @@ import { customType, index, pgEnum, pgTable, text, timestamp, uniqueIndex, varch
 import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 // COLLATE "C" custom type — standard varchar() doesn't expose collation
-const varcharCollateC = customType<{ data: string; driverData: string }>({
+export const varcharCollateC = customType<{ data: string; driverData: string }>({
     dataType() {
         return 'VARCHAR(255) COLLATE "C"';
     },
