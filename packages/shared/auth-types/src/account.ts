@@ -1,12 +1,12 @@
-import type { UserId, UuidV4 } from './user.js';
+import type { UserSub } from './user.js';
 
 /** @implements REQ-013 REQ-014 REQ-017 REQ-018 FR-013 FR-014 FR-017 FR-018 ARCH-012 MOD-012 */
-export type AccountId = UuidV4 & { readonly __brand: 'AccountId' };
+export type AccountId = string & { readonly __brand: 'AccountId' };
 
 /** @implements REQ-005 REQ-006 REQ-039 FR-005 FR-006 FR-039 ARCH-003 MOD-003 */
-export interface AccountReadDto {
+export interface AccountModel {
     id: AccountId;
-    userId: UserId;
+    userSub: UserSub;
     provider: string;
     providerAccountId: string;
     createdAt: string;
@@ -15,7 +15,7 @@ export interface AccountReadDto {
 
 /** @implements REQ-005 REQ-039 FR-005 FR-039 ARCH-003 MOD-003 */
 export interface CreateAccountDto {
-    userId: UserId;
+    userSub: UserSub;
     provider: string;
     providerAccountId: string;
 }
@@ -29,7 +29,7 @@ export interface UpdateAccountDto {
 
 export interface UserProfileAccountDto {
     readonly id: string;
-    readonly userId: string;
+    readonly userSub: UserSub;
     subscriptionTier: 'free' | 'premium';
     readonly createdAt: string;
     updatedAt: string;

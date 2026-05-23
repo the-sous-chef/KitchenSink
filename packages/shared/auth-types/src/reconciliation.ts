@@ -1,9 +1,8 @@
-import type { UserId, UserStatus } from './user.js';
+import type { UserStatus, UserSub } from './user.js';
 
 /** @implements REQ-040 FR-040 ARCH-024 MOD-024 */
 export interface ReconciliationUserDrift {
-    userId: UserId;
-    auth0Sub: string;
+    userSub: UserSub;
     emailMismatch: {
         expected: string;
         actual: string;
