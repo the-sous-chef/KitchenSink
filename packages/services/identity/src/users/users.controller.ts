@@ -1,7 +1,7 @@
 import { Controller, Get, Patch, Delete, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service.js';
-import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator';
-import type { AuthorizerContext } from '../auth/decorators/current-user.decorator';
+import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator.js';
+import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 import {
     PatchUserMeBodyDto,
     DeleteUserMeResponseDto,
@@ -36,13 +36,13 @@ export class UsersController {
     @Post('me/password-reset')
     @HttpCode(HttpStatus.OK)
     async requestPasswordReset(@CurrentAuthorizerContext() ctx: AuthorizerContext): Promise<PasswordResetResponseDto> {
-        return this.usersService.requestPasswordReset(ctx.email);
+        return this.usersService.requestPasswordReset(ctx.email ?? '');
     }
 
     @Post('me/mfa/enroll')
     @HttpCode(HttpStatus.OK)
     async enrollMFA(@CurrentAuthorizerContext() ctx: AuthorizerContext): Promise<MfaEnrollResponseDto> {
-        return this.usersService.enrollMFA(ctx.auth0Sub);
+        return this.usersService.enrollMFA(ctx.sub);
     }
 
     @Post('me/mfa/unenroll')
@@ -60,7 +60,7 @@ export class UsersController {
         @CurrentAuthorizerContext() ctx: AuthorizerContext,
         @Body() body: SocialAccountBodyDto,
     ): Promise<SocialLinkResponseDto> {
-        return this.usersService.linkSocialAccount(ctx.auth0Sub, body.provider, body.accountId);
+        return this.usersService.linkSocialAccount(ctx.sub, body.provider, body.accountId);
     }
 
     @Post('me/social/unlink')
@@ -69,6 +69,6 @@ export class UsersController {
         @CurrentAuthorizerContext() ctx: AuthorizerContext,
         @Body() body: SocialAccountBodyDto,
     ): Promise<SocialLinkResponseDto> {
-        return this.usersService.unlinkSocialAccount(ctx.auth0Sub, body.provider, body.accountId);
+        return this.usersService.unlinkSocialAccount(ctx.sub, body.provider, body.accountId);
     }
 }
