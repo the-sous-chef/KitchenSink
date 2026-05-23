@@ -100,6 +100,19 @@ functions:
                   path: webhooks/post-registration
                   method: post
                   cors: true
+    postLogin:
+        handler: packages/services/identity-webhooks/dist/handlers/post-login.handler
+        timeout: 30
+        events:
+            - http:
+                  path: webhooks/post-login
+                  method: post
+                  cors: true
+                  authorizer:
+                      name: authorizer
+                      type: request
+                      identitySource: method.request.header.Authorization
+                      resultTtlInSeconds: 300
     deletionWorker:
         handler: packages/services/identity-webhooks/dist/handlers/deletion-worker.handler
         timeout: 30
