@@ -1,13 +1,13 @@
 import { Controller, Post, Param, HttpCode, HttpStatus } from '@nestjs/common';
-import { AdminService } from './admin.service';
-import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator';
-import type { AuthorizerContext } from '../auth/decorators/current-user.decorator';
+import { AdminService } from './admin.service.js';
+import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator.js';
+import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 import {
     AdminSuspendUserResponseDto,
     AdminUnsuspendUserResponseDto,
     ImpersonationStartResponseDto,
     ImpersonationStopResponseDto,
-} from './dto/admin.dto';
+} from './dto/admin.dto.js';
 
 @Controller('v1/admin/users')
 export class AdminController {

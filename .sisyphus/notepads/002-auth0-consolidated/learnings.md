@@ -23,6 +23,17 @@
 - Exported varcharCollateC from schema/users.ts
 - typecheck: 0 errors; tests: all pass
 
+## T10 completed [2026-05-22]
+- Wired NestJS identity service to @kitchensink/auth-types: AuthorizerContext decorator, shared Drizzle schema, DATABASE_URL config
+- Replaced DB_HOST/PORT/NAME/USERNAME/PASSWORD + AUTH0_CLIENT_ID/SECRET with single DATABASE_URL in env.schema.ts
+- Created AppConfigModule (config.module.ts) using ConfigModule.forRoot with Zod validate
+- database.module.ts: imports users/accounts/profiles from @kitchensink/auth-types/schema; uses DATABASE_URL
+- auth.module.ts: removed ManagementClient; auth0.service.ts methods stubbed as no-ops
+- users.service.ts + admin.service.ts: ctx.userId→ctx.sub, users.id→users.sub, accounts.userId→accounts.ownerSub, profiles.userId→profiles.userSub
+- Orphaned local schema files (schema.ts, accounts.schema.ts) replaced with re-exports from @kitchensink/auth-types/schema
+- integration.test.ts: updated ctx fixtures to AuthorizerContext shape (sub/email/isM2M/tokenType), mock data to new field names, assertions to new return shapes
+- typecheck: 0 errors; tests: 14 passed (1 file)
+
 ## T9 completed [2026-05-22]
 - Created src/handlers/post-login.ts: M2M-gated upsert handler keyed on sub (UserDAO + AccountDAO)
 - Removed updateUserMetadataUserId from auth0.ts; removed all legacy db helpers from db.ts (only getDb remains)

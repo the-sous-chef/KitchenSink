@@ -22,24 +22,21 @@ function makeChain<T>(result: T) {
 }
 
 const adminCtx = {
-    userId: 'admin-1',
-    auth0Sub: 'auth0|admin',
+    sub: 'auth0|admin',
     email: 'admin@example.com',
-    status: 'active',
-    isImpersonating: 'false',
+    isM2M: false,
+    tokenType: 'Bearer',
 };
 
 const userCtx = {
-    userId: 'user-123',
-    auth0Sub: 'auth0|abc123',
+    sub: 'auth0|abc123',
     email: 'test@example.com',
-    status: 'active',
-    isImpersonating: 'false',
+    isM2M: false,
+    tokenType: 'Bearer',
 };
 
 const mockUser = {
-    id: 'user-123',
-    auth0Sub: 'auth0|abc123',
+    sub: 'auth0|abc123',
     email: 'test@example.com',
     status: 'active',
     createdAt: new Date(),
@@ -88,7 +85,7 @@ describe('UsersService', () => {
     it('getUserMe returns aggregated profile', async () => {
         const profile = {
             id: 'p-1',
-            userId: 'user-123',
+            userSub: 'auth0|abc123',
             displayName: 'Test',
             avatarUrl: null,
             bio: null,
@@ -96,8 +93,8 @@ describe('UsersService', () => {
         };
         const account = {
             id: 'a-1',
-            userId: 'user-123',
-            subscriptionTier: 'free',
+            ownerSub: 'auth0|abc123',
+            tier: 'free',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -110,8 +107,8 @@ describe('UsersService', () => {
 
         const result = await usersService.getUserMe(userCtx);
 
-        expect(result.user.id).toBe('user-123');
-        expect(result.account.subscriptionTier).toBe('free');
+        expect(result.user.sub).toBe('auth0|abc123');
+        expect(result.account.tier).toBe('free');
     });
 
     it('getUserMe throws when user missing', async () => {
@@ -195,32 +192,32 @@ describe('AdminService', () => {
     });
 
     it('suspendUser blocks in auth0 and updates db', async () => {
-        const result = await adminService.suspendUser('user-123', adminCtx);
+        const result = await adminService.suspendUser('auth0|abc123', adminCtx);
 
         expect(mockAuth0.blockUser).toHaveBeenCalledWith('auth0|abc123');
         expect(result.status).toBe('suspended');
     });
 
     it('unsuspendUser unblocks in auth0 and updates db', async () => {
-        const result = await adminService.unsuspendUser('user-123', adminCtx);
+        const result = await adminService.unsuspendUser('auth0|abc123', adminCtx);
 
         expect(mockAuth0.unblockUser).toHaveBeenCalledWith('auth0|abc123');
         expect(result.status).toBe('active');
     });
 
     it('startImpersonation returns session metadata', async () => {
-        const result = await adminService.startImpersonation('user-123', adminCtx);
+        const result = await adminService.startImpersonation('auth0|abc123', adminCtx);
 
-        expect(result.impersonatorId).toBe('admin-1');
-        expect(result.impersonatedUserId).toBe('user-123');
+        expect(result.impersonatorSub).toBe('auth0|admin');
+        expect(result.impersonatedSub).toBe('auth0|abc123');
         expect(result.sessionId).toContain('imp-');
     });
 
     it('stopImpersonation returns stop metadata', async () => {
-        const result = await adminService.stopImpersonation('user-123', adminCtx);
+        const result = await adminService.stopImpersonation('auth0|abc123', adminCtx);
 
-        expect(result.impersonatorId).toBe('admin-1');
-        expect(result.impersonatedUserId).toBe('user-123');
+        expect(result.impersonatorSub).toBe('auth0|admin');
+        expect(result.impersonatedSub).toBe('auth0|abc123');
     });
 
     it('suspendUser throws when target missing', async () => {

@@ -2,9 +2,9 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 
-import { users, DrizzleProvider } from '../database/index';
-import { Auth0Service } from '../auth/auth0.service';
-import { AuthorizerContext } from '../auth/decorators/current-user.decorator';
+import { users, DrizzleProvider } from '../database/index.js';
+import { Auth0Service } from '../auth/auth0.service.js';
+import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 
 @Injectable()
 export class AdminService {
@@ -16,92 +16,92 @@ export class AdminService {
     ) {}
 
     async suspendUser(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ userId: string; status: 'suspended'; suspendedAt: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ sub: string; status: 'suspended'; suspendedAt: string }> {
+        const [existing] = await this.db.select().from(users).where(eq(users.sub, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
         const now = new Date();
-        await this.db.update(users).set({ status: 'suspended', updatedAt: now }).where(eq(users.id, targetUserId));
+        await this.db.update(users).set({ status: 'suspended', updatedAt: now }).where(eq(users.sub, targetSub));
 
-        await this.auth0.blockUser(existing.auth0Sub);
+        await this.auth0.blockUser(existing.sub);
 
-        this.logger.warn('user suspended', { adminId: adminCtx.userId, targetUserId, auth0Sub: existing.auth0Sub });
+        this.logger.warn('user suspended', { adminSub: adminCtx.sub, targetSub, sub: existing.sub });
 
-        return { userId: targetUserId, status: 'suspended', suspendedAt: now.toISOString() };
+        return { sub: targetSub, status: 'suspended', suspendedAt: now.toISOString() };
     }
 
     async unsuspendUser(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ userId: string; status: 'active'; unsuspendedAt: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ sub: string; status: 'active'; unsuspendedAt: string }> {
+        const [existing] = await this.db.select().from(users).where(eq(users.sub, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
         const now = new Date();
-        await this.db.update(users).set({ status: 'active', updatedAt: now }).where(eq(users.id, targetUserId));
+        await this.db.update(users).set({ status: 'active', updatedAt: now }).where(eq(users.sub, targetSub));
 
-        await this.auth0.unblockUser(existing.auth0Sub);
+        await this.auth0.unblockUser(existing.sub);
 
-        this.logger.warn('user unsuspended', { adminId: adminCtx.userId, targetUserId, auth0Sub: existing.auth0Sub });
+        this.logger.warn('user unsuspended', { adminSub: adminCtx.sub, targetSub, sub: existing.sub });
 
-        return { userId: targetUserId, status: 'active', unsuspendedAt: now.toISOString() };
+        return { sub: targetSub, status: 'active', unsuspendedAt: now.toISOString() };
     }
 
     async startImpersonation(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ impersonatorId: string; impersonatedUserId: string; sessionId: string; startedAt: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ impersonatorSub: string; impersonatedSub: string; sessionId: string; startedAt: string }> {
+        const [existing] = await this.db.select().from(users).where(eq(users.sub, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
-        const sessionId = `imp-${adminCtx.userId}-${targetUserId}-${Date.now()}`;
+        const sessionId = `imp-${adminCtx.sub}-${targetSub}-${Date.now()}`;
         const now = new Date();
 
         this.logger.warn('impersonation started', {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.sub,
+            impersonatedSub: targetSub,
             sessionId,
         });
 
         return {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.sub,
+            impersonatedSub: targetSub,
             sessionId,
             startedAt: now.toISOString(),
         };
     }
 
     async stopImpersonation(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ impersonatorId: string; impersonatedUserId: string; stoppedAt: string; message: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ impersonatorSub: string; impersonatedSub: string; stoppedAt: string; message: string }> {
+        const [existing] = await this.db.select().from(users).where(eq(users.sub, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
         const now = new Date();
 
         this.logger.warn('impersonation stopped', {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.sub,
+            impersonatedSub: targetSub,
         });
 
         return {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.sub,
+            impersonatedSub: targetSub,
             stoppedAt: now.toISOString(),
             message: 'Impersonation session ended',
         };
