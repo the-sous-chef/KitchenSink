@@ -75,7 +75,7 @@ parse_columns() {
     read -ra parts <<< "$line"
     for part in "${parts[@]}"; do
         local trimmed
-        trimmed="$(echo "$part" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+        trimmed="$(echo "$part" | sed 's/^[[:space:]]+*//;s/[[:space:]]+*$//')"
         COLUMNS+=("$trimmed")
     done
 }
@@ -260,7 +260,7 @@ current_source=""
 
 while IFS= read -r line; do
     # Detect matrix section heading
-    if [[ "$line" =~ ^##[[:space:]]+(Matrix[[:space:]]+[A-Z]) ]]; then
+    if [[ "$line" =~ ^##[[:space:]]++(Matrix[[:space:]]++[A-Z]) ]]; then
         finish_matrix
         current_matrix_id="${BASH_REMATCH[1]}"
         current_matrix_title="$line"
@@ -282,7 +282,7 @@ while IFS= read -r line; do
     fi
 
     # Detect section exit (next heading that's not a sub-heading of current matrix)
-    if [[ "$line" =~ ^##[[:space:]] && ! "$line" =~ ^###[[:space:]] && ! "$line" =~ ^##[[:space:]]+Matrix ]]; then
+    if [[ "$line" =~ ^##[[:space:]]+ && ! "$line" =~ ^##[[:space:]]++ && ! "$line" =~ ^##[[:space:]]++Matrix ]]; then
         finish_matrix
         current_matrix_id=""
         continue
@@ -297,7 +297,7 @@ while IFS= read -r line; do
     fi
 
     # Skip separator rows
-    if [[ "$line" =~ ^\|[[:space:]]*[-:]+ ]]; then
+    if [[ "$line" =~ ^\|[[:space:]]+*[-:]+ ]]; then
         continue
     fi
 
@@ -391,7 +391,7 @@ total_mitigated=0
 
 if [[ -f "$HAZARD_PATH" ]]; then
     while IFS= read -r line; do
-        if [[ "$line" =~ ^\|[[:space:]]*\*?\*?(HAZ-[0-9]{3})\*?\*? ]]; then
+        if [[ "$line" =~ ^\|[[:space:]]+*\*?\*?(HAZ-[0-9]{3})\*?\*? ]]; then
             parse_columns "$line"
             haz_id=$(strip_bold "${COLUMNS[0]}")
             # Write full row for report rendering
@@ -430,25 +430,25 @@ if [[ -f "$WAIVER_PATH" ]]; then
     }
 
     while IFS= read -r line; do
-        if [[ "$line" =~ ^###[[:space:]]+(WAV-[0-9]{3}) ]]; then
+        if [[ "$line" =~ ^##[[:space:]]+(WAV-[0-9]{3}) ]]; then
             save_waiver
             current_wav="${BASH_REMATCH[1]}"
             current_artifact=""
             current_type=""
             current_justification=""
             current_approved=""
-        elif [[ "$line" =~ ^\*\*Artifact\*\*:[[:space:]]*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Artifact\*\*:[[:space:]]+*(.*) ]]; then
             current_artifact="${BASH_REMATCH[1]}"
             current_artifact="${current_artifact%$'\r'}"
             current_artifact="${current_artifact#"${current_artifact%%[![:space:]]*}"}"
             current_artifact="${current_artifact%"${current_artifact##*[![:space:]]}"}"
-        elif [[ "$line" =~ ^\*\*Type\*\*:[[:space:]]*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Type\*\*:[[:space:]]+*(.*) ]]; then
             current_type="${BASH_REMATCH[1]}"
             current_type="${current_type%$'\r'}"
-        elif [[ "$line" =~ ^\*\*Justification\*\*:[[:space:]]*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Justification\*\*:[[:space:]]+*(.*) ]]; then
             current_justification="${BASH_REMATCH[1]}"
             current_justification="${current_justification%$'\r'}"
-        elif [[ "$line" =~ ^\*\*Approved\ By\*\*:[[:space:]]*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Approved\ By\*\*:[[:space:]]+*(.*) ]]; then
             current_approved="${BASH_REMATCH[1]}"
             current_approved="${current_approved%$'\r'}"
         fi

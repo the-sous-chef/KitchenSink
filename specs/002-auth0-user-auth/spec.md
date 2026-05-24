@@ -248,7 +248,7 @@ A security-conscious user wants to enable Multi-Factor Authentication on their a
 - **FR-018**: System MUST provide a profile page that displays the authenticated user's information (display name, email, avatar, account creation date) sourced from the Sous Chef database.
 - **FR-019**: System MUST provide an account edit page where users can update their display name and avatar. Changes MUST be persisted to the Sous Chef database.
 - **FR-020**: The account edit page MUST display email as read-only. Email changes MUST be handled through Auth0's email change flow.
-- **FR-021**: System MUST validate account edit inputs: display name MUST NOT be empty; avatar uploads MUST be limited to supported image formats and a maximum file size.
+- **FR-021**: System MUST validate account edit inputs: display name MUST NOT be empty, MUST be between 1 and 50 characters, and MUST NOT contain only whitespace; avatar uploads MUST be limited to JPEG, PNG, or WebP formats and a maximum file size of 5 MB.
 
 **Account Deletion**
 
