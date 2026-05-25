@@ -4,8 +4,10 @@
 
 DO NOT REMOVE THIS SECTION
 
-All agents MUST follow the coding standards (docs/CODING_STANDARDS.md) when contributing to the codebase.
-
-When writing tests, agents MUST review the testing strategy document (docs/TESTING_STRATEGY.md).
-
-All agents MUST adhere to best practices and repository guidelines when contributing. All agents MUST prioritize code quality, consistency, readability, correctness, and clean archiecture when contributing to this code base.
+1. Before implementing any code or tests, agents MUST confirm they have read and
+   understood `docs/CODING_STANDARDS.md`. If a rule is unclear, agents MUST ask
+   for clarification before proceeding.
+2. Agents MUST write tests that comply with `docs/TESTING_STRATEGY.md`.
+3. All agents MUST adhere to best practices and repository guidelines when contributing.
+4. All agents MUST prioritize code quality, consistency, readability, correctness,
+   and clean architecture when contributing to this code base.
