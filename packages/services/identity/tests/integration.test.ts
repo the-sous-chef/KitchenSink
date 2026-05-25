@@ -25,14 +25,26 @@ const adminCtx = {
     sub: 'auth0|admin',
     email: 'admin@example.com',
     isM2M: false,
-    tokenType: 'Bearer',
+    tokenType: 'user',
+    scopes: ['admin:users'],
+    permissions: [],
 };
 
 const userCtx = {
     sub: 'auth0|abc123',
     email: 'test@example.com',
     isM2M: false,
-    tokenType: 'Bearer',
+    tokenType: 'user',
+    scopes: [],
+    permissions: [],
+};
+
+const m2mCtx = {
+    sub: 'svc-client@clients',
+    isM2M: true,
+    tokenType: 'm2m',
+    scopes: ['admin:users'],
+    permissions: [],
 };
 
 const mockUser = {
@@ -48,6 +60,7 @@ describe('UsersService', () => {
     let mockDb: any;
     let mockAuth0: any;
     let mockSqs: any;
+    let mockResolver: any;
 
     beforeEach(async () => {
         mockDb = {
@@ -76,10 +89,22 @@ describe('UsersService', () => {
         };
 
         mockSqs = { enqueueDeletion: vi.fn().mockResolvedValue(undefined) };
+        mockResolver = {
+            resolveUser: vi.fn().mockResolvedValue({
+                user: mockUser,
+                account: {
+                    id: 'a-1',
+                    ownerSub: 'auth0|abc123',
+                    tier: 'free',
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            }),
+        };
 
         const { UsersService } = await import('../src/users/users.service.js');
 
-        usersService = new UsersService(mockDb, mockAuth0, mockSqs);
+        usersService = new UsersService(mockDb, mockAuth0, mockSqs, mockResolver);
     });
 
     it('getUserMe returns aggregated profile', async () => {
@@ -99,11 +124,8 @@ describe('UsersService', () => {
             updatedAt: new Date(),
         };
 
-        mockDb.select = vi
-            .fn()
-            .mockReturnValueOnce(makeChain([mockUser]))
-            .mockReturnValueOnce(makeChain([account]))
-            .mockReturnValueOnce(makeChain([profile]));
+        mockResolver.resolveUser.mockResolvedValue({ user: mockUser, account });
+        mockDb.select = vi.fn().mockReturnValueOnce(makeChain([profile]));
 
         const result = await usersService.getUserMe(userCtx);
 
@@ -112,9 +134,29 @@ describe('UsersService', () => {
     });
 
     it('getUserMe throws when user missing', async () => {
-        mockDb.select = vi.fn().mockReturnValue(makeChain([]));
+        mockResolver.resolveUser.mockRejectedValue(new Error('User not found'));
 
         await expect(usersService.getUserMe(userCtx)).rejects.toThrow();
+    });
+
+    it('upsertUser rejects non-M2M context', async () => {
+        await expect(
+            usersService.upsertUser(userCtx, { sub: 'auth0|abc123', email: 'test@example.com' }),
+        ).rejects.toThrow();
+    });
+
+    it('upsertUser accepts M2M context', async () => {
+        mockDb.select = vi.fn().mockReturnValue(makeChain([]));
+        mockDb.insert = vi.fn().mockReturnValue({
+            values: () => ({
+                onConflictDoUpdate: () => Promise.resolve(),
+                onConflictDoNothing: () => Promise.resolve(),
+            }),
+        });
+
+        const result = await usersService.upsertUser(m2mCtx, { sub: 'auth0|abc123', email: 'test@example.com' });
+
+        expect(result.sub).toBe('auth0|abc123');
     });
 
     it('deleteUserMe deletes via auth0 and cascades', async () => {
@@ -224,5 +266,9 @@ describe('AdminService', () => {
         mockDb.select = vi.fn().mockReturnValue(makeChain([]));
 
         await expect(adminService.suspendUser('missing', adminCtx)).rejects.toThrow();
+    });
+
+    it('rejects non-admin user enumeration', async () => {
+        await expect(adminService.listUsers(userCtx, {})).rejects.toThrow();
     });
 });

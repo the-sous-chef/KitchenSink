@@ -15,7 +15,7 @@ export const userStatusEnum = pgEnum('user_status', ['active', 'suspended']);
 export const users = pgTable(
     'users',
     {
-        sub: varcharCollateC('sub').primaryKey(),
+        id: varcharCollateC('id').primaryKey(),
         email: varchar('email', { length: 320 }).notNull(),
         name: text('name'),
         picture: text('picture'),

@@ -1,26 +1,57 @@
-import { Injectable, type NestMiddleware } from '@nestjs/common';
+import { Injectable, UnauthorizedException, type NestMiddleware } from '@nestjs/common';
 import type { Request, Response, NextFunction } from 'express';
 
 import type { AuthorizerContext } from '@kitchensink/auth-types';
 
+const PUBLIC_PATHS = new Set(['/health']);
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-    public use(req: Request & { user?: AuthorizerContext & { scopes: string[] } }, _res: Response, next: NextFunction): void {
+    public use(req: Request & { user?: AuthorizerContext }, _res: Response, next: NextFunction): void {
+        if (PUBLIC_PATHS.has(req.path)) {
+            next();
+            return;
+        }
+
         const header = req.headers['x-authorizer-context'];
 
         if (typeof header === 'string') {
             try {
                 const decoded = Buffer.from(header, 'base64').toString('utf-8');
-                const ctx = JSON.parse(decoded) as AuthorizerContext & { scopes: string[] };
+                const ctx = JSON.parse(decoded) as AuthorizerContext;
 
-                if (ctx?.sub && ctx?.scopes?.length) {
-                    req.user = ctx;
+                if (isAuthorizerContext(ctx)) {
+                    req.user = {
+                        ...ctx,
+                        scopes: ctx.scopes,
+                        permissions: ctx.permissions,
+                    };
                 }
             } catch {
                 /* no-op — leave req.user undefined */
             }
         }
 
+        if (!req.user) {
+            throw new UnauthorizedException('Missing authorizer context');
+        }
+
         next();
     }
+}
+
+function isAuthorizerContext(value: unknown): value is AuthorizerContext {
+    if (!value || typeof value !== 'object') {
+        return false;
+    }
+
+    const ctx = value as Partial<AuthorizerContext>;
+
+    return (
+        typeof ctx.sub === 'string' &&
+        Array.isArray(ctx.scopes) &&
+        Array.isArray(ctx.permissions) &&
+        typeof ctx.isM2M === 'boolean' &&
+        (ctx.tokenType === 'user' || ctx.tokenType === 'm2m')
+    );
 }

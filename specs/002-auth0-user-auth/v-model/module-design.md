@@ -5,6 +5,8 @@
 **Status**: Draft
 **Source**: `specs/002-auth0-user-auth/v-model/architecture-design.md`
 
+> **Identity-key note (Feature 002 implementation update)**: Module details in this draft that mention generated UUID user IDs, `app_metadata.userId`, `auth0_id`, `internal_id`, or `legacy_id` are historical and superseded by the implemented sub-keyed model. Current implementation uses Auth0 `sub` as `users.sub VARCHAR(255) COLLATE "C" PRIMARY KEY`, with M2M-gated post-login upsert and no generated user UUID.
+
 ## Overview
 
 The Auth0 User Authentication module design decomposes 33 architecture modules (ARCH-001 through ARCH-033) into 33 low-level module specifications (MOD-001 through MOD-033). Each MOD is a single-responsibility unit documented with four mandatory views — Algorithmic/Logic, State Machine, Internal Data Structures, and Error Handling & Return Codes — at a level of detail where writing the actual TypeScript source code is a direct translation exercise requiring no further design decisions. Cross-cutting infrastructure (ARCH-027 through ARCH-033) is fully decomposed into focused utility modules. Every module is traceable to its parent ARCH-NNN.

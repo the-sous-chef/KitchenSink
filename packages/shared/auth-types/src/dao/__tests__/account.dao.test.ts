@@ -1,22 +1,22 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { UserSub } from '../../user.js';
+import type { UserId } from '../../user.js';
 import type { AccountRow } from '../../schema/accounts.js';
 import { AccountDAO } from '../account.dao.js';
 
-const makeSub = (s: string) => s as UserSub;
+const makeUserId = (s: string) => s as UserId;
 
 const makeAccountRow = (overrides: Partial<AccountRow> = {}): AccountRow => ({
     id: 'uuid-1234',
-    ownerSub: makeSub('auth0|test123'),
-    tier: 'free',
+    userId: makeUserId('auth0|test123'),
+    subscriptionTier: 'free',
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
     ...overrides,
 });
 
 describe('AccountDAO', () => {
-    describe('findByOwnerSub', () => {
+    describe('findByUserId', () => {
         it('returns the matching account row', async () => {
             const row = makeAccountRow();
             const mockDb = {
@@ -28,7 +28,7 @@ describe('AccountDAO', () => {
             };
 
             const dao = new AccountDAO(mockDb as never);
-            const result = await dao.findByOwnerSub(makeSub('auth0|test123'));
+            const result = await dao.findByUserId(makeUserId('auth0|test123'));
 
             expect(mockDb.select).toHaveBeenCalledOnce();
             expect(result).toEqual(row);
@@ -44,14 +44,14 @@ describe('AccountDAO', () => {
             };
 
             const dao = new AccountDAO(mockDb as never);
-            const result = await dao.findByOwnerSub(makeSub('auth0|nobody'));
+            const result = await dao.findByUserId(makeUserId('auth0|nobody'));
 
             expect(result).toBeUndefined();
         });
     });
 
     describe('createForUser', () => {
-        it('calls insert with ownerSub and default tier free', async () => {
+        it('calls insert with userId and default subscriptionTier free', async () => {
             const row = makeAccountRow();
             const returningMock = vi.fn().mockResolvedValue([row]);
             const valuesMock = vi.fn().mockReturnValue({ returning: returningMock });
@@ -60,16 +60,16 @@ describe('AccountDAO', () => {
             const mockDb = { insert: insertMock };
             const dao = new AccountDAO(mockDb as never);
 
-            const result = await dao.createForUser(makeSub('auth0|test123'));
+            const result = await dao.createForUser(makeUserId('auth0|test123'));
 
             expect(insertMock).toHaveBeenCalledOnce();
-            expect(valuesMock).toHaveBeenCalledWith({ ownerSub: makeSub('auth0|test123'), tier: 'free' });
+            expect(valuesMock).toHaveBeenCalledWith({ userId: makeUserId('auth0|test123'), subscriptionTier: 'free' });
             expect(result).toEqual(row);
         });
     });
 
     describe('upsert', () => {
-        it('calls insert with onConflictDoUpdate keyed on ownerSub', async () => {
+        it('calls insert with onConflictDoUpdate target userId', async () => {
             const row = makeAccountRow();
             const returningMock = vi.fn().mockResolvedValue([row]);
             const onConflictMock = vi.fn().mockReturnValue({ returning: returningMock });
@@ -79,32 +79,10 @@ describe('AccountDAO', () => {
             const mockDb = { insert: insertMock };
             const dao = new AccountDAO(mockDb as never);
 
-            const result = await dao.upsert(makeSub('auth0|test123'));
+            const result = await dao.upsert(makeUserId('auth0|test123'), 'premium');
 
             expect(insertMock).toHaveBeenCalledOnce();
-            expect(onConflictMock).toHaveBeenCalledOnce();
-            const conflictArgs = onConflictMock.mock.calls[0]![0] as { target: unknown; set: Record<string, unknown> };
-            expect(conflictArgs.set).toMatchObject({ tier: 'free' });
-            expect(result).toEqual(row);
-        });
-    });
-
-    describe('updateTier', () => {
-        it('calls update and returns updated row', async () => {
-            const row = makeAccountRow({ tier: 'premium' });
-            const returningMock = vi.fn().mockResolvedValue([row]);
-            const whereMock = vi.fn().mockReturnValue({ returning: returningMock });
-            const setMock = vi.fn().mockReturnValue({ where: whereMock });
-            const updateMock = vi.fn().mockReturnValue({ set: setMock });
-
-            const mockDb = { update: updateMock };
-            const dao = new AccountDAO(mockDb as never);
-
-            const result = await dao.updateTier(makeSub('auth0|test123'), 'premium');
-
-            expect(updateMock).toHaveBeenCalledOnce();
-            const setArgs = setMock.mock.calls[0]![0] as Record<string, unknown>;
-            expect(setArgs.tier).toBe('premium');
+            expect(valuesMock).toHaveBeenCalledWith({ userId: makeUserId('auth0|test123'), subscriptionTier: 'premium' });
             expect(result).toEqual(row);
         });
     });

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { users } from './users.js';
 
@@ -7,15 +7,15 @@ export const profiles = pgTable(
     'profiles',
     {
         id: uuid('id').primaryKey().defaultRandom(),
-        userSub: varchar('user_sub', { length: 255 })
+        userId: uuid('user_id')
             .notNull()
-            .references(() => users.sub, { onDelete: 'cascade' }),
+            .references(() => users.id, { onDelete: 'cascade' }),
         displayName: text('display_name').notNull(),
         avatarUrl: text('avatar_url'),
         bio: text('bio'),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
-    (table) => [uniqueIndex('profiles_user_sub_unique').on(table.userSub)],
+    (table) => [uniqueIndex('profiles_user_id_unique').on(table.userId)],
 );
 
 /** @implements REQ-015 FR-015 ARCH-015 MOD-015 */

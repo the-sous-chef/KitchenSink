@@ -1,4 +1,4 @@
-import { index, pgTable, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { users, varcharCollateC } from './users.js';
 
@@ -7,16 +7,16 @@ export const accounts = pgTable(
     'accounts',
     {
         id: uuid('id').primaryKey().defaultRandom(),
-        ownerSub: varcharCollateC('owner_sub').notNull()
+        userId: varcharCollateC('user_id').notNull()
             .unique()
-            .references(() => users.sub, { onDelete: 'cascade' }),
-        tier: varchar('tier', { length: 32 }).notNull().default('free'),
+            .references(() => users.id, { onDelete: 'cascade' }),
+        subscriptionTier: text('subscription_tier').notNull().default('free'),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     },
     (table) => [
-        index('accounts_owner_sub_idx').on(table.ownerSub),
-        uniqueIndex('accounts_owner_sub_unique').on(table.ownerSub),
+        index('accounts_user_id_idx').on(table.userId),
+        uniqueIndex('accounts_user_id_unique').on(table.userId),
     ],
 );
 

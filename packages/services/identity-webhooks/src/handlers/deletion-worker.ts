@@ -70,7 +70,7 @@ const processRecord = async (
     const persisted = await (async () => {
         const db = await getDb(dbSecretArn);
         const userDao = new UserDAO(db as unknown as PostgresJsDatabase<Record<string, never>>);
-        return userDao.findBySub(message.userSub);
+        return userDao.findById(message.userSub);
     })();
 
     if (!persisted) {

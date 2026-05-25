@@ -17,8 +17,11 @@ export class UsersController {
 
     @Post('upsert')
     @HttpCode(HttpStatus.OK)
-    async upsertUser(@Body() body: { sub: string; email: string; name?: string; picture?: string }): Promise<{ sub: string; created: boolean }> {
-        return this.usersService.upsertUser(body);
+    async upsertUser(
+        @CurrentAuthorizerContext() ctx: AuthorizerContext,
+        @Body() body: { sub: string; email: string; name?: string; picture?: string },
+    ): Promise<{ sub: string; created: boolean }> {
+        return this.usersService.upsertUser(ctx, body);
     }
 
     @Get('me')

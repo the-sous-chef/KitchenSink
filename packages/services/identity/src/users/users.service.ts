@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 
@@ -7,6 +7,7 @@ import { DrizzleProvider } from '../database/database.module.js';
 import { Auth0Service } from '../auth/auth0.service.js';
 import { SqsService } from '../queue/sqs.service.js';
 import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
+import { ResolveUserService } from './resolveUser.js';
 
 @Injectable()
 export class UsersService {
@@ -16,24 +17,32 @@ export class UsersService {
         @Inject(DrizzleProvider) private readonly db: NodePgDatabase,
         private readonly auth0: Auth0Service,
         private readonly sqs: SqsService,
+        private readonly resolver: ResolveUserService,
     ) {}
 
-    async upsertUser(input: { sub: string; email: string; name?: string; picture?: string }): Promise<{ sub: string; created: boolean }> {
+    async upsertUser(
+        ctx: AuthorizerContext,
+        input: { sub: string; email: string; name?: string; picture?: string },
+    ): Promise<{ sub: string; created: boolean }> {
+        if (!ctx.isM2M || ctx.tokenType !== 'm2m') {
+            throw new ForbiddenException('M2M authorizer context required');
+        }
+
         const now = new Date();
 
-        const [existing] = await this.db.select({ sub: users.sub }).from(users).where(eq(users.sub, input.sub)).limit(1);
+        const [existing] = await this.db.select({ id: users.id }).from(users).where(eq(users.id, input.sub)).limit(1);
         const created = !existing;
 
         await this.db
             .insert(users)
             .values({
-                sub: input.sub,
+                id: input.sub,
                 email: input.email,
                 name: input.name ?? null,
                 picture: input.picture ?? null,
             })
             .onConflictDoUpdate({
-                target: users.sub,
+                target: users.id,
                 set: {
                     email: input.email,
                     name: input.name ?? null,
@@ -42,14 +51,11 @@ export class UsersService {
                 },
             });
 
-        await this.db
-            .insert(accounts)
-            .values({ ownerSub: input.sub })
-            .onConflictDoNothing();
+        await this.db.insert(accounts).values({ userId: input.sub }).onConflictDoNothing();
 
         await this.db
             .insert(profiles)
-            .values({ userSub: input.sub, displayName: input.name ?? '' })
+            .values({ userId: input.sub, displayName: input.name ?? '' })
             .onConflictDoNothing();
 
         return { sub: input.sub, created };
@@ -57,19 +63,12 @@ export class UsersService {
 
     async getUserMe(ctx: AuthorizerContext) {
         const sub = ctx.sub;
-
-        const [user] = await this.db.select().from(users).where(eq(users.sub, sub)).limit(1);
-
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-
-        const [account] = await this.db.select().from(accounts).where(eq(accounts.ownerSub, sub)).limit(1);
-        const [profile] = await this.db.select().from(profiles).where(eq(profiles.userSub, sub)).limit(1);
+        const { user, account } = await this.resolver.resolveUser(sub);
+        const [profile] = await this.db.select().from(profiles).where(eq(profiles.userId, sub)).limit(1);
 
         return {
             user: {
-                sub: user.sub,
+                id: user.id,
                 email: user.email,
                 status: user.status,
                 displayName: profile?.displayName ?? '',
@@ -78,11 +77,11 @@ export class UsersService {
                 updatedAt: user.updatedAt.toISOString(),
             },
             account: {
-                id: account?.id,
-                ownerSub: account?.ownerSub,
-                tier: account?.tier ?? 'free',
-                createdAt: account?.createdAt.toISOString(),
-                updatedAt: account?.updatedAt.toISOString(),
+                id: account.id,
+                userId: account.userId,
+                subscriptionTier: account.subscriptionTier,
+                createdAt: account.createdAt.toISOString(),
+                updatedAt: account.updatedAt.toISOString(),
             },
         };
     }
@@ -90,7 +89,7 @@ export class UsersService {
     async patchUserMe(ctx: AuthorizerContext, input: { displayName?: string; avatarUrl?: string | null }) {
         const sub = ctx.sub;
 
-        const [existing] = await this.db.select().from(users).where(eq(users.sub, sub)).limit(1);
+        const [existing] = await this.db.select().from(users).where(eq(users.id, sub)).limit(1);
 
         if (!existing) {
             throw new NotFoundException('User not found');
@@ -106,15 +105,15 @@ export class UsersService {
                     ...(input.avatarUrl !== undefined ? { avatarUrl: input.avatarUrl } : {}),
                     updatedAt: now,
                 })
-                .where(eq(profiles.userSub, sub));
+                .where(eq(profiles.userId, sub));
         }
 
-        const [updatedProfile] = await this.db.select().from(profiles).where(eq(profiles.userSub, sub)).limit(1);
-        const [updatedAccount] = await this.db.select().from(accounts).where(eq(accounts.ownerSub, sub)).limit(1);
+        const [updatedProfile] = await this.db.select().from(profiles).where(eq(profiles.userId, sub)).limit(1);
+        const [updatedAccount] = await this.db.select().from(accounts).where(eq(accounts.userId, sub)).limit(1);
 
         return {
             user: {
-                sub: existing.sub,
+                id: existing.id,
                 email: existing.email,
                 status: existing.status,
                 displayName: updatedProfile?.displayName ?? '',
@@ -124,8 +123,8 @@ export class UsersService {
             },
             account: {
                 id: updatedAccount?.id,
-                ownerSub: updatedAccount?.ownerSub,
-                tier: updatedAccount?.tier ?? 'free',
+                userId: updatedAccount?.userId,
+                subscriptionTier: updatedAccount?.subscriptionTier ?? 'free',
                 createdAt: updatedAccount?.createdAt.toISOString(),
                 updatedAt: updatedAccount?.updatedAt.toISOString(),
             },
@@ -135,7 +134,7 @@ export class UsersService {
     async deleteUserMe(ctx: AuthorizerContext) {
         const sub = ctx.sub;
 
-        const [existing] = await this.db.select().from(users).where(eq(users.sub, sub)).limit(1);
+        const [existing] = await this.db.select().from(users).where(eq(users.id, sub)).limit(1);
 
         if (!existing) {
             throw new NotFoundException('User not found');
@@ -144,9 +143,9 @@ export class UsersService {
         const deletedAt = new Date();
 
         await this.db.transaction(async (tx) => {
-            await tx.delete(accounts).where(eq(accounts.ownerSub, sub));
-            await tx.delete(profiles).where(eq(profiles.userSub, sub));
-            await tx.delete(users).where(eq(users.sub, sub));
+            await tx.delete(accounts).where(eq(accounts.userId, sub));
+            await tx.delete(profiles).where(eq(profiles.userId, sub));
+            await tx.delete(users).where(eq(users.id, sub));
         });
 
         try {
@@ -170,7 +169,7 @@ export class UsersService {
         }
 
         try {
-            await this.auth0.createPasswordResetTicket(user.sub, 'https://app.sous-chef.io/auth/callback');
+            await this.auth0.createPasswordResetTicket(user.id, 'https://app.sous-chef.io/auth/callback');
         } catch (err) {
             this.logger.warn('password reset ticket failed', { email, error: String(err) });
         }

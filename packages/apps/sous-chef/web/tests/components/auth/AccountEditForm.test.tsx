@@ -12,7 +12,7 @@ vi.mock('next/navigation', () => ({
 
 const mockProfile: UserProfile = {
     user: {
-        sub: 'auth0|abc123' as import('@kitchensink/auth-types').UserSub,
+        id: 'auth0|abc123' as import('@kitchensink/auth-types').UserId,
         email: 'test@example.com',
         displayName: 'Test User',
         avatarUrl: null,
@@ -22,8 +22,8 @@ const mockProfile: UserProfile = {
     },
     account: {
         id: 'acc-123',
-        ownerSub: 'auth0|abc123' as import('@kitchensink/auth-types').UserSub,
-        tier: 'free',
+        userId: 'auth0|abc123' as import('@kitchensink/auth-types').UserId,
+        subscriptionTier: 'free',
         createdAt: '2026-01-01T00:00:00Z',
         updatedAt: '2026-01-01T00:00:00Z',
     },

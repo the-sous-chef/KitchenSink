@@ -54,7 +54,7 @@ const innerHandler = async (event: ScheduledEvent, context: Context): Promise<Re
     for (const auth0User of auth0Users) {
         counters.scanned += 1;
 
-        const existing = await userDao.findBySub(auth0User.sub as UserSub);
+        const existing = await userDao.findById(auth0User.sub as UserSub);
 
         if (existing) {
             counters.skipped += 1;
@@ -63,7 +63,7 @@ const innerHandler = async (event: ScheduledEvent, context: Context): Promise<Re
 
         try {
             await userDao.upsert({
-                sub: auth0User.sub as UserSub,
+                id: auth0User.sub as UserSub,
                 email: auth0User.email,
                 name: auth0User.name ?? undefined,
                 picture: auth0User.picture ?? undefined,

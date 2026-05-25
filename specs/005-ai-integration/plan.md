@@ -61,6 +61,8 @@
 
 ## 2. Data Model
 
+Feature 005 stores authenticated-user ownership with Feature 002's Auth0 `sub` key. Technical FKs use `user_sub VARCHAR(255) COLLATE "C" REFERENCES users(sub)`, aligning with `users.sub` as the canonical user primary key.
+
 ### 2.1 Database Tables (Drizzle)
 
 #### `ai_generation_records`
@@ -70,7 +72,7 @@ Tracks every AI generation request for audit, billing, and provenance.
 ```sql
 CREATE TABLE ai_generation_records (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_sub VARCHAR(255) COLLATE "C" NOT NULL REFERENCES users(sub) ON DELETE CASCADE,
   job_id UUID NOT NULL UNIQUE,
   generation_type TEXT NOT NULL CHECK (generation_type IN ('recipe', 'meal_plan', 'shopping_list', 'nutrition_analysis')),
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'streaming', 'complete', 'failed')),
@@ -88,7 +90,7 @@ CREATE TABLE ai_generation_records (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_ai_gen_records_user_id ON ai_generation_records(user_id);
+CREATE INDEX idx_ai_gen_records_user_sub ON ai_generation_records(user_sub);
 CREATE INDEX idx_ai_gen_records_job_id ON ai_generation_records(job_id);
 CREATE INDEX idx_ai_gen_records_status ON ai_generation_records(status);
 ```
@@ -121,7 +123,7 @@ Stores only the AWS Secrets Manager ARN. The raw key is never in Postgres.
 ```sql
 CREATE TABLE user_byok_keys (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  user_sub VARCHAR(255) COLLATE "C" NOT NULL UNIQUE REFERENCES users(sub) ON DELETE CASCADE,
   provider TEXT NOT NULL CHECK (provider IN ('openai', 'anthropic', 'gemini')),
   secret_arn TEXT NOT NULL,         -- AWS Secrets Manager ARN: arn:aws:secretsmanager:...
   key_version INT NOT NULL DEFAULT 1,
@@ -130,7 +132,7 @@ CREATE TABLE user_byok_keys (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX idx_user_byok_keys_user_provider ON user_byok_keys(user_id, provider);
+CREATE UNIQUE INDEX idx_user_byok_keys_user_provider ON user_byok_keys(user_sub, provider);
 ```
 
 #### `mcp_oauth_consents`
@@ -140,7 +142,7 @@ Tracks OAuth grants from external agent platforms.
 ```sql
 CREATE TABLE mcp_oauth_consents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_sub VARCHAR(255) COLLATE "C" NOT NULL REFERENCES users(sub) ON DELETE CASCADE,
   client_id TEXT NOT NULL,
   scope TEXT NOT NULL,              -- space-separated: 'recipes:read recipes:write meal-plans:read'
   granted_at TIMESTAMPTZ DEFAULT NOW(),
@@ -571,7 +573,7 @@ export async function up(db: DB) {
     await db.execute(sql`
     CREATE TABLE IF NOT EXISTS ai_generation_records (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      user_sub VARCHAR(255) COLLATE "C" NOT NULL REFERENCES users(sub) ON DELETE CASCADE,
       job_id UUID NOT NULL UNIQUE,
       generation_type TEXT NOT NULL CHECK (generation_type IN ('recipe', 'meal_plan', 'shopping_list', 'nutrition_analysis')),
       status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'streaming', 'complete', 'failed')),
@@ -590,7 +592,7 @@ export async function up(db: DB) {
     );
   `);
 
-    await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_ai_gen_records_user_id ON ai_generation_records(user_id);`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_ai_gen_records_user_sub ON ai_generation_records(user_sub);`);
     await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_ai_gen_records_job_id ON ai_generation_records(job_id);`);
     await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_ai_gen_records_status ON ai_generation_records(status);`);
 
@@ -614,7 +616,7 @@ export async function up(db: DB) {
     await db.execute(sql`
     CREATE TABLE IF NOT EXISTS user_byok_keys (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      user_sub VARCHAR(255) COLLATE "C" NOT NULL UNIQUE REFERENCES users(sub) ON DELETE CASCADE,
       provider TEXT NOT NULL,
       secret_arn TEXT NOT NULL,
       key_version INT NOT NULL DEFAULT 1,
@@ -628,7 +630,7 @@ export async function up(db: DB) {
     await db.execute(sql`
     CREATE TABLE IF NOT EXISTS mcp_oauth_consents (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      user_sub VARCHAR(255) COLLATE "C" NOT NULL REFERENCES users(sub) ON DELETE CASCADE,
       client_id TEXT NOT NULL,
       scope TEXT NOT NULL,
       granted_at TIMESTAMPTZ DEFAULT NOW(),

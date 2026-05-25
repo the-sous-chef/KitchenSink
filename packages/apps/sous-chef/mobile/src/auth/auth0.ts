@@ -1,7 +1,6 @@
 import Auth0 from 'react-native-auth0';
 import * as Crypto from 'expo-crypto';
 import type { AuthSession, TokenRefreshResult, Auth0Config, Auth0AuthorizeOptions } from '../types/auth.js';
-import { isImpersonatedClaims } from '../types/auth.js';
 
 let auth0Client: Auth0 | null = null;
 let codeVerifier: string | null = null;
@@ -25,11 +24,9 @@ export async function generateCodeVerifier(): Promise<string> {
 }
 
 export async function generateCodeChallenge(verifier: string): Promise<string> {
-    const digest = await Crypto.digestStringAsync(
-        Crypto.CryptoDigestAlgorithm.SHA256,
-        verifier,
-        { encoding: Crypto.CryptoEncoding.BASE64 },
-    );
+    const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, verifier, {
+        encoding: Crypto.CryptoEncoding.BASE64,
+    });
     // Convert standard base64 to base64url
     return digest.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
@@ -46,45 +43,12 @@ function buildSession(result: {
     accessToken: string;
     refreshToken?: string;
     expiresAt?: number;
-    idToken?: string;
     sub?: string;
 }): AuthSession {
-    // Extract sub from the SDK result directly; fall back to parsing idToken only for sub
-    let sub = result.sub ?? '';
-
-    if (!sub && result.idToken) {
-        // Minimal parse: extract sub from idToken payload without trusting it for identity decisions
-        try {
-            const parts = result.idToken.split('.');
-            if (parts.length === 3) {
-                const payload = JSON.parse(Buffer.from(parts[1] ?? '', 'base64').toString('utf-8')) as Record<string, unknown>;
-                sub = typeof payload.sub === 'string' ? payload.sub : '';
-            }
-        } catch {
-            // ignore parse errors — sub will remain empty
-        }
-    }
+    const sub = result.sub ?? '';
 
     if (!sub) {
         throw new Error('Missing sub in Auth0 response');
-    }
-
-    // Check for impersonation using idToken claims
-    if (result.idToken) {
-        try {
-            const parts = result.idToken.split('.');
-            if (parts.length === 3) {
-                const claims = JSON.parse(Buffer.from(parts[1] ?? '', 'base64').toString('utf-8')) as Record<string, unknown>;
-                if (isImpersonatedClaims(claims)) {
-                    throw new Error('Administrator impersonation is blocked in the mobile app.');
-                }
-            }
-        } catch (err) {
-            if (err instanceof Error && err.message.includes('impersonation')) {
-                throw err;
-            }
-            // ignore other parse errors
-        }
     }
 
     if (!result.refreshToken) {
@@ -162,7 +126,7 @@ export async function refreshAccessToken(
         accessToken: result.accessToken,
         refreshToken: result.refreshToken ?? previousSession?.refreshToken ?? refreshToken,
         expiresAt: result.expiresAt,
-        idToken: result.idToken,
+        sub: previousSession?.sub,
     });
 
     return {

@@ -1,4 +1,4 @@
-import { Controller, Post, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { AdminService } from './admin.service.js';
 import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
@@ -12,6 +12,24 @@ import {
 @Controller('v1/admin/users')
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
+
+    @Get()
+    async listUsers(
+        @CurrentAuthorizerContext() ctx: AuthorizerContext,
+        @Query('email') email?: string,
+        @Query('name') name?: string,
+        @Query('sub') sub?: string,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string,
+    ) {
+        return this.adminService.listUsers(ctx, {
+            email,
+            name,
+            sub,
+            limit: limit ? Number.parseInt(limit, 10) : undefined,
+            offset: offset ? Number.parseInt(offset, 10) : undefined,
+        });
+    }
 
     @Post(':userId/suspend')
     @HttpCode(HttpStatus.OK)

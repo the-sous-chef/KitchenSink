@@ -240,7 +240,7 @@ cancelAtPeriodEnd: boolean;
 trialEndsAt: Date | null;
 ```
 
-The API Gateway Lambda authorizer (from `002`) already injects `userId` into `$context.authorizer.userId`. The subscription `plan` and `subscriptionStatus` should also be injected to avoid a DB lookup per request for gating decisions. Alternatively, the NestJS guard reads from the request-scoped user object populated by the JWT strategy.
+The API Gateway Lambda authorizer (from `002`) injects Auth0 `sub` into `$context.authorizer.sub`, matching `users.sub`. The subscription `plan` and `subscriptionStatus` should also be injected to avoid a DB lookup per request for gating decisions. Alternatively, the NestJS guard reads from the request-scoped user object populated from the authorizer context.
 
 ### 3.2 NestJS Feature Gating Pattern
 

@@ -102,7 +102,7 @@ const postLoginHandlerCore = async (event: APIGatewayProxyEvent, context: Contex
 
     const [userRow, accountRow] = await Promise.all([
         userDao.upsert({
-            sub,
+            id: sub,
             email: body.email,
             name: body.name,
             picture: body.picture,
@@ -116,10 +116,9 @@ const postLoginHandlerCore = async (event: APIGatewayProxyEvent, context: Contex
     return {
         statusCode: 200,
         body: JSON.stringify({
-            sub: userRow.sub,
-            email: userRow.email,
-            accountId: accountRow.id,
-            tier: accountRow.tier,
+            id: userRow.id,
+            userId: accountRow.userId,
+            subscriptionTier: accountRow.subscriptionTier,
         }),
     };
 };

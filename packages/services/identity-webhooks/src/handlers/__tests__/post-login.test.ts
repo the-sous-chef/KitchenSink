@@ -65,7 +65,7 @@ describe('post-login handler', () => {
         const body = JSON.parse(result.body) as Record<string, unknown>;
         expect(body.sub).toBe('auth0|user1');
         expect(body.accountId).toBe('acct-1');
-        expect(body.tier).toBe('free');
+        expect(body.subscriptionTier).toBe('free');
     });
 
     it('payload with legacyId → 400', async () => {

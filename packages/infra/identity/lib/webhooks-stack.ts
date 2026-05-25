@@ -86,7 +86,7 @@ export class WebhooksStack extends Stack {
             logGroup: authorizerLogGroup,
         });
 
-        // ── Webhooks Lambda (post-registration, deletion-worker, reconciliation) ──
+        // ── Webhooks Lambdas (post-login upsert, post-registration, deletion-worker, reconciliation) ──
         const webhooksLogGroup = new logs.LogGroup(this, 'WebhooksLogGroup', {
             retention: logs.RetentionDays.ONE_MONTH,
         });
@@ -110,6 +110,21 @@ export class WebhooksStack extends Stack {
             runtime,
             architecture,
             handler: 'handlers/post-registration.handler',
+            code: lambda.Code.fromAsset(distPath),
+            role: webhooksRole,
+            vpc: props.network.vpc,
+            vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+            securityGroups: [props.network.lambdaSecurityGroup],
+            timeout: Duration.seconds(30),
+            memorySize: 512,
+            environment: commonEnv,
+            logGroup: webhooksLogGroup,
+        });
+
+        const postLoginFn = new lambda.Function(this, 'PostLoginFunction', {
+            runtime,
+            architecture,
+            handler: 'handlers/post-login.handler',
             code: lambda.Code.fromAsset(distPath),
             role: webhooksRole,
             vpc: props.network.vpc,
@@ -152,6 +167,7 @@ export class WebhooksStack extends Stack {
         });
 
         const webhooksIntegration = new apigw.LambdaIntegration(webhooksFn);
+        const postLoginIntegration = new apigw.LambdaIntegration(postLoginFn);
 
         // ── /webhooks ─────────────────────────────────────────────────────────
         const webhooksResource = api.root.addResource('webhooks');
@@ -160,6 +176,12 @@ export class WebhooksStack extends Stack {
         const postRegistrationResource = webhooksResource.addResource('post-registration');
         postRegistrationResource.addMethod('POST', webhooksIntegration, {
             authorizationType: apigw.AuthorizationType.NONE,
+        });
+
+        const postLoginResource = webhooksResource.addResource('post-login');
+        postLoginResource.addMethod('POST', postLoginIntegration, {
+            authorizer: requestAuthorizer,
+            authorizationType: apigw.AuthorizationType.CUSTOM,
         });
 
         // POST /webhooks/protected/profile  (authorizer-protected)
@@ -176,7 +198,7 @@ export class WebhooksStack extends Stack {
 
         // POST /v1/users/upsert  (authorizer-protected)
         const upsertResource = usersResource.addResource('upsert');
-        upsertResource.addMethod('POST', webhooksIntegration, {
+        upsertResource.addMethod('POST', postLoginIntegration, {
             authorizer: requestAuthorizer,
             authorizationType: apigw.AuthorizationType.CUSTOM,
         });

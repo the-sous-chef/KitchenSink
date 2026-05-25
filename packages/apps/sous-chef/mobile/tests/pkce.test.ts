@@ -95,11 +95,7 @@ describe('PKCE - generateCodeChallenge', () => {
 
         await generateCodeChallenge('my-verifier');
 
-        expect(digestStringAsync).toHaveBeenCalledWith(
-            'SHA-256',
-            'my-verifier',
-            { encoding: 'base64' },
-        );
+        expect(digestStringAsync).toHaveBeenCalledWith('SHA-256', 'my-verifier', { encoding: 'base64' });
     });
 });
 
@@ -115,5 +111,35 @@ describe('buildSession - uses sub from auth response', () => {
         expect(session.sub).toBe('auth0|abc123');
         expect('userId' in session).toBe(false);
         expect('auth0Id' in session).toBe(false);
+    });
+
+    it('does not derive trusted identity by parsing ID tokens', async () => {
+        const Auth0 = (await import('react-native-auth0')).default;
+        const { refreshAccessToken } = await import('../src/auth/auth0.js');
+
+        vi.mocked(Auth0).mockImplementationOnce(function () {
+            return {
+                auth: {
+                    refreshToken: vi.fn().mockResolvedValue({
+                        accessToken: 'access-token',
+                        refreshToken: 'refresh-token',
+                        expiresAt: 1,
+                        idToken: 'header.eyJzdWIiOiJhdXRoMHxmb3JnZWQifQ.signature',
+                    }),
+                },
+            } as never;
+        });
+
+        await expect(
+            refreshAccessToken(
+                {
+                    domain: 'example.auth0.com',
+                    clientId: 'client-id',
+                    callbackScheme: 'souschef',
+                    audience: 'https://api.example.com',
+                },
+                'refresh-token',
+            ),
+        ).rejects.toThrow('Missing sub');
     });
 });

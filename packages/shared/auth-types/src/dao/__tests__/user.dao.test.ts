@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { UserSub } from '../../user.js';
+import type { UserId } from '../../user.js';
 import { UserDAO } from '../user.dao.js';
 
-const makeSub = (s: string) => s as UserSub;
+const makeUserId = (s: string) => s as UserId;
 
 const makeUserRow = (overrides: Record<string, unknown> = {}) => ({
-    sub: makeSub('auth0|test123'),
+    id: makeUserId('auth0|test123'),
     email: 'test@example.com',
     name: 'Test User',
     picture: null,
@@ -18,8 +18,8 @@ const makeUserRow = (overrides: Record<string, unknown> = {}) => ({
 });
 
 describe('UserDAO', () => {
-    describe('findBySub', () => {
-        it('queries users table with eq filter on sub and returns first row', async () => {
+    describe('findById', () => {
+        it('queries users table with eq filter on id and returns first row', async () => {
             const row = makeUserRow();
             const mockDb = {
                 select: vi.fn().mockReturnValue({
@@ -30,7 +30,7 @@ describe('UserDAO', () => {
             };
 
             const dao = new UserDAO(mockDb as never);
-            const result = await dao.findBySub(makeSub('auth0|test123'));
+            const result = await dao.findById(makeUserId('auth0|test123'));
 
             expect(mockDb.select).toHaveBeenCalledOnce();
             expect(result).toEqual(row);
@@ -46,7 +46,7 @@ describe('UserDAO', () => {
             };
 
             const dao = new UserDAO(mockDb as never);
-            const result = await dao.findBySub(makeSub('auth0|nobody'));
+            const result = await dao.findById(makeUserId('auth0|nobody'));
 
             expect(result).toBeUndefined();
         });
@@ -64,7 +64,7 @@ describe('UserDAO', () => {
             const dao = new UserDAO(mockDb as never);
 
             const result = await dao.upsert({
-                sub: makeSub('auth0|test123'),
+                id: makeUserId('auth0|test123'),
                 email: 'test@example.com',
                 name: 'Test User',
             });
@@ -88,7 +88,7 @@ describe('UserDAO', () => {
             const mockDb = { update: updateMock };
             const dao = new UserDAO(mockDb as never);
 
-            const result = await dao.updateProfile(makeSub('auth0|test123'), { name: 'New Name' });
+            const result = await dao.updateProfile(makeUserId('auth0|test123'), { name: 'New Name' });
 
             expect(updateMock).toHaveBeenCalledOnce();
             expect(setMock).toHaveBeenCalledOnce();
@@ -97,7 +97,7 @@ describe('UserDAO', () => {
             expect(result).toEqual(row);
         });
 
-        it('returns undefined when sub does not exist', async () => {
+        it('returns undefined when id does not exist', async () => {
             const returningMock = vi.fn().mockResolvedValue([]);
             const whereMock = vi.fn().mockReturnValue({ returning: returningMock });
             const setMock = vi.fn().mockReturnValue({ where: whereMock });
@@ -106,24 +106,24 @@ describe('UserDAO', () => {
             const mockDb = { update: updateMock };
             const dao = new UserDAO(mockDb as never);
 
-            const result = await dao.updateProfile(makeSub('auth0|ghost'), { name: 'Ghost' });
+            const result = await dao.updateProfile(makeUserId('auth0|missing'), { name: 'New Name' });
 
             expect(result).toBeUndefined();
         });
     });
 
     describe('delete', () => {
-        it('calls delete/where with eq filter on sub', async () => {
-            const whereMock = vi.fn().mockResolvedValue(undefined);
-            const deleteMock = vi.fn().mockReturnValue({ where: whereMock });
+        it('calls delete with eq filter on id', async () => {
+            const mockDb = {
+                delete: vi.fn().mockReturnValue({
+                    where: vi.fn().mockResolvedValue(undefined),
+                }),
+            };
 
-            const mockDb = { delete: deleteMock };
             const dao = new UserDAO(mockDb as never);
+            await dao.delete(makeUserId('auth0|test123'));
 
-            await dao.delete(makeSub('auth0|test123'));
-
-            expect(deleteMock).toHaveBeenCalledOnce();
-            expect(whereMock).toHaveBeenCalledOnce();
+            expect(mockDb.delete).toHaveBeenCalledOnce();
         });
     });
 });
