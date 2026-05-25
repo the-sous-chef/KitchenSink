@@ -237,9 +237,9 @@ A security-conscious user wants to enable Multi-Factor Authentication on their a
 
 **User Registration and Database Sync**
 
-- **FR-013**: On user signup, Auth0 MUST trigger a post-registration action (Auth0 Action) that upserts a User record in the Sous Chef database, keyed by the Auth0 `sub` claim.
+- **FR-013**: On user signup, Auth0 MUST trigger a post-registration action (Auth0 Action) that upserts a User record in the Sous Chef database, keyed by the `id` field containing the Auth0 `sub` value (e.g., `auth0|abc123`).
 - **FR-014**: The post-registration action MUST also create an Account record associated with the new User.
-- **FR-015**: _(superseded — see 002-auth0-user-auth)_ ~~The auto-generated user ID MUST be stored in the Auth0 user's `app_metadata`.~~ No `app_metadata` writeback is required; `users.sub` (the Auth0 `sub` claim) is the canonical identifier and is available in all tokens natively.
+- **FR-015**: No `app_metadata` writeback to Auth0 is required or permitted. The system MUST NOT write `app_metadata.userId` (or any internal database identifier) back to Auth0. The `users.id` column (a varchar containing the Auth0 `sub` value) is the canonical identifier and is available in all tokens natively via the `sub` claim.
 - **FR-016**: The post-registration action MUST retry database writes on transient failures (up to 3 attempts with exponential backoff).
 - **FR-017**: A reconciliation mechanism MUST exist to detect Auth0 users without corresponding Sous Chef database records and create the missing records.
 

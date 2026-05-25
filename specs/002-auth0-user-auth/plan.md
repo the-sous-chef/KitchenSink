@@ -51,7 +51,17 @@ This preserves all functional scope in `spec.md` and `v-model/requirements.md`: 
 - `packages/services/identity/` (NestJS ECS service)
 - `packages/services/identity-webhooks/` (raw Lambda handlers: authorizer, post-registration, deletion worker, reconciliation)
 - `packages/infra/identity/` (CDK app + `serverless.yml`)
-- `packages/shared/auth-types/` (shared TS contracts)
+- `packages/shared/auth-types/` (shared TS contracts — thin cross-cutting layer only)
+
+**Package Responsibilities (CODING_STANDARDS.md §2)**:
+
+Drizzle schemas and domain DTOs MUST live in the owning service (`packages/services/identity/src/{schema,dto}/`), not in a shared types package. Per the project constitution, "all types MUST be contained inside the package that owns the source of truth" and dedicated type folders are an antipattern.
+
+- `packages/services/identity/src/schema/` — Drizzle table definitions (`users`, `accounts`, `profiles`), indexes, FK cascade semantics, status enums
+- `packages/services/identity/src/dto/` — NestJS DTOs (`class-validator` decorated) for all identity service endpoints
+- `packages/shared/auth-types/` — thin re-export layer for cross-cutting contracts only: JWT claims shape (including custom `userId` claim), API Gateway REQUEST authorizer context, SQS deletion queue message shape, reconciliation diff payload. This package is NOT the source of truth for domain schemas.
+
+Lambda handlers in `packages/services/identity-webhooks/` import Drizzle schema types directly from `packages/services/identity/` (workspace dependency), not from `auth-types`.
 
 **Package/Build Tooling**:
 

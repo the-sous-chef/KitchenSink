@@ -37,26 +37,26 @@ T-080 -> T-081 -> T-082 -> T-083
 **Implements**: REQ-001, REQ-005, REQ-006, REQ-009, REQ-039, REQ-040, REQ-CN-008, FR-001, FR-005, FR-006, FR-009, FR-039, FR-040, ARCH-001, ARCH-003, ARCH-024, MOD-001, MOD-003, MOD-024
 
 - Scaffold `packages/shared/auth-types/` workspace with strict TS config and exports map.
-- Add canonical interfaces/types:
+- Add **thin cross-cutting contracts only** (per CODING_STANDARDS.md §2 — dedicated type packages are an antipattern):
     - JWT claims (including custom `userId` claim), authorizer context, session payload contracts.
-    - `User`, `Account`, `Profile` read/write DTOs used across service + lambdas.
-    - deletion queue message shape, reconciliation diff payload shape.
+    - SQS deletion queue message shape, reconciliation diff payload shape.
+- Domain DTOs (`User`, `Account`, `Profile`) are NOT placed here — they live in `packages/services/identity/src/dto/` (see T-002).
 - Add versioned contract barrels to avoid cross-package circular imports.
 
-**Acceptance**: All dependent packages import shared contracts from `@.../auth-types`; no duplicated identity contract types.
+**Acceptance**: `@.../auth-types` exports only cross-cutting contracts; no domain schemas or Drizzle types reside in this package.
 
 ---
 
-### T-002 · Publish shared Drizzle schema contract from shared boundary
+### T-002 · Define Drizzle schema and DTOs in identity service [P]
 
 **Depends on**: T-001  
 **Implements**: REQ-013, REQ-014, REQ-015, REQ-017, REQ-018, REQ-019, REQ-025, REQ-CN-003, FR-013, FR-014, FR-015, FR-017, FR-018, FR-019, FR-025, ARCH-011, ARCH-012, ARCH-015, MOD-011, MOD-012, MOD-015
 
-- Define Drizzle table contracts for `users`, `accounts`, `profiles` with indexes and FK cascade semantics.
-- Export schema + query helper types for both ECS service and raw Lambda handlers.
-- Enforce canonical ID and status enums (`active`/`suspended`) in shared types.
+- Define Drizzle table definitions for `users`, `accounts`, `profiles` in `packages/services/identity/src/schema/` — indexes, FK cascade semantics, status enums (`active`/`suspended`).
+- Define `class-validator`-decorated DTOs in `packages/services/identity/src/dto/` for all identity service endpoints.
+- Add `packages/services/identity/` as a workspace dependency of `packages/services/identity-webhooks/` so Lambda handlers import Drizzle schema types directly from the owning service, not from `auth-types`.
 
-**Acceptance**: Identity service and webhook lambdas compile against the same schema contract package.
+**Acceptance**: Drizzle schema and domain DTOs live exclusively in `packages/services/identity/src/{schema,dto}/`; identity-webhooks compiles against the same schema via workspace dependency.
 
 ---
 
@@ -172,11 +172,11 @@ T-080 -> T-081 -> T-082 -> T-083
 **Implements**: REQ-013, REQ-014, REQ-015, REQ-016, REQ-IF-008, REQ-CN-003, FR-013, FR-014, FR-015, FR-016, ARCH-010, ARCH-011, MOD-010, MOD-011
 
 - Implement raw Lambda invoked by existing Auth0 post-registration trigger chain.
-- Idempotently create `users + accounts + profiles` transaction.
-- Write back `app_metadata.userId` through Auth0 Management API.
+- Idempotently upsert `users + accounts + profiles` transaction, keyed on `users.id` (which stores the Auth0 sub value).
+- No writeback to Auth0 Management API per FR-015.
 - Explicitly document: **reuse existing Auth0 Actions/Triggers; do not create new Actions**.
 
-**Acceptance**: Signup creates canonical DB rows and updates Auth0 metadata once.
+**Acceptance**: Signup creates canonical DB rows; `users.id` is the upsert key; no Auth0 Management API calls are made.
 
 ---
 
@@ -251,10 +251,17 @@ T-080 -> T-081 -> T-082 -> T-083
 **Depends on**: T-031  
 **Implements**: REQ-019, REQ-020, REQ-021, REQ-CN-005, FR-019, FR-020, FR-021, ARCH-014, ARCH-015, MOD-014, MOD-015
 
-- Support display name and avatar URL updates with validation.
+- Support display name and avatar updates with strict input validation per FR-021:
+    - **Display name**: 1–50 characters, non-empty, non-whitespace-only. Reject blank strings and strings that exceed 50 characters.
+    - **Avatar**: JPEG, PNG, or WebP format only; maximum file size 5 MB. Reject unsupported MIME types and oversized uploads.
 - Return updated representation with consistent timestamps.
+- Return HTTP 400 with a structured error body for any validation failure; do not partially apply updates when any field is invalid.
 
-**Acceptance**: Valid updates persist; invalid payloads return deterministic 4xx errors.
+**Acceptance**:
+- Valid display name and avatar updates persist and are reflected in the response.
+- `PATCH` with a display name that is empty, whitespace-only, or exceeds 50 characters returns 400.
+- `PATCH` with an avatar that is not JPEG/PNG/WebP, or exceeds 5 MB, returns 400.
+- Invalid payloads return deterministic 4xx errors with a machine-readable error code.
 
 ---
 
