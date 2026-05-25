@@ -1,18 +1,18 @@
 # Sync-Verify Report — 002-auth0-user-auth
 
-**Run date**: 2026-05-14 (updated post-fix)
-**Scope (user-focused)**: Wave 8 deliverables, identity-service `test`/`test:e2e` split, app paths
-**Mode**: Fixes applied for C1 and W1. Prior report preserved as `verify-report.prev.md`.
+**Run date**: 2026-05-23 (updated after sub-keyed implementation recovery)
+**Scope (user-focused)**: Feature 002 sub-keyed Auth0 identity implementation, Wave 2/Wave 3 recovery, identity service/webhook/mobile/infra checks, spec cascade
+**Mode**: Direct recovery after Sisyphus-Junior delegation produced repeated no-output timeouts. Prior report preserved as `verify-report.prev.md`.
 
 ---
 
 ## Summary
 
-| Severity | Count                          |
-| -------- | ------------------------------ |
-| CRITICAL | 0 (1 resolved)                 |
-| WARNING  | 1 (1 resolved, 1 acknowledged) |
-| PASSED   | 5                              |
+| Severity | Count          |
+| -------- | -------------- |
+| CRITICAL | 0              |
+| WARNING  | 2 acknowledged |
+| PASSED   | 10             |
 
 ---
 
@@ -48,6 +48,20 @@ Replacements:
 
 ## WARNING (acknowledged)
 
+### W3 — T20 local/dev database smoke not executed in this environment
+
+**Drift type**: Verification dependency.
+**Artifacts**: migration 0004, identity-webhooks post-login upsert, identity service `/v1/users/me`, admin search.
+**Impact**: Medium — focused tests and CDK synth passed, but no local PostgreSQL 16 database/API stack was available for the full `psql` + curl smoke path.
+**Action**: Keep release audit BLOCKED until real DB/API smoke evidence is captured in `.sisyphus/evidence/task-20-*`.
+
+### W4 — Serverless print requires CloudFormation resolver access
+
+**Drift type**: Environment/tooling limitation.
+**Artifacts**: `packages/infra/identity/serverless.yml`.
+**Impact**: Low — CDK Webhooks stack synthesizes protected `/webhooks/post-login` and `/v1/users/upsert` routes to `handlers/post-login.handler`; `serverless print` could not resolve `cf:` variables offline.
+**Action**: Run `npm run print:sls --workspace=@kitchensink/identity-infra` in an AWS-authenticated environment before deployment.
+
 ### W2 — Wave 8 deliverables only referenced in tasks.md / v-model/requirements.md
 
 **Drift type**: Forward drift (tasks → spec/plan/product-spec).
@@ -65,47 +79,17 @@ Replacements:
 - ✅ All identity workspace CI scripts (`lint`, `typecheck`, `test`) exist and pass after the e2e split.
 - ✅ `@kitchensink/identity-service` `npm test` → 14/14 passing (e2e excluded).
 - ✅ T-082 documents the `test` / `test:e2e` split.
+- ✅ `@kitchensink/identity-service` `npm run typecheck` passes after auth middleware, resolver, upsert, and admin search recovery.
+- ✅ `@kitchensink/identity-service` `npm test` passes with 17/17 focused tests.
+- ✅ `@kitchensink/identity-webhooks` `npm run typecheck` and `npm test` pass with 12/12 tests.
+- ✅ `@kitchensink/mobile` `npm run typecheck` and `npm test` pass with 35/35 tests.
+- ✅ `@kitchensink/identity-infra` `npm run synth` and `npm run typecheck` pass; synthesized templates include protected post-login/upsert routes and no plaintext Auth0 credentials.
+- ✅ Feature 002 active spec/data-model/plan language identifies Auth0 `sub` / `users.sub` as the canonical user primary key and marks generated UUID/app_metadata language as superseded.
+- ✅ Downstream spec 001, 005, and 010 technical FK/auth references are aligned to `users.sub` / Auth0 `sub`; spec 003 has no active UUID FK matches.
+- ✅ V-Model release audit remains explicit: 278 mapped scenarios are tracked as untested/blocked until real execution results are ingested.
 
 ---
 
 ## Status
 
-**Sync-verify pass complete.** No critical path drift remaining. The single open warning (W2) is acknowledged as low-impact and intentionally deferred.
-
----
-
-## Release Audit Gate (BLOCKED)
-
-> **Updated 2026-05-15 (T21)** — This section records the release audit status after T20 regeneration.
-
-The sync-verify pass above covers artifact path consistency and test/e2e split documentation. It does **not** constitute a release gate.
-
-The V-Model release audit (`v-model/release-audit-report.md`, regenerated 2026-05-15 by T20) reports:
-
-```
-226 test scenarios: 27 passed, 0 failed, 0 skipped, 199 untested
-Compliance Status: BLOCKED — 199 test scenarios untested
-```
-
-**Implementation evidence exists** for T1-T20 across:
-
-- `packages/apps/sous-chef/mobile` (PKCE, JWT trust, secure storage)
-- `packages/apps/sous-chef/web` (session hardening, returnTo normalization, refresh endpoint)
-- `packages/services/identity` (API alignment and admin/user endpoints)
-- `packages/infra/identity` (Lambda authorizer, CDK stack, CI workflows)
-
-**Why verify is still BLOCKED:**
-
-- Only 27 of 226 V-Model scenarios have machine-readable test results ingested (Matrix D unit scenarios from T13-T16).
-- T17 E2E tests (14 tests) are unmatched because test names use descriptive `T-074`/`T-075` labels rather than V-Model scenario IDs.
-- Matrix A/B/C (validation, system-test, integration-test) scenarios have no ingested results.
-- T17 issues remain open: E2E env guards, E2E not wired in CI, authorizer allow-path JWT signature, post-registration 500 instead of 401.
-
-**Required to unblock:**
-
-1. Fix T17 issues documented in `.sisyphus/notepads/002-auth0-remediation/issues.md`.
-2. Add V-Model scenario IDs to E2E/system/integration test names.
-3. Re-ingest results and rebuild release audit via `build-audit-report.sh`.
-4. Confirm 0 untested required scenarios (or all remaining formally waived with waiver IDs).
-
-**Do NOT mark verify or test-run complete until the above steps are done.**
+**Verification partially complete.** No critical implementation drift remains in the focused Wave 2/Wave 3 checks. Release readiness remains blocked by the unexecuted T20 local/dev DB smoke and Serverless print validation in an AWS-authenticated environment.

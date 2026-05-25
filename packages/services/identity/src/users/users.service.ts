@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 
@@ -6,7 +6,8 @@ import { users, accounts, profiles } from '../database/index.js';
 import { DrizzleProvider } from '../database/database.module.js';
 import { Auth0Service } from '../auth/auth0.service.js';
 import { SqsService } from '../queue/sqs.service.js';
-import { AuthorizerContext } from '../auth/decorators/current-user.decorator';
+import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
+import { ResolveUserService } from './resolveUser.js';
 
 @Injectable()
 export class UsersService {
@@ -16,24 +17,58 @@ export class UsersService {
         @Inject(DrizzleProvider) private readonly db: NodePgDatabase,
         private readonly auth0: Auth0Service,
         private readonly sqs: SqsService,
+        private readonly resolver: ResolveUserService,
     ) {}
 
-    async getUserMe(ctx: AuthorizerContext) {
-        const userId = ctx.userId;
-
-        const [user] = await this.db.select().from(users).where(eq(users.id, userId)).limit(1);
-
-        if (!user) {
-            throw new NotFoundException('User not found');
+    async upsertUser(
+        ctx: AuthorizerContext,
+        input: { sub: string; email: string; name?: string; picture?: string },
+    ): Promise<{ sub: string; created: boolean }> {
+        if (!ctx.isM2M || ctx.tokenType !== 'm2m') {
+            throw new ForbiddenException('M2M authorizer context required');
         }
 
-        const [account] = await this.db.select().from(accounts).where(eq(accounts.userId, userId)).limit(1);
-        const [profile] = await this.db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
+        const now = new Date();
+
+        const [existing] = await this.db.select({ id: users.id }).from(users).where(eq(users.id, input.sub)).limit(1);
+        const created = !existing;
+
+        await this.db
+            .insert(users)
+            .values({
+                id: input.sub,
+                email: input.email,
+                name: input.name ?? null,
+                picture: input.picture ?? null,
+            })
+            .onConflictDoUpdate({
+                target: users.id,
+                set: {
+                    email: input.email,
+                    name: input.name ?? null,
+                    picture: input.picture ?? null,
+                    updatedAt: now,
+                },
+            });
+
+        await this.db.insert(accounts).values({ userId: input.sub }).onConflictDoNothing();
+
+        await this.db
+            .insert(profiles)
+            .values({ userId: input.sub, displayName: input.name ?? '' })
+            .onConflictDoNothing();
+
+        return { sub: input.sub, created };
+    }
+
+    async getUserMe(ctx: AuthorizerContext) {
+        const sub = ctx.sub;
+        const { user, account } = await this.resolver.resolveUser(sub);
+        const [profile] = await this.db.select().from(profiles).where(eq(profiles.userId, sub)).limit(1);
 
         return {
             user: {
                 id: user.id,
-                auth0Sub: user.auth0Sub,
                 email: user.email,
                 status: user.status,
                 displayName: profile?.displayName ?? '',
@@ -42,19 +77,19 @@ export class UsersService {
                 updatedAt: user.updatedAt.toISOString(),
             },
             account: {
-                id: account?.id,
-                userId: account?.userId,
-                subscriptionTier: (account?.subscriptionTier as 'free' | 'premium') ?? 'free',
-                createdAt: account?.createdAt.toISOString(),
-                updatedAt: account?.updatedAt.toISOString(),
+                id: account.id,
+                userId: account.userId,
+                subscriptionTier: account.subscriptionTier,
+                createdAt: account.createdAt.toISOString(),
+                updatedAt: account.updatedAt.toISOString(),
             },
         };
     }
 
     async patchUserMe(ctx: AuthorizerContext, input: { displayName?: string; avatarUrl?: string | null }) {
-        const userId = ctx.userId;
+        const sub = ctx.sub;
 
-        const [existing] = await this.db.select().from(users).where(eq(users.id, userId)).limit(1);
+        const [existing] = await this.db.select().from(users).where(eq(users.id, sub)).limit(1);
 
         if (!existing) {
             throw new NotFoundException('User not found');
@@ -70,16 +105,15 @@ export class UsersService {
                     ...(input.avatarUrl !== undefined ? { avatarUrl: input.avatarUrl } : {}),
                     updatedAt: now,
                 })
-                .where(eq(profiles.userId, userId));
+                .where(eq(profiles.userId, sub));
         }
 
-        const [updatedProfile] = await this.db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
-        const [updatedAccount] = await this.db.select().from(accounts).where(eq(accounts.userId, userId)).limit(1);
+        const [updatedProfile] = await this.db.select().from(profiles).where(eq(profiles.userId, sub)).limit(1);
+        const [updatedAccount] = await this.db.select().from(accounts).where(eq(accounts.userId, sub)).limit(1);
 
         return {
             user: {
                 id: existing.id,
-                auth0Sub: existing.auth0Sub,
                 email: existing.email,
                 status: existing.status,
                 displayName: updatedProfile?.displayName ?? '',
@@ -90,7 +124,7 @@ export class UsersService {
             account: {
                 id: updatedAccount?.id,
                 userId: updatedAccount?.userId,
-                subscriptionTier: (updatedAccount?.subscriptionTier as 'free' | 'premium') ?? 'free',
+                subscriptionTier: updatedAccount?.subscriptionTier ?? 'free',
                 createdAt: updatedAccount?.createdAt.toISOString(),
                 updatedAt: updatedAccount?.updatedAt.toISOString(),
             },
@@ -98,10 +132,9 @@ export class UsersService {
     }
 
     async deleteUserMe(ctx: AuthorizerContext) {
-        const userId = ctx.userId;
-        const auth0Sub = ctx.auth0Sub;
+        const sub = ctx.sub;
 
-        const [existing] = await this.db.select().from(users).where(eq(users.id, userId)).limit(1);
+        const [existing] = await this.db.select().from(users).where(eq(users.id, sub)).limit(1);
 
         if (!existing) {
             throw new NotFoundException('User not found');
@@ -110,20 +143,19 @@ export class UsersService {
         const deletedAt = new Date();
 
         await this.db.transaction(async (tx) => {
-            await tx.delete(accounts).where(eq(accounts.userId, userId));
-            await tx.delete(profiles).where(eq(profiles.userId, userId));
-            await tx.delete(users).where(eq(users.id, userId));
+            await tx.delete(accounts).where(eq(accounts.userId, sub));
+            await tx.delete(profiles).where(eq(profiles.userId, sub));
+            await tx.delete(users).where(eq(users.id, sub));
         });
 
         try {
-            await this.auth0.deleteUser(auth0Sub);
+            await this.auth0.deleteUser(sub);
         } catch (err) {
-            this.logger.warn('auth0 delete failed, enqueuing for async deletion', { userId, error: String(err) });
-            await this.sqs.enqueueDeletion(auth0Sub, userId, 'user_request');
+            await this.sqs.enqueueDeletion(sub, sub, String(err));
         }
 
         return {
-            userId,
+            sub,
             deletedAt: deletedAt.toISOString(),
             message: 'Account deletion initiated',
         };
@@ -137,7 +169,7 @@ export class UsersService {
         }
 
         try {
-            await this.auth0.createPasswordResetTicket(user.auth0Sub, 'https://app.sous-chef.io/auth/callback');
+            await this.auth0.createPasswordResetTicket(user.id, 'https://app.sous-chef.io/auth/callback');
         } catch (err) {
             this.logger.warn('password reset ticket failed', { email, error: String(err) });
         }
@@ -145,16 +177,16 @@ export class UsersService {
         return { message: 'If the email exists, a reset link has been sent' };
     }
 
-    async enrollMFA(auth0Sub: string): Promise<{ message: string; enrollmentUri: string }> {
+    async enrollMFA(sub: string): Promise<{ message: string; enrollmentUri: string }> {
         try {
-            const result = await this.auth0.enrollMFA(auth0Sub);
+            const result = await this.auth0.enrollMFA(sub);
 
             return {
                 message: 'MFA enrollment initiated',
                 enrollmentUri: (result as { uri?: string }).uri ?? '',
             };
         } catch (err) {
-            this.logger.error('MFA enroll failed', { auth0Sub, error: String(err) });
+            this.logger.error('MFA enroll failed', { sub, error: String(err) });
 
             return { message: 'MFA enrollment failed', enrollmentUri: '' };
         }
@@ -172,25 +204,25 @@ export class UsersService {
         }
     }
 
-    async linkSocialAccount(auth0Sub: string, provider: string, accountId: string): Promise<{ message: string }> {
+    async linkSocialAccount(sub: string, provider: string, accountId: string): Promise<{ message: string }> {
         try {
-            await this.auth0.linkAccounts(auth0Sub, provider, accountId);
+            await this.auth0.linkAccounts(sub, provider, accountId);
 
             return { message: 'Account linked' };
         } catch (err) {
-            this.logger.error('Account link failed', { auth0Sub, error: String(err) });
+            this.logger.error('Account link failed', { sub, error: String(err) });
 
             return { message: 'Account link failed' };
         }
     }
 
-    async unlinkSocialAccount(auth0Sub: string, provider: string, accountId: string): Promise<{ message: string }> {
+    async unlinkSocialAccount(sub: string, provider: string, accountId: string): Promise<{ message: string }> {
         try {
-            await this.auth0.unlinkAccount(auth0Sub, provider, accountId);
+            await this.auth0.unlinkAccount(sub, provider, accountId);
 
             return { message: 'Account unlinked' };
         } catch (err) {
-            this.logger.error('Account unlink failed', { auth0Sub, error: String(err) });
+            this.logger.error('Account unlink failed', { sub, error: String(err) });
 
             return { message: 'Account unlink failed' };
         }

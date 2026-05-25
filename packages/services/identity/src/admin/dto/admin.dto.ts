@@ -1,51 +1,39 @@
-import { IsUUID } from 'class-validator';
-import type { UserStatus } from '@kitchensink/auth-types';
+import { IsString } from 'class-validator';
 
 export class AdminUserIdParamDto {
-    @IsUUID(4)
+    @IsString()
     userId!: string;
-}
-
-export class AdminGetUserResponseDto {
-    readonly id!: string;
-    readonly auth0Sub!: string;
-    readonly email!: string;
-    readonly status!: UserStatus;
-    readonly createdAt!: string;
-    readonly updatedAt!: string;
-    readonly deletedAt!: string | null;
-    readonly subscriptionTier!: 'free' | 'premium';
 }
 
 export class AdminSuspendUserResponseDto {
-    userId!: string;
+    sub!: string;
     status!: 'suspended';
     suspendedAt!: string;
 }
 
 export class AdminUnsuspendUserResponseDto {
-    userId!: string;
+    sub!: string;
     status!: 'active';
     unsuspendedAt!: string;
 }
 
 export class ImpersonationStartResponseDto {
-    impersonatorId!: string;
-    impersonatedUserId!: string;
+    impersonatorSub!: string;
+    impersonatedSub!: string;
     sessionId!: string;
     startedAt!: string;
 }
 
 export class ImpersonationStopResponseDto {
-    impersonatorId!: string;
-    impersonatedUserId!: string;
+    impersonatorSub!: string;
+    impersonatedSub!: string;
     stoppedAt!: string;
     message!: string;
 }
 
 export class AdminAuditLogDto {
-    readonly impersonatorId!: string;
-    readonly impersonatedUserId!: string;
+    readonly impersonatorSub!: string;
+    readonly impersonatedSub!: string;
     readonly action!: string;
     readonly timestamp!: string;
     readonly success!: boolean;

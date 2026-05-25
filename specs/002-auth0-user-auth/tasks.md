@@ -1,16 +1,8 @@
 # Tasks: Auth0 User Authentication
 
 **Feature**: `002-auth0-user-auth`  
-**Updated**: 2026-05-14  
+**Updated**: 2026-05-13  
 **Source**: `spec.md`, `plan.md`, `v-model/requirements.md`, `v-model/architecture-design.md`, `v-model/module-design.md`
-
-> **Runtime boundary (added 2026-05-14, T18 doc-sync):**
->
-> - `T-020..T-024` and `T-080..T-083` target **`packages/services/identity-webhooks/`** — raw Lambda handlers (Node 22): authorizer, post-registration, deletion worker, reconciliation.
-> - `T-030..T-041` target **`packages/services/identity/`** — NestJS 11 ECS service (Node 24): all REST user/account/admin endpoints.
-> - `T-001..T-002` target **`packages/shared/auth-types/`** — shared contracts imported by both runtimes.
-> - `T-010..T-015` target **`packages/infra/identity/`** — CDK (ECS/RDS/SQS/VPC) + Serverless Framework (Lambda + API Gateway).
-> - The ECS service never decodes client JWTs; it trusts only the `AuthorizerContext` injected by the Lambda authorizer via API Gateway.
 
 ---
 

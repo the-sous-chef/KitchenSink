@@ -2,18 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth0 } from '@/lib/auth0';
 
 export async function POST(request: NextRequest) {
-    const session = await auth0.getSession(request);
-
-    if (!session) {
-        return NextResponse.json({ status: 'no_session' }, { status: 401 });
-    }
-
-    const mutableResponse = NextResponse.json({ status: 'ok' });
+    const response = NextResponse.json({ refreshed: true });
 
     try {
-        const token = await auth0.getAccessToken(request, mutableResponse);
-        return NextResponse.json({ status: 'ok', expiresAt: token.expiresAt }, { headers: mutableResponse.headers });
+        const token = await auth0.getAccessToken(request, response);
+
+        return NextResponse.json({ refreshed: true, expiresAt: token.expiresAt }, { headers: response.headers });
     } catch {
-        return NextResponse.json({ status: 'expired' }, { status: 401 });
+        return NextResponse.json({ refreshed: false }, { status: 401 });
     }
 }

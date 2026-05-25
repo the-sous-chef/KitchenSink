@@ -16,17 +16,17 @@ describe('LogoutButton', () => {
         mockUseRouter.mockReturnValue({ push: mockPush });
     });
 
-    it('UTS-001-A2 [MOD-001/logout-ui]: renders with default text', () => {
+    it('renders with default text', () => {
         render(<LogoutButton />);
         expect(screen.getByRole('button', { name: 'Sign out of your account' })).toBeInTheDocument();
     });
 
-    it('UTS-001-A2 [MOD-001/logout-ui-custom]: renders with custom children', () => {
+    it('renders with custom children', () => {
         render(<LogoutButton>Log Out</LogoutButton>);
         expect(screen.getByRole('button', { name: 'Log Out' })).toBeInTheDocument();
     });
 
-    it('UTS-001-A2 [MOD-001/logout-redirect]: redirects to logout on click', async () => {
+    it('redirects to logout on click', async () => {
         const user = userEvent.setup();
         render(<LogoutButton />);
 
@@ -35,7 +35,7 @@ describe('LogoutButton', () => {
         expect(mockPush).toHaveBeenCalledWith('/api/auth/logout');
     });
 
-    it('UTS-001-A2 [MOD-001/logout-loading]: shows loading state when clicked', async () => {
+    it('shows loading state when clicked', async () => {
         const user = userEvent.setup();
         render(<LogoutButton />);
 

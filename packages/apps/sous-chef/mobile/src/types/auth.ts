@@ -6,8 +6,7 @@ export interface AuthSession {
     readonly accessToken: string;
     readonly refreshToken: string;
     readonly expiresAt: string;
-    readonly userId: string;
-    readonly auth0Id: string;
+    readonly sub: string;
 }
 
 export interface TokenRefreshResult {

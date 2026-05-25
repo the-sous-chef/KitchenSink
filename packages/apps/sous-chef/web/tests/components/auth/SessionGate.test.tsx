@@ -13,7 +13,7 @@ describe('SessionGate', () => {
         vi.clearAllMocks();
     });
 
-    it('UTS-005-A1 [MOD-005]: renders children when user is authenticated', () => {
+    it('renders children when user is authenticated', () => {
         mockUseUser.mockReturnValue({
             user: { sub: 'user123', email: 'test@example.com' },
             isLoading: false,
@@ -29,7 +29,7 @@ describe('SessionGate', () => {
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 
-    it('UTS-005-A2 [MOD-005]: renders fallback when user is not authenticated', () => {
+    it('renders fallback when user is not authenticated', () => {
         mockUseUser.mockReturnValue({
             user: undefined,
             isLoading: false,
@@ -46,7 +46,7 @@ describe('SessionGate', () => {
         expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });
 
-    it('UTS-005-A1 [MOD-005/loading]: shows loading state with proper aria attributes', () => {
+    it('shows loading state with proper aria attributes', () => {
         mockUseUser.mockReturnValue({
             user: undefined,
             isLoading: true,
@@ -60,7 +60,7 @@ describe('SessionGate', () => {
         expect(loadingElement).toHaveAttribute('aria-label', 'Loading session');
     });
 
-    it('UTS-005-A3 [MOD-005]: renders null fallback by default when not authenticated', () => {
+    it('renders null fallback by default when not authenticated', () => {
         mockUseUser.mockReturnValue({
             user: undefined,
             isLoading: false,

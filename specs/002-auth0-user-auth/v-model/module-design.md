@@ -5,19 +5,11 @@
 **Status**: Draft
 **Source**: `specs/002-auth0-user-auth/v-model/architecture-design.md`
 
+> **Identity-key note (Feature 002 implementation update)**: Module details in this draft that mention generated UUID user IDs, `app_metadata.userId`, `auth0_id`, `internal_id`, or `legacy_id` are historical and superseded by the implemented sub-keyed model. Current implementation uses Auth0 `sub` as `users.sub VARCHAR(255) COLLATE "C" PRIMARY KEY`, with M2M-gated post-login upsert and no generated user UUID.
+
 ## Overview
 
 The Auth0 User Authentication module design decomposes 33 architecture modules (ARCH-001 through ARCH-033) into 33 low-level module specifications (MOD-001 through MOD-033). Each MOD is a single-responsibility unit documented with four mandatory views — Algorithmic/Logic, State Machine, Internal Data Structures, and Error Handling & Return Codes — at a level of detail where writing the actual TypeScript source code is a direct translation exercise requiring no further design decisions. Cross-cutting infrastructure (ARCH-027 through ARCH-033) is fully decomposed into focused utility modules. Every module is traceable to its parent ARCH-NNN.
-
-**Dual-runtime note (added 2026-05-14, T18 doc-sync):** Modules are deployed across four distinct runtimes:
-
-- **Lambda** (Node 22, `packages/services/identity-webhooks/`): MOD-010, MOD-011, MOD-012, MOD-024, MOD-025
-- **ECS NestJS** (Node 24, `packages/services/identity/`): MOD-015, MOD-017, MOD-020, MOD-022, MOD-023, MOD-026
-- **Next.js Web** (`packages/apps/sous-chef/web/`): MOD-001, MOD-002, MOD-003, MOD-008, MOD-013, MOD-014, MOD-016, MOD-018, MOD-019, MOD-021
-- **Mobile Expo** (`packages/apps/sous-chef/mobile/`): MOD-004, MOD-005, MOD-006, MOD-009
-- **Auth0 (external config)**: MOD-007
-- **Cross-cutting (Lambda + ECS)**: MOD-027, MOD-028, MOD-029
-- **CDK infra (compile-time)**: MOD-030, MOD-031, MOD-032, MOD-033
 
 ## ID Schema
 
@@ -34,7 +26,6 @@ The Auth0 User Authentication module design decomposes 33 architecture modules (
 ### Module: MOD-001 (Web Auth Route Handler)
 
 **Parent Architecture Modules**: ARCH-001
-**Runtime**: Next.js Web (`packages/apps/sous-chef/web/`)
 **Target Source File(s)**: `packages/apps/sous-chef/web/app/api/auth/[...auth0]/route.ts`
 
 #### Algorithmic / Logic View
@@ -113,7 +104,6 @@ N/A — Stateless
 ### Module: MOD-002 (Web Auth Middleware Guard)
 
 **Parent Architecture Modules**: ARCH-002
-**Runtime**: Next.js Web (`packages/apps/sous-chef/web/`)
 **Target Source File(s)**: `packages/apps/sous-chef/web/middleware.ts`
 
 #### Algorithmic / Logic View
@@ -171,7 +161,6 @@ N/A — Stateless
 ### Module: MOD-003 (Web Session Cookie Manager)
 
 **Parent Architecture Modules**: ARCH-003
-**Runtime**: Next.js Web (`packages/apps/sous-chef/web/`)
 **Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/session-manager.ts`
 
 #### Algorithmic / Logic View
@@ -242,7 +231,6 @@ N/A — Stateless
 ### Module: MOD-004 (Mobile Auth Provider)
 
 **Parent Architecture Modules**: ARCH-004
-**Runtime**: Mobile Expo (`packages/apps/sous-chef/mobile/`)
 **Target Source File(s)**: `packages/apps/sous-chef/mobile/contexts/AuthProvider.tsx`
 
 #### Algorithmic / Logic View
@@ -317,7 +305,6 @@ N/A — Stateless (React component)
 ### Module: MOD-005 (Mobile Secure Token Store)
 
 **Parent Architecture Modules**: ARCH-005
-**Runtime**: Mobile Expo (`packages/apps/sous-chef/mobile/`)
 **Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/secure-token-store.ts`
 
 #### Algorithmic / Logic View
@@ -376,7 +363,6 @@ N/A — Stateless
 ### Module: MOD-006 (Mobile Auth Callback Handler)
 
 **Parent Architecture Modules**: ARCH-006
-**Runtime**: Mobile Expo (`packages/apps/sous-chef/mobile/`)
 **Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/auth-callback.ts`
 
 #### Algorithmic / Logic View
@@ -439,7 +425,6 @@ N/A — Stateless
 ### Module: MOD-007 (Social Connection Configurator)
 
 **Parent Architecture Modules**: ARCH-007
-**Runtime**: Auth0 (external config)
 **Target Source File(s)**: `packages/apps/sous-chef/web/components/auth/SocialConnections.tsx`, `packages/apps/sous-chef/mobile/screens/SocialConnectionsScreen.tsx`
 
 #### Algorithmic / Logic View
@@ -496,7 +481,6 @@ N/A — Stateless
 ### Module: MOD-008 (Token Refresh Service — Web)
 
 **Parent Architecture Modules**: ARCH-008
-**Runtime**: Next.js Web (`packages/apps/sous-chef/web/`)
 **Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/token-refresh.ts`
 
 #### Algorithmic / Logic View
@@ -565,7 +549,6 @@ LoggedOut --> [*]
 ### Module: MOD-009 (Token Refresh Service — Mobile)
 
 **Parent Architecture Modules**: ARCH-009
-**Runtime**: Mobile Expo (`packages/apps/sous-chef/mobile/`)
 **Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/token-refresh.ts`
 
 #### Algorithmic / Logic View
@@ -621,7 +604,6 @@ LoggedOut --> [*]
 ### Module: MOD-010 (Post-Registration Auth0 Action)
 
 **Parent Architecture Modules**: ARCH-010
-**Runtime**: Lambda (`packages/services/identity-webhooks/`, Node 22)
 **Target Source File(s)**: `auth0/actions/post-registration/index.js`
 
 #### Algorithmic / Logic View
@@ -697,7 +679,6 @@ UpdatingAppMetadata --> [*]: Error — logged to Sentry, Auth0 retries Action
 ### Module: MOD-011 (User Provisioning Lambda)
 
 **Parent Architecture Modules**: ARCH-011
-**Runtime**: Lambda (`packages/services/identity-webhooks/`, Node 22)
 **Target Source File(s)**: `packages/lambda/user-provisioning/index.ts`
 
 #### Algorithmic / Logic View
@@ -759,7 +740,6 @@ N/A — Stateless (Lambda invocation model)
 ### Module: MOD-012 (Reconciliation Lambda)
 
 **Parent Architecture Modules**: ARCH-012
-**Runtime**: Lambda (`packages/services/identity-webhooks/`, Node 22)
 **Target Source File(s)**: `packages/lambda/reconciliation/index.ts`
 
 #### Algorithmic / Logic View
@@ -834,7 +814,6 @@ N/A — Stateless
 ### Module: MOD-013 (Profile View Component)
 
 **Parent Architecture Modules**: ARCH-013
-**Runtime**: Next.js Web + Mobile Expo
 **Target Source File(s)**: `packages/apps/sous-chef/web/components/profile/ProfileView.tsx`, `packages/apps/sous-chef/mobile/screens/ProfileScreen.tsx`
 
 #### Algorithmic / Logic View
@@ -900,7 +879,6 @@ N/A — Stateless (React component)
 ### Module: MOD-014 (Account Edit Component)
 
 **Parent Architecture Modules**: ARCH-014
-**Runtime**: Next.js Web + Mobile Expo
 **Target Source File(s)**: `packages/apps/sous-chef/web/components/account/AccountEdit.tsx`, `packages/apps/sous-chef/mobile/screens/AccountEditScreen.tsx`
 
 #### Algorithmic / Logic View
@@ -986,7 +964,6 @@ N/A — Stateless (React component)
 ### Module: MOD-015 (Account Edit API Handler)
 
 **Parent Architecture Modules**: ARCH-015
-**Runtime**: ECS NestJS (`packages/services/identity/`, Node 24)
 **Target Source File(s)**: `packages/api/handlers/account-edit.ts`
 
 #### Algorithmic / Logic View
@@ -1050,7 +1027,6 @@ N/A — Stateless
 ### Module: MOD-016 (Account Deletion Component)
 
 **Parent Architecture Modules**: ARCH-016
-**Runtime**: Next.js Web + Mobile Expo
 **Target Source File(s)**: `packages/apps/sous-chef/web/components/account/AccountDelete.tsx`, `packages/apps/sous-chef/mobile/screens/AccountDeleteScreen.tsx`
 
 #### Algorithmic / Logic View
@@ -1147,7 +1123,6 @@ Done --> [*]
 ### Module: MOD-017 (Account Deletion API Handler)
 
 **Parent Architecture Modules**: ARCH-017
-**Runtime**: ECS NestJS (`packages/services/identity/`, Node 24)
 **Target Source File(s)**: `packages/api/handlers/account-delete.ts`
 
 #### Algorithmic / Logic View
@@ -1221,7 +1196,6 @@ Failed --> [*]
 ### Module: MOD-018 (Password Reset Link Component)
 
 **Parent Architecture Modules**: ARCH-018
-**Runtime**: Next.js Web + Mobile Expo
 **Target Source File(s)**: `packages/apps/sous-chef/web/components/auth/PasswordResetLink.tsx`, `packages/apps/sous-chef/mobile/components/PasswordResetLink.tsx`
 
 #### Algorithmic / Logic View
@@ -1259,7 +1233,6 @@ N/A — Stateless (static component, no state)
 ### Module: MOD-019 (MFA Enrollment Component)
 
 **Parent Architecture Modules**: ARCH-019
-**Runtime**: Next.js Web + Mobile Expo
 **Target Source File(s)**: `packages/apps/sous-chef/web/components/security/MFAEnrollment.tsx`, `packages/apps/sous-chef/mobile/screens/MFAScreen.tsx`
 
 #### Algorithmic / Logic View
@@ -1321,7 +1294,6 @@ N/A — Stateless (React component)
 ### Module: MOD-020 (Social Account Linking API Handler)
 
 **Parent Architecture Modules**: ARCH-020
-**Runtime**: ECS NestJS (`packages/services/identity/`, Node 24)
 **Target Source File(s)**: `packages/api/handlers/social-link.ts`
 
 #### Algorithmic / Logic View
@@ -1385,7 +1357,6 @@ N/A — Stateless
 ### Module: MOD-021 (Social Account Linking Component)
 
 **Parent Architecture Modules**: ARCH-021
-**Runtime**: Next.js Web + Mobile Expo
 **Target Source File(s)**: `packages/apps/sous-chef/web/components/account/SocialLinking.tsx`, `packages/apps/sous-chef/mobile/screens/SocialLinkingScreen.tsx`
 
 #### Algorithmic / Logic View
@@ -1479,7 +1450,6 @@ N/A — Stateless (React component)
 ### Module: MOD-022 (Impersonation Token Exchange Service)
 
 **Parent Architecture Modules**: ARCH-022
-**Runtime**: ECS NestJS (`packages/services/identity/`, Node 24)
 **Target Source File(s)**: `packages/lambda/impersonation-exchange/index.ts`
 
 #### Algorithmic / Logic View
@@ -1553,7 +1523,6 @@ N/A — Stateless
 ### Module: MOD-023 (Impersonation Audit Logger)
 
 **Parent Architecture Modules**: ARCH-023
-**Runtime**: ECS NestJS (`packages/services/identity/`, Node 24)
 **Target Source File(s)**: `packages/api/middleware/impersonation-audit.ts`
 
 #### Algorithmic / Logic View
@@ -1609,7 +1578,6 @@ N/A — Stateless (middleware)
 ### Module: MOD-024 (API Gateway JWT Authorizer Lambda)
 
 **Parent Architecture Modules**: ARCH-024
-**Runtime**: Lambda (`packages/services/identity-webhooks/`, Node 22)
 **Target Source File(s)**: `packages/lambda/jwt-authorizer/index.ts`
 
 #### Algorithmic / Logic View
@@ -1685,7 +1653,6 @@ N/A — Stateless
 ### Module: MOD-025 (Suspension Status Checker)
 
 **Parent Architecture Modules**: ARCH-025
-**Runtime**: Lambda (`packages/services/identity-webhooks/`, Node 22)
 **Target Source File(s)**: `packages/lambda/jwt-authorizer/suspension-check.ts`
 
 #### Algorithmic / Logic View
@@ -1742,7 +1709,6 @@ N/A — Stateless
 ### Module: MOD-026 (User Suspension API Handler)
 
 **Parent Architecture Modules**: ARCH-026
-**Runtime**: ECS NestJS (`packages/services/identity/`, Node 24)
 **Target Source File(s)**: `packages/api/handlers/user-suspension.ts`
 
 #### Algorithmic / Logic View
@@ -1813,7 +1779,6 @@ N/A — Stateless
 ### Module: MOD-027 (Structured Logger)
 
 **Parent Architecture Modules**: ARCH-027
-**Runtime**: Cross-cutting (Lambda + ECS)
 **Target Source File(s)**: `packages/logger/index.ts`
 
 #### Algorithmic / Logic View
@@ -1866,7 +1831,6 @@ N/A — Stateless
 ### Module: MOD-028 (CloudWatch Metrics Emitter)
 
 **Parent Architecture Modules**: ARCH-028
-**Runtime**: Cross-cutting (Lambda + ECS)
 **Target Source File(s)**: `packages/metrics/index.ts`
 
 #### Algorithmic / Logic View
@@ -1924,7 +1888,6 @@ N/A — Stateless
 ### Module: MOD-029 (Sentry Integration Wrapper)
 
 **Parent Architecture Modules**: ARCH-029
-**Runtime**: Cross-cutting (Lambda + ECS)
 **Target Source File(s)**: `packages/sentry/index.ts`
 
 #### Algorithmic / Logic View
@@ -1988,7 +1951,6 @@ N/A — Stateless
 ### Module: MOD-030 (CDK Auth Stack)
 
 **Parent Architecture Modules**: ARCH-030
-**Runtime**: CDK infra (compile-time)
 **Target Source File(s)**: `infra/cdk/auth-stack.ts`
 
 #### Algorithmic / Logic View
@@ -2054,7 +2016,6 @@ N/A — Stateless (CDK synthesis, not runtime)
 ### Module: MOD-031 (Shared Auth Types Library)
 
 **Parent Architecture Modules**: ARCH-031
-**Runtime**: Shared compile-time (`packages/shared/auth-types/`)
 **Target Source File(s)**: `packages/types/auth.ts`
 
 #### Algorithmic / Logic View
@@ -2129,7 +2090,6 @@ N/A — TypeScript compile-time only (no runtime state)
 ### Module: MOD-032 (Custom Auth Error Classes)
 
 **Parent Architecture Modules**: ARCH-032
-**Runtime**: Shared compile-time (`packages/shared/auth-types/`)
 **Target Source File(s)**: `packages/errors/auth-errors.ts`
 
 #### Algorithmic / Logic View
@@ -2207,7 +2167,6 @@ N/A — Stateless (error class definitions)
 ### Module: MOD-033 (Auth UI Design Tokens Integration)
 
 **Parent Architecture Modules**: ARCH-033
-**Runtime**: Shared compile-time (design tokens)
 **Target Source File(s)**: `packages/apps/sous-chef/web/styles/auth-tokens.css`, `packages/apps/sous-chef/mobile/theme/auth-tokens.ts`
 
 #### Algorithmic / Logic View

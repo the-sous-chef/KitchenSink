@@ -27,7 +27,6 @@ Key points:
 - No more than one class or component per file
 - Always use braces for control structures
 - Use enums and constants instead of hardcoded values
-- Do not use relative imports unless no other alternative exists
 
 ## Commit Message Format
 

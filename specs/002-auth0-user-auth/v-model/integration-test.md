@@ -5,6 +5,8 @@
 **Status**: Draft
 **Source**: `specs/002-auth0-user-auth/v-model/architecture-design.md`
 
+> **Identity-key note (Feature 002 implementation update)**: Scenarios in this draft that mention generated UUID user IDs, `app_metadata.userId`, `auth0_id`, `internal_id`, or `legacy_id` are historical and superseded by the implemented sub-keyed model. Current verification uses Auth0 `sub` as `users.sub VARCHAR(255) COLLATE "C" PRIMARY KEY`, with M2M-gated post-login upsert and no generated user UUID.
+
 ## Overview
 
 This document defines the Integration Test Plan for Auth0 User Authentication. Every architecture module in `architecture-design.md` (ARCH-001 through ARCH-033) has one or more Test Cases (ITP), and every Test Case has one or more executable Integration Scenarios (ITS) in module-boundary BDD format (Given/When/Then).

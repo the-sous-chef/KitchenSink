@@ -1,25 +1,34 @@
-import { Controller, Get, Post, Param, HttpCode, HttpStatus } from '@nestjs/common';
-import { AdminService } from './admin.service';
-import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator';
-import type { AuthorizerContext } from '../auth/decorators/current-user.decorator';
+import { Controller, Get, Post, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { AdminService } from './admin.service.js';
+import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator.js';
+import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 import {
-    AdminGetUserResponseDto,
     AdminSuspendUserResponseDto,
     AdminUnsuspendUserResponseDto,
     ImpersonationStartResponseDto,
     ImpersonationStopResponseDto,
-} from './dto/admin.dto';
+} from './dto/admin.dto.js';
 
 @Controller('v1/admin/users')
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
-    @Get(':userId')
-    async getUser(
-        @Param('userId') userId: string,
+    @Get()
+    async listUsers(
         @CurrentAuthorizerContext() ctx: AuthorizerContext,
-    ): Promise<AdminGetUserResponseDto> {
-        return this.adminService.getUser(userId, ctx);
+        @Query('email') email?: string,
+        @Query('name') name?: string,
+        @Query('sub') sub?: string,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string,
+    ) {
+        return this.adminService.listUsers(ctx, {
+            email,
+            name,
+            sub,
+            limit: limit ? Number.parseInt(limit, 10) : undefined,
+            offset: offset ? Number.parseInt(offset, 10) : undefined,
+        });
     }
 
     @Post(':userId/suspend')

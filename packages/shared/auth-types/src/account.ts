@@ -1,37 +1,30 @@
-import type { UserId, UuidV4 } from './user.js';
+import type { UserId } from './user.js';
 
-/** @implements REQ-013 REQ-014 REQ-017 REQ-018 FR-013 FR-014 FR-017 FR-018 ARCH-012 MOD-012 */
-export type AccountId = UuidV4 & { readonly __brand: 'AccountId' };
+export type AccountId = string & { readonly __brand: 'AccountId' };
 
-/** @implements REQ-005 REQ-006 REQ-039 FR-005 FR-006 FR-039 ARCH-003 MOD-003 */
-export interface AccountReadDto {
+export type AccountTier = 'free' | 'premium';
+
+export interface AccountModel {
     id: AccountId;
     userId: UserId;
-    provider: string;
-    providerAccountId: string;
-    subscriptionTier: 'free' | 'premium';
+    subscriptionTier: AccountTier;
     createdAt: string;
     updatedAt: string;
 }
 
-/** @implements REQ-005 REQ-039 FR-005 FR-039 ARCH-003 MOD-003 */
 export interface CreateAccountDto {
     userId: UserId;
-    provider: string;
-    providerAccountId: string;
+    subscriptionTier?: AccountTier;
 }
 
-/** @implements REQ-006 FR-006 ARCH-003 MOD-003 */
 export interface UpdateAccountDto {
-    provider?: string;
-    providerAccountId?: string;
-    updatedAt?: string;
+    subscriptionTier?: AccountTier;
 }
 
 export interface UserProfileAccountDto {
     readonly id: string;
-    readonly userId: string;
-    subscriptionTier: 'free' | 'premium';
+    readonly userId: UserId;
+    subscriptionTier: AccountTier;
     readonly createdAt: string;
     updatedAt: string;
 }

@@ -11,6 +11,10 @@
         "./schema": {
             "types": "./dist/schema/index.d.ts",
             "default": "./dist/schema/index.js"
+        },
+        "./dao": {
+            "types": "./dist/dao/index.d.ts",
+            "default": "./dist/dao/index.js"
         }
     },
     "types": "./dist/index.d.ts",
@@ -33,6 +37,7 @@
         "vitest": "^4.0.0"
     },
     "dependencies": {
-        "drizzle-orm": "^0.45.2"
+        "drizzle-orm": "^0.45.2",
+        "zod": "^3.24.0"
     }
 }

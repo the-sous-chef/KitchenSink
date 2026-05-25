@@ -1,9 +1,8 @@
-import { IsString, IsOptional, MaxLength, IsUrl, ValidateIf } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsUrl } from 'class-validator';
 import type { UserStatus } from '@kitchensink/auth-types';
 
 export class GetUserMeResponseDto {
-    readonly id!: string;
-    readonly auth0Sub!: string;
+    readonly sub!: string;
     readonly email!: string;
     displayName!: string;
     avatarUrl!: string | null;
@@ -14,8 +13,8 @@ export class GetUserMeResponseDto {
 
 export class AccountDto {
     readonly id!: string;
-    readonly userId!: string;
-    subscriptionTier!: 'free' | 'premium';
+    readonly ownerSub!: string;
+    tier!: string;
     readonly createdAt!: string;
     updatedAt!: string;
 }
@@ -32,20 +31,14 @@ export class PatchUserMeBodyDto {
     displayName?: string;
 
     @IsOptional()
-    @ValidateIf((o: PatchUserMeBodyDto) => o.avatarUrl !== null)
     @IsUrl()
     avatarUrl?: string | null;
 }
 
 export class DeleteUserMeResponseDto {
-    readonly userId!: string;
+    readonly sub!: string;
     readonly deletedAt!: string;
     readonly message!: string;
-}
-
-export class PasswordResetRequestDto {
-    @IsString()
-    readonly method!: 'email';
 }
 
 export class PasswordResetResponseDto {
@@ -57,23 +50,10 @@ export class MfaEnrollResponseDto {
     readonly enrollmentUri!: string;
 }
 
-export class MfaUnenrollBodyDto {
-    @IsString()
-    enrollmentId!: string;
-}
-
 export class MfaUnenrollResponseDto {
     readonly message!: string;
 }
 
 export class SocialLinkResponseDto {
     readonly message!: string;
-}
-
-export class SocialAccountBodyDto {
-    @IsString()
-    provider!: string;
-
-    @IsString()
-    accountId!: string;
 }

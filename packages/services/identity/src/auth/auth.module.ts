@@ -1,25 +1,11 @@
-import { Module, Global, Provider } from '@nestjs/common';
-import { ManagementClient } from 'auth0';
+import { Module, Global } from '@nestjs/common';
 
 import { Auth0Service } from './auth0.service.js';
-
-export const AUTH0_CLIENT = 'AUTH0_CLIENT';
-
-const auth0ClientProvider: Provider = {
-    provide: AUTH0_CLIENT,
-    useFactory() {
-        return new ManagementClient({
-            domain: process.env.AUTH0_DOMAIN ?? '',
-            audience: process.env.AUTH0_AUDIENCE ?? '',
-            clientId: process.env.AUTH0_CLIENT_ID ?? '',
-            clientSecret: process.env.AUTH0_CLIENT_SECRET ?? '',
-        });
-    },
-};
+import { AuthMiddleware } from './middleware/auth.middleware.js';
 
 @Global()
 @Module({
-    providers: [auth0ClientProvider, Auth0Service],
-    exports: [AUTH0_CLIENT, Auth0Service],
+    providers: [Auth0Service, AuthMiddleware],
+    exports: [Auth0Service, AuthMiddleware],
 })
 export class AuthModule {}

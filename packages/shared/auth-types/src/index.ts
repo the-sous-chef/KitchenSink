@@ -5,4 +5,4 @@ export * from './account.js';
 export * from './profile.js';
 export * from './deletion.js';
 export * from './reconciliation.js';
-export * from './error.js';
+export * from './schemas.js';

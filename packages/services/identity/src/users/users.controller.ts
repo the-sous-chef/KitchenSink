@@ -1,21 +1,28 @@
 import { Controller, Get, Patch, Delete, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service.js';
-import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator';
-import type { AuthorizerContext } from '../auth/decorators/current-user.decorator';
+import { CurrentAuthorizerContext } from '../auth/decorators/current-user.decorator.js';
+import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 import {
     PatchUserMeBodyDto,
     DeleteUserMeResponseDto,
     PasswordResetResponseDto,
     MfaEnrollResponseDto,
-    MfaUnenrollBodyDto,
     MfaUnenrollResponseDto,
     SocialLinkResponseDto,
-    SocialAccountBodyDto,
 } from './dto/user.dto.js';
 
 @Controller('v1/users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
+
+    @Post('upsert')
+    @HttpCode(HttpStatus.OK)
+    async upsertUser(
+        @CurrentAuthorizerContext() ctx: AuthorizerContext,
+        @Body() body: { sub: string; email: string; name?: string; picture?: string },
+    ): Promise<{ sub: string; created: boolean }> {
+        return this.usersService.upsertUser(ctx, body);
+    }
 
     @Get('me')
     async getUserMe(@CurrentAuthorizerContext() ctx: AuthorizerContext) {
@@ -36,20 +43,20 @@ export class UsersController {
     @Post('me/password-reset')
     @HttpCode(HttpStatus.OK)
     async requestPasswordReset(@CurrentAuthorizerContext() ctx: AuthorizerContext): Promise<PasswordResetResponseDto> {
-        return this.usersService.requestPasswordReset(ctx.email);
+        return this.usersService.requestPasswordReset(ctx.email ?? '');
     }
 
     @Post('me/mfa/enroll')
     @HttpCode(HttpStatus.OK)
     async enrollMFA(@CurrentAuthorizerContext() ctx: AuthorizerContext): Promise<MfaEnrollResponseDto> {
-        return this.usersService.enrollMFA(ctx.auth0Sub);
+        return this.usersService.enrollMFA(ctx.sub);
     }
 
     @Post('me/mfa/unenroll')
     @HttpCode(HttpStatus.OK)
     async unenrollMFA(
         @CurrentAuthorizerContext() _ctx: AuthorizerContext,
-        @Body() body: MfaUnenrollBodyDto,
+        @Body() body: { enrollmentId: string },
     ): Promise<MfaUnenrollResponseDto> {
         return this.usersService.unenrollMFA(body.enrollmentId);
     }
@@ -58,17 +65,17 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     async linkSocialAccount(
         @CurrentAuthorizerContext() ctx: AuthorizerContext,
-        @Body() body: SocialAccountBodyDto,
+        @Body() body: { provider: string; accountId: string },
     ): Promise<SocialLinkResponseDto> {
-        return this.usersService.linkSocialAccount(ctx.auth0Sub, body.provider, body.accountId);
+        return this.usersService.linkSocialAccount(ctx.sub, body.provider, body.accountId);
     }
 
     @Post('me/social/unlink')
     @HttpCode(HttpStatus.OK)
     async unlinkSocialAccount(
         @CurrentAuthorizerContext() ctx: AuthorizerContext,
-        @Body() body: SocialAccountBodyDto,
+        @Body() body: { provider: string; accountId: string },
     ): Promise<SocialLinkResponseDto> {
-        return this.usersService.unlinkSocialAccount(ctx.auth0Sub, body.provider, body.accountId);
+        return this.usersService.unlinkSocialAccount(ctx.sub, body.provider, body.accountId);
     }
 }

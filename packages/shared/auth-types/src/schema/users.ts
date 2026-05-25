@@ -1,5 +1,12 @@
-import { index, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
-import { sql, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
+import { customType, index, pgEnum, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
+
+// COLLATE "C" custom type — standard varchar() doesn't expose collation
+export const varcharCollateC = customType<{ data: string; driverData: string }>({
+    dataType() {
+        return 'VARCHAR(255) COLLATE "C"';
+    },
+});
 
 /** @implements REQ-013 REQ-014 REQ-015 REQ-017 REQ-018 REQ-019 REQ-025 REQ-CN-003 FR-013 FR-014 FR-015 FR-017 FR-018 FR-019 FR-025 ARCH-011 ARCH-012 ARCH-015 MOD-011 MOD-012 MOD-015 */
 export const userStatusEnum = pgEnum('user_status', ['active', 'suspended']);
@@ -8,18 +15,18 @@ export const userStatusEnum = pgEnum('user_status', ['active', 'suspended']);
 export const users = pgTable(
     'users',
     {
-        id: uuid('id').primaryKey().defaultRandom(),
-        auth0Sub: text('auth0_sub').notNull(),
-        email: text('email').notNull(),
+        id: varcharCollateC('id').primaryKey(),
+        email: varchar('email', { length: 320 }).notNull(),
+        name: text('name'),
+        picture: text('picture'),
         status: userStatusEnum('status').notNull().default('active'),
         createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
         updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
         deletedAt: timestamp('deleted_at', { withTimezone: true }),
     },
     (table) => [
-        uniqueIndex('users_auth0_sub_unique').on(table.auth0Sub),
-        uniqueIndex('users_email_lower_unique').on(sql`lower(${table.email})`),
-        index('users_auth0_sub_idx').on(table.auth0Sub),
+        uniqueIndex('users_email_unique').on(table.email),
+        index('users_email_idx').on(table.email),
     ],
 );
 

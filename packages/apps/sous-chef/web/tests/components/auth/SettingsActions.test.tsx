@@ -14,7 +14,7 @@ describe('SettingsActions', () => {
         vi.clearAllMocks();
     });
 
-    it('UTS-018-A1 [MOD-018]: requests password reset and announces the API response', async () => {
+    it('requests password reset and announces the API response', async () => {
         const user = userEvent.setup();
         global.fetch = vi.fn().mockResolvedValue({
             ok: true,
@@ -33,7 +33,7 @@ describe('SettingsActions', () => {
         expect(await screen.findByRole('status')).toHaveTextContent('reset link has been sent');
     });
 
-    it('UTS-019-A1 [MOD-019]: opens MFA enrollment URI from the identity API', async () => {
+    it('opens MFA enrollment URI from the identity API', async () => {
         const user = userEvent.setup();
         global.fetch = vi.fn().mockResolvedValue({
             ok: true,
@@ -52,7 +52,7 @@ describe('SettingsActions', () => {
         expect(mockNavigateTo).toHaveBeenCalledWith('otpauth://issuer/account');
     });
 
-    it('UTS-021-A1 [MOD-021]: renders social link and unlink actions with role selectors', async () => {
+    it('renders social link and unlink actions with role selectors', async () => {
         const user = userEvent.setup();
         global.fetch = vi.fn().mockResolvedValue({
             ok: true,

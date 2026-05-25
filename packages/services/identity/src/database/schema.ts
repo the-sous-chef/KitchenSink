@@ -1,2 +1,1 @@
-// eslint-disable-next-line no-restricted-imports
-export { userStatusEnum, users, accounts, profiles } from '@kitchensink/auth-types/schema';
+export { users, accounts, profiles, userStatusEnum } from '@kitchensink/auth-types/schema';

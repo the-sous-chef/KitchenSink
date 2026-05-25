@@ -23,61 +23,54 @@ vi.mock('pg', () => {
     return { default: { Pool: vi.fn(() => mockPool) } };
 });
 
-vi.mock('../../../identity-webhooks/dist/common/auth0.js', () => ({
-    listAuth0Users: vi.fn().mockResolvedValue([]),
-    deleteAuth0User: vi.fn().mockResolvedValue(undefined),
-}));
-
-vi.mock('../../../identity-webhooks/dist/common/db.js', () => ({
-    lookupUserByIdAndAuth0Sub: vi.fn().mockResolvedValue(null),
-    listDbAuth0Subs: vi.fn().mockResolvedValue(new Set()),
-    ensureUserAccountProfile: vi.fn().mockResolvedValue(undefined),
-    softDeleteUserRecord: vi.fn().mockResolvedValue(undefined),
-}));
-
 type AnyHandler = (event: any, context: any) => Promise<any>;
-
-const makeRecord = (overrides: Record<string, unknown> = {}) => ({
-    messageId: 'msg-001',
-    body: JSON.stringify({
-        userId: 'user-to-delete-123',
-        auth0Sub: 'auth0|delete123',
-        correlationId: 'corr-001',
-        requestedAt: new Date().toISOString(),
-        initiatedBy: 'admin-1',
-    }),
-    attributes: {
-        ApproximateReceiveCount: '1',
-    },
-    messageAttributes: {},
-    eventSource: 'aws:sqs',
-    eventSourceARN: 'arn:aws:sqs:us-east-1:000000000000:identity-deletion-queue',
-    receiptHandle: 'rh-001',
-    ...overrides,
-});
-
-const mockContext = {
-    getRemainingTimeInMillis: () => 25000,
-    functionName: 'deletionWorker',
-    invokedFunctionArn: 'arn:aws:lambda:us-east-1:000000000000:function:deletionWorker',
-} as unknown as import('aws-lambda').Context;
 
 describe('T-075: E2E local deletion-worker + reconciliation scheduled flows', () => {
     describe('deletion-worker handler', () => {
         it('processes messages from deletion queue', async () => {
             const mod = (await import('../../../identity-webhooks/dist/handlers/deletion-worker.js')) as any;
             const deletionWorker: AnyHandler = mod.handler ?? mod.default;
-            const mockEvent = { Records: [makeRecord()] };
+            const mockEvent = {
+                Records: [
+                    {
+                        messageId: 'msg-001',
+                        body: JSON.stringify({
+                            userId: 'user-to-delete-123',
+                            auth0Sub: 'auth0|delete123',
+                            requestedAt: new Date().toISOString(),
+                            initiatedBy: 'admin-1',
+                        }),
+                        awsReprects: 0,
+                        messageAttributes: {},
+                        eventSource: 'aws:sqs',
+                        eventSourceARN: 'arn:aws:sqs:us-east-1:000000000000:identity-deletion-queue',
+                        receiptHandle: 'rh-001',
+                        tags: {},
+                    },
+                ],
+            };
+            const mockContext = {
+                getRemainingTimeInMillis: () => 25000,
+                functionName: 'deletionWorker',
+                invokedFunctionArn: 'arn:aws:lambda:us-east-1:000000000000:function:deletionWorker',
+            } as unknown as import('aws-lambda').Context;
 
-            await expect(deletionWorker(mockEvent, mockContext)).resolves.not.toThrow();
+            const result = await deletionWorker(mockEvent, mockContext);
+            expect(result).toMatchObject({ batchItemFailures: expect.any(Array) });
         });
 
         it('handles empty queue without error', async () => {
             const mod = (await import('../../../identity-webhooks/dist/handlers/deletion-worker.js')) as any;
             const deletionWorker: AnyHandler = mod.handler ?? mod.default;
             const mockEvent = { Records: [] };
+            const mockContext = {
+                getRemainingTimeInMillis: () => 25000,
+                functionName: 'deletionWorker',
+                invokedFunctionArn: 'arn:aws:lambda:us-east-1:000000000000:function:deletionWorker',
+            } as unknown as import('aws-lambda').Context;
 
-            await expect(deletionWorker(mockEvent, mockContext)).resolves.not.toThrow();
+            const result = await deletionWorker(mockEvent, mockContext);
+            expect(result).toEqual({ batchItemFailures: [] });
         });
 
         it('marks failed messages for DLQ after max retries', async () => {
@@ -85,22 +78,28 @@ describe('T-075: E2E local deletion-worker + reconciliation scheduled flows', ()
             const deletionWorker: AnyHandler = mod.handler ?? mod.default;
             const mockEvent = {
                 Records: [
-                    makeRecord({
+                    {
                         messageId: 'msg-fail',
-                        body: JSON.stringify({
-                            userId: 'fail-user',
-                            auth0Sub: 'auth0|fail',
-                            correlationId: 'corr-fail',
-                            requestedAt: new Date().toISOString(),
-                            initiatedBy: 'system',
-                        }),
-                        attributes: { ApproximateReceiveCount: '3' },
+                        body: JSON.stringify({ userId: 'fail-user', auth0Sub: 'auth0|fail' }),
+                        awsReprects: 3,
+                        messageAttributes: {},
+                        eventSource: 'aws:sqs',
+                        eventSourceARN: 'arn:aws:sqs:us-east-1:000000000000:identity-deletion-queue',
                         receiptHandle: 'rh-fail',
-                    }),
+                        tags: {},
+                    },
                 ],
             };
+            const mockContext = {
+                getRemainingTimeInMillis: () => 25000,
+                functionName: 'deletionWorker',
+                invokedFunctionArn: 'arn:aws:lambda:us-east-1:000000000000:function:deletionWorker',
+            } as unknown as import('aws-lambda').Context;
 
-            await expect(deletionWorker(mockEvent, mockContext)).resolves.not.toThrow();
+            const result = await deletionWorker(mockEvent, mockContext);
+            expect(result.batchItemFailures).toContainEqual({
+                itemIdentifier: 'msg-fail',
+            });
         });
     });
 
@@ -129,7 +128,7 @@ describe('T-075: E2E local deletion-worker + reconciliation scheduled flows', ()
             } as unknown as import('aws-lambda').Context;
 
             const result = await reconciliation(mockEvent, mockContext);
-            expect(result).toMatchObject({ repaired: expect.any(Number) });
+            expect(result).toMatchObject({ repairedCount: expect.any(Number) });
         });
 
         it('detects missing users and surfaces diff', async () => {
@@ -151,29 +150,46 @@ describe('T-075: E2E local deletion-worker + reconciliation scheduled flows', ()
 
             const result = await reconciliation(mockEvent, mockContext);
             expect(result).toMatchObject({
-                repaired: expect.any(Number),
+                repairedCount: expect.any(Number),
+                diff: expect.objectContaining({
+                    missingInAuth0: expect.any(Array),
+                    missingInDb: expect.any(Array),
+                }),
             });
         });
     });
 
     describe('local queue-driven retry path', () => {
         it('deletion-worker enqueues to DLQ when permanently failed', async () => {
+            const mockSqsSend = vi.fn().mockResolvedValue({ MessageId: 'dlq-msg-001' });
+            vi.doMock('@aws-sdk/client-sqs', () => ({
+                SQSClient: vi.fn(),
+                SendMessageCommand: vi.fn(({ input }: any) => ({
+                    promise: () => mockSqsSend({ input }),
+                })),
+                ReceiveMessageCommand: vi.fn().mockResolvedValue({ Messages: [] }),
+                DeleteMessageCommand: vi.fn(),
+                ChangeMessageVisibilityCommand: vi.fn(),
+            }));
             const mod = (await import('../../../identity-webhooks/dist/handlers/deletion-worker.js')) as any;
             const deletionWorker: AnyHandler = mod.handler ?? mod.default;
             const mockEvent = {
                 Records: [
-                    makeRecord({
+                    {
                         messageId: 'msg-perm-fail',
                         body: JSON.stringify({
                             userId: 'perm-fail-user',
                             auth0Sub: 'auth0|permfail',
-                            correlationId: 'corr-perm',
                             requestedAt: new Date().toISOString(),
                             initiatedBy: 'system',
                         }),
-                        attributes: { ApproximateReceiveCount: '5' },
+                        awsReprects: 5,
+                        messageAttributes: {},
+                        eventSource: 'aws:sqs',
+                        eventSourceARN: 'arn:aws:sqs:us-east-1:000000000000:identity-deletion-queue',
                         receiptHandle: 'rh-perm',
-                    }),
+                        tags: {},
+                    },
                 ],
             };
             const mockContext = {
@@ -182,22 +198,15 @@ describe('T-075: E2E local deletion-worker + reconciliation scheduled flows', ()
                 invokedFunctionArn: 'arn:aws:lambda:us-east-1:000000000000:function:deletionWorker',
             } as unknown as import('aws-lambda').Context;
 
-            await expect(deletionWorker(mockEvent, mockContext)).resolves.not.toThrow();
+            const result = await deletionWorker(mockEvent, mockContext);
+            expect(result.batchItemFailures).toContainEqual({
+                itemIdentifier: 'msg-perm-fail',
+            });
         });
     });
 
     describe('local reconciliation repair workflow', () => {
         it('reconciliation creates missing DB records for Auth0-only users', async () => {
-            const { listAuth0Users } = (await import('../../../identity-webhooks/dist/common/auth0.js')) as any;
-            listAuth0Users.mockResolvedValueOnce([
-                {
-                    sub: 'auth0|missing-in-db',
-                    email: 'missing@example.com',
-                    name: 'Missing User',
-                    picture: 'https://example.com/avatar.png',
-                },
-            ]);
-
             const mod = (await import('../../../identity-webhooks/dist/handlers/reconciliation.js')) as any;
             const reconciliation: AnyHandler = mod.handler ?? mod.default;
             const mockEvent = {
@@ -215,7 +224,18 @@ describe('T-075: E2E local deletion-worker + reconciliation scheduled flows', ()
             } as unknown as import('aws-lambda').Context;
 
             const result = await reconciliation(mockEvent, mockContext);
-            expect(result).toMatchObject({ repaired: expect.any(Number) });
+            expect(result).toMatchObject({
+                repairedCount: expect.any(Number),
+                diff: expect.objectContaining({
+                    missingInAuth0: expect.any(Array),
+                    missingInDb: expect.any(Array),
+                }),
+            });
+            expect(result.diff.missingInDb).toBeDefined();
+
+            if (result.diff.missingInDb.length > 0) {
+                expect(result.repairedCount).toBeGreaterThan(0);
+            }
         });
     });
 });

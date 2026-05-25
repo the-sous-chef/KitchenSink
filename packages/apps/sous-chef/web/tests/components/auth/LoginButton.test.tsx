@@ -15,17 +15,17 @@ describe('LoginButton', () => {
         mockUseRouter.mockReturnValue({ push: mockPush });
     });
 
-    it('UTS-001-A1 [MOD-001/login-ui]: renders with default text', () => {
+    it('renders with default text', () => {
         render(<LoginButton />);
         expect(screen.getByRole('button', { name: 'Sign in with Auth0' })).toBeInTheDocument();
     });
 
-    it('UTS-001-A1 [MOD-001/login-ui-custom]: renders with custom children', () => {
+    it('renders with custom children', () => {
         render(<LoginButton>Login with Email</LoginButton>);
         expect(screen.getByRole('button', { name: 'Login with Email' })).toBeInTheDocument();
     });
 
-    it('UTS-001-A1 [MOD-001/login-redirect]: redirects to login on click', async () => {
+    it('redirects to login on click', async () => {
         const user = userEvent.setup();
         render(<LoginButton returnTo="/profile" />);
 
@@ -34,7 +34,7 @@ describe('LoginButton', () => {
         expect(mockPush).toHaveBeenCalledWith('/api/auth/login?returnTo=%2Fprofile');
     });
 
-    it('UTS-001-A2 [MOD-001/login-loading]: shows loading state when clicked', async () => {
+    it('shows loading state when clicked', async () => {
         const user = userEvent.setup();
         render(<LoginButton />);
 

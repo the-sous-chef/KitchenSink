@@ -1,7 +1,5 @@
 import { ManagementClient, type Management } from 'auth0';
 
-import type { UserId } from '@kitchensink/auth-types';
-
 import { getJsonSecret } from './secrets.js';
 
 type Auth0Secret = {
@@ -31,20 +29,6 @@ export const getAuth0ManagementClient = async (auth0SecretArn: string): Promise<
     })();
 
     return clientPromise;
-};
-
-/** @implements REQ-013 REQ-014 REQ-015 REQ-016 REQ-IF-008 REQ-CN-003 FR-013 FR-014 FR-015 FR-016 ARCH-010 ARCH-011 MOD-010 MOD-011 */
-export const updateUserMetadataUserId = async (params: {
-    auth0SecretArn: string;
-    auth0Sub: string;
-    userId: UserId;
-}): Promise<void> => {
-    const client = await getAuth0ManagementClient(params.auth0SecretArn);
-    await client.users.update(params.auth0Sub, {
-        app_metadata: {
-            userId: params.userId,
-        },
-    });
 };
 
 /** @implements REQ-025 REQ-026 REQ-IF-005 REQ-CN-001 FR-025 FR-026 ARCH-017 MOD-017 */

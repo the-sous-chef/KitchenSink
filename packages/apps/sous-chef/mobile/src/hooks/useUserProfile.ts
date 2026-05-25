@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { AccountReadDto, ProfileReadDto, UpdateProfileDto, UserReadDto } from '@kitchensink/auth-types';
+import type {
+    ProfileReadDto,
+    UpdateProfileDto,
+    UserProfile,
+    UserProfileAccountDto,
+    UserReadDto,
+} from '@kitchensink/auth-types';
 import type { AuthSession } from '../types/auth.js';
 import type { Auth0Config } from '../types/auth.js';
 import {
@@ -15,9 +21,9 @@ import {
 } from '../services/api.js';
 
 export interface UserProfileResponse {
-    user: UserReadDto;
+    user: UserReadDto | UserProfile['user'];
     profile: ProfileReadDto | null;
-    accounts: readonly AccountReadDto[];
+    accounts: readonly UserProfileAccountDto[];
 }
 
 export function useUserProfile(config: Auth0Config, session: AuthSession | null) {
@@ -142,7 +148,7 @@ export function useAccount(config: Auth0Config, session: AuthSession | null) {
                 throw new Error('No session');
             }
 
-            return getAccount(config, session) as Promise<readonly AccountReadDto[]>;
+            return getAccount(config, session) as Promise<readonly UserProfileAccountDto[]>;
         },
         enabled: !!session,
         staleTime: 5 * 60 * 1000,

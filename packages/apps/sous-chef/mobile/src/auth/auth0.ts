@@ -18,23 +18,17 @@ export function getAuth0Client(config: Auth0Config): Auth0 {
     return auth0Client;
 }
 
-function generateCodeVerifier(): string {
-    const randomBytes = new Uint8Array(32);
-    Crypto.getRandomValues(randomBytes);
-
-    return toBase64Url(Buffer.from(randomBytes).toString('base64'));
+export async function generateCodeVerifier(): Promise<string> {
+    const bytes = await Crypto.getRandomBytesAsync(32);
+    return Buffer.from(bytes).toString('base64url');
 }
 
-function toBase64Url(base64Value: string): string {
-    return base64Value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-}
-
-async function generateCodeChallenge(verifier: string): Promise<string> {
+export async function generateCodeChallenge(verifier: string): Promise<string> {
     const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, verifier, {
         encoding: Crypto.CryptoEncoding.BASE64,
     });
-
-    return toBase64Url(digest);
+    // Convert standard base64 to base64url
+    return digest.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function getRedirectUri(config: Auth0Config): string {
@@ -45,7 +39,18 @@ function getAuthorizeScope(): string {
     return 'openid profile email offline_access';
 }
 
-function buildSession(result: { accessToken: string; refreshToken?: string; expiresAt?: number }): AuthSession {
+function buildSession(result: {
+    accessToken: string;
+    refreshToken?: string;
+    expiresAt?: number;
+    sub?: string;
+}): AuthSession {
+    const sub = result.sub ?? '';
+
+    if (!sub) {
+        throw new Error('Missing sub in Auth0 response');
+    }
+
     if (!result.refreshToken) {
         throw new Error('Missing refresh token from Auth0 response');
     }
@@ -54,13 +59,12 @@ function buildSession(result: { accessToken: string; refreshToken?: string; expi
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
         expiresAt: new Date((result.expiresAt ?? 0) * 1000).toISOString(),
-        userId: '',
-        auth0Id: '',
+        sub,
     };
 }
 
 export async function startAuthFlow(config: Auth0Config): Promise<string> {
-    codeVerifier = generateCodeVerifier();
+    codeVerifier = await generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
 
     const authUrl = `https://${config.domain}/authorize?response_type=code&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(getRedirectUri(config))}&scope=${encodeURIComponent(getAuthorizeScope())}&audience=${encodeURIComponent(config.audience)}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
@@ -122,6 +126,7 @@ export async function refreshAccessToken(
         accessToken: result.accessToken,
         refreshToken: result.refreshToken ?? previousSession?.refreshToken ?? refreshToken,
         expiresAt: result.expiresAt,
+        sub: previousSession?.sub,
     });
 
     return {

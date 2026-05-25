@@ -1,57 +1,22 @@
-import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import type { UserStatus } from '@kitchensink/auth-types';
+import type { AuthorizerContext } from '@kitchensink/auth-types';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const CurrentUserId = createParamDecorator((_data: unknown, ctx: ExecutionContext): string => {
-    const request = ctx.switchToHttp().getRequest();
-    const userId = request.headers['x-kitchensink-user-id'] as string;
+export type { AuthorizerContext };
 
-    if (!userId) {
-        throw new UnauthorizedException('Missing identity context');
+export const CurrentUser = createParamDecorator((_data: unknown, ctx: ExecutionContext): AuthorizerContext => {
+    const request = ctx.switchToHttp().getRequest<{ user?: AuthorizerContext }>();
+    if (!request.user) {
+        throw new Error('Missing authorizer context — ensure AuthMiddleware is applied');
     }
-
-    return userId;
+    return request.user;
 });
-
-export interface AuthorizerContext {
-    userId: string;
-    auth0Sub: string;
-    email: string;
-    status: UserStatus;
-    isImpersonating: boolean;
-}
 
 export const CurrentAuthorizerContext = createParamDecorator(
     (_data: unknown, ctx: ExecutionContext): AuthorizerContext => {
-        const request = ctx.switchToHttp().getRequest();
-
-        const userId = request.headers['x-kitchensink-user-id'] as string | undefined;
-        const auth0Sub = request.headers['x-kitchensink-auth0-sub'] as string | undefined;
-        const email = request.headers['x-kitchensink-email'] as string | undefined;
-
-        if (!userId || !auth0Sub || !email) {
-            throw new UnauthorizedException('Missing required identity context headers');
+        const request = ctx.switchToHttp().getRequest<{ user?: AuthorizerContext }>();
+        if (!request.user) {
+            throw new Error('Missing authorizer context — ensure AuthMiddleware is applied');
         }
-
-        const rawStatus = request.headers['x-kitchensink-status'] as string | undefined;
-        const status: UserStatus = rawStatus === 'suspended' ? 'suspended' : 'active';
-        const isImpersonating = request.headers['x-kitchensink-is-impersonating'] === 'true';
-
-        return { userId, auth0Sub, email, status, isImpersonating };
+        return request.user;
     },
 );
-
-export function getAuthorizerContext(request: { headers: Record<string, unknown> }): AuthorizerContext {
-    const userId = request.headers['x-kitchensink-user-id'] as string | undefined;
-    const auth0Sub = request.headers['x-kitchensink-auth0-sub'] as string | undefined;
-    const email = request.headers['x-kitchensink-email'] as string | undefined;
-
-    if (!userId || !auth0Sub || !email) {
-        throw new UnauthorizedException('Missing required identity context headers');
-    }
-
-    const rawStatus = request.headers['x-kitchensink-status'] as string | undefined;
-    const status: UserStatus = rawStatus === 'suspended' ? 'suspended' : 'active';
-    const isImpersonating = request.headers['x-kitchensink-is-impersonating'] === 'true';
-
-    return { userId, auth0Sub, email, status, isImpersonating };
-}

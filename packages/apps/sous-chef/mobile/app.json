@@ -35,7 +35,14 @@
             "bundler": "metro",
             "favicon": "./src/assets/favicon.png"
         },
-        "plugins": [],
+        "plugins": [
+            [
+                "expo-auth-session",
+                {
+                    "callbackURLScheme": "souschef"
+                }
+            ]
+        ],
         "experiments": {
             "typedRoutes": true
         }

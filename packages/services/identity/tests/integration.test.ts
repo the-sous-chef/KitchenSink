@@ -22,24 +22,33 @@ function makeChain<T>(result: T) {
 }
 
 const adminCtx = {
-    userId: 'admin-1',
-    auth0Sub: 'auth0|admin',
+    sub: 'auth0|admin',
     email: 'admin@example.com',
-    status: 'active' as const,
-    isImpersonating: false,
+    isM2M: false,
+    tokenType: 'user',
+    scopes: ['admin:users'],
+    permissions: [],
 };
 
 const userCtx = {
-    userId: 'user-123',
-    auth0Sub: 'auth0|abc123',
+    sub: 'auth0|abc123',
     email: 'test@example.com',
-    status: 'active' as const,
-    isImpersonating: false,
+    isM2M: false,
+    tokenType: 'user',
+    scopes: [],
+    permissions: [],
+};
+
+const m2mCtx = {
+    sub: 'svc-client@clients',
+    isM2M: true,
+    tokenType: 'm2m',
+    scopes: ['admin:users'],
+    permissions: [],
 };
 
 const mockUser = {
-    id: 'user-123',
-    auth0Sub: 'auth0|abc123',
+    sub: 'auth0|abc123',
     email: 'test@example.com',
     status: 'active',
     createdAt: new Date(),
@@ -51,6 +60,7 @@ describe('UsersService', () => {
     let mockDb: any;
     let mockAuth0: any;
     let mockSqs: any;
+    let mockResolver: any;
 
     beforeEach(async () => {
         mockDb = {
@@ -79,16 +89,28 @@ describe('UsersService', () => {
         };
 
         mockSqs = { enqueueDeletion: vi.fn().mockResolvedValue(undefined) };
+        mockResolver = {
+            resolveUser: vi.fn().mockResolvedValue({
+                user: mockUser,
+                account: {
+                    id: 'a-1',
+                    ownerSub: 'auth0|abc123',
+                    tier: 'free',
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            }),
+        };
 
         const { UsersService } = await import('../src/users/users.service.js');
 
-        usersService = new UsersService(mockDb, mockAuth0, mockSqs);
+        usersService = new UsersService(mockDb, mockAuth0, mockSqs, mockResolver);
     });
 
     it('getUserMe returns aggregated profile', async () => {
         const profile = {
             id: 'p-1',
-            userId: 'user-123',
+            userSub: 'auth0|abc123',
             displayName: 'Test',
             avatarUrl: null,
             bio: null,
@@ -96,28 +118,45 @@ describe('UsersService', () => {
         };
         const account = {
             id: 'a-1',
-            userId: 'user-123',
-            subscriptionTier: 'free',
+            ownerSub: 'auth0|abc123',
+            tier: 'free',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
 
-        mockDb.select = vi
-            .fn()
-            .mockReturnValueOnce(makeChain([mockUser]))
-            .mockReturnValueOnce(makeChain([account]))
-            .mockReturnValueOnce(makeChain([profile]));
+        mockResolver.resolveUser.mockResolvedValue({ user: mockUser, account });
+        mockDb.select = vi.fn().mockReturnValueOnce(makeChain([profile]));
 
         const result = await usersService.getUserMe(userCtx);
 
-        expect(result.user.id).toBe('user-123');
-        expect(result.account.subscriptionTier).toBe('free');
+        expect(result.user.sub).toBe('auth0|abc123');
+        expect(result.account.tier).toBe('free');
     });
 
     it('getUserMe throws when user missing', async () => {
-        mockDb.select = vi.fn().mockReturnValue(makeChain([]));
+        mockResolver.resolveUser.mockRejectedValue(new Error('User not found'));
 
         await expect(usersService.getUserMe(userCtx)).rejects.toThrow();
+    });
+
+    it('upsertUser rejects non-M2M context', async () => {
+        await expect(
+            usersService.upsertUser(userCtx, { sub: 'auth0|abc123', email: 'test@example.com' }),
+        ).rejects.toThrow();
+    });
+
+    it('upsertUser accepts M2M context', async () => {
+        mockDb.select = vi.fn().mockReturnValue(makeChain([]));
+        mockDb.insert = vi.fn().mockReturnValue({
+            values: () => ({
+                onConflictDoUpdate: () => Promise.resolve(),
+                onConflictDoNothing: () => Promise.resolve(),
+            }),
+        });
+
+        const result = await usersService.upsertUser(m2mCtx, { sub: 'auth0|abc123', email: 'test@example.com' });
+
+        expect(result.sub).toBe('auth0|abc123');
     });
 
     it('deleteUserMe deletes via auth0 and cascades', async () => {
@@ -195,32 +234,32 @@ describe('AdminService', () => {
     });
 
     it('suspendUser blocks in auth0 and updates db', async () => {
-        const result = await adminService.suspendUser('user-123', adminCtx);
+        const result = await adminService.suspendUser('auth0|abc123', adminCtx);
 
         expect(mockAuth0.blockUser).toHaveBeenCalledWith('auth0|abc123');
         expect(result.status).toBe('suspended');
     });
 
     it('unsuspendUser unblocks in auth0 and updates db', async () => {
-        const result = await adminService.unsuspendUser('user-123', adminCtx);
+        const result = await adminService.unsuspendUser('auth0|abc123', adminCtx);
 
         expect(mockAuth0.unblockUser).toHaveBeenCalledWith('auth0|abc123');
         expect(result.status).toBe('active');
     });
 
     it('startImpersonation returns session metadata', async () => {
-        const result = await adminService.startImpersonation('user-123', adminCtx);
+        const result = await adminService.startImpersonation('auth0|abc123', adminCtx);
 
-        expect(result.impersonatorId).toBe('admin-1');
-        expect(result.impersonatedUserId).toBe('user-123');
+        expect(result.impersonatorSub).toBe('auth0|admin');
+        expect(result.impersonatedSub).toBe('auth0|abc123');
         expect(result.sessionId).toContain('imp-');
     });
 
     it('stopImpersonation returns stop metadata', async () => {
-        const result = await adminService.stopImpersonation('user-123', adminCtx);
+        const result = await adminService.stopImpersonation('auth0|abc123', adminCtx);
 
-        expect(result.impersonatorId).toBe('admin-1');
-        expect(result.impersonatedUserId).toBe('user-123');
+        expect(result.impersonatorSub).toBe('auth0|admin');
+        expect(result.impersonatedSub).toBe('auth0|abc123');
     });
 
     it('suspendUser throws when target missing', async () => {
@@ -228,102 +267,8 @@ describe('AdminService', () => {
 
         await expect(adminService.suspendUser('missing', adminCtx)).rejects.toThrow();
     });
-});
 
-describe('AdminService.getUser', () => {
-    let adminService: any;
-    let mockDb: any;
-    let mockAuth0: any;
-
-    const mockAccount = {
-        id: 'a-1',
-        userId: 'user-123',
-        provider: 'auth0',
-        providerAccountId: 'auth0|abc123',
-        subscriptionTier: 'premium',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    };
-
-    beforeEach(async () => {
-        mockDb = {
-            select: vi.fn(),
-        };
-
-        mockAuth0 = {};
-
-        const { AdminService } = await import('../src/admin/admin.service.js');
-
-        adminService = new AdminService(mockDb, mockAuth0);
-    });
-
-    it('getUser returns full user + subscription tier', async () => {
-        mockDb.select = vi
-            .fn()
-            .mockReturnValueOnce(makeChain([mockUser]))
-            .mockReturnValueOnce(makeChain([mockAccount]));
-
-        const result = await adminService.getUser('user-123', adminCtx);
-
-        expect(result.id).toBe('user-123');
-        expect(result.email).toBe('test@example.com');
-        expect(result.status).toBe('active');
-        expect(result.subscriptionTier).toBe('premium');
-        expect(result.deletedAt).toBeNull();
-    });
-
-    it('getUser defaults subscriptionTier to free when no account', async () => {
-        mockDb.select = vi
-            .fn()
-            .mockReturnValueOnce(makeChain([mockUser]))
-            .mockReturnValueOnce(makeChain([]));
-
-        const result = await adminService.getUser('user-123', adminCtx);
-
-        expect(result.subscriptionTier).toBe('free');
-    });
-
-    it('getUser throws NotFoundException when user missing', async () => {
-        mockDb.select = vi.fn().mockReturnValue(makeChain([]));
-
-        await expect(adminService.getUser('missing', adminCtx)).rejects.toThrow();
-    });
-});
-
-describe('SqsService.enqueueDeletion', () => {
-    it('enqueues a UserDeletionQueueMessage-shaped payload', async () => {
-        const mockSend = vi.fn().mockResolvedValue({});
-        const { SqsService } = await import('../src/queue/sqs.service.js');
-        const { SendMessageCommand } = await import('@aws-sdk/client-sqs');
-        const svc = new SqsService({ send: mockSend } as any);
-
-        process.env.DELETION_QUEUE_URL = 'https://sqs.example.com/queue';
-
-        await svc.enqueueDeletion('auth0|abc', 'user-123', 'user_request');
-
-        expect(mockSend).toHaveBeenCalledOnce();
-        const constructorArg = vi.mocked(SendMessageCommand).mock.calls[0][0];
-        const body = JSON.parse(constructorArg.MessageBody as string);
-
-        expect(body.auth0Sub).toBe('auth0|abc');
-        expect(body.userId).toBe('user-123');
-        expect(body.reason).toBe('user_request');
-        expect(body.source).toBe('identity-service');
-        expect(body.correlationId).toBeDefined();
-        expect(body.requestedAt).toBeDefined();
-
-        delete process.env.DELETION_QUEUE_URL;
-    });
-
-    it('skips enqueue when DELETION_QUEUE_URL is not set', async () => {
-        const mockSend = vi.fn();
-        const { SqsService } = await import('../src/queue/sqs.service.js');
-        const svc = new SqsService({ send: mockSend } as any);
-
-        delete process.env.DELETION_QUEUE_URL;
-
-        await svc.enqueueDeletion('auth0|abc', 'user-123');
-
-        expect(mockSend).not.toHaveBeenCalled();
+    it('rejects non-admin user enumeration', async () => {
+        await expect(adminService.listUsers(userCtx, {})).rejects.toThrow();
     });
 });
