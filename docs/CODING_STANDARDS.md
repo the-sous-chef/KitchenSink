@@ -32,7 +32,58 @@ defines immutable principles; this document translates them into enforceable rul
 
 ---
 
-## 2. Function Purity
+## 2. Source of Truth & Package Boundaries
+
+### Rule
+
+Types, schemas, and data-access objects MUST live in the package that owns the source of truth.
+Dedicated `types/`, `interfaces/`, or `models/` folders at the root of a package are an **antipattern**:
+they separate the type definition from the logic that understands it, breaking encapsulation
+and creating a false sense of shared ownership.
+
+### What to do instead
+
+Co-locate types with their consuming logic inside a feature folder, or export public
+contracts from a well-defined boundary file (e.g., `src/contracts.ts`).
+
+**The owning package exports contracts — the consuming package imports them.**
+
+```typescript
+// Good: schema and its domain types in the same file
+// src/users/schema.ts
+export const users = pgTable('users', { id: uuid('id').primaryKey() ... });
+export type UserRow = InferSelectModel<typeof users>;
+
+// Good: contracts exported from a narrow boundary
+// src/auth-contracts.ts (inside the identity service)
+export interface AuthorizerContext { sub: string; scopes: string[]; }
+
+// Bad: broad catch-all type package
+// packages/shared/auth-types/src/schema/users.ts  ❌
+// packages/shared/auth-types/src/dao/user.dao.ts  ❌
+```
+
+### Shared packages
+
+Shared packages are for **cross-cutting contracts only**, used by ≥3 consumers identically.
+They must NOT contain full domain schemas, DAOs, or DTOs. These belong in their owning service.
+
+| Layer               | What belongs                                            | Examples                            |
+| ------------------- | ------------------------------------------------------- | ----------------------------------- |
+| **Owning service**  | Full schema, DAOs, domain DTOs, business logic          | `identity` owns `users`, `accounts` |
+| **Shared boundary** | Thin cross-cutting contracts, brand types, error shapes | `UserId` brand, `AuthorizerContext` |
+| **Consumer**        | Thin interfaces for its own needs                       | `WebUser` (subset of fields)        |
+
+### Antipatterns (banned)
+
+- `packages/shared/<domain>-types/` with full schemas and DAOs → **banned**
+- `src/types.ts` or `src/models.ts` as a root-level catch-all → **banned**
+- Importing a downstream package's schema into a shared package → **banned**
+- A shared package importing from a service package → **banned** (dependency inversion violation).
+
+---
+
+## 3. File Naming
 
 Functions MUST be pure unless they perform I/O, mutations, or external calls.
 This is not a preference — it is a requirement. Violations MUST be caught in code review.
