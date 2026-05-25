@@ -5,6 +5,8 @@
 **Status**: Draft
 **Source**: `specs/002-auth0-user-auth/v-model/system-design.md`
 
+> **Identity-key note (Feature 002 implementation update)**: Architecture details in this draft that mention generated UUID user IDs, `app_metadata.userId`, `auth0_id`, `internal_id`, or `legacy_id` are historical and superseded by the implemented sub-keyed model. Current architecture uses Auth0 `sub` as `users.sub VARCHAR(255) COLLATE "C" PRIMARY KEY`, with M2M-gated post-login upsert and no generated user UUID.
+
 ## Overview
 
 The Auth0 User Authentication architecture decomposes 20 system components into 32 architecture modules organized across four Kruchten 4+1 views. The decomposition separates platform-specific auth clients (web/mobile) from shared backend services, isolates the API Gateway authorizer as a standalone Lambda, and extracts cross-cutting concerns (observability, shared types, CDK infrastructure) into dedicated utility modules. Every SYS-NNN from system-design.md appears as a parent in at least one ARCH-NNN.

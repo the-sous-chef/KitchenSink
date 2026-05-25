@@ -109,8 +109,8 @@ export default function ProfileScreen() {
 
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Connected Account</Text>
-                <Text style={styles.subscriptionTier}>{primaryAccount?.provider ?? 'No linked account'}</Text>
-                {primaryAccount && <Text style={styles.accountDetail}>{primaryAccount.providerAccountId}</Text>}
+                <Text style={styles.subscriptionTier}>{primaryAccount?.subscriptionTier ?? 'No linked account'}</Text>
+                {primaryAccount && <Text style={styles.accountDetail}>{primaryAccount.userId}</Text>}
             </View>
 
             <View style={styles.section}>
