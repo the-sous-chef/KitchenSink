@@ -306,12 +306,13 @@ The feature was originally specified against Auth0 and migrated to Clerk mid-imp
 - Stale Auth0 env vars removed (commit `3ab8212`).
 - Infra stack tests assert absence of any `auth0` string in synthesized templates (anti-drift sentinels).
 
-### Remaining drift (test fixtures only)
-The following e2e test files still use Auth0-shaped JWT subs (`auth0|xxx`) and the legacy `auth0Sub` field name. These are isolated to test fixtures, do not exercise production paths, and are tracked for cleanup in a follow-up:
-- `packages/services/identity/tests/e2e/deletion-worker-e2e.test.ts` (lines 39, 83, 182)
-- `packages/services/identity/tests/e2e/local-api-e2e.test.ts` (lines 39, 103, 134)
-
-Cleanup task: replace `auth0|xxx` subs with Clerk `user_xxx` shape and rename `auth0Sub` → `clerkSub` (or whatever production code now uses). Scope: ~6 line edits across 2 files.
+### Remaining drift (none)
+The two stub e2e tests that previously held Auth0-shaped fixtures
+(`deletion-worker-e2e.test.ts`, `local-api-e2e.test.ts` under
+`packages/services/identity/tests/e2e/`) were removed during the Clerk
+migration. Proper e2e coverage now lives in
+`packages/services/identity-webhooks/tests/e2e/auth/` (16 tests across
+`api.spec.ts` and `deletion.spec.ts`) and runs via `npm run test:e2e`.
 
 ### Naming history
 - Branch `002-auth0-user-auth` was renamed to `002-user-auth` during this migration.
