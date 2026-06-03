@@ -443,7 +443,7 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that SYS-011 correctly validates JWTs via the 002-auth0-user-auth service and returns an `AuthenticatedUser`.
+**Description**: Verifies that SYS-011 correctly validates JWTs via the 002-user-auth service and returns an `AuthenticatedUser`.
 
 - **System Scenario: STS-011-A1**
     - **Given** a valid, non-expired JWT signed by the Auth0 tenant

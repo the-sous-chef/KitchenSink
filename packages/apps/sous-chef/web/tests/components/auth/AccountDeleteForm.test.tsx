@@ -3,18 +3,19 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AccountDeleteForm } from '@/components/auth/AccountDeleteForm';
 
-const mockNavigateTo = vi.fn();
+const mockSignOut = vi.fn();
 
-vi.mock('@/lib/navigation', () => ({
-    navigateTo: (url: string) => mockNavigateTo(url),
+vi.mock('@clerk/nextjs', () => ({
+    useClerk: () => ({ signOut: mockSignOut }),
 }));
 
 describe('AccountDeleteForm', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockSignOut.mockResolvedValue(undefined);
     });
 
-    it('UTS-016-A1 [MOD-016]: reveals an accessible deletion confirmation dialog', async () => {
+    it('reveals an accessible deletion confirmation dialog', async () => {
         const user = userEvent.setup();
 
         render(<AccountDeleteForm accessToken="test-token" userId="user-123" />);
@@ -26,7 +27,7 @@ describe('AccountDeleteForm', () => {
         expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
 
-    it('UTS-016-A2 [MOD-016]: calls DELETE /v1/users/me and logs out after confirmation', async () => {
+    it('calls DELETE /v1/users/me and signs out via IdP after confirmation', async () => {
         const user = userEvent.setup();
         const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 202, json: vi.fn() });
         global.fetch = fetchMock;
@@ -40,6 +41,6 @@ describe('AccountDeleteForm', () => {
             'http://localhost:4000/v1/users/me',
             expect.objectContaining({ method: 'DELETE' }),
         );
-        expect(mockNavigateTo).toHaveBeenCalledWith('/api/auth/logout');
+        expect(mockSignOut).toHaveBeenCalledWith({ redirectUrl: '/' });
     });
 });

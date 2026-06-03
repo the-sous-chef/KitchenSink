@@ -98,7 +98,7 @@
 
 **Independent Test**: Run validate-requirement-coverage.sh against fixture directories with known states → assert correct exit codes and gap reports
 
-_Note: The core script was implemented in Phase 4 (T015). This phase covers CI integration and fixture validation._
+*Note: The core script was implemented in Phase 4 (T015). This phase covers CI integration and fixture validation.*
 
 ### Implementation for User Story 4
 
@@ -123,7 +123,7 @@ _Note: The core script was implemented in Phase 4 (T015). This phase covers CI i
 
 **Independent Test**: Commit a requirements.md, modify it, run diff-requirements.sh → verify added/modified/removed lists are correct
 
-_Note: The core script was implemented in Phase 4 (T017). This phase covers edge case handling._
+*Note: The core script was implemented in Phase 4 (T017). This phase covers edge case handling.*
 
 ### Implementation for User Story 5
 

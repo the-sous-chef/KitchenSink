@@ -10,7 +10,7 @@
 | Spec                                                            | Relationship                                                                                |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Downstream** — 001 FR-007 requires this spec's food/nutrition data for recipe ingredients |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — FR-035 uses the shared API Gateway authorizer provided by 002                |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — FR-035 uses the shared API Gateway authorizer provided by 002                |
 | [006-meal-planning](../006-meal-planning/spec.md)               | **Downstream** — meal plan nutritional summaries (FR-024) depend on food data               |
 | [007-grocery-lists](../007-grocery-lists/spec.md)               | **Downstream** — ingredient identity and unit normalization for grocery aggregation         |
 | [009-nutrition-planning](../009-nutrition-planning/spec.md)     | **Downstream** — nutritional calculations (SC-010) depend on food data accuracy             |
@@ -107,22 +107,23 @@ A user imports or creates a recipe with multiple ingredients. The system resolve
 
 ---
 
-### User Story 5 - Queue Priority and Failure Recovery (Priority: P1)
+### User Story 5 - Demand-Weighted Queue Priority and Failure Recovery (Priority: P1)
 
-The system routes user-facing food lookups to a High Priority SQS queue and background/batch jobs to a Low Priority SQS queue. The consumer always drains the High Priority queue first. Messages that fail 3 processing attempts are routed to a Dead Letter Queue (DLQ) for investigation. USDA `5xx` errors trigger SQS retry; `404` errors result in tombstones (no retry).
+The system enqueues missing-ingredient lookups into a durable Postgres-backed `fetch_queue` table. The consumer drains items ordered by `request_count DESC, first_requested ASC` — items requested more times jump ahead of single-request items, with FIFO as the tie-breaker. Duplicate enqueues for the same `fdc_id` increment a counter rather than creating new rows (single-statement dedup via `ON CONFLICT DO UPDATE`). The consumer is event-driven via Postgres `LISTEN/NOTIFY` and rate-limited by a token bucket sized to the USDA 1000 req/hr cap. USDA `5xx` errors → pending row with exponential backoff and attempt counter; after 5 attempts → `status='tombstone'` (operational DLQ-equivalent, fully auditable via SQL). `404` errors → immediate tombstone (no retry).
 
-**Why this priority**: Priority routing ensures interactive user requests are never starved by bulk background jobs. Failure recovery ensures no data is lost and the system self-heals from transient errors. Without this, the queue would be a FIFO pipe that treats a user waiting for a single food the same as a background job fetching 500 foods.
+**Why this priority**: A viral recipe driving 50 users to request the same missing ingredient must naturally rise above a one-off single lookup; conversely, no user request should be silently dropped. Demand-weighted ordering achieves both with no manual escalation policy and no cross-system state drift (the queue, the counter, and the status all live in one Postgres row).
 
-**Independent Test**: Can be fully tested by submitting 50 low-priority batch requests, then submitting 5 high-priority single lookups, and verifying the consumer processes all 5 high-priority messages before any low-priority messages. Separately, inject a message that will trigger a USDA `5xx` and verify it retries 3 times before landing in the DLQ.
+**Independent Test**: Can be fully tested by enqueuing 50 duplicate requests for `fdc_id=A` (single row, `request_count=50`) and 5 distinct single requests for `fdc_id=B..F` (5 rows, `request_count=1` each). Verify the consumer processes `A` first, then `B..F` in `first_requested` order. Separately, inject an `fdc_id` that triggers USDA `5xx` and verify it cycles `pending → in_flight → pending` with `attempts++` and backoff gate, landing in `status='tombstone'` after 5 attempts.
 
 **Acceptance Scenarios**:
 
-1. **Given** the High Priority queue has 5 messages and the Low Priority queue has 50 messages, **When** the consumer polls for work, **Then** it processes all High Priority messages before polling the Low Priority queue.
-2. **Given** a single food lookup (`FoodRequested` event), **When** the event is routed by EventBridge, **Then** it lands in the High Priority SQS queue.
-3. **Given** a batch recipe import (`FoodBatchRequested` event), **When** the event is routed by EventBridge, **Then** it lands in the Low Priority SQS queue.
-4. **Given** the USDA API returns `503 Service Unavailable`, **When** the consumer fails to process the message, **Then** SQS makes the message visible again after the visibility timeout. After 3 failed attempts, the message routes to the DLQ.
-5. **Given** a message arrives in the DLQ, **When** CloudWatch detects `ApproximateNumberOfMessagesVisible > 0`, **Then** an alarm fires for operational investigation.
-6. **Given** the USDA API returns `404 Not Found` for an `fdcId`, **When** the consumer processes the response, **Then** it writes a tombstone (`fetch_status = 'not_found'`), deletes the SQS message, and does NOT retry.
+1. **Given** `fdc_id=A` exists in `fetch_queue` with `request_count=50` and `fdc_id=B` with `request_count=1`, **When** the consumer selects the next item, **Then** it processes `A` before `B`.
+2. **Given** two rows tie at `request_count=1`, **When** the consumer selects, **Then** the row with the earlier `first_requested` timestamp is processed first (FIFO tie-break).
+3. **Given** the API handler receives a cache miss for `fdc_id=X` already in the queue, **When** it enqueues, **Then** the existing row's `request_count` increments by 1 and no duplicate row is created.
+4. **Given** the consumer is idle, **When** a `pg_notify('fetch_queued', ...)` event fires, **Then** the consumer wakes within 100ms and begins draining the queue (subject to the USDA token bucket).
+5. **Given** the USDA API returns `503 Service Unavailable`, **When** the consumer processes the row, **Then** it sets `status='pending'`, `attempts=attempts+1`, and `last_requested=now()+backoff(attempts)`. After 5 cumulative attempts the row sets `status='tombstone'`.
+6. **Given** the USDA API returns `404 Not Found` for an `fdc_id`, **When** the consumer processes the response, **Then** it sets `status='tombstone'` immediately (no retry, no DLQ message — the tombstone row IS the audit record).
+7. **Given** a tombstoned row, **When** an operator queries `SELECT * FROM fetch_queue WHERE status='tombstone'`, **Then** the row is returned with full `attempts`, `last_error`, and `last_requested` for investigation. **Then** it writes a tombstone (`fetch_status = 'not_found'`), deletes the SQS message, and does NOT retry.
 
 ---
 
@@ -262,11 +263,11 @@ Operations teams can monitor the health of the USDA data pipeline via CloudWatch
 
 **Queue Management**
 
-- **FR-014**: EventBridge MUST route `FoodRequested` events to the High Priority SQS queue and `FoodBatchRequested`/`IngestionScheduled` events to the Low Priority SQS queue.
-- **FR-015**: The consumer Lambda MUST poll the High Priority queue first. It MUST only poll the Low Priority queue when the High Priority queue is empty.
-- **FR-016**: All SQS queues MUST have a max receive count of 3 before routing failed messages to the Dead Letter Queue (DLQ).
-- **FR-017**: The High Priority queue MUST have a visibility timeout of 60 seconds. The Low Priority queue MUST have a visibility timeout of 120 seconds.
-- **FR-018**: The DLQ MUST retain messages for 14 days.
+- **FR-014**: On a `foods` table cache miss, the API handler MUST enqueue the lookup via a single idempotent statement: `INSERT INTO fetch_queue (fdc_id) VALUES ($1) ON CONFLICT (fdc_id) DO UPDATE SET request_count = fetch_queue.request_count + 1, last_requested = now() WHERE fetch_queue.status = 'pending'`. This achieves dedup, demand counting, and timestamping in one round-trip.
+- **FR-015**: The consumer MUST select the next item via `SELECT fdc_id FROM fetch_queue WHERE status='pending' AND last_requested <= now() ORDER BY request_count DESC, first_requested ASC FOR UPDATE SKIP LOCKED LIMIT 1`. This produces literal demand-weighted ordering with FIFO tie-break and naturally honors per-row backoff gates.
+- **FR-016**: The consumer MUST retry transient failures (USDA 5xx, network timeout, 429) up to 5 cumulative attempts. Retries MUST be tracked via the `attempts` column with exponential backoff applied to `last_requested` (e.g., `last_requested = now() + interval '2^attempts seconds'`). After 5 attempts, the row MUST be set to `status='tombstone'` with `last_error` populated for operator review.
+- **FR-017**: The consumer MUST be triggered by Postgres `LISTEN/NOTIFY` on the channel `fetch_queued`. The enqueue statement MUST be paired with `pg_notify('fetch_queued', fdc_id)`. Consumer wake-to-process latency MUST be ≤ 100ms (subject to the USDA rate-limit token bucket).
+- **FR-018**: The consumer MUST enforce the USDA 1000 req/hr rate limit via a single shared token bucket. When tokens are exhausted, the consumer MUST sleep until the next token is available rather than dropping work. Stale `in_flight` rows older than 30s MUST be reverted to `pending` (lease timeout) to recover from consumer crashes.
 
 **Rate Limiting (Token Bucket)**
 
@@ -307,10 +308,10 @@ Operations teams can monitor the health of the USDA data pipeline via CloudWatch
 
 - **NFR-001**: All TypeScript code in the USDA food data workspace MUST compile with `strict: true`; no `any` used outside explicitly marked test doubles. All interfaces for food data, queue messages, and API responses MUST use strict typing with `interface` for data shapes and `type` for unions/aliases. (Constitution Principle I)
 - **NFR-002**: All exported functions, classes, interfaces, type aliases, and interface fields MUST carry JSDoc block comments. Lambda handlers, API route handlers, token bucket operations, and queue message processors MUST include `@param`, `@returns`, and `@throws` tags. (Principle II)
-- **NFR-003**: All imports within the USDA food data workspace MUST use aliased paths (`@shared/*`, `@web/*`, `@armoury/<pkg>`) with `.js`/`.jsx` extensions. No `helpers/` directories. (Principle III)
+- **NFR-003**: All imports within the USDA food data workspace MUST use aliased paths (`@kitchensink/*`, `@kitchensink/*`, `@kitchensink/<pkg>`) with `.js`/`.jsx` extensions. No `helpers/` directories. (Principle III)
 - **NFR-004**: If any UI components are created for food data display (e.g., nutritional info cards, pending-food indicators), they MUST expose accessible names queryable via `getByRole`/`getByLabel` in Playwright tests. (Principles IV & VII)
 - **NFR-005**: Color MUST NOT be the sole conveyor of food fetch status (pending, fetched, failed, not_found). Each status MUST be paired with a text label or icon. (Principle VII)
-- **NFR-006**: The USDA food data workspace MUST be registered in the root `package.json` workspaces array and MUST extend `@armoury/typescript`, `@armoury/eslint`, `@armoury/prettier`, and `@armoury/vitest` shared configs. Turbo task dependencies MUST be declared. (Principle V)
+- **NFR-006**: The USDA food data workspace MUST be registered in the root `package.json` workspaces array and MUST extend `@kitchensink/typescript`, `@kitchensink/eslint`, `@kitchensink/prettier`, and `@kitchensink/vitest` shared configs. Turbo task dependencies MUST be declared. (Principle V)
 - **NFR-007**: All code MUST pass `turbo run typecheck`, `turbo run lint`, and `turbo run format:check` with zero errors before merge. (Principle VI)
 - **NFR-008**: Tests MUST conform to the testing pyramid: >= 70% unit, <= 20% integration, <= 10% E2E. Each test file MUST open with a block comment mapping requirement IDs (FR-xxx) to test case descriptions. (Principle IV)
 - **NFR-009**: Custom errors (e.g., `UsdaApiError`, `TokenBucketExhaustedError`, `FoodNotFoundError`) MUST extend `Error` and MUST expose a type guard (`isXxxError(e: unknown): e is XxxError`). (Principle I)

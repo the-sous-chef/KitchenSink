@@ -100,7 +100,7 @@
 - [x] No NFR paraphrases or weakens a Constitution requirement
 - [x] All workspace governance rules (Principle V) are addressed
 
-**Evidence**: NFR-001 uses "strict: true" and "no `any`" matching Principle I verbatim. NFR-002 uses "JSDoc block comments" matching Principle II. NFR-003 uses "@shared/_, @web/_, @armoury/<pkg>" and ".js/.jsx extensions" matching Principle III verbatim. NFR-006 explicitly names shared configs and Turbo declaration matching Principle V. NFR-007 names exact turbo commands matching Principle VI. NFR-004/NFR-005 match Principles IV/VII on accessible names and color requirements.
+**Evidence**: NFR-001 uses "strict: true" and "no `any`" matching Principle I verbatim. NFR-002 uses "JSDoc block comments" matching Principle II. NFR-003 uses "@kitchensink/_, @web/_, @kitchensink/<pkg>" and ".js/.jsx extensions" matching Principle III verbatim. NFR-006 explicitly names shared configs and Turbo declaration matching Principle V. NFR-007 names exact turbo commands matching Principle VI. NFR-004/NFR-005 match Principles IV/VII on accessible names and color requirements.
 
 **Result**: PASS
 

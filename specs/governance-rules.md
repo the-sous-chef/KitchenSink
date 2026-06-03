@@ -67,7 +67,7 @@ All features 001–014 are pre-implementation. All release audit reports have be
 
 **Severity**: CRITICAL
 **Resolves**: CR-001 (API prefix collision), S-001 (portfolio standard)
-**Source**: `cross-feature-consistency-report.md` §8 S-001; `002-auth0-user-auth/review.md` Revision 1
+**Source**: `cross-feature-consistency-report.md` §8 S-001; `002-user-auth/review.md` Revision 1
 
 ### Rule
 
@@ -154,7 +154,7 @@ Database column names that reference another feature's primary key **MUST** use 
 | USDA food identifier | `fdc_id`                               | 003-usda-food-data       |
 | Meal plan reference  | `meal_plan_id`                         | 006-meal-planning        |
 | Recipe reference     | `recipe_id`                            | 001-sous-chef-recipe-app |
-| User reference       | `user_id`                              | 002-auth0-user-auth      |
+| User reference       | `user_id`                              | 002-user-auth      |
 | Subscription tier    | `plan` (values: `'free'`, `'premium'`) | 010-subscriptions        |
 
 **Table naming**:
@@ -293,7 +293,7 @@ Any feature that defines its own local copy of a shared entity type is in violat
 
 **Severity**: WARNING (downgraded from CRITICAL after S-003 decision)
 **Resolves**: WA-001 (Node version mismatch), S-003
-**Source**: `cross-feature-consistency-report.md` §2.3, §8 S-003; `002-auth0-user-auth/review.md` Revision 1
+**Source**: `cross-feature-consistency-report.md` §2.3, §8 S-003; `002-user-auth/review.md` Revision 1
 
 ### Rule
 
@@ -322,7 +322,7 @@ A feature plan or CDK definition that specifies Node.js 22.x or lower is non-con
 
 **Severity**: WARNING
 **Resolves**: S-002 (package naming standard)
-**Source**: `cross-feature-consistency-report.md` §8 S-002; `002-auth0-user-auth/review.md` Revision 1
+**Source**: `cross-feature-consistency-report.md` §8 S-002; `002-user-auth/review.md` Revision 1
 
 ### Rule
 

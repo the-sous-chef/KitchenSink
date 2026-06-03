@@ -1,133 +1,149 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq } from 'drizzle-orm';
+import { and, eq, ilike } from 'drizzle-orm';
 
-import { users, accounts, DrizzleProvider } from '../database/index';
-import { Auth0Service } from '../auth/auth0.service';
-import { AuthorizerContext } from '../auth/decorators/current-user.decorator';
-import type { AdminGetUserResponseDto } from './dto/admin.dto';
+import { users, DrizzleProvider } from '../database/index.js';
+import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 
 @Injectable()
 export class AdminService {
     private readonly logger = new Logger(AdminService.name);
 
-    constructor(
-        @Inject(DrizzleProvider) private readonly db: NodePgDatabase,
-        private readonly auth0: Auth0Service,
-    ) {}
+    constructor(@Inject(DrizzleProvider) private readonly db: NodePgDatabase) {}
 
-    async getUser(targetUserId: string, adminCtx: AuthorizerContext): Promise<AdminGetUserResponseDto> {
-        const [user] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    async listUsers(
+        adminCtx: AuthorizerContext,
+        filters: { email?: string; name?: string; sub?: string; limit?: number; offset?: number },
+    ) {
+        this.assertAdmin(adminCtx);
 
-        if (!user) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+        const predicates = [
+            filters.email ? ilike(users.email, `%${filters.email}%`) : undefined,
+            filters.name ? ilike(users.name, `%${filters.name}%`) : undefined,
+            filters.sub ? eq(users.id, filters.sub) : undefined,
+        ].filter((predicate) => predicate !== undefined);
+
+        const query = this.db
+            .select({
+                sub: users.id,
+                email: users.email,
+                name: users.name,
+                picture: users.picture,
+                status: users.status,
+            })
+            .from(users)
+            .$dynamic();
+
+        if (predicates.length > 0) {
+            query.where(and(...predicates));
         }
 
-        const [account] = await this.db.select().from(accounts).where(eq(accounts.userId, targetUserId)).limit(1);
+        const limit = filters.limit ?? 50;
+        const offset = filters.offset ?? 0;
+        const rows = await query.limit(limit).offset(offset);
 
-        this.logger.log('admin getUser', { adminId: adminCtx.userId, targetUserId });
-
-        return {
-            id: user.id,
-            auth0Sub: user.auth0Sub,
-            email: user.email,
-            status: user.status,
-            createdAt: user.createdAt.toISOString(),
-            updatedAt: user.updatedAt.toISOString(),
-            deletedAt: user.deletedAt ? user.deletedAt.toISOString() : null,
-            subscriptionTier: (account?.subscriptionTier as 'free' | 'premium') ?? 'free',
-        };
+        return { users: rows, limit, offset };
     }
 
     async suspendUser(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ userId: string; status: 'suspended'; suspendedAt: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ sub: string; status: 'suspended'; suspendedAt: string }> {
+        this.assertAdmin(adminCtx);
+
+        const [existing] = await this.db.select().from(users).where(eq(users.id, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
         const now = new Date();
-        await this.db.update(users).set({ status: 'suspended', updatedAt: now }).where(eq(users.id, targetUserId));
+        await this.db.update(users).set({ status: 'suspended', updatedAt: now }).where(eq(users.id, targetSub));
 
-        await this.auth0.blockUser(existing.auth0Sub);
+        this.logger.warn('user suspended', { adminSub: adminCtx.userId, targetSub, id: existing.id });
 
-        this.logger.warn('user suspended', { adminId: adminCtx.userId, targetUserId, auth0Sub: existing.auth0Sub });
-
-        return { userId: targetUserId, status: 'suspended', suspendedAt: now.toISOString() };
+        return { sub: targetSub, status: 'suspended', suspendedAt: now.toISOString() };
     }
 
     async unsuspendUser(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ userId: string; status: 'active'; unsuspendedAt: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ sub: string; status: 'active'; unsuspendedAt: string }> {
+        this.assertAdmin(adminCtx);
+
+        const [existing] = await this.db.select().from(users).where(eq(users.id, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
         const now = new Date();
-        await this.db.update(users).set({ status: 'active', updatedAt: now }).where(eq(users.id, targetUserId));
+        await this.db.update(users).set({ status: 'active', updatedAt: now }).where(eq(users.id, targetSub));
 
-        await this.auth0.unblockUser(existing.auth0Sub);
+        this.logger.warn('user unsuspended', { adminSub: adminCtx.userId, targetSub, id: existing.id });
 
-        this.logger.warn('user unsuspended', { adminId: adminCtx.userId, targetUserId, auth0Sub: existing.auth0Sub });
-
-        return { userId: targetUserId, status: 'active', unsuspendedAt: now.toISOString() };
+        return { sub: targetSub, status: 'active', unsuspendedAt: now.toISOString() };
     }
 
     async startImpersonation(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ impersonatorId: string; impersonatedUserId: string; sessionId: string; startedAt: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ impersonatorSub: string; impersonatedSub: string; sessionId: string; startedAt: string }> {
+        this.assertAdmin(adminCtx);
+
+        const [existing] = await this.db.select().from(users).where(eq(users.id, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
-        const sessionId = `imp-${adminCtx.userId}-${targetUserId}-${Date.now()}`;
+        const sessionId = `imp-${adminCtx.userId}-${targetSub}-${Date.now()}`;
         const now = new Date();
 
         this.logger.warn('impersonation started', {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.userId,
+            impersonatedSub: targetSub,
             sessionId,
         });
 
         return {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.userId,
+            impersonatedSub: targetSub,
             sessionId,
             startedAt: now.toISOString(),
         };
     }
 
     async stopImpersonation(
-        targetUserId: string,
+        targetSub: string,
         adminCtx: AuthorizerContext,
-    ): Promise<{ impersonatorId: string; impersonatedUserId: string; stoppedAt: string; message: string }> {
-        const [existing] = await this.db.select().from(users).where(eq(users.id, targetUserId)).limit(1);
+    ): Promise<{ impersonatorSub: string; impersonatedSub: string; stoppedAt: string; message: string }> {
+        this.assertAdmin(adminCtx);
+
+        const [existing] = await this.db.select().from(users).where(eq(users.id, targetSub)).limit(1);
 
         if (!existing) {
-            throw new NotFoundException(`User ${targetUserId} not found`);
+            throw new NotFoundException(`User ${targetSub} not found`);
         }
 
         const now = new Date();
 
         this.logger.warn('impersonation stopped', {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.userId,
+            impersonatedSub: targetSub,
         });
 
         return {
-            impersonatorId: adminCtx.userId,
-            impersonatedUserId: targetUserId,
+            impersonatorSub: adminCtx.userId,
+            impersonatedSub: targetSub,
             stoppedAt: now.toISOString(),
             message: 'Impersonation session ended',
         };
+    }
+
+    private assertAdmin(ctx: AuthorizerContext): void {
+        if (!ctx.scopes.includes('admin:users') && !ctx.permissions.includes('admin:users')) {
+            throw new ForbiddenException('Admin user scope required');
+        }
     }
 }

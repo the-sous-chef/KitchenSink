@@ -1,796 +1,452 @@
 # Tasks: AI Integration (Feature 005)
 
 **Feature**: `005-ai-integration`
-**Generated**: 2026-05-09
-**Last updated**: 2026-05-10
-**Source artifacts**: plan.md, spec.md
+**Generated**: 2026-06-02
+**Source artifacts**: `spec.md`, `plan.md`, `product-spec/product-spec.md`, `product-spec/metrics.md`
 **Total tasks**: 50
+
+---
+
+## User Story Reference
+
+| US     | Title                                              | FR Coverage          | Priority |
+| ------ | -------------------------------------------------- | -------------------- | -------- |
+| US-001 | Configure AI Provider (BYOK)                       | FR-015               | P2       |
+| US-002 | Generate Recipe In-App                             | FR-016, FR-017       | P2       |
+| US-003 | Preview and Save Generated Recipe                  | FR-017, FR-020       | P2       |
+| US-004 | External Agent OAuth Access                        | FR-018, FR-020       | P2       |
+| US-005 | Revoke Agent Access                                | FR-021               | P2       |
+| US-006 | Recipe Instruction Optimization (Premium)          | FR-019               | P2       |
+| US-007 | EU AI Act Compliance + Guard Messaging             | FR-022               | P0       |
 
 ---
 
 ## Dependency Graph
 
-```
+```text
 Phase 5A (Foundation)
-  T-001 → T-002 → T-003 → T-004 → T-005
-                                      ↓
-Phase 5B (Core Generation)
-  T-006 → T-007 → T-008 → T-009 → T-010 → T-011 → T-012 → T-013
+  T-001 → T-002 → T-003 → T-004 → T-005 → T-006 → T-007
+                                      ↓                   ↓
+Phase 5B (Core Generation)            ↓                   ↓
+  T-008 → T-009 → T-010 → T-011 → T-012 → T-013 → T-014 → T-015 → T-016
                                                               ↓
-Phase 5C (Extended Generation)
-  T-014 → T-015 → T-016 → T-017 → T-018
-                                      ↓
-Phase 5D (External Agent / MCP)
-  T-019 → T-020 → T-021 → T-022 → T-023 → T-024 → T-025
+Phase 5C (Extended Generation)                                ↓
+  T-017 → T-018 → T-019 → T-020                               ↓
+                                      ↓                       ↓
+Phase 5D (External Agent / MCP)       ↓                       ↓
+  T-021 → T-022 → T-023 → T-024 → T-025 → T-026 → T-027 → T-028
                                                       ↓
-Phase 5E (Compliance & Polish)
-  T-026 → T-027 → T-028 → T-029 → T-030 → T-031 → T-032 → T-033 → T-034 → T-035 → T-036 → T-037 → T-038 → T-039 → T-040 → T-041 → T-042
+Phase 5E (Compliance & Polish)                        ↓
+  T-029 → T-030 → T-031 → T-032 → T-033 → T-034 → T-035 → T-036 → T-037 → T-038 → T-039 → T-040 → T-041 → T-042
                                                       ↓
-Phase 5F (Mobile Parity)
+Phase 5F (Mobile Parity)                              ↓
   T-043 → T-044 → T-045 → T-046 → T-047 → T-048 → T-049 → T-050
 ```
 
----
-
-## Phase 5A: Foundation (Weeks 1–2)
-
-### US-1 / US-2 — BYOK Key Management + PII Sanitization Infrastructure
-
-#### T-001 · Drizzle schema definitions for AI tables
-
-- **Status**: pending
-- **Priority**: P0 (blocks all other tasks)
-- **Files**:
-    - `src/db/schema/ai-generation-records.schema.ts`
-    - `src/db/schema/prompt-templates.schema.ts`
-    - `src/db/schema/user-byok-keys.schema.ts`
-    - `src/db/schema/mcp-oauth-consents.schema.ts`
-- **Acceptance**: All 4 Drizzle table definitions compile with `strict: true`; types exported from `src/db/schema/index.ts`
-- **Notes**: `user_byok_keys.secret_arn` stores only the ARN — never the raw key. `ai_generation_records.source_prompt_hash` is SHA-256 of sanitized prompt.
-
-#### T-002 · Drizzle migration `005_ai_integration`
-
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-001
-- **Files**:
-    - `src/db/migrations/005_ai_integration.ts`
-- **Acceptance**: `npm run db:migrate` creates all 4 tables + indexes without error; `down()` drops them cleanly
-- **Notes**: Creates `ai_generation_records`, `prompt_templates`, `user_byok_keys`, `mcp_oauth_consents`. Indexes: `idx_ai_gen_records_user_id`, `idx_ai_gen_records_job_id`, `idx_ai_gen_records_status`, `idx_prompt_templates_key_version`, `idx_user_byok_keys_user_provider`.
-
-#### T-003 · `ByokModule` scaffold + NestJS module wiring
-
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-001
-- **Files**:
-    - `src/ai/byok/byok.module.ts`
-    - `src/ai/byok/byok.service.ts`
-    - `src/ai/byok/byok.controller.ts`
-    - `src/ai/byok/dto/store-byok-key.dto.ts`
-    - `src/ai/byok/dto/byok-key-meta.dto.ts`
-- **Acceptance**: Module registers in `AppModule`; `ByokService` injectable; controller routes registered at `/ai/byok/keys`
-
-#### T-004 · `ByokService` — AWS Secrets Manager CRUD
-
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-003
-- **Files**:
-    - `src/ai/byok/byok.service.ts`
-- **Acceptance**:
-    - `storeKey()` writes raw key to Secrets Manager under `byok/{userId}/{provider}`, stores ARN in `user_byok_keys`, returns ARN
-    - `deleteKey()` deletes from Secrets Manager + `user_byok_keys`
-    - `getKey()` fetches raw key from Secrets Manager (never from Postgres)
-    - `listKeys()` returns metadata only (no raw keys)
-    - Raw key never written to Postgres (AC-2)
-- **Notes**: Use `@aws-sdk/client-secrets-manager`. Circuit breaker on `getKey()` (timeout 3000ms, threshold 5, resetTimeout 30000ms).
-
-#### T-005 · `ByokService` — API key format validation + provider test call
-
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-004
-- **Files**:
-    - `src/ai/byok/byok.service.ts`
-    - `src/ai/byok/byok.validator.ts`
-- **Acceptance**:
-    - `validateKey()` checks prefix: `sk-` for OpenAI, `sk-ant` for Anthropic, Gemini format
-    - Makes minimal test API call (`models.list`) before storing
-    - Returns `400` with descriptive error if key is invalid format or test call fails
-
-#### T-006 · `POST /ai/byok/keys` endpoint
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-005
-- **Files**:
-    - `src/ai/byok/byok.controller.ts`
-    - `src/ai/byok/dto/store-byok-key.dto.ts`
-- **Acceptance**:
-    - `201` response with `{ provider, secretArn, keyVersion, isActive }`
-    - `400` on invalid key format
-    - `401` if unauthenticated (Auth0 guard)
-    - Raw key never in response body
-
-#### T-007 · `DELETE /ai/byok/keys/:provider` + `GET /ai/byok/keys` endpoints
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-006
-- **Files**:
-    - `src/ai/byok/byok.controller.ts`
-- **Acceptance**:
-    - `DELETE` returns `204`; key removed from Secrets Manager + DB (AC-8)
-    - `GET` returns list of key metadata; no raw keys in response
-
-#### T-008 · `SanitizeModule` scaffold
-
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-001
-- **Files**:
-    - `src/ai/sanitize/sanitize.module.ts`
-    - `src/ai/sanitize/sanitize.service.ts`
-    - `src/ai/sanitize/pii-patterns.ts`
-- **Acceptance**: Module registers; `SanitizeService` injectable
-
-#### T-009 · `SanitizeService` — PII detection + pseudonymization
-
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-008
-- **Files**:
-    - `src/ai/sanitize/sanitize.service.ts`
-    - `src/ai/sanitize/pii-patterns.ts`
-- **Acceptance**:
-    - `sanitizeContext()` pseudonymizes user ID → stable hash token
-    - Strips: email addresses, phone numbers, names, account IDs
-    - Replaces health conditions with category labels (e.g., "diabetic" → "medical-diet-low-sugar")
-    - Preserves: allergies, dietary preferences
-    - `scanForPii()` detects email + name patterns (AC-5)
-    - Unit tests cover all PII pattern types
+**Parallelizable tasks ([P])**: T-001, T-003, T-008, T-010, T-034, T-035, T-036, T-037, T-043, T-044, T-045, T-046, T-047, T-048, T-049, T-050
 
 ---
 
-## Phase 5B: Core Generation (Weeks 3–4)
+## US-001 — Configure AI Provider (BYOK)
 
-### US-1 — AI-Powered Recipe Generation (In-App BYOK)
+> Covers FR-015: System MUST allow users to configure their preferred AI provider by securely storing their own API credentials (BYOK model).
 
-#### T-010 · `AiModule` scaffold + provider resolution
+- [ ] **T-001** [P] [US-001] Drizzle schema definitions for AI tables — `packages/services/ai-integration/src/database/schema/ai-generation-records.schema.ts`
+  - **Depends on**: —
+  - **Implements**: FR-015, FR-018, FR-021, NFR-001
+  - Define Drizzle schemas for `ai_generation_records`, `prompt_templates`, `user_byok_keys`, `mcp_oauth_consents`. Export types from schema index. `user_byok_keys.secret_arn` stores only ARN — never raw key. `ai_generation_records.source_prompt_hash` is SHA-256 of sanitized prompt.
+  - **Acceptance**: All 4 Drizzle table definitions compile with `strict: true`; types exported from `packages/services/ai-integration/src/database/schema/index.ts`.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-004, T-009
-- **Files**:
-    - `src/ai/ai.module.ts`
-    - `src/ai/ai.service.ts`
-    - `src/ai/providers/provider-factory.ts`
-    - `src/ai/types/ai.types.ts`
-- **Acceptance**: `AiModule` registers; `AiService` injectable; `ProviderFactory` resolves `openai | anthropic | gemini | auto` to Vercel AI SDK provider instance
+- [ ] **T-002** [US-001] Drizzle migration `005_ai_integration` — `packages/services/ai-integration/src/database/migrations/005_ai_integration.ts`
+  - **Depends on**: T-001
+  - **Implements**: FR-015, FR-018, NFR-001
+  - Create migration that creates all 4 tables + indexes; `down()` drops them cleanly.
+  - **Acceptance**: `npm run db:migrate` creates all 4 tables + indexes without error.
 
-#### T-011 · Prompt template seeding + `PromptTemplateService`
+- [ ] **T-003** [P] [US-001] `ByokModule` scaffold + NestJS module wiring — `packages/services/ai-integration/src/ai/byok/byok.module.ts`
+  - **Depends on**: T-001
+  - **Implements**: FR-015, NFR-001
+  - Scaffold `ByokModule`, `ByokService`, `ByokController`, DTOs (`store-byok-key.dto.ts`, `byok-key-meta.dto.ts`). Wire into `AppModule`.
+  - **Acceptance**: Module registers; `ByokService` injectable; controller routes at `/ai/byok/keys`.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-002, T-010
-- **Files**:
-    - `src/ai/prompts/prompt-template.service.ts`
-    - `src/db/seeds/prompt-templates.seed.ts`
-- **Acceptance**:
-    - Seed inserts templates for: `recipe_generation`, `meal_plan`, `shopping_list`, `nutrition_analysis`, `recipe_variation`
-    - `getActiveTemplate(key)` returns current active version
-    - Templates never contain raw user data (interpolation via `{{variable}}` only)
+- [ ] **T-004** [US-001] `ByokService` — AWS Secrets Manager CRUD — `packages/services/ai-integration/src/ai/byok/byok.service.ts`
+  - **Depends on**: T-003
+  - **Implements**: FR-015, NFR-001
+  - Implement `storeKey()` (writes to Secrets Manager `byok/{userId}/{provider}`, stores ARN in DB), `deleteKey()`, `getKey()` (fetches raw key from SM only), `listKeys()` (metadata only). Raw key never written to Postgres.
+  - **Acceptance**: All CRUD operations work; raw key never leaks to Postgres or API responses.
 
-#### T-012 · `AiService.generateRecipe()` — async job enqueue
+- [ ] **T-005** [US-001] `ByokService` — API key format validation + provider test call — `packages/services/ai-integration/src/ai/byok/byok.validator.ts`
+  - **Depends on**: T-004
+  - **Implements**: FR-015, NFR-001
+  - Validate key prefixes (`sk-` OpenAI, `sk-ant` Anthropic, Gemini format). Make minimal test API call before storing. Return `400` with descriptive error on invalid key.
+  - **Acceptance**: Invalid keys rejected before storage; valid keys pass test call.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-010, T-011
-- **Files**:
-    - `src/ai/ai.service.ts`
-    - `src/ai/dto/generate-recipe.dto.ts`
-- **Acceptance**:
-    - Calls `SanitizeService.sanitizeContext()` before prompt construction
-    - Enqueues `AiGenerationJob` to SQS
-    - Creates `ai_generation_records` row with `status: 'pending'`
-    - Returns `{ jobId, status: 'pending', estimatedWaitSeconds: 10 }`
-    - `POST /ai/generate/recipe` returns `202`
+- [ ] **T-006** [US-001] `POST /ai/byok/keys` endpoint — `packages/services/ai-integration/src/ai/byok/byok.controller.ts`
+  - **Depends on**: T-005
+  - **Implements**: FR-015
+  - Store BYOK key endpoint. Accepts `{ provider, key }`. Validates, tests, stores via Secrets Manager, returns metadata.
+  - **Acceptance**: Returns `201` with key metadata on success; `400` on invalid key.
 
-#### T-013 · `GenerationQueueService` — SQS producer + consumer
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-012
-- **Files**:
-    - `src/ai/generation-queue.service.ts`
-    - `src/ai/generation-queue.module.ts`
-- **Acceptance**:
-    - `enqueue()` sends `AiGenerationJob` to `ai-generation-queue`
-    - `processJob()` fetches BYOK key, calls Vercel AI SDK `generateObject`, writes result to `recipes` table, updates `ai_generation_records` to `complete`
-    - On failure: updates status to `failed`, writes `error_message`, sends to DLQ after 3 retries (AC-4)
-    - Max 1 concurrent job per user enforced
-
-#### T-014 · `GET /ai/generate/recipe/:jobId` — poll endpoint
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-013
-- **Files**:
-    - `src/ai/ai.controller.ts`
-- **Acceptance**:
-    - Returns `{ jobId, status, recipe?, provider, model, tokensUsed? }`
-    - Status lifecycle: `pending → streaming → complete | failed` (AC-9)
-    - `404` if jobId not found or belongs to different user
-
-#### T-015 · `AiService.streamRecipe()` — SSE streaming endpoint
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-012
-- **Files**:
-    - `src/ai/ai.service.ts`
-    - `src/ai/ai.controller.ts`
-- **Acceptance**:
-    - `POST /ai/generate/recipe/stream` returns `text/event-stream`
-    - Emits `data: {"partial": {...}}` chunks as recipe builds
-    - Final event: `data: {"done": true, "recipe": {...}}`
-    - Uses Vercel AI SDK `streamObject` → NestJS SSE (AC-3)
-    - Updates `ai_generation_records` status to `streaming` then `complete`
-
-#### T-016 · Recipe preview + save flow (FR-017)
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-015
-- **Files**:
-    - `src/ai/ai.controller.ts`
-    - `src/ai/dto/save-generated-recipe.dto.ts`
-- **Acceptance**:
-    - Generated recipe returned in preview state (not auto-saved)
-    - `POST /ai/generate/recipe/:jobId/save` saves to `recipes` table as user-owned private recipe
-    - `output_recipe_id` in `ai_generation_records` updated on save
+- [ ] **T-007** [US-001] `DELETE /ai/byok/keys/:provider` + `GET /ai/byok/keys` endpoints — `packages/services/ai-integration/src/ai/byok/byok.controller.ts`
+  - **Depends on**: T-006
+  - **Implements**: FR-015
+  - Delete removes key from Secrets Manager + DB (`204`). List returns metadata only (no raw keys).
+  - **Acceptance**: `DELETE` returns `204`; `GET` returns list without raw keys.
 
 ---
 
-## Phase 5C: Extended Generation (Week 5)
+## US-002 / US-007 — PII Sanitization Infrastructure
 
-### US-1 — Meal Plan + Shopping List Generation
+> Covers privacy-by-default principle; NFR-001 strict TypeScript.
 
-#### T-017 · `AiService.generateMealPlan()` + SSE endpoint
+- [ ] **T-008** [P] [US-002] `SanitizeModule` scaffold — `packages/services/ai-integration/src/ai/sanitize/sanitize.module.ts`
+  - **Depends on**: T-001
+  - **Implements**: FR-015, FR-016, NFR-001
+  - Scaffold `SanitizeModule`, `SanitizeService`, `PiiPatterns` constants. Wire into `AiModule`.
+  - **Acceptance**: Module registers; `SanitizeService` injectable.
 
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-013
-- **Files**:
-    - `src/ai/ai.service.ts`
-    - `src/ai/dto/generate-meal-plan.dto.ts`
-    - `src/ai/ai.controller.ts`
-- **Acceptance**:
-    - `POST /ai/generate/meal-plan` returns `202` with jobId
-    - SSE variant streams partial meal plan
-    - Completed job stores result in `meal_plans` table
-    - `output_meal_plan_id` in `ai_generation_records` updated
+- [ ] **T-009** [US-002] `SanitizeService` — PII detection + pseudonymization — `packages/services/ai-integration/src/ai/sanitize/sanitize.service.ts`
+  - **Depends on**: T-008
+  - **Implements**: FR-015, FR-016, FR-022, NFR-001
+  - `sanitizeContext()` pseudonymizes user ID → stable hash token; strips email, phone, names, account IDs; replaces health conditions with category labels; preserves allergies/dietary preferences. `scanForPii()` detects email + name patterns.
+  - **Acceptance**: Unit tests cover all PII pattern types; no PII leaves server in prompts.
 
-#### T-018 · Shopping list generation endpoint
+---
 
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-013
-- **Files**:
-    - `src/ai/ai.service.ts`
-    - `src/ai/dto/generate-shopping-list.dto.ts`
-    - `src/ai/ai.controller.ts`
-- **Acceptance**:
-    - `POST /ai/generate/shopping-list` accepts meal plan ID or ingredient list
-    - Returns `202` with jobId; result stored in `shopping_lists` table
+## US-002 — Generate Recipe In-App
 
-### US-3 — Recipe Instruction Optimization (Premium, FR-019)
+> Covers FR-016: System MUST call the user's configured AI provider to generate recipes based on criteria and return results within the app.
 
-#### T-019 · Recipe variation / instruction optimization endpoint
+- [ ] **T-010** [P] [US-002] `AiModule` scaffold + provider resolution — `packages/services/ai-integration/src/ai/ai.module.ts`
+  - **Depends on**: T-004, T-009
+  - **Implements**: FR-016, NFR-001
+  - Scaffold `AiModule`, `AiService`, `ProviderFactory`, AI types. `ProviderFactory` resolves `openai | anthropic | gemini | auto` to Vercel AI SDK provider instance.
+  - **Acceptance**: Module registers; `AiService` injectable; provider resolution works for all supported providers.
 
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-015
-- **Files**:
-    - `src/ai/ai.service.ts`
-    - `src/ai/dto/optimize-recipe.dto.ts`
-    - `src/ai/ai.controller.ts`
-- **Acceptance**:
-    - `POST /ai/recipes/:id/optimize` accepts `{ mode: 'simplify' | 'streamline' }`
-    - Premium guard rejects non-premium users with `403`
-    - Returns optimized instructions as preview (not auto-saved)
+- [ ] **T-011** [US-002] Prompt template seeding + `PromptTemplateService` — `packages/services/ai-integration/src/ai/prompts/prompt-template.service.ts`
+  - **Depends on**: T-002, T-010
+  - **Implements**: FR-016, NFR-001
+  - Seed templates for `recipe_generation`, `meal_plan`, `shopping_list`, `nutrition_analysis`, `recipe_variation`. `getActiveTemplate(key)` returns current active version. Templates use `{{variable}}` interpolation only — never contain raw user data.
+  - **Acceptance**: All templates seeded; active template resolution works; no raw user data in templates.
+
+- [ ] **T-012** [US-002] `AiService.generateRecipe()` — async job enqueue — `packages/services/ai-integration/src/ai/ai.service.ts`
+  - **Depends on**: T-010, T-011
+  - **Implements**: FR-016, FR-017, FR-020, NFR-001
+  - Calls `SanitizeService.sanitizeContext()` before prompt construction. Enqueues `AiGenerationJob` to SQS. Creates `ai_generation_records` row with `status: 'pending'`. Returns `{ jobId, status, estimatedWaitSeconds }`. `POST /ai/generate/recipe` returns `202`.
+  - **Acceptance**: Sanitized prompts only; job record created; returns `202` with jobId.
+
+- [ ] **T-013** [US-002] `GenerationQueueService` — SQS producer + consumer — `packages/services/ai-integration/src/ai/generation-queue.service.ts`
+  - **Depends on**: T-012
+  - **Implements**: FR-016, FR-017, FR-020, NFR-001
+  - `enqueue()` sends `AiGenerationJob` to `ai-generation-queue`. `processJob()` fetches BYOK key, calls Vercel AI SDK `generateObject`, writes result to `recipes` table, updates `ai_generation_records` to `complete`. On failure: updates to `failed`, writes `error_message`, sends to DLQ after 3 retries. Max 1 concurrent job per user.
+  - **Acceptance**: Jobs process end-to-end; failures go to DLQ after retries; concurrency enforced.
+
+- [ ] **T-014** [US-002] `GET /ai/generate/recipe/:jobId` — poll endpoint — `packages/services/ai-integration/src/ai/ai.controller.ts`
+  - **Depends on**: T-013
+  - **Implements**: FR-016, FR-017, NFR-001
+  - Returns `{ jobId, status, recipe?, provider, model, tokensUsed? }`. Status lifecycle: `pending → streaming → complete | failed`. `404` if jobId not found or belongs to different user.
+  - **Acceptance**: Correct status lifecycle; `404` for unauthorized access.
+
+- [ ] **T-015** [US-002] `AiService.streamRecipe()` — SSE streaming endpoint — `packages/services/ai-integration/src/ai/ai.controller.ts`
+  - **Depends on**: T-012
+  - **Implements**: FR-016, FR-017, NFR-001
+  - `POST /ai/generate/recipe/stream` returns `text/event-stream`. Emits `data: {"partial": {...}}` chunks. Final event: `data: {"done": true, "recipe": {...}}`. Uses Vercel AI SDK `streamObject` → NestJS SSE. Updates `ai_generation_records` status to `streaming` then `complete`.
+  - **Acceptance**: SSE stream delivers partial chunks; final event contains complete recipe.
+
+---
+
+## US-003 — Preview and Save Generated Recipe
+
+> Covers FR-017 (preview before save), FR-020 (private default).
+
+- [ ] **T-016** [US-003] Recipe preview + save flow — `packages/services/ai-integration/src/ai/dto/save-generated-recipe.dto.ts`
+  - **Depends on**: T-015
+  - **Implements**: FR-017, FR-020, NFR-001
+  - Generated recipe returned in preview state (not auto-saved). `POST /ai/generate/recipe/:jobId/save` saves to `recipes` table as user-owned private recipe. `output_recipe_id` in `ai_generation_records` updated on save.
+  - **Acceptance**: Preview shown before save; saved recipe is private; output_recipe_id linked.
+
+---
+
+## US-002 / US-006 — Extended Generation + Optimization
+
+> Covers FR-016 (meal plan, shopping list), FR-019 (premium instruction optimization).
+
+- [ ] **T-017** [US-002] `AiService.generateMealPlan()` + SSE endpoint — `packages/services/ai-integration/src/ai/dto/generate-meal-plan.dto.ts`
+  - **Depends on**: T-013
+  - **Implements**: FR-016, NFR-001
+  - `POST /ai/generate/meal-plan` returns `202` with jobId. SSE variant streams partial meal plan. Completed job stores result in `meal_plans` table. `output_meal_plan_id` in `ai_generation_records` updated.
+  - **Acceptance**: Async job pattern; SSE streaming variant; result stored in DB.
+
+- [ ] **T-018** [US-002] Shopping list generation endpoint — `packages/services/ai-integration/src/ai/dto/generate-shopping-list.dto.ts`
+  - **Depends on**: T-013
+  - **Implements**: FR-016, NFR-001
+  - `POST /ai/generate/shopping-list` accepts meal plan ID or ingredient list. Returns `202` with jobId; result stored in `shopping_lists` table.
+  - **Acceptance**: Accepts both meal plan and ingredient inputs; result stored in DB.
+
+- [ ] **T-019** [US-006] Recipe variation / instruction optimization endpoint — `packages/services/ai-integration/src/ai/dto/optimize-recipe.dto.ts`
+  - **Depends on**: T-015
+  - **Implements**: FR-019, NFR-001
+  - `POST /ai/recipes/:id/optimize` accepts `{ mode: 'simplify' | 'streamline' }`. Premium guard rejects non-premium users with `403`. Returns optimized instructions as preview (not auto-saved).
+  - **Acceptance**: Premium guard works; optimization returns preview; no auto-save.
 
 ### Admin — Prompt Template CMS
 
-#### T-020 · `GET /ai/prompts` + `PUT /ai/prompts/:templateKey` (admin)
-
-- **Status**: pending
-- **Priority**: P3
-- **Depends on**: T-011
-- **Files**:
-    - `src/ai/prompts/prompt-template.controller.ts`
-    - `src/ai/prompts/prompt-template.service.ts`
-- **Acceptance**:
-    - `GET /ai/prompts` lists all active templates (admin-only guard)
-    - `PUT /ai/prompts/:key` creates new version (increments `version`), sets old version `is_active: false`
-    - Non-admin requests return `403`
+- [ ] **T-020** [US-002] `GET /ai/prompts` + `PUT /ai/prompts/:templateKey` (admin) — `packages/services/ai-integration/src/ai/prompts/prompt-template.controller.ts`
+  - **Depends on**: T-011
+  - **Implements**: FR-016, NFR-001
+  - `GET /ai/prompts` lists active templates (admin-only guard). `PUT /ai/prompts/:key` creates new version, sets old version `is_active: false`. Non-admin requests return `403`.
+  - **Acceptance**: Admin-only access; versioning works correctly.
 
 ---
 
-## Phase 5D: External Agent / MCP (Weeks 6–7)
+## US-004 — External Agent OAuth Access
 
-### US-2 — External Agent Platform Integration (OAuth 2.1 + MCP)
+> Covers FR-018: OAuth 2.1-protected API for external agents with explicit consent and separate read/write scopes.
 
-#### T-021 · `McpModule` scaffold + OAuth 2.1 guard
+- [ ] **T-021** [US-004] `McpModule` scaffold + OAuth 2.1 guard — `packages/services/ai-integration/src/ai/mcp/mcp.module.ts`
+  - **Depends on**: T-002
+  - **Implements**: FR-018, NFR-001
+  - Scaffold `McpModule`, `McpOAuthGuard`, `McpOAuthStrategy`. Guard validates `Authorization: Bearer` against Auth0 JWKS. Token audience must include `https://api.sous-chef.io/mcp`. Requests without valid token return `401`. PKCE flow supported.
+  - **Acceptance**: Guard rejects invalid tokens; PKCE flow works.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-002
-- **Files**:
-    - `src/ai/mcp/mcp.module.ts`
-    - `src/ai/mcp/mcp-oauth.guard.ts`
-    - `src/ai/mcp/mcp-oauth.strategy.ts`
-- **Acceptance**:
-    - Guard validates `Authorization: Bearer <token>` against Auth0 JWKS
-    - Token audience must include `https://api.sous-chef.io/mcp`
-    - Requests without valid token return `401` (AC-10)
-    - PKCE flow supported
+- [ ] **T-022** [US-004] OAuth 2.1 discovery endpoints — `packages/services/ai-integration/src/ai/mcp/mcp.controller.ts`
+  - **Depends on**: T-021
+  - **Implements**: FR-018
+  - `GET /.well-known/oauth-protected-resource` returns RFC 9728 metadata. `GET /.well-known/oauth-authorization-server` returns Auth0 AS metadata. Both publicly accessible.
+  - **Acceptance**: Discovery endpoints return correct metadata; no auth required.
 
-#### T-022 · OAuth 2.1 discovery endpoints
+- [ ] **T-023** [US-004] `McpServerService` — JSON-RPC 2.0 handler — `packages/services/ai-integration/src/ai/mcp/mcp-server.service.ts`
+  - **Depends on**: T-021
+  - **Implements**: FR-018, NFR-001
+  - `POST /mcp` accepts JSON-RPC 2.0 single and batch requests. Routes to correct tool handler. Returns JSON-RPC 2.0 response envelope. Invalid method returns `{"error": {"code": -32601, "message": "Method not found"}}`.
+  - **Acceptance**: Single + batch requests work; correct error for invalid methods.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-021
-- **Files**:
-    - `src/ai/mcp/mcp.controller.ts`
-- **Acceptance**:
-    - `GET /.well-known/oauth-protected-resource` returns RFC 9728 metadata
-    - `GET /.well-known/oauth-authorization-server` proxies/returns Auth0 AS metadata
-    - Both endpoints publicly accessible (no auth guard)
+- [ ] **T-024** [US-004] MCP tool: `recipes_list` + `recipe_get` — `packages/services/ai-integration/src/ai/mcp/tools/recipes.tool.ts`
+  - **Depends on**: T-023
+  - **Implements**: FR-018
+  - `recipes_list` returns user's recipe collection (scoped to `recipes:read`). `recipe_get` returns single recipe by ID. Scope check: `403` if token lacks `recipes:read`. Only returns recipes owned by authenticated user.
+  - **Acceptance**: Scope enforcement works; only own recipes returned.
 
-#### T-023 · `McpServerService` — JSON-RPC 2.0 handler
+- [ ] **T-025** [US-004] MCP tool: `recipe_save` — `packages/services/ai-integration/src/ai/mcp/tools/recipes.tool.ts`
+  - **Depends on**: T-024
+  - **Implements**: FR-018, FR-020
+  - `recipe_save` creates recipe in `recipes` table as user-owned private recipe. Requires `recipes:create` scope. AI-generated recipes saved via agent treated identically to in-app saves. Returns saved recipe ID.
+  - **Acceptance**: Private default enforced; scope checked; returns recipe ID.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-021
-- **Files**:
-    - `src/ai/mcp/mcp-server.service.ts`
-    - `src/ai/mcp/mcp.controller.ts`
-    - `src/ai/mcp/types/mcp.types.ts`
-- **Acceptance**:
-    - `POST /mcp` accepts JSON-RPC 2.0 single and batch requests
-    - Routes to correct tool handler based on `method`
-    - Returns JSON-RPC 2.0 response envelope
-    - Invalid method returns `{"error": {"code": -32601, "message": "Method not found"}}`
-
-#### T-024 · MCP tool: `recipes_list` + `recipe_get`
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-023
-- **Files**:
-    - `src/ai/mcp/tools/recipes.tool.ts`
-- **Acceptance**:
-    - `recipes_list` returns user's recipe collection (scoped to `recipes:read` scope)
-    - `recipe_get` returns single recipe by ID
-    - Scope check: `403` if token lacks `recipes:read`
-    - Only returns recipes owned by the authenticated user
-
-#### T-025 · MCP tool: `recipe_save`
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-024
-- **Files**:
-    - `src/ai/mcp/tools/recipes.tool.ts`
-- **Acceptance**:
-    - `recipe_save` creates recipe in `recipes` table as user-owned private recipe (FR-020)
-    - Requires `recipes:create` scope
-    - AI-generated recipes saved via agent treated identically to in-app saves
-    - Returns saved recipe ID
-
-#### T-026 · MCP tools: `meal_plans_list`, `meal_plan_get`, `ingredient_search`
-
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-025
-- **Files**:
-    - `src/ai/mcp/tools/meal-plans.tool.ts`
-    - `src/ai/mcp/tools/ingredients.tool.ts`
-- **Acceptance**:
-    - `meal_plans_list` / `meal_plan_get` require `meal-plans:read` scope
-    - `ingredient_search` searches user's ingredient inventory
-    - All tools scope-checked; unauthorized returns `403`
-
-#### T-027 · OAuth consent management — grant + revoke (FR-018, FR-021)
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-021
-- **Files**:
-    - `src/ai/mcp/consent/consent.service.ts`
-    - `src/ai/mcp/consent/consent.controller.ts`
-    - `src/ai/mcp/dto/revoke-consent.dto.ts`
-- **Acceptance**:
-    - OAuth consent flow stores grant in `mcp_oauth_consents`
-    - `DELETE /ai/mcp/consents/:clientId` revokes consent (sets `is_revoked: true`)
-    - Revoked tokens rejected by OAuth guard
-    - User can revoke at any time (FR-021)
-
-#### T-028 · OAuth consent management UI — app settings page
-
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-027
-- **Files**:
-    - `src/web/settings/agent-connections.page.tsx` (or equivalent)
-- **Acceptance**:
-    - Lists active external agent authorizations with platform name, granted scopes, grant date
-    - Revoke button per connection
-    - Accessible: all interactive elements queryable via `getByRole`/`getByLabel` (NFR-003)
-    - Color not sole conveyor of state (NFR-004)
+- [ ] **T-026** [US-004] MCP tools: `meal_plans_list`, `meal_plan_get`, `ingredient_search` — `packages/services/ai-integration/src/ai/mcp/tools/meal-plans.tool.ts`
+  - **Depends on**: T-025
+  - **Implements**: FR-018
+  - `meal_plans_list` / `meal_plan_get` require `meal-plans:read` scope. `ingredient_search` searches user's ingredient inventory. All tools scope-checked; unauthorized returns `403`.
+  - **Acceptance**: All tools scope-checked; unauthorized returns `403`.
 
 ---
 
-## Phase 5E: Compliance & Polish (Week 8)
+## US-005 — Revoke Agent Access
 
-### EU AI Act Compliance
+> Covers FR-021: System MUST allow users to revoke external agent authorizations at any time.
 
-#### T-029 · EU AI Act disclosure strings + watermark component
+- [ ] **T-027** [US-005] OAuth consent management — grant + revoke — `packages/services/ai-integration/src/ai/mcp/consent/consent.service.ts`
+  - **Depends on**: T-021
+  - **Implements**: FR-018, FR-021, NFR-001
+  - OAuth consent flow stores grant in `mcp_oauth_consents`. `DELETE /ai/mcp/consents/:clientId` revokes consent (sets `is_revoked: true`). Revoked tokens rejected by OAuth guard. User can revoke at any time.
+  - **Acceptance**: Consent stored on grant; revocation invalidates tokens; revocable at any time.
 
-- **Status**: pending
-- **Priority**: P0 (deadline: August 2, 2026)
-- **Depends on**: T-015, T-017
-- **Files**:
-    - `src/web/components/ai-disclosure-banner.tsx`
-    - `src/web/components/ai-generated-badge.tsx`
-    - `src/i18n/en/ai-disclosures.ts`
-- **Acceptance**:
-    - All AI-generated recipe/meal plan outputs display: _"AI-generated content may be inaccurate. Verify before use."_
-    - Nutrition advice outputs display: _"This is not medical advice. Consult a qualified professional."_
-    - Disclosure visible in loading state (transparent AI generation indicator) (AC-6)
-    - Accessible: disclosure text readable by screen readers
+- [ ] **T-028** [US-005] OAuth consent management UI — app settings page — `packages/apps/sous-chef/web/src/app/settings/agent-connections/page.tsx`
+  - **Depends on**: T-027
+  - **Implements**: FR-018, FR-021, NFR-003, NFR-004
+  - Lists active external agent authorizations with platform name, granted scopes, grant date. Revoke button per connection. Accessible: all interactive elements queryable via `getByRole`/`getByLabel`. Color not sole conveyor of state.
+  - **Acceptance**: UI lists all active connections; revoke functional; accessible.
 
-#### T-030 · `ai_generation_records` audit log writes for all generation paths
+---
 
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-013, T-015, T-017, T-018
-- **Files**:
-    - `src/ai/audit/audit-log.service.ts`
-    - `src/ai/ai.service.ts`
-    - `src/ai/generation-queue.service.ts`
-- **Acceptance**:
-    - Every generation request writes to `ai_generation_records` (pending → complete/failed)
-    - `source_prompt_hash` = SHA-256 of sanitized prompt (no raw prompt stored)
-    - `input_token_count`, `output_token_count`, `estimated_cost_usd` populated on completion
-    - `completed_at` set on terminal status
+## US-007 — EU AI Act Compliance + Guard Messaging
 
-### Resilience
+> Covers FR-022: Confidence indicator and guard message on every AI-generated output surface.
 
-#### T-031 · Circuit breaker middleware for Secrets Manager + AI provider calls
+- [ ] **T-029** [US-007] EU AI Act disclosure strings + watermark component — `packages/apps/sous-chef/web/src/components/ai/ai-disclosure-banner.tsx`
+  - **Depends on**: T-015, T-017
+  - **Implements**: FR-022, NFR-003, NFR-004
+  - All AI-generated outputs display: "AI-generated content may be inaccurate. Verify before use." Nutrition advice additionally displays: "This is not medical advice. Consult a qualified professional." Disclosure visible in loading state. Accessible: text readable by screen readers.
+  - **Acceptance**: Disclosures shown on all AI outputs; nutrition variant when applicable; accessible.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-004, T-013
-- **Files**:
-    - `src/ai/byok/byok.service.ts`
-    - `src/ai/providers/provider-factory.ts`
-- **Acceptance**:
-    - `@CircuitBreaker({ timeout: 3000, threshold: 5, resetTimeout: 30000 })` on `getByokKey()`
-    - Circuit breaker on AI provider calls
-    - Open circuit returns `503` with `Retry-After` header
+- [ ] **T-030** [US-007] `ai_generation_records` audit log writes for all generation paths — `packages/services/ai-integration/src/ai/audit/audit-log.service.ts`
+  - **Depends on**: T-013, T-015, T-017, T-018
+  - **Implements**: FR-016, FR-017, FR-019, FR-020, NFR-001
+  - Every generation request writes to `ai_generation_records` (pending → complete/failed). `source_prompt_hash` = SHA-256 of sanitized prompt (no raw prompt stored). `input_token_count`, `output_token_count`, `estimated_cost_usd` populated on completion. `completed_at` set on terminal status.
+  - **Acceptance**: All generation paths audited; no raw prompts stored; metrics populated.
 
-#### T-032 · Per-user generation throttle (max 1 concurrent job)
+---
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-013
-- **Files**:
-    - `src/ai/generation-queue.service.ts`
-    - `src/ai/guards/concurrency.guard.ts`
-- **Acceptance**:
-    - Second concurrent generation request from same user returns `429`
-    - Concurrency state tracked in `ai_generation_records` (count of `status: 'pending' | 'streaming'`)
+## Resilience & Infrastructure
 
-#### T-033 · Rate limit middleware (Pro tier: 500 req/month)
+- [ ] **T-031** [US-002] Circuit breaker middleware for Secrets Manager + AI provider calls — `packages/services/ai-integration/src/ai/providers/provider-factory.ts`
+  - **Depends on**: T-004, T-013
+  - **Implements**: FR-015, FR-016, NFR-001
+  - `@CircuitBreaker({ timeout: 3000, threshold: 5, resetTimeout: 30000 })` on `getByokKey()`. Circuit breaker on AI provider calls. Open circuit returns `503` with `Retry-After` header.
+  - **Acceptance**: Circuit opens after threshold; returns `503` with `Retry-After`.
 
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-030
-- **Files**:
-    - `src/ai/guards/rate-limit.guard.ts`
-- **Acceptance**:
-    - Pro users: 500 generation requests/month; counter resets on 1st of month
-    - Free (BYOK only): no platform limit
-    - Exceeded limit returns `429` with `X-RateLimit-Reset` header
+- [ ] **T-032** [US-002] Per-user generation throttle (max 1 concurrent job) — `packages/services/ai-integration/src/ai/guards/concurrency.guard.ts`
+  - **Depends on**: T-013
+  - **Implements**: FR-016, NFR-001
+  - Second concurrent generation request from same user returns `429`. Concurrency state tracked in `ai_generation_records` (count of `status: 'pending' | 'streaming'`).
+  - **Acceptance**: Concurrent requests rejected with `429`; state tracked correctly.
 
-### AWS Infrastructure
+- [ ] **T-033** [US-006] Rate limit middleware (Pro tier: 500 req/month) — `packages/services/ai-integration/src/ai/guards/rate-limit.guard.ts`
+  - **Depends on**: T-030
+  - **Implements**: FR-019, NFR-001
+  - Pro users: 500 generation requests/month; counter resets on 1st of month. Free (BYOK only): no platform limit. Exceeded limit returns `429` with `X-RateLimit-Reset` header.
+  - **Acceptance**: Pro tier limit enforced; free tier unlimited; correct headers on `429`.
 
-#### T-034 · CDK stack: SQS `ai-generation-queue` + DLQ
+- [ ] **T-034** [P] [US-002] CDK stack: SQS `ai-generation-queue` + DLQ — `packages/cdk/stacks/ai-integration.stack.ts`
+  - **Depends on**: T-002
+  - **Implements**: FR-016, NFR-001
+  - `ai-generation-queue` created with visibility timeout 120s. DLQ `ai-generation-dlq` with max receives 3. Both encrypted with AWS managed KMS. CloudWatch alarm on DLQ depth > 0.
+  - **Acceptance**: Queue + DLQ created; encryption enabled; DLQ alarm configured.
 
-- **Status**: pending
-- **Priority**: P0
-- **Depends on**: T-002
-- **Files**:
-    - `infra/stacks/ai-integration.stack.ts`
-- **Acceptance**:
-    - `ai-generation-queue` created with visibility timeout 120s
-    - `ai-generation-dlq` with max receive count 3
-    - IAM role `ai-generation-worker-role` with SQS + Secrets Manager permissions
-    - `cdk diff` shows no unintended changes to existing stacks
+- [ ] **T-035** [P] [US-002] CDK stack: SNS `ai-events` topic (optional cross-service) — `packages/cdk/stacks/ai-integration.stack.ts`
+  - **Depends on**: T-002
+  - **Implements**: FR-016, NFR-001
+  - `ai-events` SNS topic for cross-service notifications. Encrypted. Optional subscription from downstream services.
+  - **Acceptance**: Topic created; encrypted; subscriptions possible.
 
-#### T-035 · CDK stack: SNS `ai-events` topic (optional cross-service)
+---
 
-- **Status**: pending
-- **Priority**: P3
-- **Depends on**: T-034
-- **Files**:
-    - `infra/stacks/ai-integration.stack.ts`
-- **Acceptance**:
-    - `ai-events` SNS topic created
-    - `GenerationQueueService` publishes `ai.generation.complete` / `ai.generation.failed` events
+## Testing
 
-### Testing
+- [ ] **T-036** [P] [US-001] Unit tests: `ByokService` — `packages/services/ai-integration/tests/unit/byok.service.spec.ts`
+  - **Depends on**: T-004
+  - **Implements**: FR-015, NFR-001
+  - Test store, delete, get, list operations. Mock Secrets Manager. Verify raw key never returned in list. Verify invalid key rejection.
+  - **Acceptance**: >90% branch coverage; all CRUD paths tested.
 
-#### T-036 · Unit tests: `ByokService`
+- [ ] **T-037** [P] [US-002] Unit tests: `SanitizeService` — `packages/services/ai-integration/tests/unit/sanitize.service.spec.ts`
+  - **Depends on**: T-009
+  - **Implements**: FR-016, FR-022, NFR-001
+  - Test all PII pattern types: email, phone, name, account ID, health conditions. Verify pseudonymization stability (same input → same token). Verify dietary preferences preserved.
+  - **Acceptance**: All PII patterns covered; pseudonymization deterministic.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-007
-- **Files**:
-    - `tests/unit/ai/byok/byok.service.spec.ts`
-- **Acceptance**:
-    - `storeKey()` — mocked Secrets Manager; verifies ARN stored, raw key not in DB
-    - `deleteKey()` — verifies both Secrets Manager + DB deletion
-    - `validateKey()` — tests prefix validation for all 3 providers
-    - Coverage ≥ 90% for `byok.service.ts`
+- [ ] **T-038** [P] [US-004] Unit tests: `McpServerService` + OAuth guard — `packages/services/ai-integration/tests/unit/mcp-server.service.spec.ts`
+  - **Depends on**: T-023, T-024
+  - **Implements**: FR-018, FR-021, NFR-001
+  - Test JSON-RPC routing, tool execution, scope enforcement, consent revocation. Mock Auth0 JWKS. Test batch requests.
+  - **Acceptance**: >90% branch coverage; scope enforcement tested.
 
-#### T-037 · Unit tests: `SanitizeService`
+- [ ] **T-039** [US-002] Integration test: BYOK key store + recipe generation flow — `packages/services/ai-integration/tests/integration/byok-recipe-flow.spec.ts`
+  - **Depends on**: T-007, T-014
+  - **Implements**: FR-015, FR-016, FR-017, FR-020
+  - End-to-end: store BYOK key → request generation → poll for result → save recipe → verify private. Mock AI provider or use test key.
+  - **Acceptance**: Full flow passes; recipe saved as private.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-009
-- **Files**:
-    - `tests/unit/ai/sanitize/sanitize.service.spec.ts`
-- **Acceptance**:
-    - Tests for each PII pattern: email, phone, name, account ID, health condition
-    - `sanitizeContext()` — verifies pseudonymization is stable (same input → same hash)
-    - `scanForPii()` — detects email + name patterns (AC-5)
+- [ ] **T-040** [US-002] Integration test: SQS async job lifecycle — `packages/services/ai-integration/tests/integration/sqs-job-lifecycle.spec.ts`
+  - **Depends on**: T-013
+  - **Implements**: FR-016, FR-020
+  - Test enqueue → process → complete flow. Test retry behavior. Test DLQ after max retries. Test concurrent job rejection.
+  - **Acceptance**: Job lifecycle correct; retries and DLQ work; concurrency enforced.
 
-#### T-038 · Unit tests: `McpServerService` + OAuth guard
+- [ ] **T-041** [US-002] E2E test: SSE streaming — `packages/apps/sous-chef/web/tests/e2e/ai/sse-streaming.spec.ts`
+  - **Depends on**: T-015
+  - **Implements**: FR-016, FR-017, NFR-003
+  - `POST /ai/generate/recipe/stream` returns `text/event-stream`. Partial chunks received before final `done: true` event. Network capture verifies streaming (not buffered).
+  - **Acceptance**: SSE works end-to-end; partial chunks visible; not buffered.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-025
-- **Files**:
-    - `tests/unit/ai/mcp/mcp-server.service.spec.ts`
-    - `tests/unit/ai/mcp/mcp-oauth.guard.spec.ts`
-- **Acceptance**:
-    - Guard rejects missing/invalid Bearer token (AC-10)
-    - Guard rejects wrong audience
-    - `handleRpcRequest()` routes to correct tool handler
-    - Scope enforcement tested for each tool
+- [ ] **T-042** [US-004] E2E test: MCP OAuth 2.1 PKCE flow — `packages/apps/sous-chef/web/tests/e2e/ai/mcp-oauth-flow.spec.ts`
+  - **Depends on**: T-027
+  - **Implements**: FR-018, FR-021
+  - OAuth 2.1 PKCE consent flow completes end-to-end. Agent calls `recipes_list` and `recipe_save` with Bearer token. Revoke consent → subsequent agent calls return `401`.
+  - **Acceptance**: PKCE flow works; agent calls succeed; revocation invalidates token.
 
-#### T-039 · Integration test: BYOK key store + recipe generation flow
+---
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-016, T-036
-- **Files**:
-    - `tests/integration/ai/byok-recipe-generation.spec.ts`
-- **Acceptance**:
-    - Store OpenAI key → generate recipe → poll job → verify recipe in DB (AC-1)
-    - Verifies raw key never in Postgres (AC-2)
-    - Verifies `ai_generation_records` row created and updated
+## Phase 5F: Mobile Parity
 
-#### T-040 · Integration test: SQS async job lifecycle
+> **Why this phase exists**: Mobile app requires dedicated implementation for all user-facing AI flows. Mobile is not a thin wrapper — it has distinct navigation patterns, screen constraints, and native capabilities (haptics, secure storage).
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-013
-- **Files**:
-    - `tests/integration/ai/sqs-job-lifecycle.spec.ts`
-- **Acceptance**:
-    - Enqueue job → consumer processes → result in `recipes` table (AC-4)
-    - Failed job → DLQ after 3 retries
-    - `GET /ai/generate/recipe/:jobId` returns correct status at each stage (AC-9)
+### US-001 / US-003 — Mobile: BYOK Provider Setup
 
-#### T-041 · E2E test: SSE streaming
+- [ ] **T-043** [P] [US-001] Mobile: BYOK provider configuration screen — `packages/apps/sous-chef/mobile/src/screens/settings/AiProviderScreen.tsx`
+  - **Depends on**: T-007
+  - **Implements**: FR-015, NFR-003, NFR-004
+  - Screen lists configured providers with status (active / not configured). Add/replace key flow: provider picker → secure text input → save → confirmation. Delete key flow: swipe-to-delete or explicit remove button with confirmation dialog. Raw key never stored in device storage; only confirmation of ARN returned from API. Accessible: all inputs have labels queryable via `getByRole`/`getByLabel`. Color not sole conveyor of state.
+  - **Acceptance**: Provider config works; raw key not stored locally; accessible.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-015
-- **Files**:
-    - `tests/e2e/ai/sse-streaming.spec.ts`
-- **Acceptance**:
-    - `POST /ai/generate/recipe/stream` returns `text/event-stream`
-    - Partial chunks received before final `done: true` event (AC-3)
-    - Network capture verifies streaming (not buffered)
+### US-002 — Mobile: AI Recipe Generation + Preview
 
-#### T-042 · E2E test: MCP OAuth 2.1 PKCE flow
+- [ ] **T-044** [P] [US-002] Mobile: AI recipe generation entry point + prompt input — `packages/apps/sous-chef/mobile/src/screens/ai/GenerateRecipeScreen.tsx`
+  - **Depends on**: T-043, T-016
+  - **Implements**: FR-016, FR-022, NFR-003, NFR-004
+  - User can enter ingredients, dietary constraints, cuisine, serving count. "Generate" button calls `POST /ai/generate/recipe` (async job) or stream variant. Loading state shows EU AI Act disclosure: "AI is generating your recipe..." with disclosure text visible. Accessible: form fields labeled; generate button has accessible name.
+  - **Acceptance**: Prompt input works; generation triggered; disclosure shown during load.
 
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-027
-- **Files**:
-    - `tests/e2e/ai/mcp-oauth-flow.spec.ts`
-- **Acceptance**:
-    - OAuth 2.1 PKCE consent flow completes end-to-end (AC-7)
-    - Agent calls `recipes_list` and `recipe_save` with Bearer token
-    - Revoke consent → subsequent agent calls return `401`
+- [ ] **T-045** [P] [US-003] Mobile: AI recipe preview + save/discard flow — `packages/apps/sous-chef/mobile/src/screens/ai/RecipePreviewScreen.tsx`
+  - **Depends on**: T-044
+  - **Implements**: FR-017, FR-020, FR-022, NFR-003, NFR-004
+  - Generated recipe displayed in preview state (not auto-saved). Compact `AiGuardBanner` visible above recipe content: "AI-generated content may be inaccurate. Verify before use." Banner not dismissible on first 3 views; collapses to icon with tooltip after that. "Save to my recipes" calls save endpoint; saved recipe is private. "Discard" discards without saving.
+  - **Acceptance**: Preview before save; guard banner rules enforced; private save.
+
+- [ ] **T-046** [P] [US-002] Mobile: SSE streaming display for recipe generation — `packages/apps/sous-chef/mobile/src/components/ai/StreamingRecipeCard.tsx`
+  - **Depends on**: T-044
+  - **Implements**: FR-016, FR-022, NFR-003, NFR-004
+  - Streaming variant of recipe card that updates in real-time as SSE chunks arrive. Shows partial ingredients, steps, title as they stream. Final state transitions to full preview. Error state if stream fails. Loading state with EU AI Act disclosure.
+  - **Acceptance**: Real-time updates from SSE; error handling; disclosure visible.
+
+### US-006 — Mobile: Premium Instruction Optimization
+
+- [ ] **T-047** [P] [US-006] Mobile: Instruction optimization entry point (Premium gate) — `packages/apps/sous-chef/mobile/src/screens/ai/OptimizeRecipeScreen.tsx`
+  - **Depends on**: T-045, T-019
+  - **Implements**: FR-019, FR-022, NFR-003, NFR-004
+  - From recipe detail screen, "Optimize instructions" option (premium users only). Mode picker: "Simplify" or "Streamline". Calls `POST /ai/recipes/:id/optimize`. Displays optimized instructions in preview. "Replace original" or "Discard". Non-premium users see upgrade prompt instead of mode picker.
+  - **Acceptance**: Premium gate works; optimization preview shown; upgrade prompt for free users.
+
+### US-004 / US-005 — Mobile: External Agent Consent + Revocation
+
+- [ ] **T-048** [P] [US-004] Mobile: External agent consent screen (two-step OAuth) — `packages/apps/sous-chef/mobile/src/screens/settings/AgentConsentScreen.tsx`
+  - **Depends on**: T-027
+  - **Implements**: FR-018, NFR-003, NFR-004
+  - Two distinct consent checkboxes (not bundled): "Allow agent to read my recipes" (`recipes:read`) and "Allow agent to save recipes for me" (`recipes:create`). User can grant read without write. Clear platform name and scope description. Confirm button disabled until at least one scope selected.
+  - **Acceptance**: Two-step consent; read without write possible; confirm disabled until selection.
+
+- [ ] **T-049** [P] [US-005] Mobile: Agent connection list + revocation — `packages/apps/sous-chef/mobile/src/screens/settings/AgentConnectionsScreen.tsx`
+  - **Depends on**: T-048
+  - **Implements**: FR-021, NFR-003, NFR-004
+  - Lists active external agent connections with platform name, granted scopes, grant date. Revoke button per connection with confirmation dialog. After revocation, connection removed from list. Empty state when no connections.
+  - **Acceptance**: List shows active connections; revoke with confirmation; empty state handled.
+
+### US-007 — Mobile: Guard Messaging
+
+- [ ] **T-050** [P] [US-007] Mobile: `AiGuardBanner` component + view-count persistence — `packages/apps/sous-chef/mobile/src/components/ai/AiGuardBanner.tsx`
+  - **Depends on**: T-045
+  - **Implements**: FR-022, NFR-003, NFR-004
+  - Reusable banner component for all AI-generated content surfaces. Full text on first 3 views: "AI-generated content may be inaccurate. Verify before use." After 3 views: collapses to icon with tooltip. View count persisted in AsyncStorage per user. Nutrition variant includes additional medical disclaimer. Cannot be disabled.
+  - **Acceptance**: View count persisted; collapse after 3 views; nutrition variant shown; not dismissible.
 
 ---
 
 ## Summary by User Story
 
-| User Story                                      | Priority | Tasks                                              | AC Coverage                                    |
-| ----------------------------------------------- | -------- | -------------------------------------------------- | ---------------------------------------------- |
-| US-1: AI Recipe Generation (BYOK in-app)        | P2       | T-001–T-016, T-029–T-033, T-036–T-041, T-043–T-046 | AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-8, AC-9 |
-| US-2: External Agent Platform (MCP/OAuth)       | P2       | T-021–T-028, T-038, T-042, T-048–T-049             | AC-7, AC-10                                    |
-| US-3: Recipe Instruction Optimization (Premium) | P2       | T-019, T-047                                       | FR-019                                         |
-| Admin: Prompt Template CMS                      | P3       | T-020                                              | FR-016 (partial)                               |
+| User Story | Priority | Tasks | FR / AC Coverage |
+| ---------- | -------- | ----- | ---------------- |
+| US-001: Configure AI Provider (BYOK) | P2 | T-001–T-007, T-036, T-043 | FR-015 |
+| US-002: Generate Recipe In-App | P2 | T-008–T-016, T-017–T-018, T-031–T-035, T-037, T-039–T-041, T-044, T-046 | FR-016, FR-022 |
+| US-003: Preview and Save Generated Recipe | P2 | T-016, T-045 | FR-017, FR-020 |
+| US-004: External Agent OAuth Access | P2 | T-021–T-026, T-038, T-042, T-048 | FR-018, FR-020 |
+| US-005: Revoke Agent Access | P2 | T-027–T-028, T-049 | FR-021 |
+| US-006: Recipe Instruction Optimization (Premium) | P2 | T-019, T-033, T-047 | FR-019 |
+| US-007: EU AI Act Compliance + Guard Messaging | P0 | T-029–T-030, T-050 | FR-022 |
 
 ## Summary by Phase
 
-| Phase                    | Tasks       | Description                                                                  |
-| ------------------------ | ----------- | ---------------------------------------------------------------------------- |
-| 5A: Foundation           | T-001–T-009 | DB schema, migration, BYOK module, sanitize module                           |
-| 5B: Core Generation      | T-010–T-016 | AiModule, recipe generation, SSE streaming, job queue                        |
-| 5C: Extended Generation  | T-017–T-020 | Meal plan, shopping list, optimization, prompt CMS                           |
-| 5D: External Agent / MCP | T-021–T-028 | MCP server, OAuth 2.1, consent management                                    |
-| 5E: Compliance & Polish  | T-029–T-042 | EU AI Act, audit log, circuit breakers, CDK, tests                           |
-| 5F: Mobile Parity        | T-043–T-050 | Mobile screens for BYOK setup, generation, preview/save, consent, revocation |
+| Phase | Tasks | Description |
+| ----- | ----- | ----------- |
+| 5A: Foundation | T-001–T-009 | DB schema, migration, BYOK module, sanitize module |
+| 5B: Core Generation | T-010–T-016 | AiModule, recipe generation, SSE streaming, job queue, preview/save |
+| 5C: Extended Generation | T-017–T-020 | Meal plan, shopping list, optimization, prompt CMS |
+| 5D: External Agent / MCP | T-021–T-028 | MCP server, OAuth 2.1, consent management, UI |
+| 5E: Compliance & Polish | T-029–T-042 | EU AI Act, audit log, circuit breakers, rate limits, CDK, tests |
+| 5F: Mobile Parity | T-043–T-050 | Mobile screens for BYOK, generation, preview, consent, guard banner |
 
 ## Open Questions (from plan.md §8)
 
 > These must be resolved before the affected tasks can be completed:
 
-- **OQ-5** (blocks EU user traffic): Anthropic/OpenAI DPA + SCCs must be executed before EU user prompts flow. Affects T-013, T-015, T-017.
-- **OQ-6** (blocks nutrition features): EU AI Act risk classification for nutrition advice. Affects T-018, T-029.
-- **OQ-3** (affects T-027, T-028): MCP OAuth client registration — self-service portal vs email-request. Recommendation: self-service portal. Product owner to confirm before Sprint 5.
-
----
-
-## Phase 5F: Mobile Parity (Week 9)
-
-> **Why this phase exists**: Tasks T-001 through T-042 target the NestJS API and web (`src/web/`) surfaces. The mobile app (`packages/apps/sous-chef/mobile`) requires dedicated implementation for all user-facing AI flows. Mobile is not a thin wrapper — it has distinct navigation patterns, screen constraints, and native capabilities (haptics, secure storage). These tasks ensure feature parity before launch.
->
-> **Decisions reflected**: D-001 (two-step OAuth consent), D-003 (mandatory guard messaging on mobile), D-004 (private-only agent saves).
-
-### US-1 / US-3 — Mobile: BYOK Provider Setup
-
-#### T-043 · Mobile: BYOK provider configuration screen
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-007 (API endpoints complete)
-- **Files**:
-    - `packages/apps/sous-chef/mobile/src/screens/settings/AiProviderScreen.tsx`
-    - `packages/apps/sous-chef/mobile/src/hooks/useByokKeys.ts`
-- **Acceptance**:
-    - Screen lists configured providers with status (active / not configured)
-    - Add/replace key flow: provider picker → secure text input → save → confirmation
-    - Delete key flow: swipe-to-delete or explicit remove button with confirmation dialog
-    - Raw key never stored in device storage; only confirmation of ARN returned from API
-    - Accessible: all inputs have labels queryable via `getByRole`/`getByLabel` (NFR-003)
-    - Color not sole conveyor of state (NFR-004)
-
-### US-1 — Mobile: AI Recipe Generation + Preview
-
-#### T-044 · Mobile: AI recipe generation entry point + prompt input
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-043, T-016 (API preview/save endpoint)
-- **Files**:
-    - `packages/apps/sous-chef/mobile/src/screens/ai/GenerateRecipeScreen.tsx`
-    - `packages/apps/sous-chef/mobile/src/components/ai/PromptInputCard.tsx`
-- **Acceptance**:
-    - User can enter ingredients, dietary constraints, cuisine, and serving count
-    - "Generate" button calls `POST /ai/generate/recipe` (async job) or stream variant
-    - Loading state shows EU AI Act disclosure: "AI is generating your recipe..." with disclosure text visible
-    - Accessible: form fields labeled; generate button has accessible name
-
-#### T-045 · Mobile: AI recipe preview + save/discard flow
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-044
-- **Files**:
-    - `packages/apps/sous-chef/mobile/src/screens/ai/RecipePreviewScreen.tsx`
-    - `packages/apps/sous-chef/mobile/src/components/ai/AiGuardBanner.tsx`
-- **Acceptance**:
-    - Generated recipe displayed in preview state (not auto-saved) (FR-017)
-    - Compact `AiGuardBanner` visible above recipe content: "AI-generated content may be inaccurate. Verify before use." (FR-022, D-003)
-    - Banner not dismissible on first 3 views; collapses to icon with tooltip after that
-    - "Save to my recipes" button calls `POST /ai/generate/recipe/:jobId/save`; saved recipe is private (FR-020, D-004)
-    - "Discard" button discards without saving; no recipe stored (spec acceptance scenario 3)
-    - Nutrition-adjacent content shows additional disclaimer (FR-022)
-    - Accessible: banner text readable by screen reader; save/discard buttons have accessible names
-
-#### T-046 · Mobile: SSE streaming display for recipe generation
-
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-044
-- **Files**:
-    - `packages/apps/sous-chef/mobile/src/hooks/useRecipeStream.ts`
-    - `packages/apps/sous-chef/mobile/src/screens/ai/RecipePreviewScreen.tsx`
-- **Acceptance**:
-    - Mobile client connects to `POST /ai/generate/recipe/stream` SSE endpoint
-    - Recipe content renders progressively as chunks arrive (not buffered until complete)
-    - Streaming indicator visible during generation
-    - On stream complete, preview screen transitions to full preview + save/discard controls
-    - Network error during stream shows retry option
-
-### US-3 — Mobile: Premium Instruction Optimization
-
-#### T-047 · Mobile: Instruction optimization entry point (Premium gate)
-
-- **Status**: pending
-- **Priority**: P2
-- **Depends on**: T-019 (API endpoint), T-043
-- **Files**:
-    - `packages/apps/sous-chef/mobile/src/screens/recipe/RecipeDetailScreen.tsx`
-    - `packages/apps/sous-chef/mobile/src/components/ai/OptimizeInstructionsButton.tsx`
-- **Acceptance**:
-    - "Optimize instructions" option visible on recipe detail screen for recipe owners
-    - Free-tier users see the option but tapping it shows a Premium upsell sheet (not a silent failure)
-    - Premium users see a confirmation sheet: "AI will simplify or streamline these instructions. You can review before saving."
-    - Calls `POST /ai/optimize/recipe/:recipeId`; result shown in preview with accept/reject controls
-    - Guard banner displayed on optimized result (FR-022, D-003)
-    - Accessible: upsell sheet and confirmation sheet have accessible headings and button labels
-
-### US-2 — Mobile: External Agent Consent + Revocation
-
-#### T-048 · Mobile: OAuth consent screen for external agents
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-027 (consent service), T-022 (OAuth discovery endpoints)
-- **Files**:
-    - `packages/apps/sous-chef/mobile/src/screens/auth/AgentConsentScreen.tsx`
-- **Acceptance**:
-    - Screen displays agent name, requested scopes in plain language
-    - `recipes:read` and `recipes:create` are shown as separate, individually toggleable checkboxes (D-001)
-    - User may grant read without granting write
-    - "Allow" button only active when at least one scope is selected
-    - "Deny" button cancels the flow and returns to the originating deep link with error
-    - Consent stored via `POST /ai/mcp/consents` on Allow
-    - Accessible: checkboxes have labels; screen has accessible heading naming the requesting agent
-
-#### T-049 · Mobile: Agent connections settings screen (revocation)
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-048, T-028 (web settings page for reference)
-- **Files**:
-    - `packages/apps/sous-chef/mobile/src/screens/settings/AgentConnectionsScreen.tsx`
-- **Acceptance**:
-    - Lists all active external agent authorizations: platform name, granted scopes (plain language), grant date
-    - Each connection has a "Revoke access" button
-    - Revoke calls `DELETE /ai/mcp/consents/:clientId`; connection removed from list on success
-    - Empty state shown when no agents are connected
-    - Accessible: list items have accessible names; revoke button labeled with agent name (not just "Revoke")
-    - Color not sole conveyor of revocation state (NFR-004)
-
-### Testing — Mobile Parity
-
-#### T-050 · Mobile E2E tests: AI generation, preview/save, consent, revocation
-
-- **Status**: pending
-- **Priority**: P1
-- **Depends on**: T-043, T-044, T-045, T-048, T-049
-- **Files**:
-    - `packages/apps/sous-chef/mobile/e2e/ai-generation.spec.ts`
-    - `packages/apps/sous-chef/mobile/e2e/agent-consent.spec.ts`
-- **Acceptance**:
-    - Configure BYOK key → generate recipe → verify preview screen shows guard banner → save → verify recipe in collection as private
-    - Discard flow: generate → discard → verify no recipe saved
-    - Agent consent: deep link with OAuth request → consent screen shows two separate scope checkboxes → grant read-only → verify agent cannot call `recipe_save` → grant write → verify `recipe_save` succeeds and recipe is private
-    - Revocation: revoke agent → verify subsequent agent API calls return `401`
-    - Premium gate: free-tier user taps "Optimize instructions" → upsell sheet shown, no API call made
-
----
+- **OQ-5** (blocks EU user traffic): Anthropic/OpenAI DPA + SCCs must be executed before EU user prompts flow. Affects T-012, T-013, T-015.
+- **OQ-6** (blocks premium gating): Subscription tier check endpoint from 010-subscriptions must be available. Affects T-019, T-033, T-047.

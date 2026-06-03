@@ -53,18 +53,18 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name          | Type   | Size/Constraints                                   | Initialization         | Description                                  |
-| ------------- | ------ | -------------------------------------------------- | ---------------------- | -------------------------------------------- |
-| artifact_path | string | Max 4096 chars (OS path limit)                     | From function argument | File system path to the V-Model artifact     |
-| content       | string | No upper bound; typical V-Model artifacts < 100 KB | Empty string           | Raw text content read from the artifact file |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| artifact_path | string | Max 4096 chars (OS path limit) | From function argument | File system path to the V-Model artifact |
+| content | string | No upper bound; typical V-Model artifacts < 100 KB | Empty string | Raw text content read from the artifact file |
 
 #### Error Handling & Return Codes
 
-| Error Condition       | Error Code / Exception | Architecture Contract      | Recovery                            |
-| --------------------- | ---------------------- | -------------------------- | ----------------------------------- |
-| Path is null or empty | FileNotFoundError      | ARCH-001 FileNotFoundError | Propagate to caller; abort pipeline |
-| File does not exist   | FileNotFoundError      | ARCH-001 FileNotFoundError | Propagate to caller; abort pipeline |
-| File is zero bytes    | EmptyFileError         | ARCH-001 EmptyFileError    | Propagate to caller; abort pipeline |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Path is null or empty | FileNotFoundError | ARCH-001 FileNotFoundError | Propagate to caller; abort pipeline |
+| File does not exist | FileNotFoundError | ARCH-001 FileNotFoundError | Propagate to caller; abort pipeline |
+| File is zero bytes | EmptyFileError | ARCH-001 EmptyFileError | Propagate to caller; abort pipeline |
 
 ---
 
@@ -132,21 +132,21 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name            | Type                 | Size/Constraints                 | Initialization                 | Description                                            |
-| --------------- | -------------------- | -------------------------------- | ------------------------------ | ------------------------------------------------------ |
-| SUPPORTED_TYPES | Dict[string, object] | Exactly 9 entries                | Hardcoded constant             | Maps artifact file names to type metadata              |
-| ID_PATTERNS     | Dict[string, regex]  | Exactly 9 entries                | Hardcoded constant             | Maps artifact types to their primary ID regex patterns |
-| base_name       | string               | Max 30 chars                     | Extracted from file_name       | Base file name without directory path                  |
-| type_info       | object               | 3 fields: type, abbrev, standard | Looked up from SUPPORTED_TYPES | Metadata for the matched artifact type                 |
-| unique_ids      | Set[string]          | 0–999 elements                   | Empty set                      | Deduplicated set of artifact item IDs found in content |
-| item_count      | integer              | 0–999                            | 0                              | Number of unique primary IDs found                     |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| SUPPORTED_TYPES | Dict[string, object] | Exactly 9 entries | Hardcoded constant | Maps artifact file names to type metadata |
+| ID_PATTERNS | Dict[string, regex] | Exactly 9 entries | Hardcoded constant | Maps artifact types to their primary ID regex patterns |
+| base_name | string | Max 30 chars | Extracted from file_name | Base file name without directory path |
+| type_info | object | 3 fields: type, abbrev, standard | Looked up from SUPPORTED_TYPES | Metadata for the matched artifact type |
+| unique_ids | Set[string] | 0–999 elements | Empty set | Deduplicated set of artifact item IDs found in content |
+| item_count | integer | 0–999 | 0 | Number of unique primary IDs found |
 
 #### Error Handling & Return Codes
 
-| Error Condition                  | Error Code / Exception       | Architecture Contract                 | Recovery                            |
-| -------------------------------- | ---------------------------- | ------------------------------------- | ----------------------------------- |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
 | File name not in supported types | UnsupportedArtifactTypeError | ARCH-002 UnsupportedArtifactTypeError | Propagate to caller; abort pipeline |
-| Multiple artifacts provided      | MultipleArtifactError        | ARCH-002 MultipleArtifactError        | Propagate to caller; abort pipeline |
+| Multiple artifacts provided | MultipleArtifactError | ARCH-002 MultipleArtifactError | Propagate to caller; abort pipeline |
 
 ---
 
@@ -285,15 +285,15 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name              | Type                      | Size/Constraints                                                     | Initialization        | Description                                       |
-| ----------------- | ------------------------- | -------------------------------------------------------------------- | --------------------- | ------------------------------------------------- |
-| CRITERIA_REGISTRY | Dict[string, CriteriaSet] | Exactly 9 entries                                                    | Hardcoded constant    | Maps artifact types to their review criteria sets |
-| CriteriaSet       | object                    | 3 fields: standard (string), dimensions (string[]), rules (string[]) | Constructed per entry | Structured criteria for one artifact type         |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| CRITERIA_REGISTRY | Dict[string, CriteriaSet] | Exactly 9 entries | Hardcoded constant | Maps artifact types to their review criteria sets |
+| CriteriaSet | object | 3 fields: standard (string), dimensions (string[]), rules (string[]) | Constructed per entry | Structured criteria for one artifact type |
 
 #### Error Handling & Return Codes
 
-| Error Condition               | Error Code / Exception   | Architecture Contract             | Recovery                            |
-| ----------------------------- | ------------------------ | --------------------------------- | ----------------------------------- |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
 | Artifact type not in registry | UnknownArtifactTypeError | ARCH-003 UnknownArtifactTypeError | Propagate to caller; abort pipeline |
 
 ---
@@ -370,23 +370,23 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name         | Type              | Size/Constraints                                                           | Initialization                | Description                                 |
-| ------------ | ----------------- | -------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------- |
-| prompt       | string            | No hard limit; typically 1–50 KB depending on artifact size                | Built from template + content | Complete evaluation prompt sent to LLM      |
-| llm_response | string            | No hard limit; depends on LLM output                                       | Received from LLM invocation  | Raw LLM response text                       |
-| raw_findings | array[RawFinding] | 0–999 elements                                                             | Empty array                   | Parsed findings from LLM response           |
-| RawFinding   | object            | 3 fields: location (string), description (string), recommendation (string) | Constructed per finding       | Single quality issue identified by the LLM  |
-| parsed_items | array[object]     | 0–999 elements                                                             | Parsed from llm_response      | Intermediate parsed items before validation |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| prompt | string | No hard limit; typically 1–50 KB depending on artifact size | Built from template + content | Complete evaluation prompt sent to LLM |
+| llm_response | string | No hard limit; depends on LLM output | Received from LLM invocation | Raw LLM response text |
+| raw_findings | array[RawFinding] | 0–999 elements | Empty array | Parsed findings from LLM response |
+| RawFinding | object | 3 fields: location (string), description (string), recommendation (string) | Constructed per finding | Single quality issue identified by the LLM |
+| parsed_items | array[object] | 0–999 elements | Parsed from llm_response | Intermediate parsed items before validation |
 
 #### Error Handling & Return Codes
 
-| Error Condition                      | Error Code / Exception | Architecture Contract       | Recovery                            |
-| ------------------------------------ | ---------------------- | --------------------------- | ----------------------------------- |
-| LLM returns null or empty response   | LLMEvaluationError     | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
-| Finding missing location field       | LLMEvaluationError     | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
-| Finding missing description field    | LLMEvaluationError     | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
-| Finding missing recommendation field | LLMEvaluationError     | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
-| LLM response is unparseable          | LLMEvaluationError     | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| LLM returns null or empty response | LLMEvaluationError | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
+| Finding missing location field | LLMEvaluationError | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
+| Finding missing description field | LLMEvaluationError | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
+| Finding missing recommendation field | LLMEvaluationError | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
+| LLM response is unparseable | LLMEvaluationError | ARCH-004 LLMEvaluationError | Propagate to caller; abort pipeline |
 
 ---
 
@@ -431,17 +431,17 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name                | Type                     | Size/Constraints                          | Initialization          | Description                              |
-| ------------------- | ------------------------ | ----------------------------------------- | ----------------------- | ---------------------------------------- |
-| VALID_ABBREVIATIONS | Set[string]              | Exactly 9 elements                        | Hardcoded constant      | Allowed artifact type abbreviations      |
-| counter             | integer                  | 1–999                                     | 1                       | Sequential counter for PRF ID assignment |
-| prf_id              | string                   | Pattern: `PRF-{ABBREV}-NNN`, max 15 chars | Constructed per finding | Unique identifier for a single finding   |
-| identified_findings | array[IdentifiedFinding] | 0–999 elements                            | Empty array             | Findings with PRF IDs assigned           |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| VALID_ABBREVIATIONS | Set[string] | Exactly 9 elements | Hardcoded constant | Allowed artifact type abbreviations |
+| counter | integer | 1–999 | 1 | Sequential counter for PRF ID assignment |
+| prf_id | string | Pattern: `PRF-{ABBREV}-NNN`, max 15 chars | Constructed per finding | Unique identifier for a single finding |
+| identified_findings | array[IdentifiedFinding] | 0–999 elements | Empty array | Findings with PRF IDs assigned |
 
 #### Error Handling & Return Codes
 
-| Error Condition               | Error Code / Exception   | Architecture Contract             | Recovery                            |
-| ----------------------------- | ------------------------ | --------------------------------- | ----------------------------------- |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
 | Abbreviation not in valid set | InvalidAbbreviationError | ARCH-005 InvalidAbbreviationError | Propagate to caller; abort pipeline |
 
 ---
@@ -507,16 +507,16 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name                | Type                     | Size/Constraints                                                 | Initialization          | Description                            |
-| ------------------- | ------------------------ | ---------------------------------------------------------------- | ----------------------- | -------------------------------------- |
-| classified_findings | array[ClassifiedFinding] | 0–999 elements                                                   | Empty array             | Findings with severity levels assigned |
-| ClassifiedFinding   | object                   | 5 fields: prfId, severity, location, description, recommendation | Constructed per finding | Complete classified finding record     |
-| severity            | string                   | Exactly one of: "Critical", "Major", "Minor", "Observation"      | Determined per finding  | Severity level for a single finding    |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| classified_findings | array[ClassifiedFinding] | 0–999 elements | Empty array | Findings with severity levels assigned |
+| ClassifiedFinding | object | 5 fields: prfId, severity, location, description, recommendation | Constructed per finding | Complete classified finding record |
+| severity | string | Exactly one of: "Critical", "Major", "Minor", "Observation" | Determined per finding | Severity level for a single finding |
 
 #### Error Handling & Return Codes
 
-| Error Condition                      | Error Code / Exception     | Architecture Contract               | Recovery                            |
-| ------------------------------------ | -------------------------- | ----------------------------------- | ----------------------------------- |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
 | Finding cannot be mapped to severity | UnclassifiableFindingError | ARCH-006 UnclassifiableFindingError | Propagate to caller; abort pipeline |
 
 ---
@@ -561,19 +561,19 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name            | Type   | Size/Constraints              | Initialization                  | Description                              |
-| --------------- | ------ | ----------------------------- | ------------------------------- | ---------------------------------------- |
-| artifact_base   | string | Max 30 chars                  | Derived from artifact_file_name | Artifact file name without .md extension |
-| generation_date | string | Exactly 10 chars (YYYY-MM-DD) | Current date at invocation      | ISO 8601 date for the report header      |
-| header          | string | Typically 200–400 chars       | Built incrementally             | Formatted markdown header section        |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| artifact_base | string | Max 30 chars | Derived from artifact_file_name | Artifact file name without .md extension |
+| generation_date | string | Exactly 10 chars (YYYY-MM-DD) | Current date at invocation | ISO 8601 date for the report header |
+| header | string | Typically 200–400 chars | Built incrementally | Formatted markdown header section |
 
 #### Error Handling & Return Codes
 
-| Error Condition               | Error Code / Exception | Architecture Contract         | Recovery                            |
-| ----------------------------- | ---------------------- | ----------------------------- | ----------------------------------- |
-| Missing artifact file name    | MissingMetadataError   | ARCH-007 MissingMetadataError | Propagate to caller; abort pipeline |
-| Invalid item count (negative) | MissingMetadataError   | ARCH-007 MissingMetadataError | Propagate to caller; abort pipeline |
-| Missing governing standard    | MissingMetadataError   | ARCH-007 MissingMetadataError | Propagate to caller; abort pipeline |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Missing artifact file name | MissingMetadataError | ARCH-007 MissingMetadataError | Propagate to caller; abort pipeline |
+| Invalid item count (negative) | MissingMetadataError | ARCH-007 MissingMetadataError | Propagate to caller; abort pipeline |
+| Missing governing standard | MissingMetadataError | ARCH-007 MissingMetadataError | Propagate to caller; abort pipeline |
 
 ---
 
@@ -615,16 +615,16 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name   | Type                  | Size/Constraints        | Initialization              | Description             |
-| ------ | --------------------- | ----------------------- | --------------------------- | ----------------------- |
-| counts | Dict[string, integer] | Exactly 4 entries       | All values initialized to 0 | Severity level counters |
-| table  | string                | Typically 200–300 chars | Built incrementally         | Markdown summary table  |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| counts | Dict[string, integer] | Exactly 4 entries | All values initialized to 0 | Severity level counters |
+| table | string | Typically 200–300 chars | Built incrementally | Markdown summary table |
 
 #### Error Handling & Return Codes
 
-| Error Condition                                                         | Error Code / Exception | Architecture Contract | Recovery                             |
-| ----------------------------------------------------------------------- | ---------------------- | --------------------- | ------------------------------------ |
-| No error conditions — empty input produces a table with all zero counts | N/A                    | ARCH-008 interface    | Returns valid table with zero counts |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| No error conditions — empty input produces a table with all zero counts | N/A | ARCH-008 interface | Returns valid table with zero counts |
 
 ---
 
@@ -661,15 +661,15 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name   | Type   | Size/Constraints                        | Initialization    | Description                                      |
-| ------ | ------ | --------------------------------------- | ----------------- | ------------------------------------------------ |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
 | output | string | Variable; depends on number of findings | "## Findings\n\n" | Accumulated markdown for all finding subsections |
 
 #### Error Handling & Return Codes
 
-| Error Condition                                                   | Error Code / Exception | Architecture Contract | Recovery                                        |
-| ----------------------------------------------------------------- | ---------------------- | --------------------- | ----------------------------------------------- |
-| No error conditions — empty input produces "No findings." section | N/A                    | ARCH-008 interface    | Returns valid markdown with no findings message |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| No error conditions — empty input produces "No findings." section | N/A | ARCH-008 interface | Returns valid markdown with no findings message |
 
 ---
 
@@ -704,16 +704,16 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name   | Type   | Size/Constraints            | Initialization                             | Description                         |
-| ------ | ------ | --------------------------- | ------------------------------------------ | ----------------------------------- |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
 | report | string | Variable; typically 1–50 KB | Assembled from header + summary + findings | Complete peer review report content |
 
 #### Error Handling & Return Codes
 
-| Error Condition                                 | Error Code / Exception | Architecture Contract   | Recovery                            |
-| ----------------------------------------------- | ---------------------- | ----------------------- | ----------------------------------- |
-| Output path is null or empty                    | FileWriteError         | ARCH-008 FileWriteError | Propagate to caller; abort pipeline |
-| File cannot be written (permissions, disk full) | FileWriteError         | ARCH-008 FileWriteError | Propagate to caller; abort pipeline |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Output path is null or empty | FileWriteError | ARCH-008 FileWriteError | Propagate to caller; abort pipeline |
+| File cannot be written (permissions, disk full) | FileWriteError | ARCH-008 FileWriteError | Propagate to caller; abort pipeline |
 
 ---
 
@@ -765,24 +765,24 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name                | Type                     | Size/Constraints                           | Initialization                              | Description                                                  |
-| ------------------- | ------------------------ | ------------------------------------------ | ------------------------------------------- | ------------------------------------------------------------ |
-| content             | string                   | No upper bound; typical artifacts < 100 KB | From read_artifact_file                     | Raw artifact file content                                    |
-| metadata            | ArtifactMetadata         | 5 fields                                   | From resolve_artifact_type                  | Artifact type, abbreviation, standard, item count, file name |
-| criteria            | CriteriaSet              | 3 fields                                   | From get_review_criteria                    | Quality dimensions, rules, standard references               |
-| raw_findings        | array[RawFinding]        | 0–999 elements                             | From evaluate_artifact                      | Unidentified findings from LLM                               |
-| identified_findings | array[IdentifiedFinding] | 0–999 elements                             | From assign_prf_ids                         | Findings with PRF IDs                                        |
-| classified_findings | array[ClassifiedFinding] | 0–999 elements                             | From classify_severity                      | Findings with severity levels                                |
-| header              | string                   | 200–400 chars                              | From build_report_header                    | Markdown header section                                      |
-| summary_table       | string                   | 200–300 chars                              | From render_summary_table                   | Markdown summary table                                       |
-| finding_sections    | string                   | Variable                                   | From render_finding_subsections             | Markdown finding subsections                                 |
-| output_path         | string                   | Max 4096 chars                             | Constructed from vmodel_dir + artifact name | File path for the output report                              |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| content | string | No upper bound; typical artifacts < 100 KB | From read_artifact_file | Raw artifact file content |
+| metadata | ArtifactMetadata | 5 fields | From resolve_artifact_type | Artifact type, abbreviation, standard, item count, file name |
+| criteria | CriteriaSet | 3 fields | From get_review_criteria | Quality dimensions, rules, standard references |
+| raw_findings | array[RawFinding] | 0–999 elements | From evaluate_artifact | Unidentified findings from LLM |
+| identified_findings | array[IdentifiedFinding] | 0–999 elements | From assign_prf_ids | Findings with PRF IDs |
+| classified_findings | array[ClassifiedFinding] | 0–999 elements | From classify_severity | Findings with severity levels |
+| header | string | 200–400 chars | From build_report_header | Markdown header section |
+| summary_table | string | 200–300 chars | From render_summary_table | Markdown summary table |
+| finding_sections | string | Variable | From render_finding_subsections | Markdown finding subsections |
+| output_path | string | Max 4096 chars | Constructed from vmodel_dir + artifact name | File path for the output report |
 
 #### Error Handling & Return Codes
 
-| Error Condition                        | Error Code / Exception | Architecture Contract     | Recovery                                                    |
-| -------------------------------------- | ---------------------- | ------------------------- | ----------------------------------------------------------- |
-| Any error from MOD-001 through MOD-010 | Propagated exception   | Respective ARCH contracts | All errors propagate upward; pipeline aborts on first error |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Any error from MOD-001 through MOD-010 | Propagated exception | Respective ARCH contracts | All errors propagate upward; pipeline aborts on first error |
 
 ---
 
@@ -844,20 +844,20 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name        | Type    | Size/Constraints            | Initialization | Description                           |
-| ----------- | ------- | --------------------------- | -------------- | ------------------------------------- |
-| json_mode   | boolean | true or false               | false          | Whether --json flag was provided      |
-| review_file | string  | Max 4096 chars (path limit) | NULL           | Path to the peer review markdown file |
-| index       | integer | 0 to length(args)           | 0              | Current argument index                |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| json_mode | boolean | true or false | false | Whether --json flag was provided |
+| review_file | string | Max 4096 chars (path limit) | NULL | Path to the peer review markdown file |
+| index | integer | 0 to length(args) | 0 | Current argument index |
 
 #### Error Handling & Return Codes
 
-| Error Condition                 | Error Code / Exception       | Architecture Contract      | Recovery                 |
-| ------------------------------- | ---------------------------- | -------------------------- | ------------------------ |
-| Unknown option flag             | Exit code 1 + stderr message | ARCH-009 ParseError        | Script exits immediately |
-| Multiple review files specified | Exit code 1 + stderr message | ARCH-009 ParseError        | Script exits immediately |
-| No review file specified        | Exit code 1 + stderr message | ARCH-009 ParseError        | Script exits immediately |
-| Review file not found           | Exit code 1 + stderr message | ARCH-009 FileNotFoundError | Script exits immediately |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Unknown option flag | Exit code 1 + stderr message | ARCH-009 ParseError | Script exits immediately |
+| Multiple review files specified | Exit code 1 + stderr message | ARCH-009 ParseError | Script exits immediately |
+| No review file specified | Exit code 1 + stderr message | ARCH-009 ParseError | Script exits immediately |
+| Review file not found | Exit code 1 + stderr message | ARCH-009 FileNotFoundError | Script exits immediately |
 
 ---
 
@@ -921,18 +921,18 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name              | Type           | Size/Constraints                            | Initialization              | Description                                         |
-| ----------------- | -------------- | ------------------------------------------- | --------------------------- | --------------------------------------------------- |
-| content           | string         | No hard limit; typical review files < 50 KB | Read from review_file       | Raw markdown content of the peer review report      |
-| counts            | SeverityCounts | 4 fields, each integer ≥ 0                  | All fields initialized to 0 | Severity count accumulator                          |
-| has_summary_table | boolean        | true or false                               | false                       | Whether a summary table row was successfully parsed |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| content | string | No hard limit; typical review files < 50 KB | Read from review_file | Raw markdown content of the peer review report |
+| counts | SeverityCounts | 4 fields, each integer ≥ 0 | All fields initialized to 0 | Severity count accumulator |
+| has_summary_table | boolean | true or false | false | Whether a summary table row was successfully parsed |
 
 #### Error Handling & Return Codes
 
-| Error Condition                               | Error Code / Exception                          | Architecture Contract      | Recovery                          |
-| --------------------------------------------- | ----------------------------------------------- | -------------------------- | --------------------------------- |
-| Review file cannot be read                    | Exit code 1 + stderr message                    | ARCH-009 FileNotFoundError | Script exits immediately          |
-| No summary table and no finding headers found | Counts remain all zero; treated as clean review | ARCH-009 exit code 0       | Returns zero counts (exit code 0) |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Review file cannot be read | Exit code 1 + stderr message | ARCH-009 FileNotFoundError | Script exits immediately |
+| No summary table and no finding headers found | Counts remain all zero; treated as clean review | ARCH-009 exit code 0 | Returns zero counts (exit code 0) |
 
 ---
 
@@ -968,15 +968,15 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name        | Type   | Size/Constraints       | Initialization    | Description                      |
-| ----------- | ------ | ---------------------- | ----------------- | -------------------------------- |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
 | json_output | string | Typically 60–100 chars | Built from counts | JSON string with severity counts |
 
 #### Error Handling & Return Codes
 
-| Error Condition                                                   | Error Code / Exception | Architecture Contract        | Recovery                     |
-| ----------------------------------------------------------------- | ---------------------- | ---------------------------- | ---------------------------- |
-| No error conditions — function always succeeds given valid counts | N/A                    | ARCH-009 exit code semantics | Returns exit code 0, 1, or 2 |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| No error conditions — function always succeeds given valid counts | N/A | ARCH-009 exit code semantics | Returns exit code 0, 1, or 2 |
 
 ---
 
@@ -1006,17 +1006,17 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name      | Type           | Size/Constraints                                  | Initialization             | Description              |
-| --------- | -------------- | ------------------------------------------------- | -------------------------- | ------------------------ |
-| config    | CheckConfig    | 2 fields: jsonMode (boolean), reviewFile (string) | From parse_check_args      | Parsed CLI configuration |
-| counts    | SeverityCounts | 4 integer fields                                  | From parse_severity_counts | Parsed severity counts   |
-| exit_code | integer        | 0, 1, or 2                                        | From determine_exit_code   | Process exit code        |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| config | CheckConfig | 2 fields: jsonMode (boolean), reviewFile (string) | From parse_check_args | Parsed CLI configuration |
+| counts | SeverityCounts | 4 integer fields | From parse_severity_counts | Parsed severity counts |
+| exit_code | integer | 0, 1, or 2 | From determine_exit_code | Process exit code |
 
 #### Error Handling & Return Codes
 
-| Error Condition                   | Error Code / Exception | Architecture Contract | Recovery                                            |
-| --------------------------------- | ---------------------- | --------------------- | --------------------------------------------------- |
-| Any error from MOD-012 or MOD-013 | Exit code 1 + stderr   | ARCH-009 interface    | Script exits with code 1 on any parse or file error |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Any error from MOD-012 or MOD-013 | Exit code 1 + stderr | ARCH-009 interface | Script exits with code 1 on any parse or file error |
 
 ---
 
@@ -1103,25 +1103,25 @@ N/A — Stateless pure function
 
 #### Internal Data Structures
 
-| Name              | Type             | Size/Constraints                                           | Initialization                       | Description                                            |
-| ----------------- | ---------------- | ---------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------ |
-| ReviewFile        | string           | Max 4096 chars (path limit)                                | From -ReviewFile parameter           | Path to the peer review markdown file                  |
-| Json              | boolean (switch) | true or false                                              | false (default)                      | Whether -Json switch was provided                      |
-| content           | string           | No hard limit; typical < 50 KB                             | Read from ReviewFile via Get-Content | Raw markdown content of the peer review report         |
-| counts            | hashtable        | 4 keys: critical, major, minor, observation (integers ≥ 0) | All values initialized to 0          | Severity count accumulator                             |
-| json_output       | string           | Typically 60–100 chars                                     | Built from counts via ConvertTo-Json | JSON string with severity counts                       |
-| critical_match    | Match            | Regex match result                                         | From [regex]::Match                  | Result of parsing Critical count from summary table    |
-| major_match       | Match            | Regex match result                                         | From [regex]::Match                  | Result of parsing Major count from summary table       |
-| minor_match       | Match            | Regex match result                                         | From [regex]::Match                  | Result of parsing Minor count from summary table       |
-| observation_match | Match            | Regex match result                                         | From [regex]::Match                  | Result of parsing Observation count from summary table |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| ReviewFile | string | Max 4096 chars (path limit) | From -ReviewFile parameter | Path to the peer review markdown file |
+| Json | boolean (switch) | true or false | false (default) | Whether -Json switch was provided |
+| content | string | No hard limit; typical < 50 KB | Read from ReviewFile via Get-Content | Raw markdown content of the peer review report |
+| counts | hashtable | 4 keys: critical, major, minor, observation (integers ≥ 0) | All values initialized to 0 | Severity count accumulator |
+| json_output | string | Typically 60–100 chars | Built from counts via ConvertTo-Json | JSON string with severity counts |
+| critical_match | Match | Regex match result | From [regex]::Match | Result of parsing Critical count from summary table |
+| major_match | Match | Regex match result | From [regex]::Match | Result of parsing Major count from summary table |
+| minor_match | Match | Regex match result | From [regex]::Match | Result of parsing Minor count from summary table |
+| observation_match | Match | Regex match result | From [regex]::Match | Result of parsing Observation count from summary table |
 
 #### Error Handling & Return Codes
 
-| Error Condition                                         | Error Code / Exception                   | Architecture Contract      | Recovery                          |
-| ------------------------------------------------------- | ---------------------------------------- | -------------------------- | --------------------------------- |
-| ReviewFile is null or empty                             | Exit code 1 + Write-Error                | ARCH-010 FileNotFoundError | Script exits immediately          |
-| Review file not found                                   | Exit code 1 + Write-Error                | ARCH-010 FileNotFoundError | Script exits immediately          |
-| Review file unparseable (no summary or finding headers) | Counts remain all zero; treated as clean | ARCH-010 exit code 0       | Returns zero counts (exit code 0) |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| ReviewFile is null or empty | Exit code 1 + Write-Error | ARCH-010 FileNotFoundError | Script exits immediately |
+| Review file not found | Exit code 1 + Write-Error | ARCH-010 FileNotFoundError | Script exits immediately |
+| Review file unparseable (no summary or finding headers) | Counts remain all zero; treated as clean | ARCH-010 exit code 0 | Returns zero counts (exit code 0) |
 
 ---
 
@@ -1162,31 +1162,31 @@ Invoke-PeerReviewCheck [-Json] -ReviewFile <path> → exit code (0, 1, or 2); op
 
 ## Coverage Summary
 
-| Metric                                    | Count          |
-| ----------------------------------------- | -------------- |
-| Total Module Designs (MOD)                | 16             |
-| External Modules (`[EXTERNAL]`)           | 0              |
-| Cross-Cutting Modules (`[CROSS-CUTTING]`) | 0              |
-| Stateful Modules                          | 0              |
-| Stateless Modules                         | 16             |
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | 16 |
+| External Modules (`[EXTERNAL]`) | 0 |
+| Cross-Cutting Modules (`[CROSS-CUTTING]`) | 0 |
+| Stateful Modules | 0 |
+| Stateless Modules | 16 |
 | Total Parent Architecture Modules Covered | 10 / 10 (100%) |
-| Modules with Pseudocode                   | 16 / 16 (100%) |
-| **Forward Coverage (ARCH→MOD)**           | **100%**       |
+| Modules with Pseudocode | 16 / 16 (100%) |
+| **Forward Coverage (ARCH→MOD)** | **100%** |
 
 ### Forward Coverage Detail
 
-| ARCH ID  | Covered By                         |
-| -------- | ---------------------------------- |
-| ARCH-001 | MOD-001, MOD-011                   |
-| ARCH-002 | MOD-002, MOD-011                   |
-| ARCH-003 | MOD-003, MOD-011                   |
-| ARCH-004 | MOD-004, MOD-011                   |
-| ARCH-005 | MOD-005, MOD-011                   |
-| ARCH-006 | MOD-006, MOD-011                   |
-| ARCH-007 | MOD-007, MOD-011                   |
+| ARCH ID | Covered By |
+|---------|-----------|
+| ARCH-001 | MOD-001, MOD-011 |
+| ARCH-002 | MOD-002, MOD-011 |
+| ARCH-003 | MOD-003, MOD-011 |
+| ARCH-004 | MOD-004, MOD-011 |
+| ARCH-005 | MOD-005, MOD-011 |
+| ARCH-006 | MOD-006, MOD-011 |
+| ARCH-007 | MOD-007, MOD-011 |
 | ARCH-008 | MOD-008, MOD-009, MOD-010, MOD-011 |
 | ARCH-009 | MOD-012, MOD-013, MOD-014, MOD-015 |
-| ARCH-010 | MOD-016                            |
+| ARCH-010 | MOD-016 |
 
 ## Derived Modules
 

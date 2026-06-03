@@ -1,0 +1,138 @@
+{
+  "featureSlug": "005-ai-integration",
+  "scanDate": "2026-06-02",
+  "scanType": "pre-implementation",
+  "layersScanned": ["L1", "L2", "L3", "L4", "L7"],
+  "layersSkipped": ["L5"],
+  "layersInfo": ["L6"],
+  "overallVerdict": "PASS",
+  "summary": {
+    "totalFindings": 1,
+    "critical": 0,
+    "warning": 1,
+    "info": 1,
+    "pass": 6
+  },
+  "layers": [
+    {
+      "layerId": "L1",
+      "name": "spec ↔ product-spec",
+      "status": "PASS",
+      "severity": null,
+      "description": "All FRs, NFRs, Decisions, and SCs in spec.md are mirrored in product-spec artifacts.",
+      "evidence": [
+        "FR-015..FR-022 present in product-spec.md and user-journey.md",
+        "D-001..D-005 reflected across all product-spec files",
+        "SC-003 referenced in product-spec/metrics.md"
+      ],
+      "findings": []
+    },
+    {
+      "layerId": "L2",
+      "name": "spec Must-Have ↔ plan",
+      "status": "PASS",
+      "severity": null,
+      "description": "All Must-Have FRs (FR-015..022) have direct architecture or API contract coverage in plan.md.",
+      "evidence": [
+        "FR-015 → plan.md Section 3.1 BYOK API + Section 2.2 schema",
+        "FR-016 → plan.md Section 3.2 Recipe Generation",
+        "FR-017 → plan.md POST /ai/generate/recipe/:jobId/save",
+        "FR-018 → plan.md Section 3.5 MCP Endpoints",
+        "FR-019 → plan.md POST /ai/recipes/:id/optimize",
+        "FR-020 → plan.md schema visibility default + MCP tool restriction",
+        "FR-021 → plan.md DELETE /mcp/consents/:clientId",
+        "FR-022 → plan.md SanitizeModule + UI notes"
+      ],
+      "findings": []
+    },
+    {
+      "layerId": "L3",
+      "name": "plan ↔ tasks",
+      "status": "PASS",
+      "severity": null,
+      "description": "50 tasks cover all plan components with 1 minor naming drift.",
+      "evidence": [
+        "All 4 DB tables mapped to T-001..T-002",
+        "All API contracts mapped to T-006..T-007, T-012..T-020",
+        "MCP/OAuth mapped to T-021..T-025",
+        "Mobile parity mapped to T-043..T-050"
+      ],
+      "findings": [
+        {
+          "findingId": "W-001",
+          "severity": "WARNING",
+          "description": "Index name drift: tasks.md uses 'idx_ai_gen_records_user_id', plan.md uses 'idx_ai_gen_records_user_sub'.",
+          "action": "Align during implementation to plan.md naming."
+        }
+      ]
+    },
+    {
+      "layerId": "L4",
+      "name": "spec ↔ V-Model",
+      "status": "PASS",
+      "severity": null,
+      "description": "V-Model requirements REQ-001..010 map bidirectionally to FR-015..022 and SC-003.",
+      "evidence": [
+        "REQ-001 ↔ FR-015",
+        "REQ-002 ↔ FR-016",
+        "REQ-003 ↔ SC-003",
+        "REQ-004 ↔ FR-017",
+        "REQ-005 ↔ FR-018",
+        "REQ-006 ↔ FR-020",
+        "REQ-007 ↔ FR-019",
+        "REQ-008 ↔ FR-021",
+        "REQ-009 ↔ FR-022",
+        "REQ-010 ↔ NFR-001..004"
+      ],
+      "findings": []
+    },
+    {
+      "layerId": "L5",
+      "name": "code ↔ tasks",
+      "status": "SKIP",
+      "severity": null,
+      "description": "Skipped per instruction.",
+      "evidence": [],
+      "findings": []
+    },
+    {
+      "layerId": "L6",
+      "name": "missing-impl",
+      "status": "INFO",
+      "severity": "INFO",
+      "description": "0/50 tasks complete. No feature 005 implementation files exist. Expected pre-impl gap.",
+      "evidence": [
+        "tasks.md shows all 50 tasks as 'pending'",
+        "No src/ai/ or src/db/schema/*ai* files found in worktree"
+      ],
+      "findings": []
+    },
+    {
+      "layerId": "L7",
+      "name": "cross-feature deps",
+      "status": "PASS",
+      "severity": null,
+      "description": "All dependency references (001, 002, 010) are valid and no broken apps/X links found.",
+      "evidence": [
+        "001-sous-chef-recipe-app referenced for Recipe entities — valid external dependency",
+        "002-user-auth referenced for users.sub — worktree context matches",
+        "010-subscriptions referenced for premium guards — valid external dependency",
+        "No apps/X references detected in feature files"
+      ],
+      "findings": []
+    }
+  ],
+  "findingsRegister": [
+    {
+      "findingId": "W-001",
+      "layerId": "L3",
+      "severity": "WARNING",
+      "description": "Index name drift between tasks.md and plan.md for ai_generation_records user FK index.",
+      "locations": [
+        "tasks.md T-002: idx_ai_gen_records_user_id",
+        "plan.md Section 2.2: idx_ai_gen_records_user_sub"
+      ],
+      "recommendedAction": "Align during implementation to plan.md naming (user_sub)."
+    }
+  ]
+}

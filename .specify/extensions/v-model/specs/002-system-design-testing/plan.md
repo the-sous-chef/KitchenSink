@@ -21,15 +21,15 @@ Extend the V-Model Extension Pack from Requirements ↔ Acceptance Testing (v0.1
 
 ## Constitution Check
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle                             | Status  | Evidence                                                                                                                                                                                                                                                       |
-| ------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| I. V-Model Discipline                 | ✅ PASS | Two new commands enforce paired generation: system-design (left side) ↔ system-test (right side). ID schema extended: `SYS-NNN` → `STP-NNN-X` → `STS-NNN-X#` mirrors `REQ → ATP → SCN`. 100% bidirectional coverage enforced by `validate-system-coverage.sh`. |
-| II. Deterministic Verification        | ✅ PASS | New `validate-system-coverage.sh` uses regex-based parsing for REQ→SYS and SYS→STP coverage. Matrix B built by extending `build-matrix.sh`. AI handles creative decomposition; scripts handle all verification.                                                |
-| III. Specification as Source of Truth | ✅ PASS | `requirements.md` is the input to system-design; `system-design.md` is the input to system-test. Strict translator constraint prevents AI from inventing capabilities not in the source. Derived requirements flagged, not silently added.                     |
-| IV. Git as QMS                        | ✅ PASS | All new artifacts are plaintext Markdown in Git. Feature branch `002-system-design-testing` with PR-based merge. CI gates enforce structural validators on every push.                                                                                         |
-| V. Human-in-the-Loop                  | ✅ PASS | Commands generate drafts. Human reviews via PR. Derived Requirement flags (`[DERIVED REQUIREMENT: ...]`) require human resolution. Anti-Pattern Guards in requirements command catch AI failure patterns before human review.                                  |
+| Principle | Status | Evidence |
+|-----------|--------|----------|
+| I. V-Model Discipline | ✅ PASS | Two new commands enforce paired generation: system-design (left side) ↔ system-test (right side). ID schema extended: `SYS-NNN` → `STP-NNN-X` → `STS-NNN-X#` mirrors `REQ → ATP → SCN`. 100% bidirectional coverage enforced by `validate-system-coverage.sh`. |
+| II. Deterministic Verification | ✅ PASS | New `validate-system-coverage.sh` uses regex-based parsing for REQ→SYS and SYS→STP coverage. Matrix B built by extending `build-matrix.sh`. AI handles creative decomposition; scripts handle all verification. |
+| III. Specification as Source of Truth | ✅ PASS | `requirements.md` is the input to system-design; `system-design.md` is the input to system-test. Strict translator constraint prevents AI from inventing capabilities not in the source. Derived requirements flagged, not silently added. |
+| IV. Git as QMS | ✅ PASS | All new artifacts are plaintext Markdown in Git. Feature branch `002-system-design-testing` with PR-based merge. CI gates enforce structural validators on every push. |
+| V. Human-in-the-Loop | ✅ PASS | Commands generate drafts. Human reviews via PR. Derived Requirement flags (`[DERIVED REQUIREMENT: ...]`) require human resolution. Anti-Pattern Guards in requirements command catch AI failure patterns before human review. |
 
 No violations. No complexity tracking required.
 

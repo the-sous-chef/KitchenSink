@@ -3,7 +3,7 @@ name: Bug Report
 about: Report a bug in the V-Model Extension Pack
 title: "[BUG] "
 labels: bug
-assignees: ""
+assignees: ''
 ---
 
 ## Describe the Bug

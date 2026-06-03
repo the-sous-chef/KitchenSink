@@ -1,6 +1,9 @@
 {
-    "name": "@kitchensink/ui",
-    "version": "0.0.0",
-    "private": true,
-    "type": "module"
+  "name": "@kitchensink/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.16.0"
+  }
 }

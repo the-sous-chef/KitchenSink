@@ -1,0 +1,48 @@
+{
+  "feature": "003-usda-food-data",
+  "date": "2026-06-02",
+  "phase": "pre-implement",
+  "layers_checked": [1, 2, 3, 4, 6, 7],
+  "layers_skipped": [5],
+  "verdict": "WARNING",
+  "summary": {
+    "critical": 0,
+    "warning": 3,
+    "info": 1,
+    "clean": 3
+  },
+  "drifts": [
+    {
+      "id": "D-001",
+      "layer": 2,
+      "severity": "WARNING",
+      "source": "product-spec.md US-005",
+      "target": "spec.md US-5",
+      "evidence": "product-spec describes Redis sorted set demand-weighted priority (ZINCRBY); spec.md describes static High/Low SQS queues (FR-014-018) with no mention of sorted-set priority"
+    },
+    {
+      "id": "D-002",
+      "layer": 3,
+      "severity": "WARNING",
+      "source": "plan.md §9 Open Questions",
+      "target": "spec.md FR definitions",
+      "evidence": "plan.md references FR-036 (WebSocket notifications) but spec.md only defines FR-001 through FR-035"
+    },
+    {
+      "id": "D-003",
+      "layer": 4,
+      "severity": "WARNING",
+      "source": "tasks.md Dependency Graph",
+      "target": "tasks.md headings",
+      "evidence": "Graph declares T-044-T-048 and T-049-T-052; actual task headings are T-001-T-043 only (43 tasks)"
+    },
+    {
+      "id": "D-004",
+      "layer": 6,
+      "severity": "INFO",
+      "source": "spec.md",
+      "target": "Codebase",
+      "evidence": "Zero implementation code found for any 003 FR or task — expected pre-impl state"
+    }
+  ]
+}

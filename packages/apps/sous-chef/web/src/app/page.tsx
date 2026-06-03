@@ -1,6 +1,7 @@
+import type { Route } from 'next';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { auth0 } from '@/lib/auth0';
+import { auth } from '@clerk/nextjs/server';
 
 export const metadata: Metadata = {
     title: 'Home | Sous Chef',
@@ -8,10 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-    const session = await auth0.getSession();
+    const { userId } = await auth();
 
-    if (!session) {
-        redirect('/api/auth/login?returnTo=/profile');
+    if (!userId) {
+        redirect('/sign-in' as Route);
     }
 
     redirect('/profile');

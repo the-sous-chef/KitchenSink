@@ -214,10 +214,10 @@ async handleSubscriptionUpdated(event: Stripe.Event): Promise<void> {
 
 ### 3.1 Subscription State on the User Record
 
-From `002-auth0-user-auth`, the `Account` entity in our PostgreSQL database is the source of truth for subscription state. The following fields must be added (or confirmed present):
+From `002-user-auth`, the `Account` entity in our PostgreSQL database is the source of truth for subscription state. The following fields must be added (or confirmed present):
 
 ```typescript
-// Additions to Account entity (002-auth0-user-auth)
+// Additions to Account entity (002-user-auth)
 @Column({ type: 'varchar', default: 'free' })
 plan: 'free' | 'premium';
 

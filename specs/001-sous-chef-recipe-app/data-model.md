@@ -33,7 +33,7 @@ users ──< recipes ──< recipe_ingredients >── ingredients
 ### `users`
 
 ```sql
--- (superseded — see 002-auth0-user-auth) The users table is owned by feature 002.
+-- (superseded — see 002-user-auth) The users table is owned by feature 002.
 -- users.sub (VARCHAR(255) COLLATE "C" PRIMARY KEY) is the canonical user identifier.
 -- The id/auth0_id columns shown below are superseded; downstream FKs reference users(sub).
 CREATE TABLE users (

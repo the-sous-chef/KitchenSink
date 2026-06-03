@@ -1,16 +1,18 @@
 import type { APIGatewayRequestAuthorizerEvent, APIGatewayAuthorizerResult, Context } from 'aws-lambda';
 
-import type { AuthorizerContext } from '@kitchensink/auth-types';
+import type { AuthorizerContext, ClerkSessionClaims, UserId } from '@kitchensink/identity-service';
+// eslint-disable-next-line no-restricted-imports
+import { UserDAO } from '@kitchensink/identity-service/database/dao';
 
 import { requireEnv } from '../common/config.js';
-import { verifyToken } from './jwt.js';
+import { verifyClerkJwt } from '../common/jwt.js';
+import { getUser as getClerkUser, setExternalId } from '../common/identityClient.js';
+import { getDb } from '../common/db.js';
 
-/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
 const unauthorized = (): never => {
     throw new Error('Unauthorized');
 };
 
-/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
 const parseBearerToken = (event: APIGatewayRequestAuthorizerEvent): string => {
     const raw = event.headers?.Authorization ?? event.headers?.authorization;
 
@@ -27,7 +29,6 @@ const parseBearerToken = (event: APIGatewayRequestAuthorizerEvent): string => {
     return token;
 };
 
-/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
 const buildPolicy = (
     principalId: string,
     effect: 'Allow' | 'Deny',
@@ -48,53 +49,68 @@ const buildPolicy = (
     ...(context ? { context } : {}),
 });
 
-/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
 const serializeContext = (ctx: AuthorizerContext): Record<string, string | number | boolean> => ({
-    sub: ctx.sub,
-    ...(ctx.email !== undefined ? { email: ctx.email } : {}),
+    userId: ctx.userId,
+    clerkUserId: ctx.clerkUserId,
+    email: ctx.email,
     scopes: JSON.stringify(ctx.scopes),
     permissions: JSON.stringify(ctx.permissions),
-    isM2M: ctx.isM2M,
     tokenType: ctx.tokenType,
 });
 
-/** @implements REQ-038 REQ-039 REQ-040 REQ-041 REQ-042 REQ-IF-004 REQ-CN-001 FR-038 FR-039 FR-040 FR-041 FR-042 ARCH-024 ARCH-025 MOD-024 MOD-025 */
+const resolveUserId = async (claims: ClerkSessionClaims): Promise<UserId> => {
+    if (claims.app_user_id) {
+        return claims.app_user_id;
+    }
+
+    const db = await getDb(requireEnv('DB_SECRET_ARN'));
+    const dao = new UserDAO(
+        db as unknown as import('drizzle-orm/postgres-js').PostgresJsDatabase<Record<string, never>>,
+    );
+
+    const clerkUser = await getClerkUser(claims.sub);
+
+    const email = clerkUser.emailAddresses[0]?.emailAddress ?? '';
+    const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || undefined;
+    const picture = clerkUser.imageUrl || undefined;
+
+    const user = await dao.upsertByIdentityId({ identityId: claims.sub, email, name, picture });
+    const userId = user.id as UserId;
+
+    await setExternalId(claims.sub, userId);
+
+    return userId;
+};
+
 export const handler = async (
     event: APIGatewayRequestAuthorizerEvent,
     _context: Context,
 ): Promise<APIGatewayAuthorizerResult> => {
     try {
-        const auth0Domain = requireEnv('AUTH0_DOMAIN');
-        const audience = requireEnv('AUTH0_AUDIENCE');
-
-        const issuer = `https://${auth0Domain}/`;
-        const jwksUri = `https://${auth0Domain}/.well-known/jwks.json`;
-
         const token = parseBearerToken(event);
+        const claims = await verifyClerkJwt(token);
 
-        const payload = await verifyToken(token, { jwksUri, audience, issuer });
-
-        if (!payload.sub) {
+        if (!claims.sub) {
             return unauthorized();
         }
 
-        const isM2M = payload.gty === 'client-credentials' || payload.sub.endsWith('@clients');
+        const userId = await resolveUserId(claims);
 
         const authContext: AuthorizerContext = {
-            sub: payload.sub,
-            ...(payload.email !== undefined ? { email: payload.email } : {}),
-            scopes: (payload.scope ?? '').split(' ').filter(Boolean),
-            permissions: payload.permissions ?? [],
-            isM2M,
-            tokenType: isM2M ? 'm2m' : 'user',
+            userId,
+            email: claims.email ?? '',
+            clerkUserId: claims.sub,
+            scopes: [],
+            permissions: [],
+            tokenType: 'user',
         };
 
-        return buildPolicy(payload.sub, 'Allow', event.methodArn, serializeContext(authContext));
+        return buildPolicy(claims.sub, 'Allow', event.methodArn, serializeContext(authContext));
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
             throw err;
         }
 
-        throw new Error('Unauthorized');
+        throw new Error('Unauthorized', { cause: err });
     }
 };

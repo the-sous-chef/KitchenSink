@@ -1006,7 +1006,7 @@ FUNCTION enforce(request: HttpRequest, next: NextFunction) -> void | HTTP 401:
 
     token = authHeader.slice(7)
 
-    // Step 2: Verify Auth0 JWT (using 002-auth0-user-auth integration)
+    // Step 2: Verify Auth0 JWT (using 002-user-auth integration)
     TRY:
         payload = Auth0JWTVerifier.verify(token)
     CATCH TokenExpiredError:
@@ -1029,7 +1029,7 @@ N/A — Stateless
 
 | Name             | Type                 | Size/Constraints | Initialization             | Description                         |
 | ---------------- | -------------------- | ---------------- | -------------------------- | ----------------------------------- |
-| Auth0JWTVerifier | External module ref  | —                | From `002-auth0-user-auth` | Verifies Auth0-issued JWTs          |
+| Auth0JWTVerifier | External module ref  | —                | From `002-user-auth` | Verifies Auth0-issued JWTs          |
 | request.context  | `{ userId: string }` | —                | Attached per request       | Carries authenticated user identity |
 
 #### Error Handling & Return Codes

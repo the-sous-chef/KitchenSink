@@ -4,7 +4,7 @@ This document provides an in-depth explanation of the identifier (ID) system use
 
 ## Why a Disciplined ID Schema Matters
 
-In safety-critical software development, regulators require **bidirectional traceability** — the ability to trace from any requirement down to its test evidence, and from any test back to the requirement it validates. When something goes wrong in the field, the investigation starts with a question: _which requirement governs this behavior, and what test proved it was correct?_
+In safety-critical software development, regulators require **bidirectional traceability** — the ability to trace from any requirement down to its test evidence, and from any test back to the requirement it validates. When something goes wrong in the field, the investigation starts with a question: *which requirement governs this behavior, and what test proved it was correct?*
 
 A self-documenting ID schema eliminates the need for lookup tables. Reading `SCN-003-A1` immediately tells you:
 
@@ -15,17 +15,19 @@ A self-documenting ID schema eliminates the need for lookup tables. Reading `SCN
 
 No database query needed. No cross-referencing spreadsheets. The ID itself encodes the full lineage.
 
-This same principle applies at every level of the V-Model — from requirements all the way down to unit test scenarios. The result is a four-tier hierarchy of 12 ID types, plus a cross-cutting hazard prefix, that form an unbroken chain of custody from _what was specified_ to _how it was verified_.
+This same principle applies at every level of the V-Model — from requirements all the way down to unit test scenarios. The result is a four-tier hierarchy of 12 ID types, a cross-cutting hazard prefix, and two advisory prefixes (peer review findings and waivers) that form an unbroken chain of custody from *what was specified* to *how it was verified*.
 
 ## The Four-Tier ID Hierarchy — Overview
 
-| Level                           | Design Artifact | Test Case   | Executable Step | Matrix |
-| ------------------------------- | --------------- | ----------- | --------------- | ------ |
-| Requirements ↔ Acceptance       | `REQ-NNN`       | `ATP-NNN-X` | `SCN-NNN-X#`    | A      |
-| System Design ↔ System Test     | `SYS-NNN`       | `STP-NNN-X` | `STS-NNN-X#`    | B      |
-| Architecture ↔ Integration Test | `ARCH-NNN`      | `ITP-NNN-X` | `ITS-NNN-X#`    | C      |
-| Module Design ↔ Unit Test       | `MOD-NNN`       | `UTP-NNN-X` | `UTS-NNN-X#`    | D      |
-| Hazard Analysis (cross-cutting) | `HAZ-NNN`       | —           | —               | H      |
+| Level | Design Artifact | Test Case | Executable Step | Matrix |
+|-------|----------------|-----------|-----------------|--------|
+| Requirements ↔ Acceptance | `REQ-NNN` | `ATP-NNN-X` | `SCN-NNN-X#` | A |
+| System Design ↔ System Test | `SYS-NNN` | `STP-NNN-X` | `STS-NNN-X#` | B |
+| Architecture ↔ Integration Test | `ARCH-NNN` | `ITP-NNN-X` | `ITS-NNN-X#` | C |
+| Module Design ↔ Unit Test | `MOD-NNN` | `UTP-NNN-X` | `UTS-NNN-X#` | D |
+| Hazard Analysis (cross-cutting) | `HAZ-NNN` | — | — | H |
+| Peer Review (advisory) | `PRF-{ARTIFACT}-NNN` | — | — | — |
+| Waiver (advisory) | `WAV-NNN` | — | — | — |
 
 **Format conventions** (consistent across all levels):
 
@@ -55,17 +57,17 @@ This applies at every level: `STP-002-A` links to `SYS-002`, `ITP-005-A` links t
 
 **Between** V-Model levels, the relationship is recorded as an **explicit field** in the artifact content. The IDs of different levels are independent — `SYS-001` does not inherently relate to `REQ-001`. Instead, the system design document records which requirements each system component satisfies:
 
-| Cross-Level Link | Document                 | Section                  | Field Name                    | Format                   |
-| ---------------- | ------------------------ | ------------------------ | ----------------------------- | ------------------------ |
-| REQ → SYS        | `system-design.md`       | Decomposition View table | `Parent Requirements`         | Comma-separated REQ IDs  |
-| SYS → ARCH       | `architecture-design.md` | Logical View table       | `Parent System Components`    | Comma-separated SYS IDs  |
-| ARCH → MOD       | `module-design.md`       | Module heading metadata  | `Parent Architecture Modules` | Comma-separated ARCH IDs |
+| Cross-Level Link | Document | Section | Field Name | Format |
+|-----------------|----------|---------|------------|--------|
+| REQ → SYS | `system-design.md` | Decomposition View table | `Parent Requirements` | Comma-separated REQ IDs |
+| SYS → ARCH | `architecture-design.md` | Logical View table | `Parent System Components` | Comma-separated SYS IDs |
+| ARCH → MOD | `module-design.md` | Module heading metadata | `Parent Architecture Modules` | Comma-separated ARCH IDs |
 
 These explicit fields are what the deterministic scripts parse to build the traceability matrices. The `build-matrix.sh` script extracts these fields using section-scoped regex matching (only parsing the Decomposition View for SYS, only the Logical View for ARCH, etc.) to avoid false positives from IDs appearing in other sections.
 
 This distinction matters because it explains why the schema uses two different mechanisms:
 
-- **Intra-level** (design → test): The link is structural — every test case _must_ trace to exactly one parent design artifact, so encoding the parent's number in the test ID is both sufficient and efficient.
+- **Intra-level** (design → test): The link is structural — every test case *must* trace to exactly one parent design artifact, so encoding the parent's number in the test ID is both sufficient and efficient.
 - **Inter-level** (design → design): The link is many-to-many — one system component may satisfy multiple requirements, and one requirement may be satisfied by multiple components. A fixed encoding would be insufficient, so the link is recorded as a list of parent IDs in the artifact content.
 
 ---
@@ -88,12 +90,12 @@ REQ-CN-001 — First constraint requirement
 
 **Category prefixes** are unique to the requirements level. They allow auditors to filter requirements by type without reading every description:
 
-| Prefix   | Category       | Example      |
-| -------- | -------------- | ------------ |
-| _(none)_ | Functional     | `REQ-001`    |
-| `NF`     | Non-Functional | `REQ-NF-001` |
-| `IF`     | Interface      | `REQ-IF-001` |
-| `CN`     | Constraint     | `REQ-CN-001` |
+| Prefix | Category | Example |
+|--------|----------|---------|
+| *(none)* | Functional | `REQ-001` |
+| `NF` | Non-Functional | `REQ-NF-001` |
+| `IF` | Interface | `REQ-IF-001` |
+| `CN` | Constraint | `REQ-CN-001` |
 
 Category prefixes propagate to test cases and scenarios. If the requirement is `REQ-NF-001`, its test cases are `ATP-NF-001-A`, `ATP-NF-001-B`, etc., and its scenarios are `SCN-NF-001-A1`, `SCN-NF-001-B1`, etc.
 
@@ -155,7 +157,7 @@ Any violation is flagged as a compliance failure. An orphaned test case (e.g., `
 
 ## Level 2: System Design ↔ System Testing
 
-The second level decomposes _what_ the system must do (requirements) into _how_ the system is structured (design elements).
+The second level decomposes *what* the system must do (requirements) into *how* the system is structured (design elements).
 
 ### Connecting Requirements to System Design
 
@@ -166,15 +168,14 @@ The `system-design.md` document contains a **Decomposition View** table with a `
 ```markdown
 ### Decomposition View
 
-| SYS ID  | Component                | Description                           | Parent Requirements       | IEEE 1016 View |
-| ------- | ------------------------ | ------------------------------------- | ------------------------- | -------------- |
-| SYS-001 | SensorAcquisitionService | Reads HR, BP, SpO2 at 1 Hz            | REQ-001, REQ-NF-002       | Decomposition  |
-| SYS-002 | AlarmEngine              | Evaluates thresholds, triggers alarms | REQ-003, REQ-004, REQ-007 | Decomposition  |
-| SYS-003 | ClinicalDashboard        | Displays vitals and alarm states      | REQ-002, REQ-006          | Decomposition  |
+| SYS ID | Component | Description | Parent Requirements | IEEE 1016 View |
+|--------|-----------|-------------|---------------------|----------------|
+| SYS-001 | SensorAcquisitionService | Reads HR, BP, SpO2 at 1 Hz | REQ-001, REQ-NF-002 | Decomposition |
+| SYS-002 | AlarmEngine | Evaluates thresholds, triggers alarms | REQ-003, REQ-004, REQ-007 | Decomposition |
+| SYS-003 | ClinicalDashboard | Displays vitals and alarm states | REQ-002, REQ-006 | Decomposition |
 ```
 
 This is a **many-to-many mapping**:
-
 - One system component may satisfy multiple requirements (`SYS-002` satisfies `REQ-003`, `REQ-004`, and `REQ-007`)
 - One requirement may be satisfied by multiple components (if `REQ-NF-002` appears in both `SYS-001` and `SYS-003`)
 
@@ -259,16 +260,15 @@ The link from system components to architecture elements follows the same inter-
 ```markdown
 ### Logical View
 
-| ARCH ID  | Module                | Description                       | Parent System Components | IEEE 42010 View |
-| -------- | --------------------- | --------------------------------- | ------------------------ | --------------- |
-| ARCH-001 | SensorProtocolAdapter | Abstracts vendor protocols        | SYS-001                  | Logical         |
-| ARCH-002 | ThresholdEvaluator    | Stateless comparison engine       | SYS-002                  | Logical         |
-| ARCH-003 | AlarmDispatcher       | Routes alarms by severity         | SYS-002, SYS-003         | Logical         |
-| ARCH-007 | AuditLogger           | Structured logging for all events | [CROSS-CUTTING]          | Logical         |
+| ARCH ID | Module | Description | Parent System Components | IEEE 42010 View |
+|---------|--------|-------------|--------------------------|-----------------|
+| ARCH-001 | SensorProtocolAdapter | Abstracts vendor protocols | SYS-001 | Logical |
+| ARCH-002 | ThresholdEvaluator | Stateless comparison engine | SYS-002 | Logical |
+| ARCH-003 | AlarmDispatcher | Routes alarms by severity | SYS-002, SYS-003 | Logical |
+| ARCH-007 | AuditLogger | Structured logging for all events | [CROSS-CUTTING] | Logical |
 ```
 
 This is again a **many-to-many mapping**:
-
 - One architecture module may implement parts of multiple system components (`ARCH-003` implements parts of both `SYS-002` and `SYS-003`)
 - One system component may be implemented by multiple architecture modules (`SYS-002` is implemented by both `ARCH-002` and `ARCH-003`)
 
@@ -372,17 +372,16 @@ The link from architecture elements to module designs uses the same inter-level 
 ```
 
 This is a **many-to-many mapping**:
-
 - One architecture module may decompose into multiple module designs (`ARCH-001` → `MOD-001`, `MOD-002`)
 - One module design may implement parts of multiple architecture modules (e.g., a shared utility module)
 
 **Special tags** at this level:
 
-| Tag                | Meaning                                                           | Validation Impact                                                              |
-| ------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `[EXTERNAL]`       | Third-party library or SDK — not designed by the team             | Excluded from pseudocode/state machine requirements; tested only at boundaries |
-| `[CROSS-CUTTING]`  | Infrastructure module (logging, auth, config)                     | Inherited from parent ARCH; validated across all dependent modules             |
-| `[DERIVED MODULE]` | Not directly traceable to an ARCH element — emerged during design | Must still have full unit test coverage                                        |
+| Tag | Meaning | Validation Impact |
+|-----|---------|-------------------|
+| `[EXTERNAL]` | Third-party library or SDK — not designed by the team | Excluded from pseudocode/state machine requirements; tested only at boundaries |
+| `[CROSS-CUTTING]` | Infrastructure module (logging, auth, config) | Inherited from parent ARCH; validated across all dependent modules |
+| `[DERIVED MODULE]` | Not directly traceable to an ARCH element — emerged during design | Must still have full unit test coverage |
 
 The `build-matrix.sh` script extracts `Parent Architecture Modules` from the metadata line below each `### Module: MOD-NNN` heading.
 
@@ -430,15 +429,15 @@ Modules with no external dependencies use: `**Dependency & Mock Registry:** None
 
 The supported techniques at the unit level are:
 
-| Technique                      | Purpose                                                |
-| ------------------------------ | ------------------------------------------------------ |
-| Statement & Branch Coverage    | Exercise every line and every branch decision          |
-| Boundary Value Analysis        | Test at exact min/max/boundary values                  |
-| Equivalence Partitioning       | Test one representative from each input class          |
-| Strict Isolation               | Verify behavior with all dependencies mocked           |
-| State Transition Testing       | Exercise state machine transitions and guards          |
-| MC/DC Coverage                 | Modified Condition/Decision Coverage (safety-critical) |
-| Variable-Level Fault Injection | Force local variables into corrupted states            |
+| Technique | Purpose |
+|-----------|---------|
+| Statement & Branch Coverage | Exercise every line and every branch decision |
+| Boundary Value Analysis | Test at exact min/max/boundary values |
+| Equivalence Partitioning | Test one representative from each input class |
+| Strict Isolation | Verify behavior with all dependencies mocked |
+| State Transition Testing | Exercise state machine transitions and guards |
+| MC/DC Coverage | Modified Condition/Decision Coverage (safety-critical) |
+| Variable-Level Fault Injection | Force local variables into corrupted states |
 
 ### Executable Step: `UTS-NNN-X#`
 
@@ -486,6 +485,99 @@ The `build-matrix.sh` script additionally verifies the inter-level link: every `
 
 ---
 
+## Advisory ID Types: Peer Review Findings and Waivers
+
+In addition to the four-tier traceability hierarchy and the cross-cutting hazard prefix, the V-Model Extension Pack uses two **advisory ID types** that exist outside the traceability chain. These IDs support quality assurance and release management workflows but do **not** participate in coverage metrics, traceability matrices, or deterministic validation.
+
+### Peer Review Finding: `PRF-{ARTIFACT}-NNN`
+
+PRF stands for **Peer Review Finding**. These IDs are generated by the `/speckit.v-model.peer-review` command, which acts as a stateless linter for any V-Model artifact. Each finding identifies a quality issue in the reviewed artifact:
+
+```
+PRF-REQ-001  — First finding in a requirements review
+PRF-REQ-002  — Second finding in a requirements review
+PRF-SYS-003  — Third finding in a system design review
+PRF-HAZ-012  — Twelfth finding in a hazard analysis review
+PRF-MOD-001  — First finding in a module design review
+```
+
+**Format rules:**
+
+- **`PRF`** — Fixed prefix identifying this as a peer review finding
+- **`{ARTIFACT}`** — Uppercase abbreviation of the artifact being reviewed, matching the artifact's own ID prefix:
+
+| Artifact File | Abbreviation | Governing Standard |
+|--------------|-------------|-------------------|
+| `requirements.md` | REQ | INCOSE Guide for Writing Requirements |
+| `acceptance-plan.md` | ATP | ISO 29119 |
+| `system-design.md` | SYS | IEEE 1016 |
+| `system-test.md` | STP | ISO 29119 |
+| `architecture-design.md` | ARCH | IEEE 42010 / Kruchten 4+1 |
+| `integration-test.md` | ITP | ISO 29119-4 |
+| `module-design.md` | MOD | DO-178C / ISO 26262 |
+| `unit-test.md` | UTP | ISO 29119-4 |
+| `hazard-analysis.md` | HAZ | ISO 14971 / ISO 26262 |
+
+- **`NNN`** — Zero-padded 3-digit sequential number, starting at 001
+
+**Severity classifications:**
+
+| Severity | Meaning | CI Exit Code |
+|----------|---------|-------------|
+| Critical | Correctness or safety issue that must be fixed | Exit 1 (blocks PR) |
+| Major | Significant quality issue that should be fixed | Exit 1 (blocks PR) |
+| Minor | Style or completeness issue, non-blocking | Exit 2 (warning) |
+| Observation | Informational suggestion, not a defect | Exit 0 (clean) |
+
+**Key properties:**
+
+- PRF IDs are **transient** — they are regenerated from scratch on each run, like ESLint. They have no persistence across runs.
+- PRF IDs are **NOT** part of the V-Model traceability chain. They do not appear in traceability matrices, do not affect coverage metrics, and are explicitly excluded from all traceability validation scripts.
+- The `peer-review-check.sh` / `Peer-Review-Check.ps1` CI parser scripts read the generated findings and set exit codes based on the highest severity found.
+
+### Waiver: `WAV-NNN`
+
+WAV stands for **Waiver**. These IDs are used in the `/speckit.v-model.audit-report` workflow to document and track known deviations — test failures, skipped tests, or coverage gaps that have been reviewed and accepted for a specific release:
+
+```
+WAV-001  — First waiver (e.g., sensor calibration test deferred to hardware validation)
+WAV-002  — Second waiver (e.g., known boundary condition in legacy protocol)
+WAV-003  — Third waiver
+```
+
+**Format rules:**
+
+- **`WAV`** — Fixed prefix identifying this as a waiver
+- **`NNN`** — Zero-padded 3-digit sequential number, starting at 001
+
+**How waivers work:**
+
+Waivers live in a `waivers.md` file in the V-Model artifacts directory. Each entry has this structure:
+
+```markdown
+### WAV-001
+
+**Title:** Sensor Calibration Test Deferred to Hardware Validation
+**Artifact:** STS-003-A1
+**Justification:** Test requires physical sensor hardware; validated during system integration testing per test protocol TP-2026-04.
+**Approved By:** @jane-doe
+**Expiry:** v1.1.0
+```
+
+Each `WAV-NNN` entry must include an `**Artifact**:` field matching the anomaly's scenario ID. The `build-audit-report.sh` / `Build-Audit-Report.ps1` scripts cross-reference anomalies (failed or skipped tests) against waivers:
+
+- Anomalies **with** matching waivers are classified as "waived" — they appear in the audit report but do not block the release.
+- Anomalies **without** matching waivers block the release (exit code 1).
+- **Orphaned waivers** (referencing non-existent anomalies) are reported but do not affect compliance status.
+
+**Key properties:**
+
+- WAV IDs are **NOT** part of the V-Model traceability chain. They do not appear in traceability matrices and do not affect coverage metrics.
+- WAV IDs are **persistent** — unlike PRF IDs, waivers are maintained across runs and represent deliberate decisions.
+- Waivers are the mechanism that allows a release to proceed despite known exceptions, providing the auditable justification that regulators require.
+
+---
+
 ## ID Lifecycle
 
 ### Creation
@@ -512,7 +604,6 @@ When a requirement is removed (not just modified), the corresponding artifacts a
 
 ```markdown
 ### ~~REQ-003~~ [DEPRECATED]
-
 **Reason:** Replaced by REQ-012 after clinical risk reassessment.
 ```
 
@@ -522,12 +613,12 @@ This preserves the ID in the audit trail. An auditor reviewing historical baseli
 
 When requirements change after downstream artifacts already exist:
 
-| Change Type              | Behavior                                                                               |
-| ------------------------ | -------------------------------------------------------------------------------------- |
-| **Requirement added**    | New ATPs/SCNs are generated and appended. The traceability matrix is rebuilt.          |
-| **Requirement modified** | The corresponding ATPs/SCNs are regenerated in place. The ID stays the same.           |
-| **Requirement removed**  | The ID and its ATPs/SCNs are marked `[DEPRECATED]`. The matrix flags them as inactive. |
-| **No change**            | The artifact is preserved exactly as-is — character for character.                     |
+| Change Type | Behavior |
+|-------------|----------|
+| **Requirement added** | New ATPs/SCNs are generated and appended. The traceability matrix is rebuilt. |
+| **Requirement modified** | The corresponding ATPs/SCNs are regenerated in place. The ID stays the same. |
+| **Requirement removed** | The ID and its ATPs/SCNs are marked `[DEPRECATED]`. The matrix flags them as inactive. |
+| **No change** | The artifact is preserved exactly as-is — character for character. |
 
 The `diff-requirements.sh` script detects which requirements changed between baselines, enabling surgical regeneration of only the affected downstream artifacts.
 
@@ -549,7 +640,7 @@ REQ-NNN  →  ATP-NNN-X  →  SCN-NNN-X#
 
 **Proves**: Every business requirement has been translated into a testable acceptance criterion with executable scenarios.
 
-**Auditor question answered**: _"Was this requirement tested?"_
+**Auditor question answered**: *"Was this requirement tested?"*
 
 ### Matrix B — System Design → System Testing
 
@@ -558,13 +649,12 @@ REQ-NNN  →(Parent Requirements)→  SYS-NNN  →  STP-NNN-X  →  STS-NNN-X#
 ```
 
 **Link types**:
-
 - REQ → SYS: Inter-level (explicit `Parent Requirements` column in Decomposition View)
 - SYS → STP → STS: Intra-level (ID-encoded)
 
 **Proves**: Every system design decision has been validated through systematic testing, and every design element traces back to its source requirements.
 
-**Auditor question answered**: _"Was this design element verified, and which requirements drove it?"_
+**Auditor question answered**: *"Was this design element verified, and which requirements drove it?"*
 
 ### Matrix C — Architecture → Integration Testing
 
@@ -573,13 +663,12 @@ SYS-NNN  →(Parent System Components)→  ARCH-NNN  →  ITP-NNN-X  →  ITS-NN
 ```
 
 **Link types**:
-
 - SYS → ARCH: Inter-level (explicit `Parent System Components` column in Logical View)
 - ARCH → ITP → ITS: Intra-level (ID-encoded)
 
 **Proves**: Every architecture module interacts correctly with its neighbors. Interface contracts are honored, data flows are intact, faults are handled gracefully.
 
-**Auditor question answered**: _"Do the modules work together correctly, and which system components are they implementing?"_
+**Auditor question answered**: *"Do the modules work together correctly, and which system components are they implementing?"*
 
 ### Matrix D — Module Design → Unit Testing
 
@@ -588,13 +677,12 @@ ARCH-NNN  →(Parent Architecture Modules)→  MOD-NNN  →  UTP-NNN-X  →  UTS
 ```
 
 **Link types**:
-
 - ARCH → MOD: Inter-level (explicit `Parent Architecture Modules` metadata line)
 - MOD → UTP → UTS: Intra-level (ID-encoded)
 
 **Proves**: Every individual module's internal logic is correct — every branch is covered, every boundary is tested, every dependency is isolated.
 
-**Auditor question answered**: _"Does each module work correctly in isolation, and which architecture element does it decompose?"_
+**Auditor question answered**: *"Does each module work correctly in isolation, and which architecture element does it decompose?"*
 
 ### The Complete Chain
 
@@ -763,24 +851,26 @@ This separation exists because:
 3. **Auditors demand reproducibility.** Running the validation script twice must produce identical results. LLMs are stochastic by nature.
 4. **Scripts are inspectable.** An auditor can read `validate-requirement-coverage.sh`, understand its logic, and trust its output. An LLM's internal reasoning is opaque.
 
-The validation scripts (`validate-requirement-coverage.sh`, `validate-system-coverage.sh`, `validate-architecture-coverage.sh`, `validate-module-coverage.sh`, `validate-hazard-coverage.sh`, `impact-analysis.sh`, `build-matrix.sh`) are themselves tested by 153 BATS tests and 129 Pester tests to ensure they correctly detect gaps, orphans, coverage violations, and change impact.
+The validation scripts (`validate-requirement-coverage.sh`, `validate-system-coverage.sh`, `validate-architecture-coverage.sh`, `validate-module-coverage.sh`, `validate-hazard-coverage.sh`, `impact-analysis.sh`, `build-matrix.sh`) are themselves tested by 364 BATS tests and 347 Pester tests to ensure they correctly detect gaps, orphans, coverage violations, and change impact.
 
 ---
 
-## Summary of All 13 ID Types
+## Summary of All 15 ID Types
 
-| ID     | Full Name                  | Format             | Example                 | Intra-Level Parent   | Inter-Level Parent                         | Level |
-| ------ | -------------------------- | ------------------ | ----------------------- | -------------------- | ------------------------------------------ | ----- |
-| `REQ`  | Requirement                | `REQ[-CAT]-NNN`    | `REQ-003`, `REQ-NF-001` | _(none — top level)_ | _(none — top level)_                       | 1     |
-| `ATP`  | Acceptance Test Procedure  | `ATP[-CAT]-NNN-X`  | `ATP-003-A`             | `REQ` (via `NNN`)    | —                                          | 1     |
-| `SCN`  | Scenario (BDD)             | `SCN[-CAT]-NNN-X#` | `SCN-003-A1`            | `ATP` (via `NNN-X`)  | —                                          | 1     |
-| `SYS`  | System Design Element      | `SYS-NNN`          | `SYS-002`               | —                    | `REQ` (via `Parent Requirements`)          | 2     |
-| `STP`  | System Test Procedure      | `STP-NNN-X`        | `STP-002-A`             | `SYS` (via `NNN`)    | —                                          | 2     |
-| `STS`  | System Test Step           | `STS-NNN-X#`       | `STS-002-A2`            | `STP` (via `NNN-X`)  | —                                          | 2     |
-| `HAZ`  | Hazard (FMEA)              | `HAZ-NNN`          | `HAZ-005`               | —                    | `SYS` (via FMEA Component column)          | H     |
-| `ARCH` | Architecture Element       | `ARCH-NNN`         | `ARCH-005`              | —                    | `SYS` (via `Parent System Components`)     | 3     |
-| `ITP`  | Integration Test Procedure | `ITP-NNN-X`        | `ITP-005-A`             | `ARCH` (via `NNN`)   | —                                          | 3     |
-| `ITS`  | Integration Test Step      | `ITS-NNN-X#`       | `ITS-005-A1`            | `ITP` (via `NNN-X`)  | —                                          | 3     |
-| `MOD`  | Module Design              | `MOD-NNN`          | `MOD-003`               | —                    | `ARCH` (via `Parent Architecture Modules`) | 4     |
-| `UTP`  | Unit Test Procedure        | `UTP-NNN-X`        | `UTP-003-A`             | `MOD` (via `NNN`)    | —                                          | 4     |
-| `UTS`  | Unit Test Scenario         | `UTS-NNN-X#`       | `UTS-003-A1`            | `UTP` (via `NNN-X`)  | —                                          | 4     |
+| ID | Full Name | Format | Example | Intra-Level Parent | Inter-Level Parent | Level |
+|----|-----------|--------|---------|--------------------|--------------------|-------|
+| `REQ` | Requirement | `REQ[-CAT]-NNN` | `REQ-003`, `REQ-NF-001` | *(none — top level)* | *(none — top level)* | 1 |
+| `ATP` | Acceptance Test Procedure | `ATP[-CAT]-NNN-X` | `ATP-003-A` | `REQ` (via `NNN`) | — | 1 |
+| `SCN` | Scenario (BDD) | `SCN[-CAT]-NNN-X#` | `SCN-003-A1` | `ATP` (via `NNN-X`) | — | 1 |
+| `SYS` | System Design Element | `SYS-NNN` | `SYS-002` | — | `REQ` (via `Parent Requirements`) | 2 |
+| `STP` | System Test Procedure | `STP-NNN-X` | `STP-002-A` | `SYS` (via `NNN`) | — | 2 |
+| `STS` | System Test Step | `STS-NNN-X#` | `STS-002-A2` | `STP` (via `NNN-X`) | — | 2 |
+| `HAZ` | Hazard (FMEA) | `HAZ-NNN` | `HAZ-005` | — | `SYS` (via FMEA Component column) | H |
+| `ARCH` | Architecture Element | `ARCH-NNN` | `ARCH-005` | — | `SYS` (via `Parent System Components`) | 3 |
+| `ITP` | Integration Test Procedure | `ITP-NNN-X` | `ITP-005-A` | `ARCH` (via `NNN`) | — | 3 |
+| `ITS` | Integration Test Step | `ITS-NNN-X#` | `ITS-005-A1` | `ITP` (via `NNN-X`) | — | 3 |
+| `MOD` | Module Design | `MOD-NNN` | `MOD-003` | — | `ARCH` (via `Parent Architecture Modules`) | 4 |
+| `UTP` | Unit Test Procedure | `UTP-NNN-X` | `UTP-003-A` | `MOD` (via `NNN`) | — | 4 |
+| `UTS` | Unit Test Scenario | `UTS-NNN-X#` | `UTS-003-A1` | `UTP` (via `NNN-X`) | — | 4 |
+| `PRF` | Peer Review Finding | `PRF-{ARTIFACT}-NNN` | `PRF-REQ-001` | — | — | Advisory |
+| `WAV` | Waiver | `WAV-NNN` | `WAV-001` | — | — | Advisory |

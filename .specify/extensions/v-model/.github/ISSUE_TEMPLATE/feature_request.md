@@ -3,7 +3,7 @@ name: Feature Request
 about: Suggest a new feature or enhancement
 title: "[FEATURE] "
 labels: enhancement
-assignees: ""
+assignees: ''
 ---
 
 ## Problem Statement
@@ -11,7 +11,6 @@ assignees: ""
 A clear description of the problem or gap this feature would address.
 
 **Is this related to a specific V-Model phase?**
-
 - [ ] Requirements (Phase 1)
 - [ ] Acceptance Testing (Phase 1)
 - [ ] Traceability Matrix
@@ -36,13 +35,12 @@ Any alternative solutions or features you've considered.
 ## Regulatory Context (if applicable)
 
 If this feature supports a specific regulatory standard, mention it:
-
 - [ ] IEC 62304 (Medical Devices)
 - [ ] ISO 26262 (Automotive)
 - [ ] DO-178C (Aviation)
 - [ ] FDA 21 CFR Part 820
 - [ ] IEC 61508 (Industrial Safety)
-- [ ] Other: \_\_\_
+- [ ] Other: ___
 
 ## Additional Context
 

@@ -13,7 +13,7 @@
 | [006-meal-planning](../006-meal-planning/spec.md)               | **Required** — grocery lists are generated from meal plans |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — ingredient data comes from Recipe entities  |
 | [003-usda-food-data](../003-usda-food-data/spec.md)             | **Required** — ingredient identity and unit normalization  |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all grocery features require authentication |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — all grocery features require authentication |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Referenced** — online ordering is a premium feature      |
 
 ## User Scenarios & Testing _(mandatory)_

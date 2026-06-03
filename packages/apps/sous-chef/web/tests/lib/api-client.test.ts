@@ -13,7 +13,7 @@ describe('api-client', () => {
         window.history.replaceState(null, '', '/profile');
     });
 
-    it('UTS-008-A2 [MOD-008/api-client]: redirects expired sessions to Auth0 login fallback on 401', async () => {
+    it('redirects expired sessions to IdP sign-in fallback on 401', async () => {
         global.fetch = vi.fn().mockResolvedValue({
             ok: false,
             status: 401,
@@ -22,6 +22,6 @@ describe('api-client', () => {
 
         await expect(buildApiClient('expired-token').get('/v1/users/me')).rejects.toThrow('Unauthorized');
 
-        expect(mockNavigateTo).toHaveBeenCalledWith('/api/auth/login?returnTo=%2Fprofile');
+        expect(mockNavigateTo).toHaveBeenCalledWith('/sign-in?redirect_url=%2Fprofile');
     });
 });

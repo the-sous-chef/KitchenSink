@@ -18,19 +18,29 @@
 ## 2. Artifact Inventory
 
 | Artifact | File | Git SHA | Last Modified | Status |
-| -------- | ---- | ------- | ------------- | ------ |
-
+|----------|------|---------|---------------|--------|
 [ARTIFACT_ROWS]
 
 ## 3. Traceability Matrices
 
 [MATRIX_SECTIONS]
 
+## 3.1 Lifecycle Status Summary
+
+| Artifact | Active | Deprecated | Suspect | Total |
+|----------|--------|------------|---------|-------|
+[LIFECYCLE_ROWS]
+
+### Unresolved Suspects
+
+[UNRESOLVED_SUSPECTS_TABLE]
+
+<!-- If no unresolved suspects: "None — all lifecycle states resolved." -->
+
 ## 4. Coverage Analysis
 
 | Matrix | Forward Coverage | Backward Coverage | Gaps | Orphans |
-| ------ | ---------------- | ----------------- | ---- | ------- |
-
+|--------|-----------------|-------------------|------|---------|
 [COVERAGE_ROWS]
 
 ## 5. Hazard Management Summary
@@ -43,8 +53,8 @@
 
 ## 7. Signature Block
 
-| Role          | Name               | Signature          | Date         |
-| ------------- | ------------------ | ------------------ | ------------ |
-| QA Manager    | ********\_******** | ********\_******** | ****\_\_**** |
-| Lead Engineer | ********\_******** | ********\_******** | ****\_\_**** |
-| Release Tag   | [GIT_TAG]          | Git SHA: [GIT_SHA] | [DATE]       |
+| Role | Name | Signature | Date |
+|------|------|-----------|------|
+| QA Manager | _________________ | _________________ | __________ |
+| Lead Engineer | _________________ | _________________ | __________ |
+| Release Tag | [GIT_TAG] | Git SHA: [GIT_SHA] | [DATE] |

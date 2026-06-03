@@ -9,6 +9,20 @@ patterns, and your codebase — craft an approved product spec — review design
 let SpecKit implement it with progressive verification — run multi-agent code review — then
 automatically generate and run Playwright tests with a bug-fix loop until the feature is ready to ship.
 
+**New in v1.5.0:**
+- **Portfolio view** across all features — conflict matrix, dependency graph, suggested merge order (`/speckit.product-forge.portfolio`).
+- **Brown-field `backfill`** — reverse-engineer a feature folder from existing code with a gaps report.
+- **Lite mode** — 5-phase lifecycle for small features and bug fixes (`feature_mode: lite`).
+- **Phase 9.5 monitoring-setup**, **Phase 5.5 migration-plan**, **post-bridge i18n-harvest**, **Phase 9B experiment-design**, and cross-cutting **feature-flag-cleanup** — all opt-in, artifact-producing.
+- **Schema v3** for `.forge-status.yml` (additive over v2, no action required).
+- **State-lock protocol** prevents concurrent-writer corruption.
+- **Per-phase digests** keep context budgets small across long lifecycles.
+- **Learning loop** via `.product-forge/lessons.md` — retrospectives teach research.
+- **Skip-reason policy** and **sync-verify drift budget** with opt-in cosmetic auto-resolve.
+- **Release-readiness actually creates** monitoring dashboard and flag registry instead of only checking them.
+
+Full change list in [CHANGELOG.md](./CHANGELOG.md).
+
 **New in v1.4.0:** EDA Event Verification in bridge phase, Dependency Discovery between features, Codebase Constraint Analysis in research, Constitution Compliance auto-check in plan, and unified review.md format with Decision Log and Change History.
 
 **New in v1.3.0:** Cross-artifact sync-verify, pre-implementation review gate, code review phase,
@@ -58,8 +72,15 @@ The result: a **complete traceability chain** — problem → research → produ
 | `/speckit.product-forge.api-docs` | post-impl | Generate OpenAPI 3.1 spec + Postman collection from plan.md |
 | `/speckit.product-forge.security-check` | post-impl | OWASP audit scoped to detected surfaces (auth, input, payments) |
 | `/speckit.product-forge.tracking-plan` | post-spec | Analytics events, funnels, property schemas + SDK code snippets |
-| `/speckit.product-forge.retrospective` | post-launch | Predicted vs actual metrics, research accuracy, lessons learned |
+| `/speckit.product-forge.retrospective` | post-launch | Predicted vs actual metrics, research accuracy, lessons learned (appends to `.product-forge/lessons.md`) **[UPD v1.5]** |
 | `/speckit.product-forge.status` | — | Show lifecycle status, gate audit trail, sync history |
+| `/speckit.product-forge.portfolio` | cross-cutting | **[NEW v1.5]** Multi-feature view: table, file-conflict matrix, dependency graph, merge order |
+| `/speckit.product-forge.backfill` | alt entry | **[NEW v1.5]** Reverse-engineer an existing module into a feature folder with gaps report |
+| `/speckit.product-forge.monitoring-setup` | 9.5 | **[NEW v1.5]** Build real dashboard JSON, alerts, SLO doc. Wraps `newrelic-dashboard-builder` |
+| `/speckit.product-forge.migration-plan` | 5.5 | **[NEW v1.5]** Zero-downtime migration plan with forward/rollback/validation/backfill when plan.md has schema changes |
+| `/speckit.product-forge.i18n-harvest` | post-bridge | **[NEW v1.5]** Extract strings from wireframes/spec, stub every locale |
+| `/speckit.product-forge.experiment-design` | 9B | **[NEW v1.5]** Pre-registered A/B plan — hypothesis, MDE, sample size, decision rule |
+| `/speckit.product-forge.feature-flag-cleanup` | cross-cutting | **[NEW v1.5]** Scan `flags/registry.yml` for stale flags, produce removal recipes |
 
 ---
 
@@ -368,7 +389,7 @@ specify extension add product-forge --from https://github.com/VaiYav/speckit-pro
 ### Install (specific version)
 
 ```bash
-specify extension add product-forge --from https://github.com/VaiYav/speckit-product-forge/archive/refs/tags/v1.3.0.zip
+specify extension add product-forge --from https://github.com/VaiYav/speckit-product-forge/archive/refs/tags/v1.5.1.zip
 ```
 
 ### Update to latest
@@ -380,14 +401,14 @@ specify extension update product-forge --from https://github.com/VaiYav/speckit-
 ### Update to specific version
 
 ```bash
-specify extension update product-forge --from https://github.com/VaiYav/speckit-product-forge/archive/refs/tags/v1.3.0.zip
+specify extension update product-forge --from https://github.com/VaiYav/speckit-product-forge/archive/refs/tags/v1.5.1.zip
 ```
 
 ### Verify installation
 
 ```bash
 specify extension list
-# Should show: product-forge  v1.3.0  enabled
+# Should show: product-forge  v1.5.1  enabled
 ```
 
 ---
@@ -405,7 +426,7 @@ Edit `.product-forge/config.yml`:
 
 ```yaml
 project_name: "My App"
-project_tech_stack: "NestJS + Vue 3 + Quasar"
+project_tech_stack: "Node.js + Express + Postgres"
 project_domain: "mobile fitness app"
 codebase_path: "./src"
 features_dir: "features"
@@ -438,6 +459,32 @@ Key settings:
 - **SpecKit** >= 0.1.0
 - **Agent with web search capabilities** — for research phase (Phases 1)
 - **Agent with file system access** — for codebase analysis and artifact creation
+
+### V-Model mode (optional, required only for `feature_mode: v-model`)
+
+- **[`leocamello/spec-kit-v-model`](https://github.com/leocamello/spec-kit-v-model)** >= 0.5.0 — external SpecKit extension that
+  implements the formal V-Model artifact progression (requirements →
+  system / architecture / module design, paired with system / integration /
+  unit test plans, trace checkpoints, peer review, test results ingestion,
+  audit report). Product Forge delegates phases V1–V13 to this plugin when
+  `feature_mode: v-model` is selected.
+
+  Install:
+  ```bash
+  specify extension add v-model \
+    --from https://github.com/leocamello/spec-kit-v-model/archive/refs/tags/v0.5.0.zip
+  ```
+
+> **Hard dependency only for v-model mode.** Without this plugin,
+> `lite` and `standard` modes work exactly the same — nothing degrades.
+> When you invoke `/speckit.product-forge.forge --mode=v-model` without
+> it, the orchestrator aborts with the install command above and does
+> **not** silently fall back to standard mode. This is intentional —
+> regulated / safety-critical work (medical IEC 62304, automotive
+> ISO 26262, avionics DO-178C) must not ship without the formal
+> artifacts. Domain selection lives in `v-model-config.yml` at the
+> project root and is read by the delegated commands. Full flow in
+> [docs/v-model-integration.md](./docs/v-model-integration.md).
 
 ### Phases 8A–8B: Testing
 

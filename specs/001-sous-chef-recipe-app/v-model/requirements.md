@@ -225,7 +225,7 @@ re-use across multiple performance requirements.
 
 - Users have internet connectivity for all core features in scope (offline-first behavior is not a requirement of this feature).
 - The real food/nutrition database backing REQ-003b/REQ-031 is supplied by feature `003-usda-food-data` (USDA FoodData Central or licensable equivalent).
-- Authentication, identity, and subscription-tier resolution (REQ-022, REQ-023, REQ-027b, REQ-CN-004a, REQ-CN-004b, REQ-IF-005a..c) are supplied by feature `002-auth0-user-auth`.
+- Authentication, identity, and subscription-tier resolution (REQ-022, REQ-023, REQ-027b, REQ-CN-004a, REQ-CN-004b, REQ-IF-005a..c) are supplied by feature `002-user-auth`.
 - The mobile application targets iOS and Android (REQ-IF-004b).
 - "Substantive edit" tracking (REQ-028a, REQ-028b) is durable per recipe-clone and survives subsequent edits (i.e., once unlocked for privacy via a substantive edit, the clone does not need to be re-unlocked on every edit).
 - "Authenticated user" in every REQ-NNN above means a user whose Auth0-issued session/JWT is valid and whose subscription tier is known to the API.
@@ -235,7 +235,7 @@ re-use across multiple performance requirements.
 
 ## Dependencies
 
-- Feature `002-auth0-user-auth` — provides authentication required by REQ-IF-005a..c, REQ-022, REQ-023, REQ-027b.
+- Feature `002-user-auth` — provides authentication required by REQ-IF-005a..c, REQ-022, REQ-023, REQ-027b.
 - Feature `003-usda-food-data` — provides the food/nutrition database backing REQ-003b, REQ-031, REQ-032, REQ-057.
 - AWS S3 — version archive storage for REQ-036 and pending-archive replay target for REQ-038/REQ-040.
 - AWS SQS — DLQ destination for REQ-038.

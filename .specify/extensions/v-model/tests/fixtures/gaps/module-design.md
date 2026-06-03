@@ -24,15 +24,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name | Type  | Size/Constraints | Initialization | Description        |
-| ---- | ----- | ---------------- | -------------- | ------------------ |
-| salt | bytes | 16 bytes         | random         | Cryptographic salt |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| salt | bytes | 16 bytes | random | Cryptographic salt |
 
 #### Error Handling & Return Codes
 
-| Error Condition | Error Code / Exception | Architecture Contract | Recovery          |
-| --------------- | ---------------------- | --------------------- | ----------------- |
-| Empty password  | ValueError             | ARCH-001 Interface    | Raise immediately |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Empty password | ValueError | ARCH-001 Interface | Raise immediately |
 
 ### Module: MOD-002 (Token Generator)
 
@@ -52,15 +52,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name | Type | Size/Constraints | Initialization | Description                   |
-| ---- | ---- | ---------------- | -------------- | ----------------------------- |
-| ttl  | int  | 1-86400          | 3600           | Token time-to-live in seconds |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| ttl | int | 1-86400 | 3600 | Token time-to-live in seconds |
 
 #### Error Handling & Return Codes
 
-| Error Condition | Error Code / Exception | Architecture Contract | Recovery          |
-| --------------- | ---------------------- | --------------------- | ----------------- |
-| Missing user_id | ValueError             | ARCH-002 Interface    | Raise immediately |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Missing user_id | ValueError | ARCH-002 Interface | Raise immediately |
 
 ### Module: MOD-099 (Orphan Module)
 
@@ -80,22 +80,22 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name | Type   | Size/Constraints | Initialization | Description |
-| ---- | ------ | ---------------- | -------------- | ----------- |
-| data | string | max 256 chars    | empty          | Input data  |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| data | string | max 256 chars | empty | Input data |
 
 #### Error Handling & Return Codes
 
-| Error Condition | Error Code / Exception | Architecture Contract | Recovery          |
-| --------------- | ---------------------- | --------------------- | ----------------- |
-| Empty input     | ValueError             | ARCH-099 Interface    | Raise immediately |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Empty input | ValueError | ARCH-099 Interface | Raise immediately |
 
 ## Coverage Summary
 
-| Metric                          | Count    |
-| ------------------------------- | -------- |
-| Total Module Designs (MOD)      | 3        |
-| External Modules (`[EXTERNAL]`) | 0        |
-| Stateful Modules                | 0        |
-| Stateless Modules               | 3        |
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | 3 |
+| External Modules (`[EXTERNAL]`) | 0 |
+| Stateful Modules | 0 |
+| Stateless Modules | 3 |
 | **Forward Coverage (ARCH→MOD)** | **100%** |

@@ -1,8 +1,9 @@
+import type { Route } from 'next';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { auth0 } from '@/lib/auth0';
+import { auth } from '@clerk/nextjs/server';
 import { buildApiClient } from '@/lib/api-client';
-import type { UserProfile } from '@kitchensink/auth-types';
+import type { UserProfile } from '@kitchensink/identity-service';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 
 export const metadata: Metadata = {
@@ -46,13 +47,13 @@ async function ProfileContent({ accessToken }: { accessToken: string }) {
 }
 
 export default async function ProfilePage() {
-    const session = await auth0.getSession();
+    const { userId, getToken } = await auth();
 
-    if (!session) {
-        redirect('/api/auth/login?returnTo=/profile');
+    if (!userId) {
+        redirect('/sign-in' as Route);
     }
 
-    const { token } = await auth0.getAccessToken();
+    const token = (await getToken()) ?? '';
 
     return <ProfileContent accessToken={token} />;
 }

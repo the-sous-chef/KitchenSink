@@ -9,7 +9,7 @@
 
 | Spec                                                            | Relationship                                                                                                                               |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — Subscriber authentication and authenticated identity for recipient resolution use the shared auth mechanism owned by 002.   |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — Subscriber authentication and authenticated identity for recipient resolution use the shared auth mechanism owned by 002.   |
 | [003-usda-food-data](../003-usda-food-data/spec.md)             | **Downstream (launch consumer)** — 003 US-005 / FR-NOTIF publishes `food.backfill.completed` and `food.fetch.failed` through this service. |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Downstream** — recipe lifecycle notifications owned by 001 contract updates will be published through this service.                      |
 | [005-ai-integration](../005-ai-integration/spec.md)             | **Downstream** — AI-generated content disclosure events owned by 005 contract updates will use this service.                               |

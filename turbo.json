@@ -8,6 +8,10 @@
         "test": {
             "outputs": []
         },
+        "test:e2e": {
+            "dependsOn": ["^build"],
+            "outputs": []
+        },
         "lint": {
             "outputs": []
         },
@@ -23,7 +27,7 @@
         },
         "dev:local": {
             "cache": false,
-            "persistent": false,
+            "persistent": true,
             "outputs": []
         },
         "synth": {

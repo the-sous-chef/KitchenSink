@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { SignInButton } from '@clerk/nextjs';
 
 interface LoginButtonProps {
     returnTo?: string;
@@ -9,18 +8,9 @@ interface LoginButtonProps {
 }
 
 export function LoginButton({ returnTo = '/profile', children }: LoginButtonProps) {
-    const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
-
-    const handleLogin = async () => {
-        setIsLoading(true);
-
-        router.push(`/api/auth/login?returnTo=${encodeURIComponent(returnTo)}`);
-    };
-
     return (
-        <button type="button" onClick={handleLogin} disabled={isLoading} aria-busy={isLoading}>
-            {children ?? 'Sign in with Auth0'}
-        </button>
+        <SignInButton mode="modal" forceRedirectUrl={returnTo}>
+            <button type="button">{children ?? 'Sign in'}</button>
+        </SignInButton>
     );
 }

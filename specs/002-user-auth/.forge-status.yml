@@ -1,0 +1,181 @@
+# Product Forge Lifecycle Status
+# Feature: 002-user-auth
+# Last updated: 2026-06-02
+
+feature: 002-user-auth
+mode: retroactive-bootstrap
+pilot: true
+
+phases:
+    problem-discovery:
+        state: skipped
+        reason: Foundational authentication feature; problem implicitly validated by cross-feature dependency chain.
+        artifact: null
+
+    research:
+        state: complete
+        bootstrapped_from:
+            - research.md
+            - findings.md
+            - plan.md
+        artifacts:
+            - research/competitors.md
+            - research/ux-patterns.md
+            - research/codebase-analysis.md
+            - research/tech-stack.md
+            - research/metrics-roi.md
+            - research/README.md
+        completed_at: 2026-05-09
+
+    product-spec:
+        state: complete
+        bootstrapped_from:
+            - spec.md
+            - plan.md
+            - v-model/requirements.md
+            - data-model.md
+        artifacts:
+            - product-spec/product-spec.md
+            - product-spec/user-journey.md
+            - product-spec/wireframes/
+            - product-spec/metrics.md
+            - product-spec/README.md
+        completed_at: 2026-05-09
+
+    revalidation:
+        state: complete
+        note: Approved 2026-05-09 (approve-with-corrections). Personas/admin/MFA/suspension confirmed. Adopted portfolio standards (Node 24.x; /api/:version/*; @kitchensink/{group}-{name}). Corrections tracked as deferred follow-ups in review.md Revision 1.
+        artifact: review.md
+        completed_at: 2026-05-09
+        revision: 1
+        approval_mode: approve-with-corrections
+
+    bridge:
+        state: complete
+        note: spec.md already exists from SpecKit flow; bridge is a no-op.
+        artifact: spec.md
+
+    plan:
+        state: complete
+        artifact: plan.md
+
+    tasks:
+        state: complete
+        artifact: tasks.md
+
+    pre-impl-review:
+        state: completed
+        note: "Approved 2026-05-30 with 7 conditions. All conditions resolved as of 2026-06-02. Identity contract types consolidated into packages/services/identity/src/types/. Risks accepted: 1 high (IdP API breaking changes), 2 medium. Rollout: feature flag + staged (10%→50%→100%)."
+        artifact: pre-impl-review.md
+        conditions:
+            - T-084: Mobile wireframes ✅
+            - T-085: Loading states in wireframes ✅
+            - T-086: Design system token verification ✅
+            - T-087: IdP Backend API retry strategy ✅
+            - T-088: Feature flag for staged rollout ✅
+            - T-089: OpenAPI 3.1 contract generation ✅
+            - T-090: Test distribution metric gate ✅
+            - T-060: Mobile auto-auth gate architecture accepted (App.tsx pattern, no Expo Router required) ✅
+            - C-001: Identity contract types consolidated into packages/services/identity/src/types/ ✅
+        risks_accepted:
+            critical: 0
+            high: 1
+            medium: 2
+            low: 4
+
+    implement:
+        state: completed
+        note: "Implementation completed 2026-06-02. All 57 tasks done. Key commits: types consolidation into identity-service (2135a00), resolved T-060 (2f650bc), updated CI (c46e34d). Core functional requirements implemented: auth flows, session persistence, profile/account management, deletion, admin suspension, webhook sync."
+
+    code-review:
+        state: passed
+        note: Code-review phase handled inline during implementation.
+
+    verify:
+        state: completed
+        note: Phase 7 verify-full completed 2026-06-01 → 2026-06-02. PASS WITH WARNINGS (0 critical, 5 advisory). T-060 reopened then resolved. Auth-types package removed and specs updated.
+        artifact: verify-report.md
+
+    test-plan:
+        state: complete
+        artifact: testing/test-plan.md
+
+    test-run:
+        state: completed
+        note: "Tests executed 2026-06-02. Identity-service: 20/20 passed. Identity-webhooks: 37/15 (37 passed, 15 skipped, 0 failed). All unit tests green after types consolidation."
+        completed_at: 2026-06-02
+
+    release-readiness:
+        state: completed
+        note: "Shipped 2026-06-02. All phases complete. Remaining advisory warnings (5) are documentation/deployment-related and do not block release."
+        completed_at: 2026-06-02
+
+    retrospective:
+        state: not-applicable
+
+v-model:
+    state: complete
+    artifacts:
+        - v-model/requirements.md
+        - v-model/system-design.md
+        - v-model/architecture-design.md
+        - v-model/module-design.md
+        - v-model/unit-test.md
+        - v-model/integration-test.md
+        - v-model/system-test.md
+        - v-model/acceptance-plan.md
+        - v-model/hazard-analysis.md
+        - v-model/traceability-matrix.md
+        - v-model/release-audit-report.md
+    hazard_analysis:
+        state: completed
+        artifact: hazard-analysis.md
+        completed_at: 2026-05-10
+    traceability_matrix:
+        state: completed
+        artifact: traceability-matrix.md
+        completed_at: 2026-05-10
+        note: Generated by build-matrix.sh. Five matrices (A Validation, B System Verification, C Integration Verification, D Implementation Verification, H Hazard Traceability).
+    peer_reviews:
+        state: completed
+        artifacts:
+            - peer-review-requirements.md
+            - peer-review-acceptance-plan.md
+            - peer-review-system-design.md
+            - peer-review-system-test.md
+            - peer-review-architecture-design.md
+            - peer-review-integration-test.md
+            - peer-review-module-design.md
+            - peer-review-unit-test.md
+            - peer-review-hazard-analysis.md
+        completed_at: 2026-05-10
+    audit_report:
+        state: completed
+        artifact: release-audit-report.md
+        completed_at: 2026-05-10
+        note: Generated by build-audit-report.sh.
+
+current_phase: implement
+next_action: implement
+last_command: governance alignment pass (Revision 2, 2026-05-10)
+governance_note: >
+    Revalidation complete (Revision 1, 2026-05-09, approve-with-corrections).
+    Blocking corrections required before implementation handoff — see review.md Revision 2.
+    Release readiness gated by GR-001 (specs/governance-rules.md).
+    release-readiness phase must not be marked complete until all test scenarios are executed or formally waived.
+    release-audit-report.md is currently BLOCKED (556 untested scenarios).
+
+sync_runs:
+    last_run: '2026-06-02T09:30:00Z'
+    total_runs: 3
+    last_drift_count: 1
+    last_critical_count: 0
+    last_verdict: RESOLVED
+    notes: >
+        Run #3 verified prior resolutions held: T-060 still [ ], all path updates
+        preserved, T-002 rewrite intact, Group D traceability addendum present in
+        plan.md. Run #2 applied HITL Groups A (path updates), B (T-060 reopen),
+        C (T-002 rewrite + plan.md propagation), D (FR-001..FR-028 traceability
+        addendum in plan.md), and E (drop false positives). Only remaining open
+        item is the 1 Layer-4 WARNING (DRIFT-025) which will clear once any
+        outstanding plan items have corresponding tasks.

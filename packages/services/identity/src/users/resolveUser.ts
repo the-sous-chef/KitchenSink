@@ -1,7 +1,8 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { UserId } from '@kitchensink/auth-types';
-import { AccountDAO, UserDAO } from '@kitchensink/auth-types/dao';
-import type { AccountRow, UserRow } from '@kitchensink/auth-types/schema';
+import type { UserId } from '../types/index.js';
+import { AccountDAO, UserDAO } from '../database/dao/index.js';
+// eslint-disable-next-line no-restricted-imports
+import type { AccountRow, UserRow } from '@kitchensink/identity-service/database/schema';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 

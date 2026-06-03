@@ -45,7 +45,6 @@ Add a `/speckit.v-model.peer-review` command that acts as an **AI-powered, state
 ### Output Format
 
 The command produces `peer-review-{artifact}.md` containing:
-
 - **Header** — Reviewer identification, date, artifact name, artifact item count, governing standard
 - **Summary table** — Finding counts by severity
 - **Findings section** — One subsection per finding with: PRF ID, Severity, Location (specific artifact ID), Description, Recommendation
@@ -53,7 +52,6 @@ The command produces `peer-review-{artifact}.md` containing:
 ### CI Integration
 
 The `peer-review-check.sh` / `peer-review-check.ps1` parser script:
-
 - Reads a `peer-review-{artifact}.md` file
 - Counts findings by severity (parses the summary table or individual finding headers)
 - Returns exit code 0, 1, or 2

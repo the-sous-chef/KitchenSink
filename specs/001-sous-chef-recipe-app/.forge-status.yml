@@ -125,3 +125,20 @@ governance_note: >
     Blocking corrections required before implementation handoff — see review.md Revision 2.
     Release readiness gated by GR-001 (specs/governance-rules.md).
     release-readiness phase must not be marked complete until all test scenarios are executed or formally waived.
+
+sync_runs:
+    last_run: '2026-06-02T09:35:00Z'
+    total_runs: 2
+    last_drift_count: 7
+    last_critical_count: 1
+    last_verdict: MIXED
+    notes: >
+        Run #2 (post-HITL): delegation analysis confirmed most capabilities are
+        correctly owned by sub-features 002-014 (auth, food DB, importing, AI,
+        meal planning, grocery, cooking mode, nutrition, subscriptions,
+        digitization, creator profiles, cooking school, notifications). Core
+        recipe scaffolding (US-0/1/2, FR-001..FR-006) remains 001's own scope
+        — HITL decision (2026-06-02) selected "implement under 001 directly"
+        (no new sub-feature spawn). DRIFT-002 OPEN-CRITICAL remains as active
+        WIP signal until core recipe code lands. Other findings: 2 WARNING,
+        3 INFO, 1 CLEAN (Layer 7 cross-links).

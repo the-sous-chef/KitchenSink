@@ -1,21 +1,17 @@
 ---
-description:
-  Ingest JUnit XML test results and optional Cobertura XML code coverage
-  into the traceability matrix (100% deterministic, no AI).
+description: Ingest JUnit XML test results and optional Cobertura XML code coverage into the traceability matrix (100% deterministic, no AI).
 handoffs:
-  - label: Generate Audit Report
-    agent: speckit.v-model.audit-report
-    prompt: Build the release audit report from V-Model artifacts
   - label: View Traceability Matrix
     agent: speckit.v-model.trace
     prompt: Build the full traceability matrix to see current coverage
+    send: true
+  - label: Run Impact Analysis
+    agent: speckit.v-model.impact-analysis
+    prompt: Analyze the impact of any failed test results on V-Model artifacts
 scripts:
-  sh: scripts/bash/setup-v-model.sh --json --require-reqs
-  ps: scripts/powershell/setup-v-model.ps1 -Json -RequireReqs
+  sh: scripts/bash/ingest-test-results.sh
+  ps: scripts/powershell/Ingest-Test-Results.ps1
 ---
-
-<!-- Extension: v-model -->
-<!-- Config: .specify/extensions/v-model/ -->
 
 ## User Input
 
@@ -27,12 +23,13 @@ $ARGUMENTS
 
 Ingest **JUnit XML** test results (and optionally **Cobertura XML** code coverage) into the existing `traceability-matrix.md`. This is a **100% deterministic, script-only command** — no AI generation is needed. The script parses XML files, matches test case names to V-Model scenario IDs (SCN, STS, ITS, UTS), and updates matrix statuses in-place.
 
+The ingested results update the test documentation records defined by **ISO/IEC 29119-3:2013** (Test documentation — Test Completion Report and Test Status Report information items). Each matrix row becomes a machine-readable test result record linked to a V-Model scenario ID, satisfying the traceability requirement between test execution evidence and the test cases in the V-Model test plans.
+
 ## How to Use
 
 This command is invoked directly via the script, not through AI generation:
 
 ### Bash
-
 ```bash
 # Basic: ingest JUnit XML results
 scripts/bash/ingest-test-results.sh --input test-results.xml specs/<feature>/v-model
@@ -54,7 +51,6 @@ scripts/bash/ingest-test-results.sh --input results.xml --json specs/<feature>/v
 ```
 
 ### PowerShell
-
 ```powershell
 # Basic: ingest JUnit XML results
 scripts/powershell/Ingest-Test-Results.ps1 -InputFile test-results.xml -VModelDir specs/<feature>/v-model
@@ -68,15 +64,15 @@ scripts/powershell/Ingest-Test-Results.ps1 -InputFile results.xml -Json -VModelD
 
 ## Arguments
 
-| Argument                | Required | Description                                                                                              |
-| ----------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
-| `--input <path>`        | Yes      | Path to JUnit XML file containing test results                                                           |
-| `--coverage <path>`     | No       | Path to Cobertura XML file containing code coverage data                                                 |
-| `--matrix <path>`       | No       | Path to `traceability-matrix.md` (defaults to `v-model/traceability-matrix.md` in the feature directory) |
-| `--coverage-map <path>` | No       | Path to `coverage-map.yml` for explicit MOD→files mapping (overrides convention)                         |
-| `--commit-sha <sha>`    | No       | Explicit commit SHA (defaults to `git rev-parse --short=7 HEAD`)                                         |
-| `--json`                | No       | Output structured JSON to stdout instead of human-readable summary                                       |
-| `--help`                | No       | Display usage information                                                                                |
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `--input <path>` | Yes | Path to JUnit XML file containing test results |
+| `--coverage <path>` | No | Path to Cobertura XML file containing code coverage data |
+| `--matrix <path>` | No | Path to `traceability-matrix.md` (defaults to `v-model/traceability-matrix.md` in the feature directory) |
+| `--coverage-map <path>` | No | Path to `coverage-map.yml` for explicit MOD→files mapping (overrides convention) |
+| `--commit-sha <sha>` | No | Explicit commit SHA (defaults to `git rev-parse --short=7 HEAD`) |
+| `--json` | No | Output structured JSON to stdout instead of human-readable summary |
+| `--help` | No | Display usage information |
 
 ## How It Works
 
@@ -107,39 +103,36 @@ Flow:
 
 Test case names in JUnit XML are matched against V-Model ID patterns:
 
-| Matrix          | Pattern                            | Example Match                    |
-| --------------- | ---------------------------------- | -------------------------------- |
-| A (Acceptance)  | `SCN-[A-Z]*-?[0-9]{3}-[A-Z][0-9]+` | `SCN-001-A1 Given valid input`   |
-| B (System)      | `STS-[A-Z]*-?[0-9]{3}-[A-Z][0-9]+` | `STS-002-B1 Threshold exceeded`  |
+| Matrix | Pattern | Example Match |
+|--------|---------|---------------|
+| A (Acceptance) | `SCN-[A-Z]*-?[0-9]{3}-[A-Z][0-9]+` | `SCN-001-A1 Given valid input` |
+| B (System) | `STS-[A-Z]*-?[0-9]{3}-[A-Z][0-9]+` | `STS-002-B1 Threshold exceeded` |
 | C (Integration) | `ITS-[A-Z]*-?[0-9]{3}-[A-Z][0-9]+` | `ITS-003-A1 Contract validation` |
-| D (Unit)        | `UTS-[A-Z]*-?[0-9]{3}-[A-Z][0-9]+` | `UTS-004-A1 Boundary at zero`    |
+| D (Unit) | `UTS-[A-Z]*-?[0-9]{3}-[A-Z][0-9]+` | `UTS-004-A1 Boundary at zero` |
 
 ### Status Values
 
-| JUnit XML                                       | Matrix Status |
-| ----------------------------------------------- | ------------- |
-| No `<failure>`, `<error>`, or `<skipped>` child | `✅ Passed`   |
-| `<failure>` or `<error>` child present          | `❌ Failed`   |
-| `<skipped>` child present                       | `⏭️ Skipped`  |
+| JUnit XML | Matrix Status |
+|-----------|---------------|
+| No `<failure>`, `<error>`, or `<skipped>` child | `✅ Passed` |
+| `<failure>` or `<error>` child present | `❌ Failed` |
+| `<skipped>` child present | `⏭️ Skipped` |
 
 ### Matrix Column Changes
 
 **Before** (generated by `build-matrix.sh`):
-
 ```
 | ... | Scenario ID (UTS) | Status |
 | ... | UTS-001-A1 | ⬜ Untested |
 ```
 
 **After** (test results ingested):
-
 ```
 | ... | Scenario ID (UTS) | Status | Date | Commit |
 | ... | UTS-001-A1 | ✅ Passed | 2026-04-05 | abc1234 |
 ```
 
 **Matrix D with coverage** (when `--coverage` provided):
-
 ```
 | ... | Scenario ID (UTS) | Status | Date | Commit | Coverage |
 | ... | UTS-001-A1 | ✅ Passed | 2026-04-05 | abc1234 | 98.2% stmt / 94.1% branch |
@@ -183,22 +176,11 @@ Matrix updated: specs/005d-test-results/v-model/traceability-matrix.md
 ```json
 {
   "test_results": [
-    { "id": "SCN-001-A1", "matrix": "A", "status": "passed", "duration": 0.5 },
-    {
-      "id": "STS-002-B1",
-      "matrix": "B",
-      "status": "failed",
-      "duration": 0.8,
-      "message": "Expected alert within 100ms"
-    }
+    {"id": "SCN-001-A1", "matrix": "A", "status": "passed", "duration": 0.5},
+    {"id": "STS-002-B1", "matrix": "B", "status": "failed", "duration": 0.8, "message": "Expected alert within 100ms"}
   ],
   "coverage": {
-    "MOD-001": {
-      "stmt": 98.2,
-      "branch": 94.1,
-      "below_threshold": false,
-      "formatted": "98.2% stmt / 94.1% branch"
-    }
+    "MOD-001": {"stmt": 98.2, "branch": 94.1, "below_threshold": false, "formatted": "98.2% stmt / 94.1% branch"}
   },
   "summary": {
     "total": 43,
@@ -206,10 +188,10 @@ Matrix updated: specs/005d-test-results/v-model/traceability-matrix.md
     "failed": 2,
     "skipped": 1,
     "per_matrix": {
-      "A": { "total": 10, "passed": 9, "failed": 1, "skipped": 0 },
-      "B": { "total": 8, "passed": 8, "failed": 0, "skipped": 0 },
-      "C": { "total": 5, "passed": 5, "failed": 0, "skipped": 0 },
-      "D": { "total": 20, "passed": 18, "failed": 1, "skipped": 1 }
+      "A": {"total": 10, "passed": 9, "failed": 1, "skipped": 0},
+      "B": {"total": 8, "passed": 8, "failed": 0, "skipped": 0},
+      "C": {"total": 5, "passed": 5, "failed": 0, "skipped": 0},
+      "D": {"total": 20, "passed": 18, "failed": 1, "skipped": 1}
     },
     "unmatched_count": 3
   },
@@ -221,11 +203,11 @@ Matrix updated: specs/005d-test-results/v-model/traceability-matrix.md
 
 ### Exit Codes
 
-| Code | Meaning                                          |
-| ---- | ------------------------------------------------ |
-| 0    | All matched tests passed                         |
-| 1    | At least one matched test failed                 |
-| 2    | No V-Model scenario IDs matched in the JUnit XML |
+| Code | Meaning |
+|------|---------|
+| 0 | All matched tests passed |
+| 1 | At least one matched test failed |
+| 2 | No V-Model scenario IDs matched in the JUnit XML |
 
 ## Key Behaviors
 
@@ -234,6 +216,18 @@ Matrix updated: specs/005d-test-results/v-model/traceability-matrix.md
 - **Partial ingestion** — only rows matching scenario IDs in the JUnit XML are updated; unmatched rows keep `⬜ Untested`
 - **Re-runnable** — subsequent ingestions overwrite previous statuses, dates, and commits with the latest values
 - **Coverage threshold** — when `--coverage` is provided and a module's coverage falls below `coverage_threshold` from `extension.yml`, the Coverage column is flagged with `⚠`
+- **Deprecated scenario handling** — when a scenario ID's parent artifact (ATP, STP, ITP, or MOD) is marked `[DEPRECATED]` in the corresponding V-Model artifact, the test result is **skipped** (not ingested into the matrix). Skipped scenarios are reported in the summary:
+  - Human-readable: `⏭️ 3 scenarios skipped (deprecated parent artifacts)`
+  - JSON output includes a `skipped_deprecated` array:
+    ```json
+    {
+      "skipped_deprecated": [
+        {"id": "SCN-003-A1", "reason": "Parent ATP-003-A is [DEPRECATED — Superseded by ATP-015-A]"},
+        {"id": "STS-005-B1", "reason": "Parent STP-005-B is [DEPRECATED — Withdrawn: component removed]"}
+      ]
+    }
+    ```
+  - Deprecated scenarios do not count toward pass/fail/skip totals and do not affect the exit code
 
 ## Quality Criteria
 
@@ -241,3 +235,15 @@ Matrix updated: specs/005d-test-results/v-model/traceability-matrix.md
 - The Python helper uses **only standard library** modules (zero external dependencies)
 - The command handles up to **10,000 test cases** within 30 seconds
 - Bash and PowerShell produce **identical JSON structure** and exit codes
+
+## Governing Standards
+
+This command is governed by the following standards for test results ingestion:
+
+| Standard | Full Name | Role in this Command |
+|----------|-----------|----------------------|
+| **ISO/IEC 29119-3:2013** | Software and Systems Engineering — Software Testing — Part 3: Test Documentation | Test documentation governance: the updated traceability matrix constitutes a **Test Status Report** (§9.2) and — after the final test cycle — a **Test Completion Report** (§9.3). Each ingested scenario result provides the execution evidence (date, commit SHA, pass/fail status) required by ISO 29119-3 for test records. |
+| **JUnit XML** | Apache Ant JUnit XML Report Format (de facto standard) | Input format for test execution results. The V-Model scenario ID must appear in the JUnit test case `name` attribute for matching to succeed. |
+| **Cobertura XML** | Cobertura Code Coverage Report Format (de facto standard) | Optional input format for structural coverage data. Coverage data is mapped to `MOD-NNN` modules and stored in the Matrix D `Coverage` column. |
+
+> **Domain extensions:** If a domain overlay is loaded, coverage threshold values in `extension.yml` may be overridden by domain-specific structural coverage requirements (e.g., MC/DC thresholds per ASIL or DAL), and the `⚠` flag threshold will reflect the domain-mandated minimum.

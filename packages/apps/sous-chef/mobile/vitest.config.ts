@@ -15,7 +15,8 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@kitchensink/auth-types': '../../shared/auth-types/src/index.ts',
+            '@kitchensink/identity-service': '../../services/identity/src/index.ts',
+            '@kitchensink/identity-service/*': '../../services/identity/src/*',
         },
     },
 });

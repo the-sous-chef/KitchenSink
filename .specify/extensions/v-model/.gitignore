@@ -1,5 +1,7 @@
 # Local configuration overrides
 *-config.local.yml
+.env
+.env.local
 
 # Python
 __pycache__/
@@ -33,6 +35,7 @@ Thumbs.db
 dist/
 build/
 *.egg-info/
+site/site/
 
 # Temporary files
 *.tmp

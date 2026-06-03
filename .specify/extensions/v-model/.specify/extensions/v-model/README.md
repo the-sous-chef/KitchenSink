@@ -55,7 +55,6 @@ Outputs `specs/{feature}/v-model/requirements.md` with traceable `REQ-NNN` IDs.
 ```
 
 Reads `requirements.md` and generates:
-
 - **Test Cases** (`ATP-NNN-X`) — logical validation conditions
 - **User Scenarios** (`SCN-NNN-X#`) — BDD Given/When/Then executable steps
 
@@ -73,14 +72,14 @@ Outputs a regulatory-grade matrix linking every REQ → ATP → SCN with coverag
 
 The ID scheme encodes traceability directly in the identifier:
 
-| Tier        | Format                   | Example         | Meaning                       |
-| ----------- | ------------------------ | --------------- | ----------------------------- |
-| Requirement | `REQ-{NNN}`              | `REQ-001`       | Functional requirement #1     |
-| Requirement | `REQ-{CAT}-{NNN}`        | `REQ-NF-001`    | Non-Functional requirement #1 |
-| Test Case   | `ATP-{NNN}-{X}`          | `ATP-001-A`     | Test Case A for REQ-001       |
-| Test Case   | `ATP-{CAT}-{NNN}-{X}`    | `ATP-NF-001-A`  | Test Case A for REQ-NF-001    |
-| Scenario    | `SCN-{NNN}-{X}{#}`       | `SCN-001-A1`    | Scenario 1 of ATP-001-A       |
-| Scenario    | `SCN-{CAT}-{NNN}-{X}{#}` | `SCN-NF-001-A1` | Scenario 1 of ATP-NF-001-A    |
+| Tier | Format | Example | Meaning |
+|------|--------|---------|---------|
+| Requirement | `REQ-{NNN}` | `REQ-001` | Functional requirement #1 |
+| Requirement | `REQ-{CAT}-{NNN}` | `REQ-NF-001` | Non-Functional requirement #1 |
+| Test Case | `ATP-{NNN}-{X}` | `ATP-001-A` | Test Case A for REQ-001 |
+| Test Case | `ATP-{CAT}-{NNN}-{X}` | `ATP-NF-001-A` | Test Case A for REQ-NF-001 |
+| Scenario | `SCN-{NNN}-{X}{#}` | `SCN-001-A1` | Scenario 1 of ATP-001-A |
+| Scenario | `SCN-{CAT}-{NNN}-{X}{#}` | `SCN-NF-001-A1` | Scenario 1 of ATP-NF-001-A |
 
 Category prefixes: `NF` (Non-Functional), `IF` (Interface), `CN` (Constraint). Functional requirements have no prefix.
 
@@ -114,12 +113,12 @@ pytest tests/evals/ -m structural -v
 GOOGLE_API_KEY=... pytest tests/evals/ -m eval -v
 ```
 
-| Layer              | Tests | What it validates                                            |
-| ------------------ | ----- | ------------------------------------------------------------ |
-| BATS               | 27    | Bash script logic (setup, coverage, matrix, diff)            |
-| Pester             | 27    | PowerShell script parity                                     |
-| Structural evals   | 15    | ID format, template conformance, BDD completeness            |
-| LLM-as-judge evals | 6     | Requirements quality (IEEE 29148), BDD quality, traceability |
+| Layer | Tests | What it validates |
+|-------|-------|-------------------|
+| BATS | 27 | Bash script logic (setup, coverage, matrix, diff) |
+| Pester | 27 | PowerShell script parity |
+| Structural evals | 15 | ID format, template conformance, BDD completeness |
+| LLM-as-judge evals | 6 | Requirements quality (IEEE 29148), BDD quality, traceability |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md#testing) for full details.
 

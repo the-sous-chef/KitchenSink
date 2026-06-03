@@ -7,19 +7,19 @@ Each module traces to exactly one parent architecture module via the "Parent ARC
 
 ## Module Catalogue
 
-| MOD ID  | Name                     | Parent ARCH | Target Source File(s)                                    | Statefulness |
-| ------- | ------------------------ | ----------- | -------------------------------------------------------- | ------------ |
-| MOD-001 | FFT Processor            | ARCH-001    | `src/radar/fft_processor.c`, `src/radar/fft_processor.h` | Stateless    |
-| MOD-002 | Track Manager            | ARCH-002    | `src/radar/track_mgr.c`                                  | Stateful     |
-| MOD-003 | H265 Decoder             | ARCH-003    | `src/camera/h265_decoder.c`                              | Stateless    |
-| MOD-004 | CNN Inference Engine     | ARCH-004    | `src/camera/cnn_inference.c`                             | Stateless    |
-| MOD-005 | EKF Core                 | ARCH-005    | `src/fusion/ekf_core.c`                                  | Stateful     |
-| MOD-006 | TTC Estimator            | ARCH-006    | `src/fusion/ttc_calc.c`                                  | Stateless    |
-| MOD-007 | Collision Decision Logic | ARCH-007    | `src/brake/collision_logic.c`                            | Stateless    |
-| MOD-008 | CAN-FD Transmitter       | ARCH-008    | `src/brake/canfd_tx.c`                                   | Stateful     |
-| MOD-009 | Module Health Checker    | ARCH-009    | `src/safety/health_check.c`                              | Stateless    |
-| MOD-010 | Mode Controller          | ARCH-010    | `src/safety/mode_ctrl.c`                                 | Stateful     |
-| MOD-011 | Watchdog Kicker          | ARCH-011    | `src/safety/wdt_kicker.c`                                | Stateless    |
+| MOD ID | Name | Parent ARCH | Target Source File(s) | Statefulness |
+|--------|------|-------------|----------------------|--------------|
+| MOD-001 | FFT Processor | ARCH-001 | `src/radar/fft_processor.c`, `src/radar/fft_processor.h` | Stateless |
+| MOD-002 | Track Manager | ARCH-002 | `src/radar/track_mgr.c` | Stateful |
+| MOD-003 | H265 Decoder | ARCH-003 | `src/camera/h265_decoder.c` | Stateless |
+| MOD-004 | CNN Inference Engine | ARCH-004 | `src/camera/cnn_inference.c` | Stateless |
+| MOD-005 | EKF Core | ARCH-005 | `src/fusion/ekf_core.c` | Stateful |
+| MOD-006 | TTC Estimator | ARCH-006 | `src/fusion/ttc_calc.c` | Stateless |
+| MOD-007 | Collision Decision Logic | ARCH-007 | `src/brake/collision_logic.c` | Stateless |
+| MOD-008 | CAN-FD Transmitter | ARCH-008 | `src/brake/canfd_tx.c` | Stateful |
+| MOD-009 | Module Health Checker | ARCH-009 | `src/safety/health_check.c` | Stateless |
+| MOD-010 | Mode Controller | ARCH-010 | `src/safety/mode_ctrl.c` | Stateful |
+| MOD-011 | Watchdog Kicker | ARCH-011 | `src/safety/wdt_kicker.c` | Stateless |
 
 ## Module Specifications
 
@@ -55,17 +55,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                             | Type        | Size/Constraints | Initialization | Description                   |
-| -------------------------------- | ----------- | ---------------- | -------------- | ----------------------------- |
-| `FFT_SIZE`                       | `#define`   | 1024             | Compile-time   | FFT window length             |
-| `RADAR_FREQ_GHZ`                 | `#define`   | 77.0             | Compile-time   | Radar carrier frequency (GHz) |
-| `SAMPLE_RATE_HZ`                 | `#define`   | 20               | Compile-time   | ADC sample rate (Hz)          |
-| `cfar_detection_t.range_bins`    | `float32[]` | FFT_SIZE         | Zeroed         | CFAR-detected range bins      |
-| `cfar_detection_t.doppler_bins`  | `float32[]` | FFT_SIZE         | Zeroed         | CFAR-detected Doppler bins    |
-| `cfar_detection_t.noise_floor`   | `float32`   | —                | 0.0            | Estimated noise floor         |
-| `radar_raw_frame_t.i_samples`    | `float32[]` | FFT_SIZE         | DMA fill       | In-phase ADC samples          |
-| `radar_raw_frame_t.q_samples`    | `float32[]` | FFT_SIZE         | DMA fill       | Quadrature ADC samples        |
-| `radar_raw_frame_t.timestamp_us` | `uint64_t`  | —                | DMA fill       | Frame capture timestamp (µs)  |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `FFT_SIZE` | `#define` | 1024 | Compile-time | FFT window length |
+| `RADAR_FREQ_GHZ` | `#define` | 77.0 | Compile-time | Radar carrier frequency (GHz) |
+| `SAMPLE_RATE_HZ` | `#define` | 20 | Compile-time | ADC sample rate (Hz) |
+| `cfar_detection_t.range_bins` | `float32[]` | FFT_SIZE | Zeroed | CFAR-detected range bins |
+| `cfar_detection_t.doppler_bins` | `float32[]` | FFT_SIZE | Zeroed | CFAR-detected Doppler bins |
+| `cfar_detection_t.noise_floor` | `float32` | — | 0.0 | Estimated noise floor |
+| `radar_raw_frame_t.i_samples` | `float32[]` | FFT_SIZE | DMA fill | In-phase ADC samples |
+| `radar_raw_frame_t.q_samples` | `float32[]` | FFT_SIZE | DMA fill | Quadrature ADC samples |
+| `radar_raw_frame_t.timestamp_us` | `uint64_t` | — | DMA fill | Frame capture timestamp (µs) |
 
 ```c
 #define FFT_SIZE          1024
@@ -87,10 +87,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition    | Error Code / Exception | Architecture Contract                      | Recovery                        |
-| ------------------ | ---------------------- | ------------------------------------------ | ------------------------------- |
-| ADC DMA timeout    | HW timeout             | ARCH-001 shall detect ADC failure          | Report to health monitor        |
-| FFT input all-zero | Silent                 | ARCH-001 shall output empty detection list | Return empty `cfar_detection_t` |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| ADC DMA timeout | HW timeout | ARCH-001 shall detect ADC failure | Report to health monitor |
+| FFT input all-zero | Silent | ARCH-001 shall output empty detection list | Return empty `cfar_detection_t` |
 
 ---
 
@@ -144,22 +144,22 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name                           | Type              | Size/Constraints | Initialization  | Description                       |
-| ------------------------------ | ----------------- | ---------------- | --------------- | --------------------------------- |
-| `MAX_TRACKS`                   | `#define`         | 64               | Compile-time    | Maximum simultaneous tracks       |
-| `CONFIRM_THRESHOLD`            | `#define`         | 3                | Compile-time    | Consecutive detections to confirm |
-| `LOST_THRESHOLD`               | `#define`         | 3                | Compile-time    | Consecutive misses to mark lost   |
-| `radar_track_t.object_id`      | `uint16_t`        | —                | Auto-increment  | Unique track identifier           |
-| `radar_track_t.state`          | `track_state_t`   | Enum             | `TRACK_NOTRACK` | Current track state               |
-| `radar_track_t.range_m`        | `float32`         | —                | 0.0             | Measured range (m)                |
-| `radar_track_t.velocity_ms`    | `float32`         | —                | 0.0             | Measured velocity (m/s)           |
-| `radar_track_t.azimuth_deg`    | `float32`         | —                | 0.0             | Measured azimuth (deg)            |
-| `radar_track_t.rcs_dbsm`       | `float32`         | —                | 0.0             | Radar cross-section (dBsm)        |
-| `radar_track_t.hit_count`      | `uint8_t`         | —                | 0               | Consecutive detection count       |
-| `radar_track_t.miss_count`     | `uint8_t`         | —                | 0               | Consecutive miss count            |
-| `track_mgr_ctx_t.tracks`       | `radar_track_t[]` | MAX_TRACKS       | Zeroed          | Track array                       |
-| `track_mgr_ctx_t.active_count` | `uint16_t`        | —                | 0               | Number of active tracks           |
-| `track_mgr_ctx_t.next_id`      | `uint16_t`        | —                | 0               | Next available track ID           |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `MAX_TRACKS` | `#define` | 64 | Compile-time | Maximum simultaneous tracks |
+| `CONFIRM_THRESHOLD` | `#define` | 3 | Compile-time | Consecutive detections to confirm |
+| `LOST_THRESHOLD` | `#define` | 3 | Compile-time | Consecutive misses to mark lost |
+| `radar_track_t.object_id` | `uint16_t` | — | Auto-increment | Unique track identifier |
+| `radar_track_t.state` | `track_state_t` | Enum | `TRACK_NOTRACK` | Current track state |
+| `radar_track_t.range_m` | `float32` | — | 0.0 | Measured range (m) |
+| `radar_track_t.velocity_ms` | `float32` | — | 0.0 | Measured velocity (m/s) |
+| `radar_track_t.azimuth_deg` | `float32` | — | 0.0 | Measured azimuth (deg) |
+| `radar_track_t.rcs_dbsm` | `float32` | — | 0.0 | Radar cross-section (dBsm) |
+| `radar_track_t.hit_count` | `uint8_t` | — | 0 | Consecutive detection count |
+| `radar_track_t.miss_count` | `uint8_t` | — | 0 | Consecutive miss count |
+| `track_mgr_ctx_t.tracks` | `radar_track_t[]` | MAX_TRACKS | Zeroed | Track array |
+| `track_mgr_ctx_t.active_count` | `uint16_t` | — | 0 | Number of active tracks |
+| `track_mgr_ctx_t.next_id` | `uint16_t` | — | 0 | Next available track ID |
 
 ```c
 typedef enum {
@@ -193,10 +193,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                                | Error Code / Exception      | Architecture Contract                  | Recovery                         |
-| ---------------------------------------------- | --------------------------- | -------------------------------------- | -------------------------------- |
-| Track table full (`active_count ≥ MAX_TRACKS`) | Silent (drop new detection) | ARCH-002 shall bound track count       | Oldest tentative track evicted   |
-| No detections in frame                         | Silent                      | ARCH-002 shall increment miss counters | Normal state-machine progression |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Track table full (`active_count ≥ MAX_TRACKS`) | Silent (drop new detection) | ARCH-002 shall bound track count | Oldest tentative track evicted |
+| No detections in frame | Silent | ARCH-002 shall increment miss counters | Normal state-machine progression |
 
 ---
 
@@ -230,17 +230,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                                | Type             | Size/Constraints | Initialization | Description                     |
-| ----------------------------------- | ---------------- | ---------------- | -------------- | ------------------------------- |
-| `FRAME_WIDTH`                       | `#define`        | 1920             | Compile-time   | Frame width (pixels)            |
-| `FRAME_HEIGHT`                      | `#define`        | 1080             | Compile-time   | Frame height (pixels)           |
-| `MAX_SYNC_DELTA_US`                 | `#define`        | 80000            | Compile-time   | Max stereo timestamp delta (µs) |
-| `frame_buffer_t.pixels`             | `uint8_t[]`      | W×H×3            | Zeroed         | RGB888 pixel buffer             |
-| `frame_buffer_t.timestamp_us`       | `uint64_t`       | —                | 0              | Frame capture timestamp (µs)    |
-| `decoded_frame_pair_t.left`         | `frame_buffer_t` | —                | Zeroed         | Left camera frame               |
-| `decoded_frame_pair_t.right`        | `frame_buffer_t` | —                | Zeroed         | Right camera frame              |
-| `decoded_frame_pair_t.timestamp_us` | `uint64_t`       | —                | 0              | Average timestamp (µs)          |
-| `decoded_frame_pair_t.imu_quat`     | `float32[4]`     | —                | Identity       | Orientation quaternion          |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `FRAME_WIDTH` | `#define` | 1920 | Compile-time | Frame width (pixels) |
+| `FRAME_HEIGHT` | `#define` | 1080 | Compile-time | Frame height (pixels) |
+| `MAX_SYNC_DELTA_US` | `#define` | 80000 | Compile-time | Max stereo timestamp delta (µs) |
+| `frame_buffer_t.pixels` | `uint8_t[]` | W×H×3 | Zeroed | RGB888 pixel buffer |
+| `frame_buffer_t.timestamp_us` | `uint64_t` | — | 0 | Frame capture timestamp (µs) |
+| `decoded_frame_pair_t.left` | `frame_buffer_t` | — | Zeroed | Left camera frame |
+| `decoded_frame_pair_t.right` | `frame_buffer_t` | — | Zeroed | Right camera frame |
+| `decoded_frame_pair_t.timestamp_us` | `uint64_t` | — | 0 | Average timestamp (µs) |
+| `decoded_frame_pair_t.imu_quat` | `float32[4]` | — | Identity | Orientation quaternion |
 
 ```c
 #define FRAME_WIDTH     1920
@@ -262,10 +262,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                | Error Code / Exception | Architecture Contract               | Recovery                                   |
-| ------------------------------ | ---------------------- | ----------------------------------- | ------------------------------------------ |
-| H.265 decompression failure    | `DecodeTimeout`        | ARCH-003 shall detect codec timeout | Skip frame; report to health monitor       |
-| Stereo timestamp delta > 80 ms | `FrameSyncError`       | ARCH-003 shall enforce stereo sync  | Drop pair; wait for next synchronized pair |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| H.265 decompression failure | `DecodeTimeout` | ARCH-003 shall detect codec timeout | Skip frame; report to health monitor |
+| Stereo timestamp delta > 80 ms | `FrameSyncError` | ARCH-003 shall enforce stereo sync | Drop pair; wait for next synchronized pair |
 
 ---
 
@@ -296,15 +296,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                            | Type             | Size/Constraints | Initialization | Description                               |
-| ------------------------------- | ---------------- | ---------------- | -------------- | ----------------------------------------- |
-| `CONFIDENCE_FLOOR`              | `#define`        | 0.50             | Compile-time   | Minimum confidence for safety classes     |
-| `MAX_DETECTIONS`                | `#define`        | 32               | Compile-time   | Maximum output detections                 |
-| `MAX_DEPTH_M`                   | `#define`        | 80.0             | Compile-time   | Maximum valid depth (m)                   |
-| `camera_detection_t.class`      | `object_class_t` | Enum             | —              | Object class (vehicle/pedestrian/cyclist) |
-| `camera_detection_t.bbox`       | `bounding_box_t` | —                | Zeroed         | Bounding box (x, y, w, h)                 |
-| `camera_detection_t.depth_m`    | `float32`        | ≤ 80.0           | 0.0            | Stereo-derived depth (m)                  |
-| `camera_detection_t.confidence` | `float32`        | [0.0, 1.0]       | 0.0            | Classification confidence                 |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `CONFIDENCE_FLOOR` | `#define` | 0.50 | Compile-time | Minimum confidence for safety classes |
+| `MAX_DETECTIONS` | `#define` | 32 | Compile-time | Maximum output detections |
+| `MAX_DEPTH_M` | `#define` | 80.0 | Compile-time | Maximum valid depth (m) |
+| `camera_detection_t.class` | `object_class_t` | Enum | — | Object class (vehicle/pedestrian/cyclist) |
+| `camera_detection_t.bbox` | `bounding_box_t` | — | Zeroed | Bounding box (x, y, w, h) |
+| `camera_detection_t.depth_m` | `float32` | ≤ 80.0 | 0.0 | Stereo-derived depth (m) |
+| `camera_detection_t.confidence` | `float32` | [0.0, 1.0] | 0.0 | Classification confidence |
 
 ```c
 typedef enum { CLASS_VEHICLE, CLASS_PEDESTRIAN, CLASS_CYCLIST } object_class_t;
@@ -327,10 +327,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                       | Error Code / Exception | Architecture Contract              | Recovery                        |
-| ------------------------------------- | ---------------------- | ---------------------------------- | ------------------------------- |
-| All detections below confidence floor | Silent                 | ARCH-004 shall return empty list   | Return zero-length result array |
-| Stereo depth exceeds `MAX_DEPTH_M`    | Silent (filtered)      | ARCH-004 shall discard far objects | Detection excluded from results |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| All detections below confidence floor | Silent | ARCH-004 shall return empty list | Return zero-length result array |
+| Stereo depth exceeds `MAX_DEPTH_M` | Silent (filtered) | ARCH-004 shall discard far objects | Detection excluded from results |
 
 ---
 
@@ -379,19 +379,19 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name                          | Type             | Size/Constraints      | Initialization | Description                             |
-| ----------------------------- | ---------------- | --------------------- | -------------- | --------------------------------------- |
-| `STATE_DIM`                   | `#define`        | 6                     | Compile-time   | State dimensions [x, y, vx, vy, ax, ay] |
-| `COV_DIVERGENCE_THRESHOLD`    | `#define`        | 1e6                   | Compile-time   | Covariance divergence limit             |
-| `ekf_ctx_t.phase`             | `ekf_phase_t`    | Enum                  | `EKF_PREDICT`  | Current EKF phase                       |
-| `ekf_ctx_t.state_vector`      | `float32[]`      | STATE_DIM             | Zeroed         | State estimate vector                   |
-| `ekf_ctx_t.covariance`        | `float32[][]`    | STATE_DIM × STATE_DIM | Identity       | Error covariance matrix                 |
-| `ekf_ctx_t.process_noise`     | `float32[][]`    | STATE_DIM × STATE_DIM | Tuned          | Process noise matrix Q                  |
-| `ekf_ctx_t.last_update_us`    | `uint64_t`       | —                     | 0              | Last update timestamp (µs)              |
-| `fused_object_t.object_id`    | `uint16_t`       | —                     | 0              | Fused object identifier                 |
-| `fused_object_t.state_vector` | `float32[]`      | STATE_DIM             | Zeroed         | Fused state estimate                    |
-| `fused_object_t.covariance`   | `float32[][]`    | STATE_DIM × STATE_DIM | Zeroed         | Fused covariance                        |
-| `fused_object_t.class`        | `object_class_t` | Enum                  | —              | Object classification                   |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `STATE_DIM` | `#define` | 6 | Compile-time | State dimensions [x, y, vx, vy, ax, ay] |
+| `COV_DIVERGENCE_THRESHOLD` | `#define` | 1e6 | Compile-time | Covariance divergence limit |
+| `ekf_ctx_t.phase` | `ekf_phase_t` | Enum | `EKF_PREDICT` | Current EKF phase |
+| `ekf_ctx_t.state_vector` | `float32[]` | STATE_DIM | Zeroed | State estimate vector |
+| `ekf_ctx_t.covariance` | `float32[][]` | STATE_DIM × STATE_DIM | Identity | Error covariance matrix |
+| `ekf_ctx_t.process_noise` | `float32[][]` | STATE_DIM × STATE_DIM | Tuned | Process noise matrix Q |
+| `ekf_ctx_t.last_update_us` | `uint64_t` | — | 0 | Last update timestamp (µs) |
+| `fused_object_t.object_id` | `uint16_t` | — | 0 | Fused object identifier |
+| `fused_object_t.state_vector` | `float32[]` | STATE_DIM | Zeroed | Fused state estimate |
+| `fused_object_t.covariance` | `float32[][]` | STATE_DIM × STATE_DIM | Zeroed | Fused covariance |
+| `fused_object_t.class` | `object_class_t` | Enum | — | Object classification |
 
 ```c
 #define STATE_DIM  6   // [x, y, vx, vy, ax, ay]
@@ -417,10 +417,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                   | Error Code / Exception | Architecture Contract                       | Recovery                               |
-| --------------------------------- | ---------------------- | ------------------------------------------- | -------------------------------------- |
-| NaN in state vector or covariance | `FusionDivergence`     | ARCH-005 shall detect numerical instability | `ekf_reset(ctx)` — reinitialize filter |
-| Covariance diagonal > 1e6         | `FusionDivergence`     | ARCH-005 shall bound covariance growth      | `ekf_reset(ctx)` — reinitialize filter |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| NaN in state vector or covariance | `FusionDivergence` | ARCH-005 shall detect numerical instability | `ekf_reset(ctx)` — reinitialize filter |
+| Covariance diagonal > 1e6 | `FusionDivergence` | ARCH-005 shall bound covariance growth | `ekf_reset(ctx)` — reinitialize filter |
 
 ---
 
@@ -452,17 +452,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                             | Type             | Size/Constraints | Initialization | Description                             |
-| -------------------------------- | ---------------- | ---------------- | -------------- | --------------------------------------- |
-| `TTC_WARNING_S`                  | `#define`        | 2.5              | Compile-time   | Forward collision warning threshold (s) |
-| `TTC_BRAKING_S`                  | `#define`        | 1.5              | Compile-time   | Autonomous braking threshold (s)        |
-| `TTC_MAX_S`                      | `#define`        | 10.0             | Compile-time   | Maximum threat horizon (s)              |
-| `FP_FILTER_ALPHA`                | `#define`        | 0.8              | Compile-time   | False-positive suppression coefficient  |
-| `threat_assessment_t.object_id`  | `uint16_t`       | —                | 0              | Tracked object identifier               |
-| `threat_assessment_t.ttc_s`      | `float32`        | ≤ TTC_MAX_S      | 0.0            | Time-to-collision (s)                   |
-| `threat_assessment_t.confidence` | `float32`        | [0.0, 1.0]       | 0.0            | Threat confidence score                 |
-| `threat_assessment_t.range_m`    | `float32`        | —                | 0.0            | Object range (m)                        |
-| `threat_assessment_t.class`      | `object_class_t` | Enum             | —              | Object classification                   |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `TTC_WARNING_S` | `#define` | 2.5 | Compile-time | Forward collision warning threshold (s) |
+| `TTC_BRAKING_S` | `#define` | 1.5 | Compile-time | Autonomous braking threshold (s) |
+| `TTC_MAX_S` | `#define` | 10.0 | Compile-time | Maximum threat horizon (s) |
+| `FP_FILTER_ALPHA` | `#define` | 0.8 | Compile-time | False-positive suppression coefficient |
+| `threat_assessment_t.object_id` | `uint16_t` | — | 0 | Tracked object identifier |
+| `threat_assessment_t.ttc_s` | `float32` | ≤ TTC_MAX_S | 0.0 | Time-to-collision (s) |
+| `threat_assessment_t.confidence` | `float32` | [0.0, 1.0] | 0.0 | Threat confidence score |
+| `threat_assessment_t.range_m` | `float32` | — | 0.0 | Object range (m) |
+| `threat_assessment_t.class` | `object_class_t` | Enum | — | Object classification |
 
 ```c
 #define TTC_WARNING_S      2.5f    // forward collision warning threshold
@@ -481,10 +481,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                   | Error Code / Exception | Architecture Contract                  | Recovery                     |
-| --------------------------------- | ---------------------- | -------------------------------------- | ---------------------------- |
-| Object receding (closing_vel ≤ 0) | `None` returned        | ARCH-006 shall ignore non-threats      | No threat assessment emitted |
-| TTC exceeds `TTC_MAX_S`           | `None` returned        | ARCH-006 shall discard distant threats | No threat assessment emitted |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Object receding (closing_vel ≤ 0) | `None` returned | ARCH-006 shall ignore non-threats | No threat assessment emitted |
+| TTC exceeds `TTC_MAX_S` | `None` returned | ARCH-006 shall discard distant threats | No threat assessment emitted |
 
 ---
 
@@ -520,13 +520,13 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                               | Type               | Size/Constraints | Initialization     | Description                         |
-| ---------------------------------- | ------------------ | ---------------- | ------------------ | ----------------------------------- |
-| `DECEL_MAX_MS2`                    | `#define`          | 10.0             | Compile-time       | Maximum braking deceleration (m/s²) |
-| `DECEL_WARNING_MS2`                | `#define`          | 0.0              | Compile-time       | Warning-only deceleration (m/s²)    |
-| `brake_command_t.decel_target_ms2` | `float32`          | [0.0, 10.0]      | 0.0                | Commanded deceleration (m/s²)       |
-| `brake_command_t.activation`       | `bool`             | —                | `false`            | Brake actuator activation flag      |
-| `brake_command_t.priority`         | `brake_priority_t` | Enum             | `PRIORITY_WARNING` | Brake command priority level        |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `DECEL_MAX_MS2` | `#define` | 10.0 | Compile-time | Maximum braking deceleration (m/s²) |
+| `DECEL_WARNING_MS2` | `#define` | 0.0 | Compile-time | Warning-only deceleration (m/s²) |
+| `brake_command_t.decel_target_ms2` | `float32` | [0.0, 10.0] | 0.0 | Commanded deceleration (m/s²) |
+| `brake_command_t.activation` | `bool` | — | `false` | Brake actuator activation flag |
+| `brake_command_t.priority` | `brake_priority_t` | Enum | `PRIORITY_WARNING` | Brake command priority level |
 
 ```c
 #define DECEL_MAX_MS2      10.0f   // maximum braking deceleration
@@ -543,10 +543,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                 | Error Code / Exception | Architecture Contract                        | Recovery                |
-| ------------------------------- | ---------------------- | -------------------------------------------- | ----------------------- |
-| TTC above warning threshold     | `None` returned        | ARCH-007 shall suppress non-urgent threats   | No brake command issued |
-| No threat assessments available | Silent                 | ARCH-007 shall not brake without threat data | No action taken         |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| TTC above warning threshold | `None` returned | ARCH-007 shall suppress non-urgent threats | No brake command issued |
+| No threat assessments available | Silent | ARCH-007 shall not brake without threat data | No action taken |
 
 ---
 
@@ -596,15 +596,15 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name                      | Type            | Size/Constraints | Initialization | Description                       |
-| ------------------------- | --------------- | ---------------- | -------------- | --------------------------------- |
-| `CAN_PRIMARY_BUS_ADDR`    | `#define`       | 0x100            | Compile-time   | Primary CAN-FD bus address        |
-| `CAN_SECONDARY_BUS_ADDR`  | `#define`       | 0x200            | Compile-time   | Secondary CAN-FD bus address      |
-| `FAILOVER_TIMEOUT_MS`     | `#define`       | 10               | Compile-time   | Bus failover timeout (ms)         |
-| `canfd_ctx_t.state`       | `canfd_state_t` | Enum             | `CANFD_IDLE`   | Current transmitter state         |
-| `canfd_ctx_t.active_bus`  | `uint8_t`       | 0 or 1           | 0 (primary)    | Active bus selector               |
-| `canfd_ctx_t.tx_start_us` | `uint32_t`      | —                | 0              | Transmission start timestamp (µs) |
-| `canfd_ctx_t.crc32`       | `uint32_t`      | —                | 0              | End-to-end CRC                    |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `CAN_PRIMARY_BUS_ADDR` | `#define` | 0x100 | Compile-time | Primary CAN-FD bus address |
+| `CAN_SECONDARY_BUS_ADDR` | `#define` | 0x200 | Compile-time | Secondary CAN-FD bus address |
+| `FAILOVER_TIMEOUT_MS` | `#define` | 10 | Compile-time | Bus failover timeout (ms) |
+| `canfd_ctx_t.state` | `canfd_state_t` | Enum | `CANFD_IDLE` | Current transmitter state |
+| `canfd_ctx_t.active_bus` | `uint8_t` | 0 or 1 | 0 (primary) | Active bus selector |
+| `canfd_ctx_t.tx_start_us` | `uint32_t` | — | 0 | Transmission start timestamp (µs) |
+| `canfd_ctx_t.crc32` | `uint32_t` | — | 0 | End-to-end CRC |
 
 ```c
 #define CAN_PRIMARY_BUS_ADDR    0x100
@@ -627,10 +627,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                     | Error Code / Exception | Architecture Contract                | Recovery                                  |
-| ----------------------------------- | ---------------------- | ------------------------------------ | ----------------------------------------- |
-| Echo mismatch after transmit        | `BitwiseMismatch`      | ARCH-008 shall verify end-to-end CRC | Report error; retry on same bus           |
-| Both primary and secondary bus fail | `DualBusFailure`       | ARCH-008 shall detect dual-bus loss  | Escalate to safe-state via health monitor |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Echo mismatch after transmit | `BitwiseMismatch` | ARCH-008 shall verify end-to-end CRC | Report error; retry on same bus |
+| Both primary and secondary bus fail | `DualBusFailure` | ARCH-008 shall detect dual-bus loss | Escalate to safe-state via health monitor |
 
 ---
 
@@ -665,16 +665,16 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                             | Type             | Size/Constraints    | Initialization | Description                              |
-| -------------------------------- | ---------------- | ------------------- | -------------- | ---------------------------------------- |
-| `HEARTBEAT_INTERVAL_MS`          | `#define`        | 100                 | Compile-time   | Expected heartbeat interval (ms)         |
-| `HEARTBEAT_POLL_MS`              | `#define`        | 10                  | Compile-time   | Health poll interval (ms)                |
-| `NUM_COMPONENTS`                 | `#define`        | 8                   | Compile-time   | Monitored components (ARCH-001–ARCH-008) |
-| `health_report_t.component_id`   | `uint8_t`        | [0, NUM_COMPONENTS) | —              | Component identifier                     |
-| `health_report_t.state`          | `health_state_t` | Enum                | `HEALTH_OK`    | Component health state                   |
-| `health_report_t.timestamp_us`   | `uint64_t`       | —                   | 0              | Report timestamp (µs)                    |
-| `health_ctx_t.last_heartbeat_us` | `uint64_t[]`     | NUM_COMPONENTS      | Zeroed         | Last heartbeat per component             |
-| `health_ctx_t.failure_count`     | `uint8_t[]`      | NUM_COMPONENTS      | Zeroed         | Triple-redundant failure counter         |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `HEARTBEAT_INTERVAL_MS` | `#define` | 100 | Compile-time | Expected heartbeat interval (ms) |
+| `HEARTBEAT_POLL_MS` | `#define` | 10 | Compile-time | Health poll interval (ms) |
+| `NUM_COMPONENTS` | `#define` | 8 | Compile-time | Monitored components (ARCH-001–ARCH-008) |
+| `health_report_t.component_id` | `uint8_t` | [0, NUM_COMPONENTS) | — | Component identifier |
+| `health_report_t.state` | `health_state_t` | Enum | `HEALTH_OK` | Component health state |
+| `health_report_t.timestamp_us` | `uint64_t` | — | 0 | Report timestamp (µs) |
+| `health_ctx_t.last_heartbeat_us` | `uint64_t[]` | NUM_COMPONENTS | Zeroed | Last heartbeat per component |
+| `health_ctx_t.failure_count` | `uint8_t[]` | NUM_COMPONENTS | Zeroed | Triple-redundant failure counter |
 
 ```c
 #define HEARTBEAT_INTERVAL_MS   100
@@ -697,10 +697,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                | Error Code / Exception | Architecture Contract                      | Recovery                                       |
-| ------------------------------ | ---------------------- | ------------------------------------------ | ---------------------------------------------- |
-| Heartbeat timeout (1 miss)     | `HEALTH_DEGRADED`      | ARCH-009 shall detect missed heartbeats    | Increment failure counter; continue monitoring |
-| Heartbeat timeout (≥ 3 misses) | `HEALTH_FAILED`        | ARCH-009 shall escalate persistent failure | Report `HEALTH_FAILED` to mode controller      |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Heartbeat timeout (1 miss) | `HEALTH_DEGRADED` | ARCH-009 shall detect missed heartbeats | Increment failure counter; continue monitoring |
+| Heartbeat timeout (≥ 3 misses) | `HEALTH_FAILED` | ARCH-009 shall escalate persistent failure | Report `HEALTH_FAILED` to mode controller |
 
 ---
 
@@ -752,14 +752,14 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name                        | Type            | Size/Constraints | Initialization | Description                      |
-| --------------------------- | --------------- | ---------------- | -------------- | -------------------------------- |
-| `DTC_RADAR_FAIL`            | `#define`       | 0xC001           | Compile-time   | DTC code for radar failure       |
-| `DTC_CAMERA_FAIL`           | `#define`       | 0xC002           | Compile-time   | DTC code for camera failure      |
-| `DTC_DUAL_FAIL`             | `#define`       | 0xC003           | Compile-time   | DTC code for dual-sensor failure |
-| `mode_ctrl_ctx_t.mode`      | `system_mode_t` | Enum             | `MODE_NORMAL`  | Current system operating mode    |
-| `mode_ctrl_ctx_t.dtc_log`   | `uint16_t[]`    | 64 entries       | Zeroed         | Diagnostic trouble code log      |
-| `mode_ctrl_ctx_t.dtc_count` | `uint8_t`       | —                | 0              | Number of logged DTCs            |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `DTC_RADAR_FAIL` | `#define` | 0xC001 | Compile-time | DTC code for radar failure |
+| `DTC_CAMERA_FAIL` | `#define` | 0xC002 | Compile-time | DTC code for camera failure |
+| `DTC_DUAL_FAIL` | `#define` | 0xC003 | Compile-time | DTC code for dual-sensor failure |
+| `mode_ctrl_ctx_t.mode` | `system_mode_t` | Enum | `MODE_NORMAL` | Current system operating mode |
+| `mode_ctrl_ctx_t.dtc_log` | `uint16_t[]` | 64 entries | Zeroed | Diagnostic trouble code log |
+| `mode_ctrl_ctx_t.dtc_count` | `uint8_t` | — | 0 | Number of logged DTCs |
 
 ```c
 typedef enum {
@@ -782,11 +782,11 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition       | Error Code / Exception     | Architecture Contract                 | Recovery                                     |
-| --------------------- | -------------------------- | ------------------------------------- | -------------------------------------------- |
-| Camera sensor failure | `DTC_CAMERA_FAIL` (0xC002) | ARCH-010 shall degrade to radar-only  | Switch to `MODE_RADAR_ONLY`                  |
-| Radar sensor failure  | `DTC_RADAR_FAIL` (0xC001)  | ARCH-010 shall degrade to camera-only | Switch to `MODE_CAMERA_ONLY`                 |
-| Dual sensor failure   | `DTC_DUAL_FAIL` (0xC003)   | ARCH-010 shall engage safe state      | `EngageMaxBraking` — enter `MODE_SAFE_STATE` |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Camera sensor failure | `DTC_CAMERA_FAIL` (0xC002) | ARCH-010 shall degrade to radar-only | Switch to `MODE_RADAR_ONLY` |
+| Radar sensor failure | `DTC_RADAR_FAIL` (0xC001) | ARCH-010 shall degrade to camera-only | Switch to `MODE_CAMERA_ONLY` |
+| Dual sensor failure | `DTC_DUAL_FAIL` (0xC003) | ARCH-010 shall engage safe state | `EngageMaxBraking` — enter `MODE_SAFE_STATE` |
 
 ---
 
@@ -822,12 +822,12 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                           | Type       | Size/Constraints | Initialization | Description                    |
-| ------------------------------ | ---------- | ---------------- | -------------- | ------------------------------ |
-| `WDT_TIMEOUT_MS`               | `#define`  | 100              | Compile-time   | Watchdog timeout (ms)          |
-| `WDT_KICK_REGISTER`            | `#define`  | 0x40001000       | Compile-time   | Hardware watchdog kick address |
-| `WDT_KICK_PATTERN`             | `#define`  | 0x5A5A5A5A       | Compile-time   | Magic word for watchdog kick   |
-| `watchdog_kick_t.timestamp_us` | `uint64_t` | —                | 0              | Kick event timestamp (µs)      |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| `WDT_TIMEOUT_MS` | `#define` | 100 | Compile-time | Watchdog timeout (ms) |
+| `WDT_KICK_REGISTER` | `#define` | 0x40001000 | Compile-time | Hardware watchdog kick address |
+| `WDT_KICK_PATTERN` | `#define` | 0x5A5A5A5A | Compile-time | Magic word for watchdog kick |
+| `watchdog_kick_t.timestamp_us` | `uint64_t` | — | 0 | Kick event timestamp (µs) |
 
 ```c
 #define WDT_TIMEOUT_MS       100
@@ -841,20 +841,27 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                 | Error Code / Exception | Architecture Contract                         | Recovery                             |
-| ------------------------------- | ---------------------- | --------------------------------------------- | ------------------------------------ |
-| Pipeline deadline exceeded      | `false` return         | ARCH-011 shall detect deadline overrun        | Hardware watchdog fires autonomously |
-| Watchdog register write failure | HW fault               | ARCH-011 independent clock prevents SW bypass | Hardware reset initiated             |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Pipeline deadline exceeded | `false` return | ARCH-011 shall detect deadline overrun | Hardware watchdog fires autonomously |
+| Watchdog register write failure | HW fault | ARCH-011 independent clock prevents SW bypass | Hardware reset initiated |
 
 ---
 
 ## Coverage Summary
 
-| Metric                | Value                                  |
-| --------------------- | -------------------------------------- |
-| Total MOD Units       | 11                                     |
-| External Dependencies | 0                                      |
-| Cross-Cutting Modules | 1 (MOD-011)                            |
-| Stateful Modules      | 4 (MOD-002, MOD-005, MOD-008, MOD-010) |
-| Stateless Modules     | 7                                      |
-| ARCH Modules Covered  | 11 / 11 (100%)                         |
+| Metric | Value |
+|--------|-------|
+| Total MOD Units | 11 |
+| External Dependencies | 0 |
+| Cross-Cutting Modules | 1 (MOD-011) |
+| Stateful Modules | 4 (MOD-002, MOD-005, MOD-008, MOD-010) |
+| Stateless Modules | 7 |
+| ARCH Modules Covered | 11 / 11 (100%) |
+
+## Governing Standards
+
+| Standard | Full Name | Role in this Document |
+|----------|-----------|----------------------|
+| **IEEE 1016:2009** | IEEE Standard for Information Technology — Software Design Descriptions | Detailed design structure: algorithm specification, interface definition, data structure descriptions |
+| **ISO/IEC/IEEE 12207:2017** | Systems and Software Engineering — Software Life Cycle Processes | Lifecycle process governance (Clause 8.4 — Software Detailed Design): requirement allocation, algorithm specification completeness |

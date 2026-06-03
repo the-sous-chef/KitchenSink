@@ -490,7 +490,6 @@ FUNCTION main():
 **Source File**: `scripts/powershell/Ingest-Test-Results.ps1`
 
 Mirrors MOD-008 with PowerShell idioms:
-
 - `param()` block for `-Input`, `-Coverage`, `-Matrix`, `-CoverageMap`, `-CommitSha`, `-Json`, `-Help`
 - `python3` invocation via `& python3` with `2>&1` and string filtering (learned from 005c CI fixes)
 - JSON parsing via `ConvertFrom-Json`
@@ -502,22 +501,22 @@ Mirrors MOD-008 with PowerShell idioms:
 
 ## Coverage Summary
 
-| Metric                            | Count        |
-| --------------------------------- | ------------ |
-| Total Module Designs (MOD)        | 9            |
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | 9 |
 | Total Parent ARCH Modules Covered | 9 / 9 (100%) |
-| **Forward Coverage (ARCH→MOD)**   | **100%**     |
+| **Forward Coverage (ARCH→MOD)** | **100%** |
 
 ### Forward Coverage Detail
 
-| ARCH ID  | Covered By |
-| -------- | ---------- |
-| ARCH-001 | MOD-001    |
-| ARCH-002 | MOD-002    |
-| ARCH-003 | MOD-003    |
-| ARCH-004 | MOD-004    |
-| ARCH-005 | MOD-005    |
-| ARCH-006 | MOD-006    |
-| ARCH-007 | MOD-007    |
-| ARCH-008 | MOD-008    |
-| ARCH-009 | MOD-009    |
+| ARCH ID | Covered By |
+|---------|-----------|
+| ARCH-001 | MOD-001 |
+| ARCH-002 | MOD-002 |
+| ARCH-003 | MOD-003 |
+| ARCH-004 | MOD-004 |
+| ARCH-005 | MOD-005 |
+| ARCH-006 | MOD-006 |
+| ARCH-007 | MOD-007 |
+| ARCH-008 | MOD-008 |
+| ARCH-009 | MOD-009 |

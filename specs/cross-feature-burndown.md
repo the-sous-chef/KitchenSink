@@ -44,7 +44,7 @@ Findings are mapped to the canonical milestone ladder in [`v1-launch-plan.md`](.
 
 1. **CR-001** — Establish `/v1/*` as canonical. Update `specs/001-sous-chef-recipe-app/contracts/api.openapi.yaml` and create `docs/api-conventions.md`.
 2. **CR-002** — Add `packages/shared/recipe-core` extraction task to `specs/001-sous-chef-recipe-app/tasks.md`. Define `Recipe`, `Ingredient`, `Step`, `Collection`, `User`, `Account`, `Food`, `MealPlan`, `NutritionPlan`, `GroceryList`.
-3. **WA-001** — Align `002` to Node 24.x or document Lambda runtime divergence in `specs/002-auth0-user-auth/plan.md`.
+3. **WA-001** — Align `002` to Node 24.x or document Lambda runtime divergence in `specs/002-user-auth/plan.md`.
 4. **WA-003** — Create `specs/cross-feature-FR-index.md` (one-time scaffold; maintained as features land).
 5. **IN-001** — Document snake_case FK convention in `docs/api-conventions.md`.
 

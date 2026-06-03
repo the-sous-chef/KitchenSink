@@ -67,11 +67,6 @@ export function createConfig(tsconfigPath = './tsconfig.json', tsconfigRootDir =
                     {
                         patterns: [
                             {
-                                group: ['@shared/*'],
-                                message:
-                                    "src/shared is not a workspace. Import from the appropriate @kitchensink/* package barrel instead (e.g., '@kitchensink/data-dao', '@kitchensink/models').",
-                            },
-                            {
                                 group: ['@kitchensink/*/*'],
                                 message:
                                     "Only import from barrel files using '@kitchensink/<package>' — never from subpaths like '@kitchensink/<package>/subpath'.",

@@ -26,7 +26,6 @@ Add an `/speckit.v-model.impact-analysis` command that performs **deterministic,
 ### Output
 
 The command produces `impact-report.md` containing:
-
 - **Changed ID(s)** with their artifact type and description
 - **Suspect artifact list** organized by V-Model level (REQ → SYS → ARCH → MOD → HAZ, plus all test layers)
 - **Blast radius statistics** (count of affected artifacts per level)

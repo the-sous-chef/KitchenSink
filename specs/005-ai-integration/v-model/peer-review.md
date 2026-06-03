@@ -213,7 +213,7 @@ ATS-005-D1 verifies the agent can call `GET /agent/recipes` and ATS-005-C5 verif
 **Lens**: Standards Compliance
 **Severity**: WARNING
 
-**Evidence**: REQ-CN-003 and the Assumptions section reference "spec `010-subscriptions`" as the source of premium subscription status. The AGENTS.md project structure lists active features `001-sous-chef-recipe-app` and `002-auth0-user-auth`. There is no evidence that `010-subscriptions` is a defined or planned spec in this repository.
+**Evidence**: REQ-CN-003 and the Assumptions section reference "spec `010-subscriptions`" as the source of premium subscription status. The AGENTS.md project structure lists active features `001-sous-chef-recipe-app` and `002-user-auth`. There is no evidence that `010-subscriptions` is a defined or planned spec in this repository.
 
 **Impact**: If `010-subscriptions` does not exist, REQ-CN-003 and REQ-014/REQ-015 (premium features) have an unresolvable dependency. The premium gate (MOD-016 `PremiumEntitlementGuard`) would have no spec to implement against.
 

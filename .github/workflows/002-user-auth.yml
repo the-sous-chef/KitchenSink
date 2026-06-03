@@ -1,0 +1,124 @@
+name: Identity CI — 002-user-auth
+
+on:
+    push:
+        branches: [main, 002-user-auth]
+        paths:
+            - 'packages/services/identity/**'
+            - 'packages/services/identity-webhooks/**'
+            - 'packages/apps/sous-chef/web/**'
+            - 'packages/apps/sous-chef/mobile/**'
+            - '.github/workflows/002-user-auth.yml'
+            - 'package.json'
+            - 'package-lock.json'
+            - 'turbo.json'
+    pull_request:
+        paths:
+            - 'packages/services/identity/**'
+            - 'packages/services/identity-webhooks/**'
+            - 'packages/apps/sous-chef/web/**'
+            - 'packages/apps/sous-chef/mobile/**'
+            - '.github/workflows/002-user-auth.yml'
+            - 'package.json'
+            - 'package-lock.json'
+            - 'turbo.json'
+
+permissions:
+    contents: read
+
+concurrency:
+    group: 002-user-auth-ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    identity-workspace:
+        name: ${{ matrix.workspace }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - workspace: '@kitchensink/identity-service'
+                    - workspace: '@kitchensink/identity-webhooks'
+                    - workspace: '@kitchensink/web'
+                    - workspace: '@kitchensink/mobile'
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Lint
+              run: npm run lint --workspace=${{ matrix.workspace }}
+
+            - name: Typecheck
+              run: npm run typecheck --workspace=${{ matrix.workspace }}
+
+            - name: Test
+              run: npm run test --workspace=${{ matrix.workspace }}
+
+            - name: Build
+              run: npm run build --workspace=${{ matrix.workspace }}
+
+    e2e:
+        name: E2E (${{ matrix.workspace }})
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        strategy:
+            fail-fast: false
+            matrix:
+                workspace:
+                    - '@kitchensink/identity-service'
+                    - '@kitchensink/identity-webhooks'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run e2e tests
+              run: npm run test:e2e --workspace=${{ matrix.workspace }}
+
+    metric-gate:
+        name: Test Distribution Metric Gate
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Verify test coverage meets threshold
+              run: |
+                  # Minimum 1 test per user story (12 US, excluding OOS US-011 = 11)
+                  MIN_TESTS=11
+                  TOTAL=$(npm test 2>&1 | grep -oP '\d+(?= passed)' | awk '{s+=$1} END {print s}')
+                  echo "Total tests: $TOTAL"
+                  if [ "$TOTAL" -lt "$MIN_TESTS" ]; then
+                      echo "FAIL: $TOTAL tests < $MIN_TESTS minimum"
+                      exit 1
+                  fi
+                  echo "PASS: $TOTAL tests >= $MIN_TESTS minimum"

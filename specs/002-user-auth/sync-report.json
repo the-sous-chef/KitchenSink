@@ -1,0 +1,30 @@
+{
+  "feature": "002-user-auth",
+  "date": "2026-06-02",
+  "phase": "implement",
+  "layers_checked": [1, 2, 3, 4, 5, 6, 7],
+  "layers_skipped": [],
+  "verdict": "RESOLVED (post-HITL): all CRITICAL Layer-5 drifts were path-staleness in tasks.md, not missing code. Tasks.md updated. T-060 reopened as genuine restructure bug. T-002 rewritten + plan.md propagated to reflect schemas-in-identity refactor. 23 Layer-3 FR-traceability warnings DEFERRED to next sync-verify run.",
+  "summary": {"critical": 0, "warning": 24, "info": 1, "clean": 4, "resolved": 19, "deferred": 24},
+  "resolution_session": {
+    "date": "2026-06-02",
+    "operator": "user",
+    "applied_groups": ["A: path updates", "B: T-060 reopen", "C: T-002 rewrite + plan.md propagation", "E: drop false positive"],
+    "deferred_groups": ["D: 23 Layer-3 FR-traceability gaps"]
+  },
+  "drifts": [
+    {"id":"DRIFT-001","layer":1,"direction":"forward","severity":"INFO","status":"open","note":"No research citations in product-spec.md. Optional."},
+    {"id":"DRIFT-T002-REWRITE","layer":3,"direction":"backward","severity":"RESOLVED","status":"resolved","note":"T-002 + plan.md updated to reflect schemas-in-identity refactor. (HITL Group C)"},
+    {"id":"DRIFT-002..024","layer":3,"direction":"forward","severity":"WARNING","status":"deferred","note":"23 FR-traceability gaps deferred to next sync-verify run. (HITL Group D)"},
+    {"id":"DRIFT-025","layer":4,"direction":"backward","severity":"WARNING","status":"open","note":"Will resolve once Group D applied."},
+    {"id":"DRIFT-026","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-050 path updated to packages/apps/sous-chef/web/src/middleware.ts"},
+    {"id":"DRIFT-027","layer":5,"direction":"forward","severity":"RESOLVED","status":"reopened","note":"T-060 reverted [x]->[ ] (Expo Router migration pending)"},
+    {"id":"DRIFT-028","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-051 path updated"},
+    {"id":"DRIFT-029","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-061 path updated"},
+    {"id":"DRIFT-030","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-052 path updated"},
+    {"id":"DRIFT-031","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-062 path updated"},
+    {"id":"DRIFT-032","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-021 path updated (identityWebhook.ts consolidated dispatcher)"},
+    {"id":"DRIFT-033","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-053 path updated (dropped (protected) per design)"},
+    {"id":"DRIFT-034..043","layer":5,"direction":"forward","severity":"DROPPED","status":"resolved","note":"False positives (paths already exact match). (HITL Group E)"}
+  ]
+}

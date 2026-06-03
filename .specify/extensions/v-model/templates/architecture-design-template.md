@@ -34,13 +34,22 @@
   - Infrastructure/utility modules use [CROSS-CUTTING] tag with rationale instead of SYS parent
   - Do NOT create ARCH-NNN for capabilities not in system-design.md (flag as [DERIVED MODULE])
   - Every ARCH-NNN MUST have an interface contract in the Interface View (no black boxes)
+
+  LIFECYCLE TAGS (inline in Name or Description column when evolving):
+  - [DEPRECATED — Superseded by ARCH-NNN]: Module replaced
+  - [DEPRECATED — Withdrawn: <reason>]: Module removed entirely
+  - [SUSPECT — Parent SYS-NNN {deprecated|modified}]: Parent system component changed;
+    resolve by re-parenting, deprecating, or confirming active.
+  - [CROSS-CUTTING] modules are never deprecated via cascade — only by explicit decision.
+  - Deprecated modules stay in the table; they are never deleted.
+  - Coverage checks (SYS→ARCH) exclude deprecated SYS and deprecated ARCH items.
 -->
 
-| ARCH ID  | Name          | Description    | Parent System Components      | Type      |
-| -------- | ------------- | -------------- | ----------------------------- | --------- |
-| ARCH-001 | [Module Name] | [What it does] | SYS-001, SYS-002              | Component |
-| ARCH-002 | [Module Name] | [What it does] | SYS-003                       | Service   |
-| ARCH-003 | [Module Name] | [What it does] | [CROSS-CUTTING] — [rationale] | Utility   |
+| ARCH ID | Name | Description | Parent System Components | Type |
+|---------|------|-------------|--------------------------|------|
+| ARCH-001 | [Module Name] | [What it does] | SYS-001, SYS-002 | Component |
+| ARCH-002 | [Module Name] | [What it does] | SYS-003 | Service |
+| ARCH-003 | [Module Name] | [What it does] | [CROSS-CUTTING] — [rationale] | Utility |
 
 ## Process View — Dynamic Behavior (Kruchten 4+1)
 
@@ -91,19 +100,19 @@ sequenceDiagram
 
 ### ARCH-001: [Module Name]
 
-| Direction | Name     | Type   | Format   | Constraints      |
-| --------- | -------- | ------ | -------- | ---------------- |
-| Input     | [param]  | [type] | [format] | [range/required] |
-| Output    | [return] | [type] | [format] | [guarantees]     |
-| Exception | [error]  | [code] | [format] | [when thrown]    |
+| Direction | Name | Type | Format | Constraints |
+|-----------|------|------|--------|-------------|
+| Input | [param] | [type] | [format] | [range/required] |
+| Output | [return] | [type] | [format] | [guarantees] |
+| Exception | [error] | [code] | [format] | [when thrown] |
 
 ### ARCH-002: [Module Name]
 
-| Direction | Name     | Type   | Format   | Constraints      |
-| --------- | -------- | ------ | -------- | ---------------- |
-| Input     | [param]  | [type] | [format] | [range/required] |
-| Output    | [return] | [type] | [format] | [guarantees]     |
-| Exception | [error]  | [code] | [format] | [when thrown]    |
+| Direction | Name | Type | Format | Constraints |
+|-----------|------|------|--------|-------------|
+| Input | [param] | [type] | [format] | [range/required] |
+| Output | [return] | [type] | [format] | [guarantees] |
+| Exception | [error] | [code] | [format] | [when thrown] |
 
 ## Data Flow View — Data Transformation Chains (Kruchten 4+1)
 
@@ -122,28 +131,31 @@ sequenceDiagram
 
 ### Data Flow: [Flow Name]
 
-| Stage | Module   | Input Format | Transformation | Output Format |
-| ----- | -------- | ------------ | -------------- | ------------- |
-| 1     | ARCH-001 | [format]     | [what happens] | [format]      |
-| 2     | ARCH-002 | [format]     | [what happens] | [format]      |
-| 3     | ARCH-003 | [format]     | [what happens] | [format]      |
+| Stage | Module | Input Format | Transformation | Output Format |
+|-------|--------|-------------|----------------|---------------|
+| 1 | ARCH-001 | [format] | [what happens] | [format] |
+| 2 | ARCH-002 | [format] | [what happens] | [format] |
+| 3 | ARCH-003 | [format] | [what happens] | [format] |
 
-<!-- SAFETY-CRITICAL SECTION: Only include when v-model-config.yml domain is set -->
+<!-- SAFETY-CRITICAL SECTION: Only include when a domain overlay is loaded (Step 2a) -->
 
 <!--
-## ASIL Decomposition (ISO 26262-9 §5)
+> **Note:** If a domain overlay is loaded, use the overlay's version of this section.
+> The tables below show the generic structure; domain overlays provide domain-specific column headers and content.
 
-| Parent Component | Parent ASIL | Child Module | Child ASIL | Independence Argument |
+## Safety Integrity Decomposition
+
+| Parent Component | Parent Level | Child Module | Child Level | Independence Argument |
 |-----------------|-------------|-------------|------------|----------------------|
-| SYS-NNN | ASIL [A-D] | ARCH-NNN | ASIL [A-D/QM] | [How independence is guaranteed] |
+| SYS-NNN | [Level] | ARCH-NNN | [Level] | [How independence is guaranteed] |
 
-## Defensive Programming (ISO 26262-6 §7.4.2 / DO-178C §6.3.3)
+## Defensive Programming
 
 | Module | Invalid Input | Detection Method | Recovery Action |
 |--------|--------------|-----------------|-----------------|
 | ARCH-NNN | [What could go wrong] | [How detected] | [What happens] |
 
-## Temporal & Execution Constraints (DO-178C §6.3.4)
+## Temporal & Execution Constraints
 
 | Module | Constraint Type | Value | Enforcement Mechanism |
 |--------|----------------|-------|----------------------|
@@ -155,13 +167,13 @@ sequenceDiagram
 
 ## Coverage Summary
 
-| Metric                                 | Count                                                          |
-| -------------------------------------- | -------------------------------------------------------------- |
-| Total Architecture Modules (ARCH)      | [N]                                                            |
-| Cross-Cutting Modules                  | [N]                                                            |
-| Total Parent System Components Covered | [N] / [N] ([%])                                                |
-| Modules per Type                       | Component: [N] \| Service: [N] \| Library: [N] \| Utility: [N] |
-| **Forward Coverage (SYS→ARCH)**        | **[%]**                                                        |
+| Metric | Count |
+|--------|-------|
+| Total Architecture Modules (ARCH) | [N] ([N] active, [N] deprecated, [N] suspect) |
+| Cross-Cutting Modules | [N] |
+| Total Parent System Components Covered | [N] / [N] ([%]) (active items only) |
+| Modules per Type | Component: [N] \| Service: [N] \| Library: [N] \| Utility: [N] |
+| **Forward Coverage (SYS→ARCH)** | **[%]** |
 
 ## Derived Modules
 

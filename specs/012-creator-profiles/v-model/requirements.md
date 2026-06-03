@@ -42,7 +42,7 @@ Feature 012 establishes public creator identity on KitchenSink via canonical `@h
 
 ## Dependencies
 
-- `002-auth0-user-auth` for authenticated identity and JWT claim verification.
+- `002-user-auth` for authenticated identity and JWT claim verification.
 - `001-sous-chef-recipe-app` for recipe ownership/visibility data used in profile and collections.
 - `010-subscriptions` for monetization payment/subscription mechanics delegated by 012.
 

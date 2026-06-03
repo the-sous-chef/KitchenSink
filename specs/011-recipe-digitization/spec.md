@@ -47,7 +47,7 @@ Decades of family recipes exist only on paper — fragile, unsearchable, and loc
 
 | Priority | Feature                                                         | Status     | Relationship | What's Needed                                                                                                                 |
 | -------- | --------------------------------------------------------------- | ---------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| P0       | [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | 🟢 done    | blocks       | Authenticated `user_id` on every digitization + circle endpoint; Auth0 bearer token validation.                               |
+| P0       | [002-user-auth](../002-user-auth/spec.md)           | 🟢 done    | blocks       | Authenticated `user_id` on every digitization + circle endpoint; Auth0 bearer token validation.                               |
 | P0       | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | 🟢 done    | blocks       | `Recipe` entity (target of save) + S3 + CloudFront infra patterns + Drizzle/Pg conventions.                                   |
 | P1       | [004-recipe-importing](../004-recipe-importing/spec.md)         | ⏳ pending | complements  | Sibling boundary: 004 = structured/web-URL imports; 011 = unstructured photo imports. Coordinate `Recipe` save semantics.     |
 | P1       | [010-monetisation](../010-subscriptions/spec.md)                | ⏳ pending | complements  | Optional entitlement check before enqueuing OCR (Q-002 deferred to implementation). 011 ships ungated if 010 is not yet live. |

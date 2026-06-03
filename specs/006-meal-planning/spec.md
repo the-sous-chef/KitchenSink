@@ -11,7 +11,7 @@
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — meal plans assign Recipe entities from the user's collection          |
 | [003-usda-food-data](../003-usda-food-data/spec.md)             | **Required** — nutritional summaries depend on food data                             |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all meal planning requires authentication                             |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — all meal planning requires authentication                             |
 | [005-ai-integration](../005-ai-integration/spec.md)             | **Referenced** — AI meal suggestions and auto-generation use AI provider config      |
 | [007-grocery-lists](../007-grocery-lists/spec.md)               | **Downstream** — grocery lists are generated from meal plans                         |
 | [009-nutrition-planning](../009-nutrition-planning/spec.md)     | **Downstream** — nutrition plans link to meal plans for compliance                   |

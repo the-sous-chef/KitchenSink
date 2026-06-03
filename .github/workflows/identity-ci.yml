@@ -2,12 +2,10 @@ name: Identity CI
 
 on:
     push:
-        branches: [main, 002-auth0-user-auth]
+        branches: [main, 002-user-auth]
         paths:
-            - 'packages/shared/auth-types/**'
-            - 'packages/infra/identity/**'
-            - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity/**'
+            - 'packages/services/identity-webhooks/**'
             - 'packages/apps/sous-chef/web/**'
             - 'packages/apps/sous-chef/mobile/**'
             - '.github/workflows/identity-ci.yml'
@@ -16,10 +14,8 @@ on:
             - 'turbo.json'
     pull_request:
         paths:
-            - 'packages/shared/auth-types/**'
-            - 'packages/infra/identity/**'
-            - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity/**'
+            - 'packages/services/identity-webhooks/**'
             - 'packages/apps/sous-chef/web/**'
             - 'packages/apps/sous-chef/mobile/**'
             - '.github/workflows/identity-ci.yml'
@@ -42,10 +38,8 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - workspace: '@kitchensink/auth-types'
-                    - workspace: '@kitchensink/identity-infra'
-                    - workspace: '@kitchensink/identity-webhooks'
                     - workspace: '@kitchensink/identity-service'
+                    - workspace: '@kitchensink/identity-webhooks'
                     - workspace: '@kitchensink/web'
                     - workspace: '@kitchensink/mobile'
 
@@ -74,6 +68,28 @@ jobs:
             - name: Build
               run: npm run build --workspace=${{ matrix.workspace }}
 
-            - name: CDK Synth (infra only)
-              if: matrix.workspace == '@kitchensink/identity-infra'
-              run: npm run synth:quiet --workspace=${{ matrix.workspace }}
+    e2e:
+        name: E2E (${{ matrix.workspace }})
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        strategy:
+            fail-fast: false
+            matrix:
+                workspace:
+                    - '@kitchensink/identity-service'
+                    - '@kitchensink/identity-webhooks'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run e2e tests
+              run: npm run test:e2e --workspace=${{ matrix.workspace }}

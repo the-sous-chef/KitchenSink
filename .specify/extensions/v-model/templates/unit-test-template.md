@@ -26,13 +26,13 @@ journeys (acceptance), or system-level behavior (system tests).
 
 Each test case MUST identify its technique by name and anchor to a specific module design view:
 
-| Technique                       | Source View                 | What It Tests                                           |
-| ------------------------------- | --------------------------- | ------------------------------------------------------- |
-| **Statement & Branch Coverage** | Algorithmic/Logic View      | Every line and every True/False branch outcome          |
-| **Boundary Value Analysis**     | Internal Data Structures    | Scalar variable boundaries: min-1, min, mid, max, max+1 |
-| **Equivalence Partitioning**    | Internal Data Structures    | Discrete non-scalar types: Booleans, Enums              |
-| **Strict Isolation**            | Architecture Interface View | Every external dependency mocked/stubbed                |
-| **State Transition Testing**    | State Machine View          | Every transition including invalid ones                 |
+| Technique | Source View | What It Tests |
+|-----------|------------|---------------|
+| **Statement & Branch Coverage** | Algorithmic/Logic View | Every line and every True/False branch outcome |
+| **Boundary Value Analysis** | Internal Data Structures | Scalar variable boundaries: min-1, min, mid, max, max+1 |
+| **Equivalence Partitioning** | Internal Data Structures | Discrete non-scalar types: Booleans, Enums |
+| **Strict Isolation** | Architecture Interface View | Every external dependency mocked/stubbed |
+| **State Transition Testing** | State Machine View | Every transition including invalid ones |
 
 <!-- SAFETY-CRITICAL TECHNIQUES: Include only when v-model-config.yml domain is set -->
 
@@ -59,6 +59,14 @@ Each test case MUST identify its technique by name and anchor to a specific modu
   - [EXTERNAL] modules are skipped entirely
   - Do NOT renumber existing IDs when updating
   - Append new items; update modified items in-place by ID
+
+  LIFECYCLE TAGS (when evolving):
+  - [DEPRECATED — Superseded by UTP-NNN-X]: Test case replaced (parent MOD superseded)
+  - [DEPRECATED — Withdrawn: <reason>]: Test case removed (parent MOD withdrawn)
+  - [SUSPECT — Parent MOD-NNN {deprecated|modified}]: Parent module design changed;
+    resolve by re-parenting, deprecating, regenerating, or confirming active.
+  - Deprecated UTPs/UTSs stay in the document; they are never deleted.
+  - Coverage checks (MOD→UTP) exclude deprecated and [EXTERNAL] MOD items.
 
   PROHIBITED phrases in UTS (belong in acceptance scenarios):
   - "the user clicks", "the user sees", "the user navigates"
@@ -90,22 +98,22 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 
 **Dependency & Mock Registry:**
 
-| Dependency             | Source                | Mock/Stub Strategy          | Rationale                |
-| ---------------------- | --------------------- | --------------------------- | ------------------------ |
-| [External dep name]    | [ARCH Interface View] | [Mock: returns static data] | [Why this mock approach] |
-| [HW interface, if any] | [GPIO/Register/Bus]   | [HW abstraction mock]       | [Embedded isolation]     |
+| Dependency | Source | Mock/Stub Strategy | Rationale |
+|------------|--------|-------------------|-----------|
+| [External dep name] | [ARCH Interface View] | [Mock: returns static data] | [Why this mock approach] |
+| [HW interface, if any] | [GPIO/Register/Bus] | [HW abstraction mock] | [Embedded isolation] |
 
 <!-- If no dependencies: "None — module is self-contained" -->
 
-- **Unit Scenario: UTS-001-A1**
-  - **Arrange**: [Set internal variables/state to specific values]
-  - **Act**: [Call specific function/method with exact arguments]
-  - **Assert**: [Exact return value, variable states, error codes]
+* **Unit Scenario: UTS-001-A1**
+  * **Arrange**: [Set internal variables/state to specific values]
+  * **Act**: [Call specific function/method with exact arguments]
+  * **Assert**: [Exact return value, variable states, error codes]
 
-- **Unit Scenario: UTS-001-A2**
-  - **Arrange**: [Set internal variables for false-branch execution]
-  - **Act**: [Call same function with branch-triggering arguments]
-  - **Assert**: [Expected false-branch outcome with specific values]
+* **Unit Scenario: UTS-001-A2**
+  * **Arrange**: [Set internal variables for false-branch execution]
+  * **Act**: [Call same function with branch-triggering arguments]
+  * **Assert**: [Expected false-branch outcome with specific values]
 
 #### Test Case: UTP-001-B ([Verification Condition])
 
@@ -115,34 +123,34 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 
 **Dependency & Mock Registry:**
 
-| Dependency                                | Source | Mock/Stub Strategy | Rationale |
-| ----------------------------------------- | ------ | ------------------ | --------- |
-| [Same isolation table — repeated per UTP] |        |                    |           |
+| Dependency | Source | Mock/Stub Strategy | Rationale |
+|------------|--------|-------------------|-----------|
+| [Same isolation table — repeated per UTP] | | | |
 
-- **Unit Scenario: UTS-001-B1** (min-1)
-  - **Arrange**: [Set variable to one below minimum valid value]
-  - **Act**: [Call function with boundary-violating input]
-  - **Assert**: [Expected rejection — error code, exception, or validation failure]
+* **Unit Scenario: UTS-001-B1** (min-1)
+  * **Arrange**: [Set variable to one below minimum valid value]
+  * **Act**: [Call function with boundary-violating input]
+  * **Assert**: [Expected rejection — error code, exception, or validation failure]
 
-- **Unit Scenario: UTS-001-B2** (min)
-  - **Arrange**: [Set variable to minimum valid value]
-  - **Act**: [Call function]
-  - **Assert**: [Expected acceptance — valid output]
+* **Unit Scenario: UTS-001-B2** (min)
+  * **Arrange**: [Set variable to minimum valid value]
+  * **Act**: [Call function]
+  * **Assert**: [Expected acceptance — valid output]
 
-- **Unit Scenario: UTS-001-B3** (mid)
-  - **Arrange**: [Set variable to typical middle value]
-  - **Act**: [Call function]
-  - **Assert**: [Expected nominal output]
+* **Unit Scenario: UTS-001-B3** (mid)
+  * **Arrange**: [Set variable to typical middle value]
+  * **Act**: [Call function]
+  * **Assert**: [Expected nominal output]
 
-- **Unit Scenario: UTS-001-B4** (max)
-  - **Arrange**: [Set variable to maximum valid value]
-  - **Act**: [Call function]
-  - **Assert**: [Expected acceptance — valid output]
+* **Unit Scenario: UTS-001-B4** (max)
+  * **Arrange**: [Set variable to maximum valid value]
+  * **Act**: [Call function]
+  * **Assert**: [Expected acceptance — valid output]
 
-- **Unit Scenario: UTS-001-B5** (max+1)
-  - **Arrange**: [Set variable to one above maximum valid value]
-  - **Act**: [Call function with boundary-violating input]
-  - **Assert**: [Expected rejection]
+* **Unit Scenario: UTS-001-B5** (max+1)
+  * **Arrange**: [Set variable to one above maximum valid value]
+  * **Act**: [Call function with boundary-violating input]
+  * **Assert**: [Expected rejection]
 
 ---
 
@@ -159,19 +167,19 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 
 **Dependency & Mock Registry:**
 
-| Dependency                         | Source | Mock/Stub Strategy | Rationale |
-| ---------------------------------- | ------ | ------------------ | --------- |
-| [Dependencies for stateful module] |        |                    |           |
+| Dependency | Source | Mock/Stub Strategy | Rationale |
+|------------|--------|-------------------|-----------|
+| [Dependencies for stateful module] | | | |
 
-- **Unit Scenario: UTS-002-A1** (valid transition)
-  - **Arrange**: [Initialize state machine in `[InitialState]`]
-  - **Act**: [Send `[event]` to trigger transition]
-  - **Assert**: [State changes to `[TargetState]`; entry action executes]
+* **Unit Scenario: UTS-002-A1** (valid transition)
+  * **Arrange**: [Initialize state machine in `[InitialState]`]
+  * **Act**: [Send `[event]` to trigger transition]
+  * **Assert**: [State changes to `[TargetState]`; entry action executes]
 
-- **Unit Scenario: UTS-002-A2** (invalid transition)
-  - **Arrange**: [Initialize state machine in `[State]`]
-  - **Act**: [Send `[invalid_event]` that has no transition from current state]
-  - **Assert**: [State remains `[State]`; `InvalidTransitionError` raised or event ignored]
+* **Unit Scenario: UTS-002-A2** (invalid transition)
+  * **Arrange**: [Initialize state machine in `[State]`]
+  * **Act**: [Send `[invalid_event]` that has no transition from current state]
+  * **Assert**: [State remains `[State]`; `InvalidTransitionError` raised or event ignored]
 
 ---
 
@@ -190,20 +198,20 @@ Each test case MUST identify its technique by name and anchor to a specific modu
 
 None — module is self-contained
 
-- **Unit Scenario: UTS-003-A1** (valid partition: True)
-  - **Arrange**: [Set boolean flag to `True`]
-  - **Act**: [Call function]
-  - **Assert**: [Expected True-path behavior with specific variable states]
+* **Unit Scenario: UTS-003-A1** (valid partition: True)
+  * **Arrange**: [Set boolean flag to `True`]
+  * **Act**: [Call function]
+  * **Assert**: [Expected True-path behavior with specific variable states]
 
-- **Unit Scenario: UTS-003-A2** (valid partition: False)
-  - **Arrange**: [Set boolean flag to `False`]
-  - **Act**: [Call function]
-  - **Assert**: [Expected False-path behavior with specific variable states]
+* **Unit Scenario: UTS-003-A2** (valid partition: False)
+  * **Arrange**: [Set boolean flag to `False`]
+  * **Act**: [Call function]
+  * **Assert**: [Expected False-path behavior with specific variable states]
 
-- **Unit Scenario: UTS-003-A3** (invalid partition)
-  - **Arrange**: [Set flag to null/undefined]
-  - **Act**: [Call function]
-  - **Assert**: [Validation error; function rejects invalid input]
+* **Unit Scenario: UTS-003-A3** (invalid partition)
+  * **Arrange**: [Set flag to null/undefined]
+  * **Act**: [Call function]
+  * **Assert**: [Validation error; function rejects invalid input]
 
 ---
 
@@ -249,26 +257,26 @@ Decision: `if (A and B or C)`
 
 ## Coverage Summary
 
-| Metric                         | Count                     |
-| ------------------------------ | ------------------------- |
-| Total Modules (MOD)            | [N]                       |
-| Modules tested                 | [N] (excludes [EXTERNAL]) |
-| Modules bypassed ([EXTERNAL])  | [N]                       |
-| Total Test Cases (UTP)         | [N]                       |
-| Total Scenarios (UTS)          | [N]                       |
-| Modules with ≥1 UTP            | [N] / [N] ([%])           |
-| Test Cases with ≥1 UTS         | [N] / [N] ([%])           |
-| **Overall Coverage (MOD→UTP)** | **[%]**                   |
+| Metric | Count |
+|--------|-------|
+| Total Modules (MOD) | [N] ([N] active, [N] deprecated) |
+| Modules tested | [N] (excludes [EXTERNAL]) |
+| Modules bypassed ([EXTERNAL]) | [N] |
+| Total Test Cases (UTP) | [N] |
+| Total Scenarios (UTS) | [N] |
+| Modules with ≥1 UTP | [N] / [N] ([%]) (active, non-[EXTERNAL] items only) |
+| Test Cases with ≥1 UTS | [N] / [N] ([%]) |
+| **Overall Coverage (MOD→UTP)** | **[%]** |
 
 ### Technique Distribution
 
-| Technique                   | Test Cases | Percentage |
-| --------------------------- | ---------- | ---------- |
-| Statement & Branch Coverage | [N]        | [%]        |
-| Boundary Value Analysis     | [N]        | [%]        |
-| Equivalence Partitioning    | [N]        | [%]        |
-| Strict Isolation            | [N]        | [%]        |
-| State Transition Testing    | [N]        | [%]        |
+| Technique | Test Cases | Percentage |
+|-----------|-----------|------------|
+| Statement & Branch Coverage | [N] | [%] |
+| Boundary Value Analysis | [N] | [%] |
+| Equivalence Partitioning | [N] | [%] |
+| Strict Isolation | [N] | [%] |
+| State Transition Testing | [N] | [%] |
 
 <!-- Safety-critical only:
 | MC/DC Coverage | [N] | [%] |

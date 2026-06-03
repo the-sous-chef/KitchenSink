@@ -56,7 +56,7 @@ AI Integration for Sous Chef operates in two directions: **(1) BYOK in-app** —
 | ID         | Description                                                                                                                                                                               | Priority | Rationale                                                                         | Verification Method |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------- | ------------------- |
 | REQ-CN-001 | The AI Integration feature MUST depend on the Recipe entities, storage model defined in spec `001-sous-chef-recipe-app`; AI-generated recipes are stored as Recipe entities.              | P1       | Hard dependency; AI-generated recipes reuse the existing Recipe data model.       | Inspection          |
-| REQ-CN-002 | All AI features MUST require user authentication as defined in spec `002-auth0-user-auth`; unauthenticated users MUST NOT access any AI generation / agent authorization endpoints.       | P1       | Hard dependency; authentication is a prerequisite for all AI features.            | Test                |
+| REQ-CN-002 | All AI features MUST require user authentication as defined in spec `002-user-auth`; unauthenticated users MUST NOT access any AI generation / agent authorization endpoints.       | P1       | Hard dependency; authentication is a prerequisite for all AI features.            | Test                |
 | REQ-CN-003 | AI recipe generation (in-app), AI instruction optimization MUST be restricted to users with an active premium subscription as defined in spec `010-subscriptions`. _(Premium constraint)_ | P2       | Business model constraint; premium features must be gated by subscription status. | Test                |
 
 ## Assumptions
@@ -70,7 +70,7 @@ AI Integration for Sous Chef operates in two directions: **(1) BYOK in-app** —
 | Spec                                                               | Relationship                                                                                     |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | [001-sous-chef-recipe-app](../../001-sous-chef-recipe-app/spec.md) | **Required** — AI-generated recipes are stored as Recipe entities defined in 001                 |
-| [002-auth0-user-auth](../../002-auth0-user-auth/spec.md)           | **Required** — all AI features require authentication; external agent OAuth builds on auth layer |
+| [002-user-auth](../../002-user-auth/spec.md)           | **Required** — all AI features require authentication; external agent OAuth builds on auth layer |
 | [010-subscriptions](../../010-subscriptions/spec.md)               | **Referenced** — AI generation and instruction optimization are premium features                 |
 
 ## Glossary

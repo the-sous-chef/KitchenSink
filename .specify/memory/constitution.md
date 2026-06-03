@@ -56,7 +56,7 @@ Follow-up TODOs:
 ### I. Correctness and Type Safety
 
 All code MUST be written in strict TypeScript with zero use of `any` (outside test
-doubles) and no suppressed compiler errors. The shared `@armoury/typescript` base
+doubles) and no suppressed compiler errors. The shared `@kitchensink/typescript` base
 config (`strict: true`, `isolatedModules`, `declaration`, `declarationMap`) MUST be
 extended by every workspace without weakening its flags.
 
@@ -103,7 +103,7 @@ Files MUST be organized by feature domain, not by generic type. Utilities MUST l
 in a `utils/` directory co-located with their consumers; library wrappers in `lib/`;
 server-only data access in `dal/`; `helpers/` directories are banned.
 
-- **Imports MUST be aliased** (`@shared/*`, `@web/*`, `@armoury/<pkg>`) except in
+- **Imports MUST be aliased** (`@kitchensink/*`, `@kitchensink/*`, `@kitchensink/<pkg>`) except in
   `e2e/`, `__fixtures__/`, and `__testing__/` directories where no alias exists.
 - Import order: (1) external packages, (2) aliased internal imports.
 - Aliased imports MUST use `.js` / `.jsx` extensions; relative imports use `.ts` /
@@ -126,7 +126,7 @@ Tests MUST conform to the testing pyramid: ≥70 % unit, ≤20 % integration,
 IDs to test case descriptions (traceability plan).
 
 - **Unit tests** (`*.test.ts` in `__tests__/`): isolated, fast, no external services.
-  Run via `vitest.config.ts` extending `@armoury/vitest` base config.
+  Run via `vitest.config.ts` extending `@kitchensink/vitest` base config.
 - **Integration tests** (`*.integration.test.ts`): use real adapters; run via a
   separate `vitest.integration.config.ts`; MUST NOT bleed into the default `test`
   task.
@@ -150,13 +150,13 @@ is operable without a pointing device.
 ### V. Monorepo Architecture and Workspace Governance
 
 Every workspace MUST be registered in the root `package.json` workspaces array and
-MUST declare `@armoury/eslint`, `@armoury/prettier`, `@armoury/typescript`, and
-`@armoury/vitest` as dev dependencies. All tooling packages are private, ESM-only,
+MUST declare `@kitchensink/eslint`, `@kitchensink/prettier`, `@kitchensink/typescript`, and
+`@kitchensink/vitest` as dev dependencies. All tooling packages are private, ESM-only,
 configuration-only, and MUST NOT ship runtime code.
 
-- New workspaces MUST extend `@armoury/typescript/base.json` in `tsconfig.json`,
-  import `@armoury/eslint` in `eslint.config.js`, import `@armoury/prettier` in
-  `prettier.config.js`, and merge `@armoury/vitest` base config in
+- New workspaces MUST extend `@kitchensink/typescript/base.json` in `tsconfig.json`,
+  import `@kitchensink/eslint` in `eslint.config.js`, import `@kitchensink/prettier` in
+  `prettier.config.js`, and merge `@kitchensink/vitest` base config in
   `vitest.config.ts`.
 - Turbo task dependencies MUST be declared explicitly: `build` depends on `^build`;
   `test` / `typecheck` depend on `^build`; `test:e2e` sets `"cache": false`.
@@ -175,10 +175,10 @@ and independent.
 
 ### VI. Shared Formatting and Tooling Standards
 
-All code MUST be formatted with the shared Prettier config (`@armoury/prettier`):
+All code MUST be formatted with the shared Prettier config (`@kitchensink/prettier`):
 4-space indentation, spaces not tabs, semicolons always, trailing commas everywhere,
 single quotes, 120-character print width. ESLint MUST run with the shared
-`@armoury/eslint` flat config using `typescript-eslint` recommended rules.
+`@kitchensink/eslint` flat config using `typescript-eslint` recommended rules.
 
 - The `pre-commit` hook (`husky` + `lint-staged`) MUST run ESLint auto-fix and
   Prettier on every staged file before a commit lands.

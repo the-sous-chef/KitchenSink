@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useClerk } from '@clerk/nextjs';
 import { buildApiClient } from '@/lib/api-client';
-import { navigateTo } from '@/lib/navigation';
 
 interface AccountDeleteFormProps {
     accessToken: string;
@@ -13,6 +13,7 @@ export function AccountDeleteForm({ accessToken, userId: _userId }: AccountDelet
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
+    const { signOut } = useClerk();
 
     const handleDelete = async () => {
         setError(null);
@@ -28,7 +29,7 @@ export function AccountDeleteForm({ accessToken, userId: _userId }: AccountDelet
                 const api = buildApiClient(accessToken);
                 await api.delete(`/v1/users/me`);
 
-                navigateTo('/api/auth/logout');
+                await signOut({ redirectUrl: '/' });
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Deletion failed');
             }

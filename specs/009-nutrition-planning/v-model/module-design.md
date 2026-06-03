@@ -1146,7 +1146,7 @@ stateDiagram-v2
 | ----------------------- | ------------ | ---------------- | -------------- | ---------------------------------------------------- |
 | `AUTH0_ISSUER`          | `string`     | URL              | Config/env     | Auth0 tenant issuer URL                              |
 | `AUTH0_AUDIENCE`        | `string`     | String           | Config/env     | Auth0 API audience identifier                        |
-| `AUTH_SERVICE_BASE_URL` | `string`     | URL              | Config/env     | Base URL of the 002-auth0-user-auth internal API     |
+| `AUTH_SERVICE_BASE_URL` | `string`     | URL              | Config/env     | Base URL of the 002-user-auth internal API     |
 | `jwksClient`            | JWKS client  | —                | Module init    | Cached JWKS client for public key retrieval          |
 | `AuthenticatedUser`     | Plain object | —                | Per-call       | `{ userId: string, email: string, roles: string[] }` |
 

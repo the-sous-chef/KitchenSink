@@ -1,139 +1,140 @@
 # Tasks: Feature 012 — Public Creator Profiles
 
-**Feature**: `012-creator-profiles`
-**Generated**: 2026-05-12
-**Milestone**: `M7` Minas Tirith
-**Source artifacts**: `plan.md`, `spec.md`, `product-spec/product-spec.md`, `v-model/requirements.md`
+**Feature**: `012-creator-profiles`  
+**Spec**: [spec.md](./spec.md)  
+**Plan**: [plan.md](./plan.md)  
+**Product Spec**: [product-spec/product-spec.md](./product-spec/product-spec.md)
 
 ---
 
-## Milestone and Governance Context
+## US Reference
 
-- Milestone authority: [`../v1-launch-plan.md`](../v1-launch-plan.md)
-- Governance authority: [`../governance-rules.md`](../governance-rules.md)
-- GR-002 anchor: [`../governance-rules.md#gr-002-api-url-prefix-standard`](../governance-rules.md#gr-002-api-url-prefix-standard)
-- GR-007 anchor: [`../governance-rules.md#gr-007-shared-type-library-ownership`](../governance-rules.md#gr-007-shared-type-library-ownership)
-- Spec baseline: [`spec.md`](./spec.md)
-- Product baseline: [`product-spec/product-spec.md`](./product-spec/product-spec.md)
+| ID | Persona | Story | Spec FR |
+|----|---------|-------|---------|
+| US-001 | P11 Robin | Claim a unique `@handle` | FR-001, FR-002, FR-003, FR-005 |
+| US-002 | P11 Robin | Organize recipes into named collections | FR-017, FR-018, FR-019 |
+| US-003 | P5 Morgan | Follow/unfollow a creator | FR-013, FR-014, FR-015, FR-016 |
+| US-004 | P5 Morgan | Browse a creator's profile without logging in | FR-006, FR-007, FR-008, FR-009, FR-010..FR-012 |
+| US-005 | P9 Drew | Embed widget for external website | FR-026, FR-027 |
+| US-006 | P11 Robin | View profile views and follower growth | FR-023, FR-024, FR-025 |
 
 ---
 
 ## Dependency Graph
 
 ```text
-Setup (T001-T006)
-  -> Schema/Migrations (T007-T014)
-    -> Domain APIs (T015-T027)
-      -> Public/Profile Web + Widget (T028-T034)
-      -> Analytics + Moderation/Privacy (T035-T041)
-      -> Monetization Delegation + Feed Bridge (T042-T046)
-        -> Integration/E2E/Performance tests (T047-T056)
-          -> Release readiness evidence (T057-T060)
+T-001 -> T-002 -> T-003 -> T-004 -> T-005
+T-005 -> T-006 -> T-007 -> T-008 -> T-009 -> T-010
+T-007 -> T-011
+T-008 -> T-012 -> T-013 -> T-014 -> T-015
+T-015 -> T-016 -> T-017
+T-017 -> T-018 -> T-019 -> T-020 -> T-021
+T-019 -> T-022 -> T-023 -> T-024 -> T-025
+T-018 -> T-026
+T-022 -> T-026
+T-019 -> T-027 -> T-028 -> T-029
+T-027 -> T-030 -> T-031
+T-029 -> T-032
+T-011 -> T-033 -> T-034 -> T-035
+T-026 -> T-036 -> T-037
+T-030 -> T-038
+T-037 -> T-039
+T-036 -> T-040
 ```
 
 ---
 
-## Phase 1 — Setup
+## US-001 — Claim & Manage @handle
 
-- [ ] **T001** Add workspace/package registration for `@kitchensink/creator-profiles-api` and related build targets; **Files**: root `package.json`, turbo/workspace config. **Depends on**: none. [FR-028, NFR-005]
-- [ ] **T002 [P]** Scaffold `packages/api/creator-profiles-api` package config (`package.json`, tsconfig, lint/test config) aligned with Node 24 + NestJS 11 conventions used by 001; **Files**: `packages/api/creator-profiles-api/*`. **Depends on**: T001. [US-001, FR-001]
-- [ ] **T003 [P]** Add env schema placeholders for creator profile, widget caching, analytics schedule, moderation hooks, and feed bridge config; **Files**: API config + `.env.example*`. **Depends on**: T002. [FR-025, FR-027, NFR-001]
-- [ ] **T004** Wire shared type dependencies and imports to `@kitchensink/shared-recipe-core`; forbid local duplicate core entities; **Files**: `package.json`, domain DTO/type modules. **Depends on**: T002. [GR-007, FR-029]
-- [ ] **T005** Add API route prefix guardrails and route tests to enforce `/api/v1/*` across 012 endpoints; **Files**: route modules + tests. **Depends on**: T002. [GR-002, FR-028]
-- [ ] **T006** Create feature-level README/update docs pointers inside feature folder for implementation references (`plan/tasks/review/spec/product-spec`); **Files**: `specs/012-creator-profiles/*` references if needed. **Depends on**: T001. [M7 readiness]
+- [ ] **T-001** [P] [US-001] Scaffold `@kitchensink/creator-profiles-api` package with tsconfig, lint, and test wiring aligned to Node 24 + NestJS 11 — `packages/api/creator-profiles-api/package.json`
+- [ ] **T-002** [P] [US-001] Register workspace wiring for creator-profiles-api in root package/turbo config — `packages/api/creator-profiles-api/`
+- [ ] **T-003** [P] [US-001] Add env schema and config surfaces (DB, S3, cache headers, scheduler cadence) — `packages/api/creator-profiles-api/src/config/`
+- [ ] **T-004** [US-001] Wire shared type dependencies to `@kitchensink/shared-recipe-core` and forbid local duplicate core entities — `packages/api/creator-profiles-api/src/domain/`
+- [ ] **T-005** [US-001] Add route prefix guardrails enforcing `/api/v1/*` across all 012 endpoints — `packages/api/creator-profiles-api/src/common/guards/`
+- [ ] **T-006** [P] [US-001] Create migration for `creator_profiles` table: handle uniqueness, profile metadata, moderation state, lifecycle timestamps — `packages/api/creator-profiles-api/src/db/migrations/`
+- [ ] **T-007** [US-001] Add DB constraints/checks for handle format (3–30 chars, lowercase alphanumeric + underscore, no consecutive/leading/trailing underscore) — `packages/api/creator-profiles-api/src/db/migrations/`
+- [ ] **T-008** [US-001] Add migration tests validating handle uniqueness and format constraints — `packages/api/creator-profiles-api/src/db/migrations/__tests__/`
+- [ ] **T-009** [P] [US-001] Implement `POST /api/v1/creators` handle claim endpoint with auth, validation, and HTTP 409 conflict — `packages/api/creator-profiles-api/src/creators/`
+- [ ] **T-010** [US-001] Implement owner profile update (`PUT /api/v1/creators/:handle`) with field bounds and avatar metadata — `packages/api/creator-profiles-api/src/creators/`
+- [ ] **T-011** [US-001] Implement handle change cooldown/reservation policy (once per 30 days, previous handle reserved 14 days) — `packages/api/creator-profiles-api/src/creators/policies/`
+- [ ] **T-012** [US-001] Implement profile deactivate/suspend-aware lifecycle for public visibility transitions — `packages/api/creator-profiles-api/src/creators/`
 
----
+## US-004 — Public Profile Browse (SSR + SEO)
 
-## Phase 2 — Schema & Migrations
+- [ ] **T-013** [P] [US-004] Implement public profile read endpoint (`GET /api/v1/creators/:handle`) with strict public payload schema — `packages/api/creator-profiles-api/src/creators/`
+- [ ] **T-014** [US-004] Implement profile SEO/canonical metadata builder for SSR consumers — `packages/api/creator-profiles-api/src/creators/seo/`
+- [ ] **T-015** [P] [US-004] Implement `/@handle` SSR route with profile API payloads and SEO metadata contract — `packages/apps/sous-chef/src/app/(profile)/[handle]/`
+- [ ] **T-016** [US-004] Implement profile page sections: bio, avatar, follower count, public collections, paginated public recipes — `packages/apps/sous-chef/src/app/(profile)/[handle]/`
+- [ ] **T-017** [US-004] Add recipe attribution link component linking public recipes back to creator profile — `packages/apps/sous-chef/src/components/creator-attribution/`
+- [ ] **T-018** [US-004] Implement profile route accessibility/usability smoke checks (desktop + mobile responsive) — `packages/apps/sous-chef/e2e/creator-profile.spec.ts`
 
-- [ ] **T007** Create migration for `creator_profiles` table with handle uniqueness, profile metadata, moderation state, and lifecycle timestamps; **Files**: schema + migration files. **Depends on**: T003. [US-001, FR-001, FR-004]
-- [ ] **T008** Create migration for `creator_follows` with composite uniqueness (`follower_id`, `creator_id`) and indexing for follower/following queries; **Files**: schema + migration files. **Depends on**: T007. [US-003, FR-013, FR-015]
-- [ ] **T009** Create migration for `creator_collections` with creator ownership, name/description constraints, and ordering position fields; **Files**: schema + migration files. **Depends on**: T007. [US-002, FR-017, FR-018]
-- [ ] **T010** Create migration for `creator_collection_recipes` join table with stable ordering and ownership constraints; **Files**: schema + migration files. **Depends on**: T009. [US-002, FR-019]
-- [ ] **T011** Create migration for `creator_analytics_snapshots` with aggregate-only fields and query indexes by creator/date; **Files**: schema + migration files. **Depends on**: T007. [US-006, FR-023, FR-024, FR-025]
-- [ ] **T012** Add DB-level constraints/checks for handle format and cooldown-related metadata persistence invariants; **Files**: migrations and repository tests. **Depends on**: T007. [FR-001, FR-005]
-- [ ] **T013** Add migration tests validating uniqueness/idempotency/order constraints for follows and collections; **Files**: migration/integration tests. **Depends on**: T008, T010, T012. [FR-013, FR-018, FR-019]
-- [ ] **T014** Add rollback-safe migration verification script for local/CI environments; **Files**: scripts + CI config hooks. **Depends on**: T007-T013. [NFR-005]
+## US-002 — Public Collections
 
----
+- [ ] **T-019** [P] [US-002] Create migration for `creator_collections` with ownership, name/description constraints, and ordering position — `packages/api/creator-profiles-api/src/db/migrations/`
+- [ ] **T-020** [US-002] Create migration for `creator_collection_recipes` join table with stable ordering and public-recipe-only membership — `packages/api/creator-profiles-api/src/db/migrations/`
+- [ ] **T-021** [P] [US-002] Implement collections list/detail endpoints for public view with ownership/publicity enforcement — `packages/api/creator-profiles-api/src/collections/`
+- [ ] **T-022** [US-002] Implement owner collection CRUD endpoints with max 20 collections and 60-char name / 200-char description limits — `packages/api/creator-profiles-api/src/collections/`
+- [ ] **T-023** [US-002] Implement collection reordering persistence and deterministic response ordering — `packages/api/creator-profiles-api/src/collections/`
+- [ ] **T-024** [US-002] Add collection UI components to profile page with shareable collection URLs — `packages/apps/sous-chef/src/components/creator-collections/`
 
-## Phase 3 — Core Domain APIs
+## US-003 — Follow / Unfollow
 
-- [ ] **T015** Implement `POST /api/v1/creators` handle claim endpoint with auth, validation, and conflict handling; **Files**: controller/service/DTO/repo modules. **Depends on**: T012. [US-001, FR-001, FR-003, FR-028]
-- [ ] **T016** Implement owner profile update endpoint (`PUT /api/v1/creators/:handle`) with field bounds and avatar metadata handling; **Files**: controller/service/DTO modules. **Depends on**: T015. [FR-002]
-- [ ] **T017** Implement handle change cooldown/reservation policy enforcement and persistence checks; **Files**: policy validator + service tests. **Depends on**: T015. [FR-005]
-- [ ] **T018** Implement profile deactivate/suspend-aware lifecycle behavior for public visibility transitions; **Files**: service/repository + moderation checks. **Depends on**: T016. [FR-004, FR-020]
-- [ ] **T019** Implement public profile read endpoint (`GET /api/v1/creators/:handle`) with strict public payload schema; **Files**: query service/controller/serializer. **Depends on**: T015, T018. [US-004, FR-001, FR-006]
-- [ ] **T020** Implement profile SEO/canonical metadata builder for SSR consumers; **Files**: metadata utility + contract tests. **Depends on**: T019. [FR-007, NFR-SEO]
-- [ ] **T021** Implement collections list/detail endpoints for public view with ownership/publicity enforcement; **Files**: controller/query modules. **Depends on**: T010, T019. [US-002, FR-017, FR-019]
-- [ ] **T022** Implement owner collection CRUD endpoints with max limits and validation constraints; **Files**: controller/service/DTO modules. **Depends on**: T021. [US-002, FR-017]
-- [ ] **T023** Implement collection reordering persistence and deterministic response ordering; **Files**: ordering service + tests. **Depends on**: T022. [FR-018]
-- [ ] **T024** Implement follow endpoint (`POST /api/v1/creators/:handle/follow`) with idempotency guarantees; **Files**: follow service/controller/repository. **Depends on**: T008, T019. [US-003, FR-013]
-- [ ] **T025** Implement unfollow endpoint (`DELETE /api/v1/creators/:handle/follow`) with idempotency and counter integrity; **Files**: follow service/controller/repository. **Depends on**: T024. [US-003, FR-013, FR-015]
-- [ ] **T026** Implement follower/following count projection path with <=5s bounded consistency target; **Files**: projector module and async worker hooks. **Depends on**: T024, T025. [FR-015]
-- [ ] **T027** Add blocked/suspended-state authorization checks across profile/follow/collection mutating endpoints; **Files**: guards/policies/tests. **Depends on**: T018, T024, T025. [FR-020, FR-021]
+- [ ] **T-025** [P] [US-003] Create migration for `creator_follows` with composite PK (`follower_id`, `creator_id`) and follower/following indexes — `packages/api/creator-profiles-api/src/db/migrations/`
+- [ ] **T-026** [P] [US-003] Implement follow endpoint (`POST /api/v1/creators/:handle/follow`) with idempotency guarantees — `packages/api/creator-profiles-api/src/follows/`
+- [ ] **T-027** [P] [US-003] Implement unfollow endpoint (`DELETE /api/v1/creators/:handle/follow`) with idempotency and counter integrity — `packages/api/creator-profiles-api/src/follows/`
+- [ ] **T-028** [P] [US-003] Implement follower/following count projection with ≤5s bounded consistency target — `packages/api/creator-profiles-api/src/follows/projector/`
+- [ ] **T-029** [US-003] Implement authenticated follow/unfollow interactions on profile page with optimistic UX and rollback — `packages/apps/sous-chef/src/components/follow-button/`
 
----
+## US-005 — Embed Widget
 
-## Phase 4 — Public Web Surface + Widget
+- [ ] **T-030** [P] [US-005] Implement embed widget endpoint (`GET /api/v1/creators/:handle/widget`) returning static HTML fragment (no JS) — `packages/api/creator-profiles-api/src/widget/`
+- [ ] **T-031** [P] [US-005] Enforce widget cache headers (`Cache-Control: public, max-age=300`) and CDN compatibility — `packages/api/creator-profiles-api/src/widget/`
+- [ ] **T-032** [US-005] Validate widget payload includes avatar, displayName, followerCount, and 3 most-recent public recipes only — `packages/api/creator-profiles-api/src/widget/__tests__/`
+- [ ] **T-033** [US-005] Add widget accessibility/usability smoke checks for desktop and mobile — `packages/apps/sous-chef/e2e/creator-widget.spec.ts`
 
-- [ ] **T028** Implement `/@handle` SSR route integration with profile API payloads and SEO metadata contract; **Files**: web app route/page modules. **Depends on**: T019, T020. [US-004, FR-006, FR-007]
-- [ ] **T029** Implement profile page sections: bio/avatar/follower count/public collections/paginated public recipes; **Files**: UI components + page composition. **Depends on**: T028. [US-004, FR-001]
-- [ ] **T030** Implement authenticated follow/unfollow interactions on profile page with optimistic UX and rollback handling; **Files**: client actions/hooks/components. **Depends on**: T024, T025, T029. [US-003, FR-013]
-- [ ] **T031** Implement embed widget endpoint (`GET /api/v1/creators/:handle/widget`) returning static HTML fragment (no JS); **Files**: widget renderer/endpoint. **Depends on**: T019. [US-005, FR-026]
-- [ ] **T032** Enforce widget cache headers (`Cache-Control: public, max-age=300`) and CDN compatibility tests; **Files**: endpoint config + contract tests. **Depends on**: T031. [FR-027]
-- [ ] **T033** Validate widget payload includes avatar/displayName/followerCount/3 recent public recipes only; **Files**: renderer tests. **Depends on**: T031. [FR-026]
-- [ ] **T034** Add profile route and widget accessibility/usability smoke checks (desktop + mobile); **Files**: E2E specs. **Depends on**: T029, T033. [US-004, US-005]
+## US-006 — Creator Analytics
 
----
+- [ ] **T-034** [P] [US-006] Create migration for `creator_analytics_snapshots` with aggregate-only fields and creator/date query indexes — `packages/api/creator-profiles-api/src/db/migrations/`
+- [ ] **T-035** [P] [US-006] Implement daily analytics snapshot Lambda job over internal event data with aggregate-only fields — `packages/api/creator-profiles-api/src/analytics/jobs/`
+- [ ] **T-036** [P] [US-006] Implement owner-only analytics endpoint (`GET /api/v1/creators/:handle/analytics`) with strict authz checks — `packages/api/creator-profiles-api/src/analytics/`
+- [ ] **T-037** [US-006] Enforce analytics privacy requirements (no visitor identifiers/IPs in storage or responses) — `packages/api/creator-profiles-api/src/analytics/filters/`
+- [ ] **T-038** [US-006] Add analytics dashboard UI component for creator view with 7d/30d views, follower delta, top recipes — `packages/apps/sous-chef/src/components/creator-analytics/`
 
-## Phase 5 — Analytics, Moderation, Privacy
+## Cross-cutting: Moderation, Privacy, Integration
 
-- [ ] **T035** Implement daily analytics snapshot job over internal event data with aggregate-only fields; **Files**: scheduled job/service/repository modules. **Depends on**: T011. [US-006, FR-023, FR-025]
-- [ ] **T036** Implement owner-only analytics endpoint (`GET /api/v1/creators/:handle/analytics`) with strict authz checks; **Files**: controller/service/guard modules. **Depends on**: T035. [US-006, FR-023]
-- [ ] **T037** Enforce analytics privacy requirements (no visitor identifiers/IPs in storage or responses); **Files**: data pipeline filters + tests. **Depends on**: T035, T036. [FR-024]
-- [ ] **T038** Implement moderation suspension workflow hooks that hide profile and block new follows; **Files**: moderation service/integration points/tests. **Depends on**: T018, T027. [FR-020]
-- [ ] **T039** Implement creator-facing suspension notification + appeal-path response contract integration; **Files**: notification adapter/event schema/tests. **Depends on**: T038. [FR-021]
-- [ ] **T040** Implement DMCA takedown workflow integration and recipe unpublish SLA instrumentation path; **Files**: compliance workflow modules. **Depends on**: T029, T038. [FR-022]
-- [ ] **T041** Implement GDPR erasure propagation for creator-profile-owned records and caches; **Files**: privacy orchestration modules + tests. **Depends on**: T007-T011, T035. [REQ-018 lineage]
+- [ ] **T-039** [US-004] Implement moderation suspension workflow hooks that hide profile and block new follows — `packages/api/creator-profiles-api/src/moderation/`
+- [ ] **T-040** [US-004] Implement creator-facing suspension notification and appeal-path response contract — `packages/api/creator-profiles-api/src/moderation/notifications/`
+- [ ] **T-041** [US-004] Implement DMCA takedown workflow integration and recipe unpublish SLA instrumentation — `packages/api/creator-profiles-api/src/compliance/`
+- [ ] **T-042** [US-001] Implement GDPR erasure propagation for creator-profile-owned records and caches — `packages/api/creator-profiles-api/src/privacy/`
+- [ ] **T-043** [US-003] Implement feed projection bridge for follow/publication events to existing feed ownership boundaries — `packages/api/creator-profiles-api/src/follows/bridge/`
+- [ ] **T-044** [US-001] Implement tip delegation endpoint contract (`POST /api/v1/creators/:handle/tip`) to 010 without local billing logic — `packages/api/creator-profiles-api/src/monetization/`
+- [ ] **T-045** [US-001] Implement premium/paid-follow delegation markers and boundary validations to 010 contracts — `packages/api/creator-profiles-api/src/monetization/`
+- [ ] **T-046** [US-004] Add sibling audience scope checks ensuring `public-profile` (S-004) is not nested with `circle` (S-003) or `published-lesson` (S-002) semantics — `packages/api/creator-profiles-api/src/audience/`
 
----
+## Verification & Release Readiness
 
-## Phase 6 — Cross-feature integrations
-
-- [ ] **T042** Implement feed projection bridge for follow/publication events to existing feed ownership boundaries; **Files**: event adapter modules + tests. **Depends on**: T026. [FR-014]
-- [ ] **T043** Implement tip delegation endpoint contract to 010 without local billing logic; **Files**: gateway/controller integration tests. **Depends on**: T019. [FR-010 boundary, FR-016 context]
-- [ ] **T044** Implement premium/paid-follow delegation markers and boundary validations to 010 contracts; **Files**: adapter modules + policy checks. **Depends on**: T043. [FR-016]
-- [ ] **T045** Add integration tests validating 012 does not process payment state directly and only delegates; **Files**: integration tests. **Depends on**: T043, T044. [Boundary enforcement]
-- [ ] **T046** Add sibling audience scope checks ensuring S-004 is not nested with S-003/S-002 semantics; **Files**: policy tests/contracts. **Depends on**: T021, T029. [Audience model]
-
----
-
-## Phase 7 — Test, Verification, and M7 readiness evidence
-
-- [ ] **T047** Add API contract tests for all `/api/v1/creators/*` endpoints including authz/error envelopes. **Depends on**: T015-T027, T031, T036. [GR-002]
-- [ ] **T048** Add integration tests for profile lifecycle, follow graph, collection ordering, and moderation transitions. **Depends on**: T027, T038. [FR-001..FR-022]
-- [ ] **T049** Add unit tests for handle validator, follow projector, widget renderer, analytics aggregators, and privacy filters. **Depends on**: T017, T026, T033, T037. [v-model/unit-test.md]
-- [ ] **T050** Add E2E tests: claim handle, public browse, follow/unfollow, collection browse, widget embed render, owner analytics view. **Depends on**: T030, T034, T036. [US-001..US-006]
-- [ ] **T051** Add performance checks: profile SSR p95, follow API p95, widget cache-hit p95, analytics endpoint p95 against NFR targets. **Depends on**: T028, T032, T036. [NFR table]
-- [ ] **T052** Add security/privacy tests for blocked-user restrictions, stale-session protections, and PII non-leak in public payloads. **Depends on**: T027, T037, T041. [Hazard mitigations]
-- [ ] **T053** Run full test suite + lint + typecheck for affected workspaces and archive evidence references. **Depends on**: T047-T052. [M7 exit evidence]
-- [ ] **T054** Update V-Model execution status artifacts (`traceability-matrix.md`, release audit inputs) with real test-case mappings/results. **Depends on**: T053. [GR-001 readiness]
-- [ ] **T055** Produce `sync-verify` input bundle linking `spec.md` ↔ `product-spec/` ↔ `plan.md` ↔ `tasks.md` ↔ implemented code/tests. **Depends on**: T054. [Downstream sync-verify]
-- [ ] **T056** Prepare M7 feature readiness checklist and unresolved risk register updates in `review.md`. **Depends on**: T054, T055. [Launch governance]
+- [ ] **T-047** [US-001] Add API contract tests for all `/api/v1/creators/*` endpoints including authz and error envelopes — `packages/api/creator-profiles-api/src/__contracts__/`
+- [ ] **T-048** [US-001] Add integration tests for profile lifecycle, follow graph, collection ordering, and moderation transitions — `packages/api/creator-profiles-api/src/__integration__/`
+- [ ] **T-049** [US-001] Add unit tests for handle validator, follow projector, widget renderer, analytics aggregators, and privacy filters — `packages/api/creator-profiles-api/src/__tests__/`
+- [ ] **T-050** [P] [US-001] Add E2E tests: claim handle, public browse, follow/unfollow, collection browse, widget embed render, owner analytics view — `packages/apps/sous-chef/e2e/creator-profiles.spec.ts`
+- [ ] **T-051** [US-001] Add performance checks: profile SSR p95, follow API p95, widget cache-hit p95, analytics endpoint p95 — `packages/api/creator-profiles-api/src/__perf__/`
+- [ ] **T-052** [US-001] Add security/privacy tests for blocked-user restrictions, stale-session protections, and PII non-leak in public payloads — `packages/api/creator-profiles-api/src/__security__/`
+- [ ] **T-053** [US-001] Run full test suite + lint + typecheck for affected workspaces and archive evidence — `packages/api/creator-profiles-api/`
+- [ ] **T-054** [US-001] Update V-Model execution status artifacts with real test-case mappings and results — `specs/012-creator-profiles/v-model/`
+- [ ] **T-055** [US-001] Validate links among spec.md, product-spec, plan.md, and tasks.md remain intact — `specs/012-creator-profiles/`
 
 ---
 
-## Finalization / handoff tasks
+## Traceability
 
-- [ ] **T057** Confirm milestone references and post-1.0 placement remain aligned with [`../v1-launch-plan.md`](../v1-launch-plan.md). **Depends on**: T056.
-- [ ] **T058** Confirm GR-002 and GR-007 compliance evidence is documented in review and test artifacts. **Depends on**: T056.
-- [ ] **T059** Validate links among `spec.md`, `product-spec/`, `plan.md`, `tasks.md`, and `review.md` are intact. **Depends on**: T056.
-- [ ] **T060** Submit artifacts for Director-led sync-verify and M7 milestone integration. **Depends on**: T057, T058, T059.
-
----
-
-## Notes
-
-- This task set is milestone-aware for `M7` and intentionally keeps monetization mechanics delegated to feature 010.
-- No tasks in this file modify other feature directories; cross-feature items are integration boundaries and contract compliance checks only.
+| Task | Implements | Spec FR | Plan Phase |
+|------|-----------|---------|------------|
+| T-001..T-012 | Profile lifecycle | FR-001..FR-005 | Phase 1–2 |
+| T-013..T-018 | Public read surface | FR-006..FR-012 | Phase 3–4 |
+| T-019..T-024 | Collections curation | FR-017..FR-019 | Phase 2–3 |
+| T-025..T-029 | Follow graph | FR-013..FR-016 | Phase 2–3 |
+| T-030..T-033 | Embed widget | FR-026..FR-027 | Phase 4 |
+| T-034..T-038 | Analytics pipeline | FR-023..FR-025 | Phase 5 |
+| T-039..T-042 | Moderation / privacy | FR-020..FR-022 | Phase 5 |
+| T-043..T-046 | Integration boundaries | FR-014, FR-030 | Phase 6 |
+| T-047..T-055 | Verification / readiness | All | Phase 7 |

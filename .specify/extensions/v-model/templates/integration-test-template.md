@@ -24,12 +24,12 @@ journeys. Language must be module-boundary-oriented.
 
 Each test case MUST identify its technique by name and anchor to a specific architecture view:
 
-| Technique                                | Source View                   | What It Tests                                                 |
-| ---------------------------------------- | ----------------------------- | ------------------------------------------------------------- |
-| **Interface Contract Testing**           | Interface View                | Module API contracts, data format compliance, error responses |
-| **Data Flow Testing**                    | Data Flow View                | End-to-end data transformation chain validation               |
-| **Interface Fault Injection**            | Interface View + Process View | Malformed payloads, timeouts, graceful failure                |
-| **Concurrency & Race Condition Testing** | Process View                  | Simultaneous access, lock handling, queue ordering            |
+| Technique | Source View | What It Tests |
+|-----------|------------|---------------|
+| **Interface Contract Testing** | Interface View | Module API contracts, data format compliance, error responses |
+| **Data Flow Testing** | Data Flow View | End-to-end data transformation chain validation |
+| **Interface Fault Injection** | Interface View + Process View | Malformed payloads, timeouts, graceful failure |
+| **Concurrency & Race Condition Testing** | Process View | Simultaneous access, lock handling, queue ordering |
 
 ## Integration Tests
 
@@ -47,6 +47,14 @@ Each test case MUST identify its technique by name and anchor to a specific arch
   - Cross-cutting [CROSS-CUTTING] modules must have at least one ITP
   - Do NOT renumber existing IDs when updating
   - Append new items; update modified items in-place by ID
+
+  LIFECYCLE TAGS (when evolving):
+  - [DEPRECATED — Superseded by ITP-NNN-X]: Test case replaced (parent ARCH superseded)
+  - [DEPRECATED — Withdrawn: <reason>]: Test case removed (parent ARCH withdrawn)
+  - [SUSPECT — Parent ARCH-NNN {deprecated|modified}]: Parent architecture module changed;
+    resolve by re-parenting, deprecating, regenerating, or confirming active.
+  - Deprecated ITPs/ITSs stay in the document; they are never deleted.
+  - Coverage checks (ARCH→ITP) exclude deprecated ARCH and deprecated ITP items.
 
   PROHIBITED phrases in ITS (belong in acceptance scenarios):
   - "the user clicks", "the user sees", "the user navigates"
@@ -73,15 +81,15 @@ Each test case MUST identify its technique by name and anchor to a specific arch
 **Target View**: Interface View
 **Description**: [What this test verifies about the module's boundary behavior]
 
-- **Integration Scenario: ITS-001-A1**
-  - **Given** [module state / boundary precondition]
-  - **When** [module-to-module interaction / API call / message]
-  - **Then** [expected boundary behavior / contract compliance]
+* **Integration Scenario: ITS-001-A1**
+  * **Given** [module state / boundary precondition]
+  * **When** [module-to-module interaction / API call / message]
+  * **Then** [expected boundary behavior / contract compliance]
 
-- **Integration Scenario: ITS-001-A2**
-  - **Given** [error precondition at module boundary]
-  - **When** [invalid input crosses module boundary]
-  - **Then** [expected error propagation / rejection behavior]
+* **Integration Scenario: ITS-001-A2**
+  * **Given** [error precondition at module boundary]
+  * **When** [invalid input crosses module boundary]
+  * **Then** [expected error propagation / rejection behavior]
 
 #### Test Case: ITP-001-B ([Verification Condition])
 
@@ -89,10 +97,10 @@ Each test case MUST identify its technique by name and anchor to a specific arch
 **Target View**: Interface View + Process View
 **Description**: [What this test verifies about failure behavior at module boundary]
 
-- **Integration Scenario: ITS-001-B1**
-  - **Given** [dependency module is unavailable / returns malformed data]
-  - **When** [source module attempts interaction]
-  - **Then** [expected graceful degradation / isolation behavior]
+* **Integration Scenario: ITS-001-B1**
+  * **Given** [dependency module is unavailable / returns malformed data]
+  * **When** [source module attempts interaction]
+  * **Then** [expected graceful degradation / isolation behavior]
 
 ---
 
@@ -106,10 +114,10 @@ Each test case MUST identify its technique by name and anchor to a specific arch
 **Target View**: Data Flow View
 **Description**: [What this test verifies about data transformation across boundaries]
 
-- **Integration Scenario: ITS-002-A1**
-  - **Given** [data enters the transformation chain at ARCH-NNN]
-  - **When** [data passes through the module boundary to ARCH-NNN]
-  - **Then** [output format matches expected intermediate/final format]
+* **Integration Scenario: ITS-002-A1**
+  * **Given** [data enters the transformation chain at ARCH-NNN]
+  * **When** [data passes through the module boundary to ARCH-NNN]
+  * **Then** [output format matches expected intermediate/final format]
 
 ---
 
@@ -123,21 +131,24 @@ Each test case MUST identify its technique by name and anchor to a specific arch
   and unresolved module dependencies are handled during testing.
 -->
 
-| Test Case | External Dependency | Mock/Stub Strategy         | Rationale           |
-| --------- | ------------------- | -------------------------- | ------------------- |
-| ITP-001-A | [Dependency]        | [Mock type: stub/fake/spy] | [Why this approach] |
-| ITP-001-B | [Dependency]        | [Mock type]                | [Why this approach] |
+| Test Case | External Dependency | Mock/Stub Strategy | Rationale |
+|-----------|--------------------|--------------------|-----------|
+| ITP-001-A | [Dependency] | [Mock type: stub/fake/spy] | [Why this approach] |
+| ITP-001-B | [Dependency] | [Mock type] | [Why this approach] |
 
-<!-- SAFETY-CRITICAL SECTION: Only include when v-model-config.yml domain is set -->
+<!-- SAFETY-CRITICAL SECTION: Only include when a domain overlay is loaded (Step 2a) -->
 
 <!--
-## SIL/HIL Compatibility (ISO 26262 + DO-178C)
+> **Note:** If a domain overlay is loaded, use the overlay's version of this section.
+> The tables below show the generic structure; domain overlays provide domain-specific column headers and content.
+
+## SIL/HIL Compatibility
 
 | Test Case | SIL/HIL Target | Environment | Adaptation Notes |
 |-----------|---------------|-------------|-----------------|
 | ITP-NNN-X | SIL / HIL | [Environment name] | [How to adapt for target] |
 
-## Resource Contention (ISO 26262 + DO-178C)
+## Resource Contention
 
 | Test Case | Shared Resource | Contention Scenario | Expected Behavior |
 |-----------|----------------|--------------------|--------------------|
@@ -148,23 +159,23 @@ Each test case MUST identify its technique by name and anchor to a specific arch
 
 ## Coverage Summary
 
-| Metric                            | Count           |
-| --------------------------------- | --------------- |
-| Total Architecture Modules (ARCH) | [N]             |
-| Total Test Cases (ITP)            | [N]             |
-| Total Scenarios (ITS)             | [N]             |
-| Modules with ≥1 ITP               | [N] / [N] ([%]) |
-| Test Cases with ≥1 ITS            | [N] / [N] ([%]) |
-| **Overall Coverage (ARCH→ITP)**   | **[%]**         |
+| Metric | Count |
+|--------|-------|
+| Total Architecture Modules (ARCH) | [N] ([N] active, [N] deprecated) |
+| Total Test Cases (ITP) | [N] |
+| Total Scenarios (ITS) | [N] |
+| Modules with ≥1 ITP | [N] / [N] ([%]) (active items only) |
+| Test Cases with ≥1 ITS | [N] / [N] ([%]) |
+| **Overall Coverage (ARCH→ITP)** | **[%]** |
 
 ### Technique Distribution
 
-| Technique                            | Test Cases | Percentage |
-| ------------------------------------ | ---------- | ---------- |
-| Interface Contract Testing           | [N]        | [%]        |
-| Data Flow Testing                    | [N]        | [%]        |
-| Interface Fault Injection            | [N]        | [%]        |
-| Concurrency & Race Condition Testing | [N]        | [%]        |
+| Technique | Test Cases | Percentage |
+|-----------|-----------|------------|
+| Interface Contract Testing | [N] | [%] |
+| Data Flow Testing | [N] | [%] |
+| Interface Fault Injection | [N] | [%] |
+| Concurrency & Race Condition Testing | [N] | [%] |
 
 ## Uncovered Modules
 

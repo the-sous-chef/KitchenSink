@@ -63,20 +63,20 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name               | Type   | Size/Range                                | Constraints            |
-| ------------------ | ------ | ----------------------------------------- | ---------------------- |
-| requirements_path  | Path   | OS max path                               | Must exist             |
-| system_design_path | Path   | OS max path                               | Must exist             |
-| arch_design_path   | Path   | OS max path                               | Optional               |
-| domain             | String | Enum: iso_26262, do_178c, iec_62304, NULL | NULL when unconfigured |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| requirements_path | Path | OS max path | Must exist |
+| system_design_path | Path | OS max path | Must exist |
+| arch_design_path | Path | OS max path | Optional |
+| domain | String | Enum: iso_26262, do_178c, iec_62304, NULL | NULL when unconfigured |
 
 #### Error Handling & Return Codes
 
-| Error Condition              | Handling                           | Maps to ARCH Contract                    |
-| ---------------------------- | ---------------------------------- | ---------------------------------------- |
-| requirements.md missing      | Return Error with specific message | ARCH-001 Exception: Missing prerequisite |
-| system-design.md missing     | Return Error with specific message | ARCH-001 Exception: Missing prerequisite |
-| v-model-config.yml malformed | Treat domain as NULL, continue     | Graceful degradation                     |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| requirements.md missing | Return Error with specific message | ARCH-001 Exception: Missing prerequisite |
+| system-design.md missing | Return Error with specific message | ARCH-001 Exception: Missing prerequisite |
+| v-model-config.yml malformed | Treat domain as NULL, continue | Graceful degradation |
 
 ---
 
@@ -110,15 +110,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name        | Type            | Size/Range | Constraints                             |
-| ----------- | --------------- | ---------- | --------------------------------------- |
-| states      | Array of String | 1–50       | At least "NORMAL" if empty              |
-| is_implicit | Boolean         | true/false | True only when no explicit states found |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| states | Array of String | 1–50 | At least "NORMAL" if empty |
+| is_implicit | Boolean | true/false | True only when no explicit states found |
 
 #### Error Handling & Return Codes
 
-| Error Condition                        | Handling                            | Maps to ARCH Contract             |
-| -------------------------------------- | ----------------------------------- | --------------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | No explicit states in system-design.md | Use implicit "NORMAL", emit warning | ARCH-001: Implicit state fallback |
 
 ---
@@ -195,20 +195,20 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                   | Type                 | Size/Range                    | Constraints                                              |
-| ---------------------- | -------------------- | ----------------------------- | -------------------------------------------------------- |
-| hazards                | Array of HazardEntry | 1–999                         | Sequential HAZ IDs, no gaps in initial generation        |
-| HazardEntry.id         | String               | "HAZ-001" to "HAZ-999"        | Matches regex `HAZ-[0-9]{3}`                             |
-| HazardEntry.severity   | String               | Domain-dependent enum         | General: Negligible/Minor/Moderate/Critical/Catastrophic |
-| HazardEntry.risk_level | String               | Severity × Likelihood         | Computed, not assigned directly                          |
-| HazardEntry.mitigation | String               | REQ-NNN or SYS-NNN references | At least one reference required                          |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| hazards | Array of HazardEntry | 1–999 | Sequential HAZ IDs, no gaps in initial generation |
+| HazardEntry.id | String | "HAZ-001" to "HAZ-999" | Matches regex `HAZ-[0-9]{3}` |
+| HazardEntry.severity | String | Domain-dependent enum | General: Negligible/Minor/Moderate/Critical/Catastrophic |
+| HazardEntry.risk_level | String | Severity × Likelihood | Computed, not assigned directly |
+| HazardEntry.mitigation | String | REQ-NNN or SYS-NNN references | At least one reference required |
 
 #### Error Handling & Return Codes
 
-| Error Condition                   | Handling                                                             | Maps to ARCH Contract                    |
-| --------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | No failure mode for SYS component | Generate "No identified failure mode" entry flagged for human review | ARCH-001: Every SYS has at least one HAZ |
-| Mitigation cannot link to REQ/SYS | Flag entry for human review with note                                | ARCH-001: Strict translator constraint   |
+| Mitigation cannot link to REQ/SYS | Flag entry for human review with note | ARCH-001: Strict translator constraint |
 
 ---
 
@@ -262,17 +262,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name          | Type    | Size/Range | Constraints                                               |
-| ------------- | ------- | ---------- | --------------------------------------------------------- |
-| max_id        | Integer | 0–999      | 0 when no existing hazards                                |
-| arch_failures | Array   | 0–100      | Only architecture-level failures not in existing register |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| max_id | Integer | 0–999 | 0 when no existing hazards |
+| arch_failures | Array | 0–100 | Only architecture-level failures not in existing register |
 
 #### Error Handling & Return Codes
 
-| Error Condition           | Handling                            | Maps to ARCH Contract                             |
-| ------------------------- | ----------------------------------- | ------------------------------------------------- |
-| No new arch-level hazards | Return empty list with note         | ARCH-001: Progressive deepening graceful handling |
-| Existing HAZ entries      | Preserve unmodified, never renumber | ARCH-001: Append-only constraint                  |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| No new arch-level hazards | Return empty list with note | ARCH-001: Progressive deepening graceful handling |
+| Existing HAZ entries | Preserve unmodified, never renumber | ARCH-001: Append-only constraint |
 
 ---
 
@@ -303,9 +303,8 @@ TEMPLATE hazard_analysis_template:
 
     CONDITIONAL SECTION "Domain-Specific Severity Scales":
         IF domain configured:
-            ASIL scale for iso_26262
-            SIL scale for iec_61508
-            DAL/failure condition for do_178c
+            Load severity scale from domain overlay
+            (e.g., ASIL for iso_26262, Safety Class for iec_62304, DAL for do_178c)
 ```
 
 #### State Machine View
@@ -314,16 +313,16 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name            | Type            | Size/Range | Constraints                     |
-| --------------- | --------------- | ---------- | ------------------------------- |
-| FMEA columns    | Array of String | 10 columns | Fixed schema per REQ-018        |
-| severity_axis   | Array of String | 5 levels   | Domain-specific when configured |
-| likelihood_axis | Array of String | 5 levels   | Standard scale                  |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| FMEA columns | Array of String | 10 columns | Fixed schema per REQ-018 |
+| severity_axis | Array of String | 5 levels | Domain-specific when configured |
+| likelihood_axis | Array of String | 5 levels | Standard scale |
 
 #### Error Handling & Return Codes
 
-| Error Condition         | Handling                                 | Maps to ARCH Contract                  |
-| ----------------------- | ---------------------------------------- | -------------------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | Template file not found | ARCH-001 fails with file-not-found error | ARCH-002 Exception: Template not found |
 
 ---
@@ -358,17 +357,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name           | Type            | Size/Range | Constraints                          |
-| -------------- | --------------- | ---------- | ------------------------------------ |
-| sys_ids        | Array of String | 1–100      | Unique, sorted                       |
-| haz_components | Array of String | 0–100      | Extracted from FMEA Component column |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| sys_ids | Array of String | 1–100 | Unique, sorted |
+| haz_components | Array of String | 0–100 | Extracted from FMEA Component column |
 
 #### Error Handling & Return Codes
 
-| Error Condition                | Handling                          | Maps to ARCH Contract            |
-| ------------------------------ | --------------------------------- | -------------------------------- |
-| No SYS-NNN in system-design.md | Return pct=0, uncovered=[]        | ARCH-003: Empty input handled    |
-| No HAZ entries found           | Return pct=0, uncovered=[all SYS] | ARCH-003: Zero coverage reported |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| No SYS-NNN in system-design.md | Return pct=0, uncovered=[] | ARCH-003: Empty input handled |
+| No HAZ entries found | Return pct=0, uncovered=[all SYS] | ARCH-003: Zero coverage reported |
 
 ---
 
@@ -417,17 +416,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name        | Type            | Size/Range | Constraints                     |
-| ----------- | --------------- | ---------- | ------------------------------- |
-| valid_ids   | Set of String   | 1–200      | Union of REQ + SYS IDs          |
-| broken_refs | Array of String | 0–100      | Human-readable gap descriptions |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| valid_ids | Set of String | 1–200 | Union of REQ + SYS IDs |
+| broken_refs | Array of String | 0–100 | Human-readable gap descriptions |
 
 #### Error Handling & Return Codes
 
-| Error Condition                       | Handling           | Maps to ARCH Contract                |
-| ------------------------------------- | ------------------ | ------------------------------------ |
-| requirements.md missing (non-partial) | Return error       | ARCH-004 Exception: File not found   |
-| HAZ entry with no mitigation refs     | Add to broken_refs | ARCH-004: Every HAZ needs mitigation |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| requirements.md missing (non-partial) | Return error | ARCH-004 Exception: File not found |
+| HAZ entry with no mitigation refs | Add to broken_refs | ARCH-004: Every HAZ needs mitigation |
 
 ---
 
@@ -466,15 +465,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name           | Type            | Size/Range | Constraints                         |
-| -------------- | --------------- | ---------- | ----------------------------------- |
-| defined_states | Array of String | 1–20       | At least "NORMAL"                   |
-| undefined      | Array of String | 0–20       | States in hazards but not in design |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| defined_states | Array of String | 1–20 | At least "NORMAL" |
+| undefined | Array of String | 0–20 | States in hazards but not in design |
 
 #### Error Handling & Return Codes
 
-| Error Condition               | Handling              | Maps to ARCH Contract             |
-| ----------------------------- | --------------------- | --------------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | No states in system-design.md | Use implicit "NORMAL" | ARCH-005: Implicit state fallback |
 
 ---
@@ -522,17 +521,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name         | Type    | Size/Range  | Constraints                   |
-| ------------ | ------- | ----------- | ----------------------------- |
-| json_mode    | Boolean | true/false  | Default false                 |
-| partial_mode | Boolean | true/false  | Default false                 |
-| vmodel_dir   | Path    | OS max path | Required first positional arg |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| json_mode | Boolean | true/false | Default false |
+| partial_mode | Boolean | true/false | Default false |
+| vmodel_dir | Path | OS max path | Required first positional arg |
 
 #### Error Handling & Return Codes
 
-| Error Condition              | Handling            | Maps to ARCH Contract     |
-| ---------------------------- | ------------------- | ------------------------- |
-| No vmodel_dir argument       | Print usage, exit 1 | ARCH-006: CLI interface   |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| No vmodel_dir argument | Print usage, exit 1 | ARCH-006: CLI interface |
 | hazard-analysis.md not found | Print error, exit 1 | ARCH-006: File resolution |
 
 ---
@@ -597,19 +596,19 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name     | Type                   | Size/Range  | Constraints                               |
-| -------- | ---------------------- | ----------- | ----------------------------------------- |
-| has_gaps | Boolean                | true/false  | Aggregated from all validators            |
-| forward  | ForwardResult          | See MOD-006 | Always computed                           |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| has_gaps | Boolean | true/false | Aggregated from all validators |
+| forward | ForwardResult | See MOD-006 | Always computed |
 | backward | BackwardResult or NULL | See MOD-007 | NULL in partial mode without requirements |
-| state    | StateResult            | See MOD-008 | Always computed                           |
+| state | StateResult | See MOD-008 | Always computed |
 
 #### Error Handling & Return Codes
 
-| Error Condition                       | Handling                       | Maps to ARCH Contract           |
-| ------------------------------------- | ------------------------------ | ------------------------------- |
-| Any gap detected                      | Exit code 1                    | ARCH-006: Exit codes            |
-| All checks pass                       | Exit code 0                    | ARCH-006: Exit codes            |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| Any gap detected | Exit code 1 | ARCH-006: Exit codes |
+| All checks pass | Exit code 0 | ARCH-006: Exit codes |
 | requirements.md missing (non-partial) | Exit code 1 with error message | ARCH-006: --partial requirement |
 
 ---
@@ -639,14 +638,14 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                            | Type                   | Size/Range  | Constraints                   |
-| ------------------------------- | ---------------------- | ----------- | ----------------------------- |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
 | Same as MOD-006 through MOD-010 | PowerShell equivalents | Same ranges | Must produce identical output |
 
 #### Error Handling & Return Codes
 
-| Error Condition | Handling             | Maps to ARCH Contract           |
-| --------------- | -------------------- | ------------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | Same as MOD-010 | Identical exit codes | ARCH-007: Cross-platform parity |
 
 ---
@@ -688,18 +687,18 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name        | Type                             | Size/Range             | Constraints                 |
-| ----------- | -------------------------------- | ---------------------- | --------------------------- |
-| entries     | Array of {haz_id, mitigations[]} | 0–999                  | Empty when no hazard file   |
-| haz_id      | String                           | "HAZ-001" to "HAZ-999" | Matches `HAZ-[0-9]{3}`      |
-| mitigations | Array of String                  | 1–10 per entry         | REQ-NNN or SYS-NNN patterns |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| entries | Array of {haz_id, mitigations[]} | 0–999 | Empty when no hazard file |
+| haz_id | String | "HAZ-001" to "HAZ-999" | Matches `HAZ-[0-9]{3}` |
+| mitigations | Array of String | 1–10 per entry | REQ-NNN or SYS-NNN patterns |
 
 #### Error Handling & Return Codes
 
-| Error Condition                     | Handling                                   | Maps to ARCH Contract                  |
-| ----------------------------------- | ------------------------------------------ | -------------------------------------- |
-| hazard-analysis.md not found        | Return empty array                         | ARCH-008: No HAZ entries = no Matrix H |
-| Line matches HAZ but no mitigations | Include entry with empty mitigations array | ARCH-008: Parsing fallback             |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| hazard-analysis.md not found | Return empty array | ARCH-008: No HAZ entries = no Matrix H |
+| Line matches HAZ but no mitigations | Include entry with empty mitigations array | ARCH-008: Parsing fallback |
 
 ---
 
@@ -748,18 +747,18 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name       | Type                                        | Size/Range    | Constraints                     |
-| ---------- | ------------------------------------------- | ------------- | ------------------------------- |
-| req_to_atp | Map String→Array                            | 0–200 entries | REQ-NNN → [ATP-NNN-X, ...]      |
-| sys_to_stp | Map String→Array                            | 0–100 entries | SYS-NNN → [STP-NNN-X, ...]      |
-| rows       | Array of {haz_id, mitigation, verification} | 0–999         | One row per HAZ×mitigation pair |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| req_to_atp | Map String→Array | 0–200 entries | REQ-NNN → [ATP-NNN-X, ...] |
+| sys_to_stp | Map String→Array | 0–100 entries | SYS-NNN → [STP-NNN-X, ...] |
+| rows | Array of {haz_id, mitigation, verification} | 0–999 | One row per HAZ×mitigation pair |
 
 #### Error Handling & Return Codes
 
-| Error Condition       | Handling                                                              | Maps to ARCH Contract    |
-| --------------------- | --------------------------------------------------------------------- | ------------------------ |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | No acceptance-plan.md | req_to_atp stays empty, all REQ mitigations get "⚠️ No test coverage" | ARCH-009: Gap annotation |
-| No system-test.md     | sys_to_stp stays empty, all SYS mitigations get "⚠️ No test coverage" | ARCH-009: Gap annotation |
+| No system-test.md | sys_to_stp stays empty, all SYS mitigations get "⚠️ No test coverage" | ARCH-009: Gap annotation |
 
 ---
 
@@ -797,15 +796,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name   | Type    | Size/Range | Constraints                           |
-| ------ | ------- | ---------- | ------------------------------------- |
-| output | String  | 0–50KB     | Markdown table format                 |
-| pct    | Integer | 0–100      | Percentage of rows with test coverage |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| output | String | 0–50KB | Markdown table format |
+| pct | Integer | 0–100 | Percentage of rows with test coverage |
 
 #### Error Handling & Return Codes
 
-| Error Condition     | Handling            | Maps to ARCH Contract              |
-| ------------------- | ------------------- | ---------------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | Empty resolved_rows | Return empty string | ARCH-009: No Matrix H when no data |
 
 ---
@@ -830,14 +829,14 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                            | Type                   | Size/Range  | Constraints                            |
-| ------------------------------- | ---------------------- | ----------- | -------------------------------------- |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
 | Same as MOD-012 through MOD-014 | PowerShell equivalents | Same ranges | Must produce identical Markdown output |
 
 #### Error Handling & Return Codes
 
-| Error Condition | Handling         | Maps to ARCH Contract           |
-| --------------- | ---------------- | ------------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | Same as MOD-014 | Identical output | ARCH-010: Cross-platform parity |
 
 ---
@@ -870,17 +869,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name           | Type            | Size/Range | Constraints                |
-| -------------- | --------------- | ---------- | -------------------------- |
-| available_docs | Array of String | 1–10       | From setup script JSON     |
-| matrix_h_data  | String          | 0–50KB     | Markdown from build-matrix |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| available_docs | Array of String | 1–10 | From setup script JSON |
+| matrix_h_data | String | 0–50KB | Markdown from build-matrix |
 
 #### Error Handling & Return Codes
 
-| Error Condition           | Handling                | Maps to ARCH Contract            |
-| ------------------------- | ----------------------- | -------------------------------- |
-| hazard-analysis.md absent | Skip Matrix H silently  | ARCH-011: Backward compatibility |
-| build-matrix fails        | Skip Matrix H, no error | ARCH-011: Graceful degradation   |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| hazard-analysis.md absent | Skip Matrix H silently | ARCH-011: Backward compatibility |
+| build-matrix fails | Skip Matrix H, no error | ARCH-011: Graceful degradation |
 
 ---
 
@@ -914,14 +913,14 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name           | Type              | Size/Range                     | Constraints          |
-| -------------- | ----------------- | ------------------------------ | -------------------- |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
 | VALID_PREFIXES | Dict String→Regex | 13 entries (12 existing + HAZ) | HAZ-[0-9]{3} pattern |
 
 #### Error Handling & Return Codes
 
-| Error Condition        | Handling     | Maps to ARCH Contract       |
-| ---------------------- | ------------ | --------------------------- |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
 | Unrecognized ID prefix | Return False | ARCH-012: Validation result |
 
 ---
@@ -939,7 +938,7 @@ N/A — Stateless
 // 1. Command registration
 commands:
     speckit.v-model.hazard-analysis:
-        description: "Generate ISO 14971/ISO 26262-compliant hazard analysis (FMEA) with operational states and traceable mitigations"
+        description: "Generate FMEA-based hazard analysis with operational states, traceable mitigations, and domain overlay support"
         file: "commands/hazard-analysis.md"
 
 // 2. ID prefix registration
@@ -959,28 +958,28 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name            | Type     | Size/Range | Constraints             |
-| --------------- | -------- | ---------- | ----------------------- |
-| command entry   | YAML map | 3 fields   | name, description, file |
-| id_prefix entry | YAML map | 1 field    | hazards: "HAZ"          |
+| Name | Type | Size/Range | Constraints |
+|------|------|-----------|-------------|
+| command entry | YAML map | 3 fields | name, description, file |
+| id_prefix entry | YAML map | 1 field | hazards: "HAZ" |
 
 #### Error Handling & Return Codes
 
-| Error Condition | Handling                          | Maps to ARCH Contract         |
-| --------------- | --------------------------------- | ----------------------------- |
-| Malformed YAML  | spec-kit loader rejects extension | ARCH-013: Valid YAML required |
+| Error Condition | Handling | Maps to ARCH Contract |
+|----------------|----------|----------------------|
+| Malformed YAML | spec-kit loader rejects extension | ARCH-013: Valid YAML required |
 
 ---
 
 ## Coverage Summary
 
-| Metric                                    | Count                                               |
-| ----------------------------------------- | --------------------------------------------------- |
-| Total Module Designs (MOD)                | 18                                                  |
-| Total Parent Architecture Modules Covered | 13 / 13 (100%)                                      |
-| Modules per Type                          | Standard: 16 \| [EXTERNAL]: 0 \| [CROSS-CUTTING]: 0 |
-| Modules with Pseudocode                   | 18 / 18 (100%)                                      |
-| **Forward Coverage (ARCH→MOD)**           | **100%**                                            |
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | 18 |
+| Total Parent Architecture Modules Covered | 13 / 13 (100%) |
+| Modules per Type | Standard: 16 \| [EXTERNAL]: 0 \| [CROSS-CUTTING]: 0 |
+| Modules with Pseudocode | 18 / 18 (100%) |
+| **Forward Coverage (ARCH→MOD)** | **100%** |
 
 ## Derived Modules
 

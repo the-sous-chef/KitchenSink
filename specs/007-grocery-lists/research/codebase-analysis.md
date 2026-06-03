@@ -43,7 +43,7 @@ Feature-level dependencies from `spec.md`:
 - **006-meal-planning**: source meal plans for list generation
 - **001-sous-chef-recipe-app**: ingredient source records
 - **003-usda-food-data**: normalized ingredient identity/unit context
-- **002-auth0-user-auth**: authenticated access
+- **002-user-auth**: authenticated access
 - **010-subscriptions**: premium gating for FR-031 ordering flow
 
 Runtime integration path from `plan.md`:

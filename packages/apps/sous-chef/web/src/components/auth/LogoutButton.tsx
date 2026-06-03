@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useClerk } from '@clerk/nextjs';
 
 interface LogoutButtonProps {
     children?: React.ReactNode;
@@ -9,12 +9,11 @@ interface LogoutButtonProps {
 
 export function LogoutButton({ children }: LogoutButtonProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
+    const { signOut } = useClerk();
 
     const handleLogout = async () => {
         setIsLoading(true);
-
-        router.push('/api/auth/logout');
+        await signOut({ redirectUrl: '/' });
     };
 
     return (

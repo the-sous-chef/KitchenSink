@@ -1,33 +1,45 @@
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import LoginScreen from '../screens/login.js';
-import type { AuthState } from '../types/auth.js';
+import type { JSX, ReactNode } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useAuth } from '../hooks/useAuth.js';
+import { LoginScreen } from '../screens/login.js';
 
 interface AuthGateProps {
-    children: React.ReactNode;
-    authState: AuthState;
+    children: ReactNode;
 }
 
-export function AuthGate({ children, authState }: AuthGateProps) {
-    if (authState.status === 'loading' || authState.status === 'idle') {
-        return (
-            <View style={styles.loading}>
-                <ActivityIndicator size="large" color="#007AFF" />
-            </View>
-        );
-    }
+export function AuthGate({ children }: AuthGateProps): JSX.Element {
+    const { state } = useAuth();
 
-    if (authState.status === 'unauthenticated' || authState.status === 'error' || authState.status === 'blocked') {
-        return <LoginScreen />;
+    switch (state.status) {
+        case 'loading':
+            return (
+                <View style={styles.center}>
+                    <ActivityIndicator />
+                </View>
+            );
+        case 'unauthenticated':
+            return <LoginScreen />;
+        case 'blocked':
+            return (
+                <View style={styles.center}>
+                    <Text style={styles.title}>{state.reason.title}</Text>
+                    <Text style={styles.body}>{state.reason.body}</Text>
+                </View>
+            );
+        case 'error':
+            return (
+                <View style={styles.center}>
+                    <Text style={styles.title}>Something went wrong</Text>
+                    <Text style={styles.body}>{state.error.message}</Text>
+                </View>
+            );
+        case 'authenticated':
+            return <>{children}</>;
     }
-
-    return <>{children}</>;
 }
 
 const styles = StyleSheet.create({
-    loading: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+    title: { fontSize: 18, fontWeight: '600', marginBottom: 8 },
+    body: { fontSize: 14, textAlign: 'center', color: '#555' },
 });

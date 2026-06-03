@@ -53,7 +53,7 @@ trialing (14 days) ──────→ active ──────→ past_due (
 
 ## 2. Data Model
 
-### Account Entity Additions (002-auth0-user-auth)
+### Account Entity Additions (002-user-auth)
 
 ```typescript
 // Add to existing Account entity

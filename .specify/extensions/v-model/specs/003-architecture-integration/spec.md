@@ -1,8 +1,8 @@
 # Feature Specification: Architecture Design ↔ Integration Testing
 
-**Feature Branch**: `003-architecture-integration`
-**Created**: 2026-02-21
-**Status**: Approved
+**Feature Branch**: `003-architecture-integration`  
+**Created**: 2026-02-21  
+**Status**: Approved  
 **Input**: Extend the V-Model Extension Pack down one level — from System Design ↔ System Testing (v0.2.0) to Architecture Design ↔ Integration Testing (v0.3.0). The architecture design command decomposes system components into software modules using ISO/IEC/IEEE 42010 and Kruchten's 4+1 View Model (Logical, Process, Interface, Data Flow views). The integration test command generates ISO/IEC/IEEE 29119-4-compliant integration test cases targeting the seams between modules using four mandatory techniques (Interface Contract Testing, Data Flow Testing, Interface Fault Injection, Concurrency & Race Condition Testing). Safety-critical additions (ASIL Decomposition, Defensive Programming, Temporal Constraints, SIL/HIL Compatibility, Resource Contention) are included as optional sections activated by domain configuration.
 
 ## Governing Standards
@@ -16,7 +16,7 @@ This feature is guided by the following international standards:
 - **DO-178C** — Airborne software certification. Adds Temporal & Execution Constraints (watchdog timers, execution order, deadlock prevention) for architecture-level artifacts.
 - **IEC 62304** — Medical device software lifecycle. Requires traceability from software architecture to integration test verification.
 
-## User Scenarios & Testing _(mandatory)_
+## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Generate 42010/4+1 Architecture Design (Priority: P1)
 
@@ -131,7 +131,7 @@ A Windows-based automotive ADAS team runs `validate-architecture-coverage.ps1` t
 - **What happens when an ARCH module's interface contract is incomplete (missing error handling)?** The anti-pattern guard should reject "black box" descriptions without complete interface contracts (inputs, outputs, exceptions).
 - **What happens when the AI identifies a necessary technical module not traceable to any SYS component (a Derived Architecture Module)?** The command must flag it as `[DERIVED MODULE: description]` rather than silently creating an ARCH-NNN, prompting the user to update system-design.md and re-run.
 
-## Requirements _(mandatory)_
+## Requirements *(mandatory)*
 
 ### Functional Requirements
 
@@ -191,7 +191,7 @@ A Windows-based automotive ADAS team runs `validate-architecture-coverage.ps1` t
 - **Extended Traceability Matrix**: The audit artifact with three complementary matrices: Matrix A (Validation — REQ → ATP → SCN), Matrix B (Verification — REQ → SYS → STP → STS), and Matrix C (Integration Verification — SYS → ARCH → ITP → ITS). Key attributes per matrix: linked artifacts per layer, Coverage Status, Coverage Percentage. Progressive behavior: A alone after acceptance, A+B after system-test, A+B+C after integration-test.
 - **Integration Coverage Report**: The output of `validate-architecture-coverage.sh` — a summary of forward coverage (SYS→ARCH), backward coverage (ARCH→ITP), orphan detection, and overall pass/fail status with exit codes suitable for CI enforcement.
 
-## Success Criteria _(mandatory)_
+## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 

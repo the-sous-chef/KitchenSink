@@ -10,10 +10,10 @@
         "noEmit": true,
         "incremental": true,
         "paths": {
-            "@kitchensink/auth-types": ["../../shared/auth-types/src/index.ts"],
-            "@kitchensink/auth-types/*": ["../../shared/auth-types/src/*"]
+            "@kitchensink/identity-service": ["../../services/identity/src/index.ts"],
+            "@kitchensink/identity-service/*": ["../../services/identity/src/*"]
         }
     },
-    "include": ["src/**/*", "app/**/*", "tests/**/*"],
+    "include": ["src/**/*", "app/**/*", "tests/**/*", "App.tsx"],
     "exclude": ["node_modules", "dist"]
 }

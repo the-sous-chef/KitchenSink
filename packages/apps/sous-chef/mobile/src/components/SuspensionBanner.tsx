@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import type { UserStatus } from '@kitchensink/auth-types';
+import type { UserStatus } from '@kitchensink/identity-service';
 
 interface SuspensionBannerProps {
     status: UserStatus;

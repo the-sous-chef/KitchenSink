@@ -1,0 +1,145 @@
+{
+  "feature": "006-meal-planning",
+  "scanDate": "2026-06-02",
+  "scanMode": "pre-implementation",
+  "scanDirective": {
+    "activeLayers": ["L1", "L2", "L3", "L4", "L7"],
+    "skippedLayers": ["L5"],
+    "l6MissingImplSeverity": "INFO"
+  },
+  "summary": {
+    "critical": 0,
+    "warning": 1,
+    "expectedGap": 0,
+    "passed": 6,
+    "overall": "PASS"
+  },
+  "layers": [
+    {
+      "layer": "L1",
+      "direction": "spec.md self-consistency",
+      "status": "PASS",
+      "findings": []
+    },
+    {
+      "layer": "L2",
+      "direction": "plan.md ↔ spec.md",
+      "status": "PASS",
+      "findings": []
+    },
+    {
+      "layer": "L3",
+      "direction": "tasks.md ↔ plan.md",
+      "status": "PASS",
+      "findings": []
+    },
+    {
+      "layer": "L4",
+      "direction": "product-spec/ ↔ spec.md",
+      "status": "PASS",
+      "findings": [
+        {
+          "id": "W-001",
+          "severity": "WARNING",
+          "description": "Inferred stories US-006-008 (Template/Recurring) and US-006-009 (Family Size Presets) lack explicit FR IDs in spec.md",
+          "location": "product-spec/product-spec.md:138-143, product-spec/README.md:70, verify-report.md:W-001, W-002",
+          "impact": "Low — artifacts self-label as inferred/out-of-scope; no false canonical claim",
+          "recommendation": "Add FR-028 (Templates) and FR-029 (Family Sizing) to spec.md during revalidation if product intent is to implement; otherwise keep as documented deferred scope"
+        }
+      ]
+    },
+    {
+      "layer": "L5",
+      "direction": "research/ ↔ product-spec/",
+      "status": "SKIP",
+      "findings": [],
+      "reason": "Per scan directive"
+    },
+    {
+      "layer": "L6",
+      "direction": "v-model/ ↔ spec.md + code traceability",
+      "status": "INFO",
+      "findings": [
+        {
+          "id": "L6-INFO-001",
+          "severity": "INFO",
+          "description": "No implementation files exist yet for MOD target paths under src/meal-planning/",
+          "location": "v-model/module-design.md:MOD-001..MOD-022",
+          "impact": "Expected — pre-implementation scan; all MODs are forward-specification only",
+          "recommendation": "Re-run L6 after implementation to verify MOD↔ARCH↔SYS↔REQ traceability against actual source files"
+        }
+      ]
+    },
+    {
+      "layer": "L7",
+      "direction": "cross-cutting artifacts ↔ all layers",
+      "status": "PASS",
+      "findings": []
+    }
+  ],
+  "criticalFindings": [],
+  "warningFindings": [
+    {
+      "id": "W-001",
+      "severity": "WARNING",
+      "title": "Inferred stories lack explicit FR IDs in spec.md",
+      "description": "US-006-008 (Template/Recurring Workflow) and US-006-009 (Family Size Presets) are referenced in personas and journeys but do not have upstream FR IDs in spec.md.",
+      "affectedArtifacts": [
+        "product-spec/product-spec.md",
+        "product-spec/user-journey.md",
+        "verify-report.md"
+      ],
+      "recommendedFix": "Add FR-028 (Templates) and FR-029 (Family Sizing) to spec.md if product intent is to implement; otherwise keep as documented deferred scope."
+    }
+  ],
+  "monorepoRefs": {
+    "validPaths": [
+      "packages/apps/sous-chef/web",
+      "packages/apps/sous-chef/mobile"
+    ],
+    "invalidAppsXRefs": [],
+    "note": "All src/ paths in v-model are relative to expected workspace layout; flagged INFO only as no actual files exist yet."
+  },
+  "artifactCoverage": {
+    "scanned": [
+      "spec.md",
+      "plan.md",
+      "tasks.md",
+      "product-spec/product-spec.md",
+      "product-spec/user-journey.md",
+      "product-spec/metrics.md",
+      "product-spec/README.md",
+      "v-model/requirements.md",
+      "v-model/system-design.md",
+      "v-model/architecture-design.md",
+      "v-model/module-design.md",
+      "v-model/traceability-matrix.md",
+      "v-model/acceptance-plan.md",
+      "verify-report.md",
+      "review.md",
+      "checklists/requirements.md",
+      ".forge-status.yml"
+    ],
+    "totalArtifactsRead": 17,
+    "totalLinesScanned": 2100
+  },
+  "mustHaveCoverage": {
+    "US-006-001": { "fr": "FR-022", "taskCount": 7, "status": "covered" },
+    "US-006-002": { "fr": "FR-023", "taskCount": 6, "status": "covered" },
+    "US-006-003": { "fr": "FR-024", "taskCount": 5, "status": "covered" },
+    "US-006-004": { "fr": "SC-008", "taskCount": 2, "status": "covered" }
+  },
+  "evidenceLog": [
+    { "artifact": "spec.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/spec.md", "lines": 92, "verified": "FR-022..027, NFR-001..004, SC-008" },
+    { "artifact": "plan.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/plan.md", "lines": 200, "verified": "Data model, API contracts, architecture overview" },
+    { "artifact": "tasks.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/tasks.md", "lines": 663, "verified": "38 tasks, dependency table" },
+    { "artifact": "product-spec/product-spec.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/product-spec/product-spec.md", "lines": 158, "verified": "MoSCoW stories, personas, out-of-scope" },
+    { "artifact": "v-model/requirements.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/v-model/requirements.md", "lines": 92, "verified": "REQ-001..REQ-010" },
+    { "artifact": "v-model/module-design.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/v-model/module-design.md", "lines": 200, "verified": "MOD-001..MOD-022 with target source files" },
+    { "artifact": "verify-report.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/verify-report.md", "lines": 80, "verified": "Prior scan results" },
+    { "artifact": "checklists/requirements.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/checklists/requirements.md", "lines": 35, "verified": "16/16 checklist items passed" },
+    { "artifact": ".forge-status.yml", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/006-meal-planning/.forge-status.yml", "lines": 100, "verified": "Phase completion states" }
+  ],
+  "reportGeneratedBy": "Sisyphus-Junior",
+  "notes": "Read-only scan; no code changes made. L5 skipped per directive. L6 missing-impl severity lowered to INFO per directive."
+}

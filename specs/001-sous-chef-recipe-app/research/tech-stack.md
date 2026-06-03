@@ -243,7 +243,7 @@ Per [data-model.md](../data-model.md):
 - Per [plan.md](../plan.md): CDK v2
 - Infrastructure as code for Fargate, Lambda, S3, SQS, CloudFront, RDS
 - TypeScript (matches the rest of the stack)
-- Existing pattern in the repo (referenced in AGENTS.md for 002-auth0-user-auth)
+- Existing pattern in the repo (referenced in AGENTS.md for 002-user-auth)
 
 ### Trade-offs
 

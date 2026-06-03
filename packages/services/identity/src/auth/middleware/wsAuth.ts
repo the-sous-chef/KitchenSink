@@ -1,4 +1,4 @@
-import type { AuthorizerContext } from '@kitchensink/auth-types';
+import type { AuthorizerContext } from '../../types/index.js';
 
 export interface AuthorizerContextSocket {
     readonly handshake?: {
@@ -18,6 +18,7 @@ export function resolveWsAuthorizerContext(socket: AuthorizerContextSocket): Aut
     }
 
     socket.auth = candidate;
+
     return candidate;
 }
 
@@ -37,10 +38,9 @@ function isAuthorizerContext(value: unknown): value is AuthorizerContext {
     const ctx = value as Partial<AuthorizerContext>;
 
     return (
-        typeof ctx.sub === 'string' &&
+        typeof ctx.userId === 'string' &&
         Array.isArray(ctx.scopes) &&
         Array.isArray(ctx.permissions) &&
-        typeof ctx.isM2M === 'boolean' &&
-        (ctx.tokenType === 'user' || ctx.tokenType === 'm2m')
+        ctx.tokenType === 'user'
     );
 }

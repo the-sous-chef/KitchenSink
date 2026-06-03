@@ -1,1 +1,1 @@
-export type { AuthSession, UserProfile, UserUpdateInput } from '@kitchensink/auth-types';
+export type { AuthSession, UserProfile, UserUpdateInput } from '@kitchensink/identity-service';

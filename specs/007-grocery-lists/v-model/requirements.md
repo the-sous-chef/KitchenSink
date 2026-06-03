@@ -44,7 +44,7 @@ Grocery list generation from meal plans with ingredient aggregation, deduplicati
 | REQ-IF-002 | The system SHALL consume ingredient data from Recipe entities as defined in the `001-sous-chef-recipe-app` specification.                                                      | P1       | Dependency — ingredient identity and quantity data originates from the Recipe domain.                              | Inspection          |
 | REQ-IF-003 | The system SHALL use USDA Food Data (`003-usda-food-data`) for ingredient identity resolution, unit normalization during aggregation, deduplication.                           | P1       | Dependency — correct deduplication requires canonical ingredient identity and unit normalization.                  | Test                |
 | REQ-IF-004 | The system SHALL consume meal plan data from the `006-meal-planning` feature as the source for grocery list generation.                                                        | P1       | Dependency — grocery lists are derived from meal plans; no meal plan data means no grocery list.                   | Test                |
-| REQ-IF-005 | The system SHALL enforce authentication via `002-auth0-user-auth` for all grocery list, online ordering endpoints.                                                             | P1       | Dependency — all grocery features require authentication; unauthenticated access MUST be rejected.                 | Test                |
+| REQ-IF-005 | The system SHALL enforce authentication via `002-user-auth` for all grocery list, online ordering endpoints.                                                             | P1       | Dependency — all grocery features require authentication; unauthenticated access MUST be rejected.                 | Test                |
 | REQ-IF-006 | Online ordering SHALL be restricted to users with an active premium subscription as defined in `010-subscriptions`.                                                            | P2       | Dependency — online ordering is a premium feature; subscription gate must be enforced at the interface layer.      | Test                |
 
 | REQ-IF-007 | The system SHALL provide equivalent web and mobile user-facing workflows for Grocery Lists & Online Ordering, including the same core capabilities, entitlement behavior, error states, accessibility semantics, and recovery paths unless an explicit V-Model parity exception is recorded. | P1 | KitchenSink Constitution Principle VIII requires web/mobile lockstep for every user-facing capability. | Test |
@@ -70,7 +70,7 @@ Grocery list generation from meal plans with ingredient aggregation, deduplicati
 | [006-meal-planning](../../006-meal-planning/spec.md)               | **Required** — grocery lists are generated from meal plans (REQ-IF-004)        |
 | [001-sous-chef-recipe-app](../../001-sous-chef-recipe-app/spec.md) | **Required** — ingredient data comes from Recipe entities (REQ-IF-002)         |
 | [003-usda-food-data](../../003-usda-food-data/spec.md)             | **Required** — ingredient identity and unit normalization (REQ-IF-003)         |
-| [002-auth0-user-auth](../../002-auth0-user-auth/spec.md)           | **Required** — all grocery features require authentication (REQ-IF-005)        |
+| [002-user-auth](../../002-user-auth/spec.md)           | **Required** — all grocery features require authentication (REQ-IF-005)        |
 | [010-subscriptions](../../010-subscriptions/spec.md)               | **Referenced** — online ordering is a premium feature (REQ-IF-006, REQ-CN-002) |
 
 ## Glossary

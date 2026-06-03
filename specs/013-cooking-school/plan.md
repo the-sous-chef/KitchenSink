@@ -78,7 +78,7 @@ Reference: [`governance-rules.md`](../governance-rules.md)
 | Feature                                                         | Dependency Type             | 013 Integration Responsibility                                                                            |
 | --------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------- |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | Referenced domain           | Resolve `recipe_id` links for lessons and render read-only recipe context in player drawer.               |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | Required                    | Enforce authenticated educator/learner sessions, role checks, and JWT validation for protected endpoints. |
+| [002-user-auth](../002-user-auth/spec.md)           | Required                    | Enforce authenticated educator/learner sessions, role checks, and JWT validation for protected endpoints. |
 | [005-ai-integration](../005-ai-integration/spec.md)             | Referenced service          | AI draft endpoint consumes lesson context + recipe metadata; enforce fallback behavior on AI outage.      |
 | [010-subscriptions](../010-subscriptions/spec.md)               | Required billing/gating     | Purchase lifecycle, entitlement checks, and revenue-share tier consumption.                               |
 | [012-creator-profiles](../012-creator-profiles/spec.md)         | Required identity/discovery | Creator identity (`@handle`) in catalog + profile-linked course discovery surfaces.                       |

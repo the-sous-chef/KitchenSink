@@ -52,8 +52,8 @@ description: 'Task list template for feature implementation'
 - [ ] T003 [P] Configure linting and formatting tools
 - [ ] T003a [P] Add workspace to root `package.json` workspaces array and wire Turbo tasks
       (Constitution Principle V — monorepo governance)
-- [ ] T003b [P] Extend `@armoury/typescript`, `@armoury/eslint`, `@armoury/prettier`,
-      `@armoury/vitest` configs in new workspace `tsconfig.json`, `eslint.config.js`,
+- [ ] T003b [P] Extend `@kitchensink/typescript`, `@kitchensink/eslint`, `@kitchensink/prettier`,
+      `@kitchensink/vitest` configs in new workspace `tsconfig.json`, `eslint.config.js`,
       `prettier.config.js`, `vitest.config.ts` (Constitution Principle VI — shared tooling)
 
 ---

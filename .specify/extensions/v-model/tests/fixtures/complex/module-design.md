@@ -23,17 +23,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Structure     | Fields                                  | Notes               |
-| ------------- | --------------------------------------- | ------------------- |
-| `MQTTHeader`  | `topic_len: u16, qos: u8, retain: bool` | Fixed 4-byte header |
-| `MQTTMessage` | `topic: str, payload: bytes, qos: int`  | Parsed output       |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
+| `MQTTHeader` | `topic_len: u16, qos: u8, retain: bool` | Fixed 4-byte header |
+| `MQTTMessage` | `topic: str, payload: bytes, qos: int` | Parsed output |
 
 #### Error Handling
 
-| Error               | Trigger                | Recovery                        |
-| ------------------- | ---------------------- | ------------------------------- |
-| `EmptyPayloadError` | Zero-length payload    | Drop message, increment counter |
-| `HeaderDecodeError` | Malformed header bytes | Drop message, log warning       |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
+| `EmptyPayloadError` | Zero-length payload | Drop message, increment counter |
+| `HeaderDecodeError` | Malformed header bytes | Drop message, log warning |
 
 ---
 
@@ -60,15 +60,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Structure        | Fields                        | Notes           |
-| ---------------- | ----------------------------- | --------------- |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
 | `ChecksumResult` | `valid: bool, algorithm: str` | Result envelope |
 
 #### Error Handling
 
-| Error                        | Trigger               | Recovery            |
-| ---------------------------- | --------------------- | ------------------- |
-| `ChecksumMismatchError`      | Hash mismatch         | Reject payload      |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
+| `ChecksumMismatchError` | Hash mismatch | Reject payload |
 | `InvalidChecksumLengthError` | Length ≠ 64 hex chars | Reject with details |
 
 ---
@@ -107,17 +107,17 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Structure         | Fields                                                  | Notes       |
-| ----------------- | ------------------------------------------------------- | ----------- |
-| `WindowBuffer`    | `readings: list, max_size: int, created_at: datetime`   | Ring buffer |
-| `AggregatedBatch` | `min, max, avg: float, count: int, window_end: ISO8601` | Output      |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
+| `WindowBuffer` | `readings: list, max_size: int, created_at: datetime` | Ring buffer |
+| `AggregatedBatch` | `min, max, avg: float, count: int, window_end: ISO8601` | Output |
 
 #### Error Handling
 
-| Error                 | Trigger                      | Recovery               |
-| --------------------- | ---------------------------- | ---------------------- |
-| `WindowOverflowError` | Buffer exceeds 2× max_size   | Force flush, log error |
-| `EmptyWindowError`    | Flush called on empty buffer | Return None            |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
+| `WindowOverflowError` | Buffer exceeds 2× max_size | Force flush, log error |
+| `EmptyWindowError` | Flush called on empty buffer | Return None |
 
 ---
 
@@ -155,17 +155,17 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Structure      | Fields                               | Notes          |
-| -------------- | ------------------------------------ | -------------- |
-| `WALEntry`     | `seq: int, data: bytes, crc: u32`    | On-disk format |
-| `WriteReceipt` | `record_id: str, timestamp: ISO8601` | Confirmation   |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
+| `WALEntry` | `seq: int, data: bytes, crc: u32` | On-disk format |
+| `WriteReceipt` | `record_id: str, timestamp: ISO8601` | Confirmation |
 
 #### Error Handling
 
-| Error                | Trigger              | Recovery                      |
-| -------------------- | -------------------- | ----------------------------- |
-| `WALCorruptionError` | CRC mismatch on read | Truncate to last good entry   |
-| `DiskFullError`      | No space for append  | Raise to caller, block writes |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
+| `WALCorruptionError` | CRC mismatch on read | Truncate to last good entry |
+| `DiskFullError` | No space for append | Raise to caller, block writes |
 
 ---
 
@@ -190,17 +190,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Structure   | Fields                                  | Notes          |
-| ----------- | --------------------------------------- | -------------- |
-| `Token`     | `type: enum, value: str, position: int` | Lexer output   |
-| `QueryPlan` | `ast: Node, estimated_cost: float`      | Planner output |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
+| `Token` | `type: enum, value: str, position: int` | Lexer output |
+| `QueryPlan` | `ast: Node, estimated_cost: float` | Planner output |
 
 #### Error Handling
 
-| Error                | Trigger                       | Recovery                |
-| -------------------- | ----------------------------- | ----------------------- |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
 | `InvalidFilterError` | Unsupported operator in WHERE | Return 400 with details |
-| `QueryTimeoutError`  | Parse exceeds 500 ms          | Abort, return timeout   |
+| `QueryTimeoutError` | Parse exceeds 500 ms | Abort, return timeout |
 
 ---
 
@@ -228,15 +228,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Structure      | Fields                                           | Notes             |
-| -------------- | ------------------------------------------------ | ----------------- |
-| `MetricFamily` | `name: str, help: str, type: str, samples: list` | Prom model        |
-| `Sample`       | `labels: dict, value: float, timestamp: int?`    | Single data point |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
+| `MetricFamily` | `name: str, help: str, type: str, samples: list` | Prom model |
+| `Sample` | `labels: dict, value: float, timestamp: int?` | Single data point |
 
 #### Error Handling
 
-| Error                   | Trigger              | Recovery                 |
-| ----------------------- | -------------------- | ------------------------ |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
 | `MetricCollectionError` | Counter read failure | Omit metric, log warning |
 
 ---
@@ -268,16 +268,16 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Structure        | Fields                                                  | Notes  |
-| ---------------- | ------------------------------------------------------- | ------ |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
 | `EncryptedBlock` | `ciphertext: bytes, iv: bytes, tag: bytes, key_id: str` | Output |
 
 #### Error Handling
 
-| Error              | Trigger                   | Recovery             |
-| ------------------ | ------------------------- | -------------------- |
-| `KeyNotFoundError` | key_id missing from store | Raise to caller      |
-| `EncryptionError`  | OpenSSL failure           | Raise to caller, log |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
+| `KeyNotFoundError` | key_id missing from store | Raise to caller |
+| `EncryptionError` | OpenSSL failure | Raise to caller, log |
 
 ---
 
@@ -305,27 +305,27 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Structure        | Fields                                             | Notes    |
-| ---------------- | -------------------------------------------------- | -------- |
-| `RotationConfig` | `max_bytes: int, max_backups: int, compress: bool` | Config   |
-| `ArchiveEntry`   | `path: str, created_at: datetime, size: int`       | Metadata |
+| Structure | Fields | Notes |
+|-----------|--------|-------|
+| `RotationConfig` | `max_bytes: int, max_backups: int, compress: bool` | Config |
+| `ArchiveEntry` | `path: str, created_at: datetime, size: int` | Metadata |
 
 #### Error Handling
 
-| Error             | Trigger                   | Recovery                     |
-| ----------------- | ------------------------- | ---------------------------- |
-| `RotationIOError` | Rename/compress failure   | Keep current file, log error |
-| `PruneError`      | Cannot delete old archive | Skip, retry next rotation    |
+| Error | Trigger | Recovery |
+|-------|---------|----------|
+| `RotationIOError` | Rename/compress failure | Keep current file, log error |
+| `PruneError` | Cannot delete old archive | Skip, retry next rotation |
 
 ---
 
 ## Coverage Summary
 
-| Metric                | Value                                           |
-| --------------------- | ----------------------------------------------- |
-| Total MODs            | 8                                               |
-| External modules      | 1 (MOD-007)                                     |
-| Cross-cutting modules | 1 (MOD-008)                                     |
-| Stateful modules      | 2 (MOD-003, MOD-004)                            |
-| Stateless modules     | 5 (MOD-001, MOD-002, MOD-005, MOD-006, MOD-008) |
-| ARCH coverage         | 8/8                                             |
+| Metric | Value |
+|--------|-------|
+| Total MODs | 8 |
+| External modules | 1 (MOD-007) |
+| Cross-cutting modules | 1 (MOD-008) |
+| Stateful modules | 2 (MOD-003, MOD-004) |
+| Stateless modules | 5 (MOD-001, MOD-002, MOD-005, MOD-006, MOD-008) |
+| ARCH coverage | 8/8 |

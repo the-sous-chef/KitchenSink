@@ -166,4 +166,4 @@ These briefs translate the portfolio requirements into concrete design assignmen
 
 **States to mock**: login error, callback failure, expired session, revoked session, duplicate provider/linking conflict, destructive confirmation.
 
-**Source**: [002 product spec](../002-auth0-user-auth/product-spec/product-spec.md).
+**Source**: [002 product spec](../002-user-auth/product-spec/product-spec.md).

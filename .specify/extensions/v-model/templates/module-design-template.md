@@ -37,6 +37,16 @@
   - [DERIVED MODULE: description] for functions not traceable to any ARCH-NNN
   - Do NOT renumber existing IDs when updating
   - Append new items; update modified items in-place by ID
+
+  LIFECYCLE TAGS (when evolving):
+  - [DEPRECATED — Superseded by MOD-NNN]: Module replaced
+  - [DEPRECATED — Withdrawn: <reason>]: Module removed entirely
+  - [SUSPECT — Parent ARCH-NNN {deprecated|modified}]: Parent architecture module changed;
+    resolve by re-parenting, deprecating, or confirming active.
+  - [EXTERNAL] modules are never deprecated via cascade — only by explicit decision
+    (e.g., library version is end-of-life).
+  - Deprecated MODs stay in the document; they are never deleted.
+  - Coverage checks (ARCH→MOD) exclude deprecated ARCH and deprecated MOD items.
 -->
 
 ### Module: MOD-001 ([Module Name])
@@ -85,9 +95,9 @@ N/A — Stateless
   These feed Boundary Value Analysis in unit testing.
 -->
 
-| Name       | Type   | Size/Constraints | Initialization | Description |
-| ---------- | ------ | ---------------- | -------------- | ----------- |
-| [var_name] | [type] | [constraints]    | [default]      | [purpose]   |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| [var_name] | [type] | [constraints] | [default] | [purpose] |
 
 #### Error Handling & Return Codes
 
@@ -97,9 +107,9 @@ N/A — Stateless
   Document error propagation: caught vs. re-thrown.
 -->
 
-| Error Condition | Error Code / Exception | Architecture Contract              | Recovery |
-| --------------- | ---------------------- | ---------------------------------- | -------- |
-| [condition]     | [code/exception]       | [ARCH-NNN Interface View contract] | [action] |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| [condition] | [code/exception] | [ARCH-NNN Interface View contract] | [action] |
 
 ---
 
@@ -134,15 +144,15 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name       | Type   | Size/Constraints | Initialization | Description |
-| ---------- | ------ | ---------------- | -------------- | ----------- |
-| [var_name] | [type] | [constraints]    | [default]      | [purpose]   |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| [var_name] | [type] | [constraints] | [default] | [purpose] |
 
 #### Error Handling & Return Codes
 
 | Error Condition | Error Code / Exception | Architecture Contract | Recovery |
-| --------------- | ---------------------- | --------------------- | -------- |
-| [condition]     | [code/exception]       | [ARCH-NNN contract]   | [action] |
+|----------------|----------------------|----------------------|----------|
+| [condition] | [code/exception] | [ARCH-NNN contract] | [action] |
 
 ---
 
@@ -174,16 +184,16 @@ stateDiagram-v2
 
 ## Coverage Summary
 
-| Metric                                    | Count           |
-| ----------------------------------------- | --------------- |
-| Total Module Designs (MOD)                | [N]             |
-| External Modules (`[EXTERNAL]`)           | [N]             |
-| Cross-Cutting Modules (`[CROSS-CUTTING]`) | [N]             |
-| Stateful Modules                          | [N]             |
-| Stateless Modules                         | [N]             |
-| Total Parent Architecture Modules Covered | [N] / [N] ([%]) |
-| Modules with Pseudocode                   | [N] / [N] ([%]) |
-| **Forward Coverage (ARCH→MOD)**           | **[%]**         |
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | [N] ([N] active, [N] deprecated, [N] suspect) |
+| External Modules (`[EXTERNAL]`) | [N] |
+| Cross-Cutting Modules (`[CROSS-CUTTING]`) | [N] |
+| Stateful Modules | [N] |
+| Stateless Modules | [N] |
+| Total Parent Architecture Modules Covered | [N] / [N] ([%]) (active items only) |
+| Modules with Pseudocode | [N] / [N] ([%]) |
+| **Forward Coverage (ARCH→MOD)** | **[%]** |
 
 ## Derived Modules
 

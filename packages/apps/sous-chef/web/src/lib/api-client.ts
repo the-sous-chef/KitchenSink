@@ -21,7 +21,7 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
 
     if (!response.ok) {
         if (response.status === 401 && typeof window !== 'undefined') {
-            navigateTo(`/api/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
+            navigateTo(`/sign-in?redirect_url=${encodeURIComponent(window.location.pathname)}`);
         }
 
         const error = await response.json().catch(() => ({ message: 'Request failed' }));

@@ -24,7 +24,6 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Goal
 
 Generate a **three-tier Acceptance Test Plan** that pairs every requirement (`REQ-NNN`) with:
-
 1. **Test Cases** (`ATP-NNN-X`) — the logical validation conditions
 2. **User Scenarios** (`SCN-NNN-X#`) — BDD-style (Given/When/Then) executable test paths
 
@@ -37,7 +36,6 @@ This command enforces the V-Model's core principle: **every development requirem
 Run `{SCRIPT}` from the repository root. The `--require-reqs` flag ensures `requirements.md` exists.
 
 Parse the JSON output for:
-
 - `VMODEL_DIR`: Path to `specs/{feature}/v-model/` directory
 - `REQUIREMENTS`: Path to `requirements.md`
 - `AVAILABLE_DOCS`: Array of existing documents — check for `"acceptance-plan.md"` to detect existing plan
@@ -62,7 +60,6 @@ If an existing `acceptance-plan.md` is found, run the diff script to detect what
 ```bash
 {SCRIPTS_DIR}/diff-requirements.sh {VMODEL_DIR}
 ```
-
 ```powershell
 {SCRIPTS_DIR}/diff-requirements.ps1 {VMODEL_DIR}
 ```
@@ -70,13 +67,11 @@ If an existing `acceptance-plan.md` is found, run the diff script to detect what
 Where `{SCRIPTS_DIR}` is the parent directory of the `{SCRIPT}` path (or the equivalent PowerShell directory).
 
 Parse the JSON output for:
-
 - `added`: New REQ IDs that need ATPs/SCNs
 - `modified`: Changed REQs whose ATPs/SCNs must be regenerated
 - `removed`: Deleted REQs whose ATPs/SCNs should be flagged for removal
 
 **Rules for incremental updates:**
-
 - **Added REQs**: Generate new ATPs and SCNs, appending to the existing file.
 - **Modified REQs**: Regenerate ATPs/SCNs for these REQs only. Replace the old sections in-place (match by REQ ID header).
 - **Removed REQs**: Add a `[DEPRECATED]` tag to their ATPs/SCNs. Do NOT delete them — the user must confirm removal.
@@ -115,33 +110,31 @@ For each test case, generate one or more **BDD-style executable scenarios**. Eve
 ### Requirement Validation: REQ-{NNN} ({Short Description})
 
 #### Test Case: ATP-{NNN}-A ({Test Name})
-
 **Linked Requirement:** REQ-{NNN}
 **Description:** {What is being validated}
 **Validation Condition:** {Specific pass/fail condition}
 **Expected Result:** {The definitive observable outcome that constitutes "pass"}
 
-- **User Scenario: SCN-{NNN}-A1**
-  - **Given** {precondition — explicit state, not assumptions}
-  - **When** {single user action — declarative, not imperative}
-  - **Then** {observable, verifiable outcome}
+* **User Scenario: SCN-{NNN}-A1**
+  * **Given** {precondition — explicit state, not assumptions}
+  * **When** {single user action — declarative, not imperative}
+  * **Then** {observable, verifiable outcome}
 
-- **User Scenario: SCN-{NNN}-A2** _(if applicable)_
-  - **Given** {different precondition}
-  - **When** {same or different action}
-  - **Then** {observable outcome}
+* **User Scenario: SCN-{NNN}-A2** *(if applicable)*
+  * **Given** {different precondition}
+  * **When** {same or different action}
+  * **Then** {observable outcome}
 
 #### Test Case: ATP-{NNN}-B ({Error/Edge Case Name})
-
 **Linked Requirement:** REQ-{NNN}
 **Description:** {What is being validated}
 **Validation Condition:** {Specific pass/fail condition}
 **Expected Result:** {The definitive observable outcome that constitutes "pass"}
 
-- **User Scenario: SCN-{NNN}-B1**
-  - **Given** {precondition}
-  - **When** {invalid action or boundary condition}
-  - **Then** {expected error handling behavior}
+* **User Scenario: SCN-{NNN}-B1**
+  * **Given** {precondition}
+  * **When** {invalid action or boundary condition}
+  * **Then** {expected error handling behavior}
 ```
 
 ### 5. Quality Criteria (Mandatory)
@@ -226,13 +219,11 @@ After generating all batches, run the coverage validation script:
 ```bash
 {SCRIPTS_DIR}/validate-requirement-coverage.sh --json {VMODEL_DIR}
 ```
-
 ```powershell
 {SCRIPTS_DIR}/validate-requirement-coverage.ps1 -Json {VMODEL_DIR}
 ```
 
 Parse the JSON output for:
-
 - `has_gaps`: Whether any coverage gaps exist
 - `reqs_without_atp`: List of REQ IDs missing test cases
 - `atps_without_scn`: List of ATP IDs missing scenarios
@@ -241,7 +232,6 @@ Parse the JSON output for:
 - `atp_coverage_pct`: Test-case-to-scenario coverage percentage
 
 **Coverage gate** (MANDATORY):
-
 - If `has_gaps` is true: You MUST generate the missing items. Use the gap report to target exactly the missing REQs/ATPs. Do NOT regenerate items that already exist.
 - Re-run the validation script after generating missing items.
 - Repeat until `has_gaps` is false (maximum 3 iterations).
@@ -256,13 +246,13 @@ Append a coverage summary section to the end of `acceptance-plan.md`:
 
 ## Coverage Summary
 
-| Metric                 | Count |
-| ---------------------- | ----- |
-| Total Requirements     | {N}   |
-| Total Test Cases (ATP) | {N}   |
-| Total Scenarios (SCN)  | {N}   |
-| REQ → ATP Coverage     | {N}%  |
-| ATP → SCN Coverage     | {N}%  |
+| Metric | Count |
+|--------|-------|
+| Total Requirements | {N} |
+| Total Test Cases (ATP) | {N} |
+| Total Scenarios (SCN) | {N} |
+| REQ → ATP Coverage | {N}% |
+| ATP → SCN Coverage | {N}% |
 
 **Validation Status**: ✅ Full Coverage / ❌ Gaps Remaining (see flagged items)
 **Generated**: {DATE}
@@ -272,7 +262,6 @@ Append a coverage summary section to the end of `acceptance-plan.md`:
 ### 8. Report Completion
 
 Display a summary:
-
 - Total ATPs and SCNs generated
 - Coverage percentage at each tier
 - Any gaps or issues that need attention
@@ -286,7 +275,6 @@ If processing was batched, remind the user that all batches are complete and the
 ### Three-Tier ID Schema
 
 The ID encodes its full lineage — no separate mapping needed:
-
 - `SCN-001-A1` → belongs to `ATP-001-A` → validates `REQ-001`
 - `SCN-NF-001-B2` → belongs to `ATP-NF-001-B` → validates `REQ-NF-001`
 

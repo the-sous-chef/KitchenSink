@@ -31,7 +31,7 @@ Both P12 and P13 are co-primary. This feature cannot be designed for one side wi
 
 | Spec                                                            | Relationship                                                                                |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all learner and educator sessions are authenticated                          |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — all learner and educator sessions are authenticated                          |
 | [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Referenced** — recipe entity used as source material for lesson scripts                   |
 | [005-ai-integration](../005-ai-integration/spec.md)             | **Referenced** — AI-assisted lesson script drafting from recipes (P13 Reese "Should" story) |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Required** — course purchases, educator subscription tiers, revenue share                 |

@@ -76,10 +76,10 @@
 | ---------- | ------------------------------------------------------------------------------------------- | -------- | ------------------------------ | ---------------------------------------------- | ------------------------ | ------ |
 | REQ-NF-001 | TypeScript strict: true; no any; strict interfaces                                          | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
 | REQ-NF-002 | JSDoc on all exports; @param, @returns, @throws on handlers                                 | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
-| REQ-NF-003 | Aliased imports (@shared/_, @web/_, @armoury/<pkg>); no helpers/ directories                | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
+| REQ-NF-003 | Aliased imports (@kitchensink/_, @web/_, @kitchensink/<pkg>); no helpers/ directories                | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
 | REQ-NF-004 | UI components expose accessible names queryable via getByRole/getByLabel                    | P2       | _(Inspection — no AT defined)_ | —                                              | Test                     | ⬜     |
 | REQ-NF-005 | Color not sole conveyor of fetch_status; paired with text label or icon                     | P2       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
-| REQ-NF-006 | Workspace registered in root package.json; extends @armoury/\* configs; Turbo deps declared | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
+| REQ-NF-006 | Workspace registered in root package.json; extends @kitchensink/\* configs; Turbo deps declared | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
 | REQ-NF-007 | All code passes turbo run typecheck, lint, format:check with zero errors                    | P1       | AT-NF007-A                     | CI gate passes before merge                    | Static Analysis          | ⬜     |
 | REQ-NF-008 | Testing pyramid: ≥70% unit, ≤20% integration, ≤10% E2E; test files map REQ IDs              | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
 | REQ-NF-009 | Custom errors extend Error and expose type guards                                           | P1       | _(Inspection — no AT defined)_ | —                                              | Inspection               | ⬜     |
@@ -103,7 +103,7 @@
 | REQ-IF-004 | Consumer calls USDA GET /v1/food/{fdcId} for single; POST /v1/foods for batch (≤20)                      | P1       | AT-023-A                                                   | USDA API integration contract          | Test                | ⬜     |
 | REQ-IF-005 | EventBridge events: FoodRequested, FoodBatchRequested, IngestionScheduled, FoodDataReceived, FetchFailed | P1       | _(Inspection — no AT defined)_                             | —                                      | Inspection          | ⬜     |
 | REQ-IF-006 | USDA API key stored in AWS Secrets Manager; never exposed in responses or logs                           | P1       | _(Inspection — no AT defined)_                             | —                                      | Inspection          | ⬜     |
-| REQ-IF-007 | Food data API integrates with Sous Chef shared API Gateway authorizer from 002-auth0-user-auth           | P1       | AT-035-A                                                   | Auth enforcement via shared authorizer | Test                | ⬜     |
+| REQ-IF-007 | Food data API integrates with Sous Chef shared API Gateway authorizer from 002-user-auth           | P1       | AT-035-A                                                   | Auth enforcement via shared authorizer | Test                | ⬜     |
 
 ### Constraint Requirements
 
@@ -114,7 +114,7 @@
 | REQ-CN-003 | Consumer Lambda reserved concurrency of exactly 1                                       | P1       | _(Inspection — no AT defined)_ | —                         | Inspection          | ⬜     |
 | REQ-CN-004 | foods table is purpose-built; integration with ingredients entity is downstream concern | P1       | _(Inspection — no AT defined)_ | —                         | Inspection          | ⬜     |
 | REQ-CN-005 | USDA rate limit of 1,000 requests/hour treated as hard constraint                       | P1       | _(Inspection — no AT defined)_ | —                         | Inspection          | ⬜     |
-| REQ-CN-006 | Food data workspace is a new monorepo package extending all @armoury/\* configs         | P1       | _(Inspection — no AT defined)_ | —                         | Inspection          | ⬜     |
+| REQ-CN-006 | Food data workspace is a new monorepo package extending all @kitchensink/\* configs         | P1       | _(Inspection — no AT defined)_ | —                         | Inspection          | ⬜     |
 
 ---
 
@@ -181,7 +181,7 @@
 | WebSocketNotifier → API Gateway WebSocket API                              | REQ-034                                     | MOD-009 ↔ AWS API Gateway       | UTP-009-A, UTP-009-B (ConnectionStore mocked)             | ⬜                      | Integration test needed (P3 optional): notifier posts to real WebSocket connections         |
 | SecretManager → AWS Secrets Manager                                        | REQ-IF-006                                  | MOD-010 ↔ AWS Secrets Manager   | UTP-010-A through UTP-010-C (SecretsManagerClient mocked) | ⬜                      | Integration test needed: real Secrets Manager retrieval and cache invalidation              |
 | MonitoringLogger → CloudWatch (via Powertools)                             | REQ-NF-016                                  | MOD-011 ↔ CloudWatch            | UTP-011-A through UTP-011-C (logger mocked)               | ⬜                      | Integration test needed: EMF metrics appear in CloudWatch namespace                         |
-| API Gateway Authorizer → Sous Chef Shared Authorizer (002-auth0-user-auth) | REQ-035, REQ-IF-007                         | API Gateway ↔ Lambda Authorizer | No UTP (cross-feature boundary)                           | ⬜                      | Integration test needed: shared authorizer rejects unauthenticated requests to /v1/foods/\* |
+| API Gateway Authorizer → Sous Chef Shared Authorizer (002-user-auth) | REQ-035, REQ-IF-007                         | API Gateway ↔ Lambda Authorizer | No UTP (cross-feature boundary)                           | ⬜                      | Integration test needed: shared authorizer rejects unauthenticated requests to /v1/foods/\* |
 
 ---
 

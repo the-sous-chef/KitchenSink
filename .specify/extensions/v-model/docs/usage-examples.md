@@ -42,33 +42,32 @@ The command reads `spec.md` and generates `specs/{feature}/v-model/requirements.
 ```markdown
 ### Functional Requirements
 
-| ID      | Description                                                                                                                           | Priority | Rationale                                                                                                              | Verification Method |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| REQ-001 | The system SHALL read heart rate values from the bedside sensor at a sampling rate of 1 Hz (±0.1 Hz)                                  | P1       | Continuous monitoring requires consistent data acquisition — IEC 60601-1                                               | Test                |
-| REQ-002 | The system SHALL display the current heart rate value on the clinical dashboard within 1.0 second of sensor acquisition               | P1       | Clinicians require real-time visibility to make treatment decisions                                                    | Test                |
-| REQ-003 | The system SHALL trigger an audible alarm within 2.0 seconds when heart rate exceeds the configurable upper threshold                 | P1       | Delayed alarms in critical care can result in patient harm — IEC 60601-1-8                                             | Test                |
-| REQ-004 | The system SHALL trigger an audible alarm within 2.0 seconds when heart rate drops below the configurable lower threshold             | P1       | Bradycardia detection is safety-critical                                                                               | Test                |
-| REQ-005 | The system SHALL store each vital sign reading with a UTC timestamp in persistent storage with a retention period of 72 hours minimum | P1       | Clinical trend analysis and regulatory audit trail                                                                     | Test                |
-| REQ-006 | The system SHALL allow authorized clinical staff to configure alarm thresholds for each vital sign parameter                          | P1       | Threshold customization per patient condition                                                                          | Demonstration       |
-| REQ-007 | The system SHALL display a visual "Sensor Disconnected" indicator within 3.0 seconds of losing communication with a bedside sensor    | P1       | Clinicians must distinguish between a flat-line reading and a disconnected sensor — failure to do so is a known hazard | Test                |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-001 | The system SHALL read heart rate values from the bedside sensor at a sampling rate of 1 Hz (±0.1 Hz) | P1 | Continuous monitoring requires consistent data acquisition — IEC 60601-1 | Test |
+| REQ-002 | The system SHALL display the current heart rate value on the clinical dashboard within 1.0 second of sensor acquisition | P1 | Clinicians require real-time visibility to make treatment decisions | Test |
+| REQ-003 | The system SHALL trigger an audible alarm within 2.0 seconds when heart rate exceeds the configurable upper threshold | P1 | Delayed alarms in critical care can result in patient harm — IEC 60601-1-8 | Test |
+| REQ-004 | The system SHALL trigger an audible alarm within 2.0 seconds when heart rate drops below the configurable lower threshold | P1 | Bradycardia detection is safety-critical | Test |
+| REQ-005 | The system SHALL store each vital sign reading with a UTC timestamp in persistent storage with a retention period of 72 hours minimum | P1 | Clinical trend analysis and regulatory audit trail | Test |
+| REQ-006 | The system SHALL allow authorized clinical staff to configure alarm thresholds for each vital sign parameter | P1 | Threshold customization per patient condition | Demonstration |
+| REQ-007 | The system SHALL display a visual "Sensor Disconnected" indicator within 3.0 seconds of losing communication with a bedside sensor | P1 | Clinicians must distinguish between a flat-line reading and a disconnected sensor — failure to do so is a known hazard | Test |
 
 ### Non-Functional Requirements
 
-| ID         | Description                                                                                                                                                    | Priority | Rationale                                       | Verification Method |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------- | ------------------- |
-| REQ-NF-001 | The system SHALL maintain 99.99% availability during a 24-hour operational period                                                                              | P1       | Life-sustaining monitoring cannot have downtime | Analysis            |
-| REQ-NF-002 | The system SHALL process and display all three vital sign parameters with end-to-end latency not exceeding 1.5 seconds from sensor reading to dashboard update | P1       | Clinical decision-making requires current data  | Test                |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-NF-001 | The system SHALL maintain 99.99% availability during a 24-hour operational period | P1 | Life-sustaining monitoring cannot have downtime | Analysis |
+| REQ-NF-002 | The system SHALL process and display all three vital sign parameters with end-to-end latency not exceeding 1.5 seconds from sensor reading to dashboard update | P1 | Clinical decision-making requires current data | Test |
 
 ### Constraint Requirements
 
-| ID         | Description                                                                                                  | Priority | Rationale                                             | Verification Method |
-| ---------- | ------------------------------------------------------------------------------------------------------------ | -------- | ----------------------------------------------------- | ------------------- |
-| REQ-CN-001 | The system MUST comply with IEC 62304 software lifecycle requirements for Class C medical device software    | P1       | Regulatory — required for device certification        | Inspection          |
-| REQ-CN-002 | The system MUST implement alarm signals compliant with IEC 60601-1-8 priority categories (high, medium, low) | P1       | Regulatory — alarm standardization for patient safety | Inspection          |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-CN-001 | The system MUST comply with IEC 62304 software lifecycle requirements for Class C medical device software | P1 | Regulatory — required for device certification | Inspection |
+| REQ-CN-002 | The system MUST implement alarm signals compliant with IEC 60601-1-8 priority categories (high, medium, low) | P1 | Regulatory — alarm standardization for patient safety | Inspection |
 ```
 
 Notice how every requirement satisfies the IEEE 29148 criteria:
-
 - **Unambiguous**: "within 2.0 seconds" instead of "quickly"
 - **Testable**: Each has a concrete pass/fail condition
 - **Atomic**: REQ-003 (upper threshold alarm) and REQ-004 (lower threshold alarm) are split, not combined
@@ -86,7 +85,6 @@ The command reads `requirements.md` and generates `specs/{feature}/v-model/accep
 ### Requirement Validation: REQ-003 (Heart Rate Upper Threshold Alarm)
 
 #### Test Case: ATP-003-A (Alarm Triggers at Exact Threshold Crossing)
-
 **Linked Requirement:** REQ-003
 **Description:** Verify the system triggers an audible alarm within 2.0 seconds
 when heart rate exceeds the configured upper threshold.
@@ -95,18 +93,17 @@ sensor reporting a heart rate value above the threshold.
 **Expected Result:** Alarm sound begins within 2.0 seconds; alarm event is
 logged with timestamp, vital sign type "HR", and triggering value.
 
-- **User Scenario: SCN-003-A1**
-  - **Given** the heart rate upper threshold is configured to 120 BPM
+* **User Scenario: SCN-003-A1**
+  * **Given** the heart rate upper threshold is configured to 120 BPM
     for the monitored patient
-  - **And** the system is receiving normal heart rate readings of 80 BPM
-  - **When** the bedside sensor reports a heart rate of 121 BPM
-  - **Then** the system activates an audible high-priority alarm
+  * **And** the system is receiving normal heart rate readings of 80 BPM
+  * **When** the bedside sensor reports a heart rate of 121 BPM
+  * **Then** the system activates an audible high-priority alarm
     within 2.0 seconds of the reading
-  - **And** the dashboard displays the heart rate value in red
+  * **And** the dashboard displays the heart rate value in red
     with a flashing alarm indicator
 
 #### Test Case: ATP-003-B (Alarm Does NOT Trigger at Threshold Boundary)
-
 **Linked Requirement:** REQ-003
 **Description:** Verify the alarm does not trigger when heart rate equals
 but does not exceed the threshold (boundary condition).
@@ -114,14 +111,13 @@ but does not exceed the threshold (boundary condition).
 **Expected Result:** No alarm is triggered; dashboard displays normal
 heart rate indication.
 
-- **User Scenario: SCN-003-B1**
-  - **Given** the heart rate upper threshold is configured to 120 BPM
-  - **When** the bedside sensor reports a heart rate of exactly 120 BPM
-  - **Then** the system does NOT activate an audible alarm
-  - **And** the dashboard displays the heart rate value in normal color
+* **User Scenario: SCN-003-B1**
+  * **Given** the heart rate upper threshold is configured to 120 BPM
+  * **When** the bedside sensor reports a heart rate of exactly 120 BPM
+  * **Then** the system does NOT activate an audible alarm
+  * **And** the dashboard displays the heart rate value in normal color
 
 #### Test Case: ATP-003-C (Alarm Response Time Under Load)
-
 **Linked Requirement:** REQ-003
 **Description:** Verify alarm timing is maintained when the system is
 monitoring all three vital signs simultaneously.
@@ -129,17 +125,16 @@ monitoring all three vital signs simultaneously.
 full sensor load.
 **Expected Result:** Alarm latency ≤ 2.0 seconds with all sensors active.
 
-- **User Scenario: SCN-003-C1**
-  - **Given** the system is simultaneously monitoring HR, BP, and SpO2
+* **User Scenario: SCN-003-C1**
+  * **Given** the system is simultaneously monitoring HR, BP, and SpO2
     from three active sensors
-  - **And** the heart rate upper threshold is configured to 120 BPM
-  - **When** the bedside sensor reports a heart rate of 150 BPM
-  - **Then** the system activates the audible alarm within 2.0 seconds
+  * **And** the heart rate upper threshold is configured to 120 BPM
+  * **When** the bedside sensor reports a heart rate of 150 BPM
+  * **Then** the system activates the audible alarm within 2.0 seconds
 
 ### Requirement Validation: REQ-007 (Sensor Disconnection Detection)
 
 #### Test Case: ATP-007-A (Disconnect Detection Within Time Limit)
-
 **Linked Requirement:** REQ-007
 **Description:** Verify the system detects sensor disconnection and displays
 the indicator within 3.0 seconds.
@@ -149,18 +144,17 @@ within 3.0 seconds of communication loss.
 affected vital sign within 3.0 seconds; other vital signs continue
 displaying normally.
 
-- **User Scenario: SCN-007-A1**
-  - **Given** the heart rate sensor is actively transmitting readings
+* **User Scenario: SCN-007-A1**
+  * **Given** the heart rate sensor is actively transmitting readings
     at 1 Hz to the monitoring system
-  - **When** the sensor communication link is physically interrupted
-  - **Then** the dashboard displays a "Sensor Disconnected" indicator
+  * **When** the sensor communication link is physically interrupted
+  * **Then** the dashboard displays a "Sensor Disconnected" indicator
     for the heart rate parameter within 3.0 seconds
-  - **And** the SpO2 and BP readings continue displaying normally
-  - **And** a "sensor_disconnected" event is logged with the
+  * **And** the SpO2 and BP readings continue displaying normally
+  * **And** a "sensor_disconnected" event is logged with the
     disconnection timestamp
 
 #### Test Case: ATP-007-B (Distinguish Disconnect from Flat-Line)
-
 **Linked Requirement:** REQ-007
 **Description:** Verify the system distinguishes between a disconnected
 sensor and a genuine zero/flat-line reading (critical safety scenario).
@@ -169,15 +163,14 @@ from a disconnected sensor.
 **Expected Result:** HR=0 triggers a clinical alarm; disconnected sensor
 shows the "Sensor Disconnected" indicator (not a zero reading).
 
-- **User Scenario: SCN-007-B1**
-  - **Given** the heart rate sensor is actively transmitting readings
-  - **When** the sensor reports a heart rate value of 0 BPM (asystole)
-  - **Then** the system activates a high-priority clinical alarm
-  - **And** the dashboard displays "0 BPM" (not "Sensor Disconnected")
+* **User Scenario: SCN-007-B1**
+  * **Given** the heart rate sensor is actively transmitting readings
+  * **When** the sensor reports a heart rate value of 0 BPM (asystole)
+  * **Then** the system activates a high-priority clinical alarm
+  * **And** the dashboard displays "0 BPM" (not "Sensor Disconnected")
 ```
 
 Notice the quality criteria in action:
-
 - **Independent**: Each test case owns its preconditions (no shared state)
 - **Repeatable**: Specific values (120 BPM, 121 BPM) ensure deterministic results
 - **Declarative**: Scenarios describe behavior ("the system activates an alarm"), not UI mechanics ("click the alarm button")
@@ -194,18 +187,18 @@ The command reads `requirements.md` and generates `specs/{feature}/v-model/syste
 ```markdown
 ### Decomposition View
 
-| ID      | Component                | Description                                                                                          | IEEE 1016 View |
-| ------- | ------------------------ | ---------------------------------------------------------------------------------------------------- | -------------- |
-| SYS-001 | SensorAcquisitionService | Reads HR, BP, SpO2 values from bedside sensors at 1 Hz sampling rate                                 | Decomposition  |
-| SYS-002 | AlarmEngine              | Evaluates vital signs against configurable thresholds and triggers audible/visual alarms within 2.0s | Decomposition  |
-| SYS-003 | ClinicalDashboard        | Displays real-time vital signs, alarm states, and sensor status indicators                           | Decomposition  |
+| ID | Component | Description | IEEE 1016 View |
+|----|-----------|-------------|----------------|
+| SYS-001 | SensorAcquisitionService | Reads HR, BP, SpO2 values from bedside sensors at 1 Hz sampling rate | Decomposition |
+| SYS-002 | AlarmEngine | Evaluates vital signs against configurable thresholds and triggers audible/visual alarms within 2.0s | Decomposition |
+| SYS-003 | ClinicalDashboard | Displays real-time vital signs, alarm states, and sensor status indicators | Decomposition |
 
 ### Interface View
 
-| ID      | Interface                              | Contract                                                              | IEEE 1016 View |
-| ------- | -------------------------------------- | --------------------------------------------------------------------- | -------------- |
-| SYS-004 | SensorAcquisitionService → AlarmEngine | Publishes VitalSignReading(type, value, timestamp) at 1 Hz per sensor | Interface      |
-| SYS-005 | AlarmEngine → ClinicalDashboard        | Emits AlarmEvent(severity, vitalSignType, triggeringValue, timestamp) | Interface      |
+| ID | Interface | Contract | IEEE 1016 View |
+|----|-----------|----------|----------------|
+| SYS-004 | SensorAcquisitionService → AlarmEngine | Publishes VitalSignReading(type, value, timestamp) at 1 Hz per sensor | Interface |
+| SYS-005 | AlarmEngine → ClinicalDashboard | Emits AlarmEvent(severity, vitalSignType, triggeringValue, timestamp) | Interface |
 ```
 
 ### Step 5: Generate System Test Plan
@@ -220,31 +213,29 @@ The command reads `system-design.md` and generates `specs/{feature}/v-model/syst
 ### Design Element Validation: SYS-002 (AlarmEngine)
 
 #### Test Procedure: STP-002-A (Boundary Value Analysis — Threshold Crossing)
-
 **Linked Design Element:** SYS-002
 **ISO 29119-4 Technique:** Boundary Value Analysis
 **Description:** Verify alarm engine behavior at exact threshold boundaries.
 
-- **Test Step: STS-002-A1**
-  - **Given** the AlarmEngine is initialized with HR upper threshold = 120 BPM
-  - **When** a VitalSignReading(HR, 119, T) is received
-  - **Then** no AlarmEvent is emitted
+* **Test Step: STS-002-A1**
+  * **Given** the AlarmEngine is initialized with HR upper threshold = 120 BPM
+  * **When** a VitalSignReading(HR, 119, T) is received
+  * **Then** no AlarmEvent is emitted
 
-- **Test Step: STS-002-A2**
-  - **Given** the AlarmEngine is initialized with HR upper threshold = 120 BPM
-  - **When** a VitalSignReading(HR, 121, T) is received
-  - **Then** an AlarmEvent(HIGH, HR, 121, T) is emitted within 2.0 seconds
+* **Test Step: STS-002-A2**
+  * **Given** the AlarmEngine is initialized with HR upper threshold = 120 BPM
+  * **When** a VitalSignReading(HR, 121, T) is received
+  * **Then** an AlarmEvent(HIGH, HR, 121, T) is emitted within 2.0 seconds
 
 #### Test Procedure: STP-002-B (Fault Injection — Sensor Failure)
-
 **Linked Design Element:** SYS-002
 **ISO 29119-4 Technique:** Fault Injection
 **Description:** Verify alarm engine handles sensor communication failure gracefully.
 
-- **Test Step: STS-002-B1**
-  - **Given** the AlarmEngine is receiving normal VitalSignReadings
-  - **When** the SensorAcquisitionService stops publishing for 3.0 seconds
-  - **Then** the AlarmEngine emits a SensorDisconnected event (not a clinical alarm)
+* **Test Step: STS-002-B1**
+  * **Given** the AlarmEngine is receiving normal VitalSignReadings
+  * **When** the SensorAcquisitionService stops publishing for 3.0 seconds
+  * **Then** the AlarmEngine emits a SensorDisconnected event (not a clinical alarm)
 ```
 
 ### Step 6: Generate Architecture Design
@@ -258,29 +249,29 @@ The command reads `system-design.md` and generates `specs/{feature}/v-model/arch
 ```markdown
 ### Logical View
 
-| ID       | Module                | Description                                                                              | IEEE 42010 View |
-| -------- | --------------------- | ---------------------------------------------------------------------------------------- | --------------- |
-| ARCH-001 | SensorProtocolAdapter | Abstracts vendor-specific sensor protocols into a unified VitalSignReading interface     | Logical         |
-| ARCH-002 | ThresholdEvaluator    | Stateless evaluation engine — compares incoming readings against configurable thresholds | Logical         |
-| ARCH-003 | AlarmDispatcher       | Routes alarm events to audible, visual, and logging subsystems based on severity         | Logical         |
+| ID | Module | Description | IEEE 42010 View |
+|----|--------|-------------|-----------------|
+| ARCH-001 | SensorProtocolAdapter | Abstracts vendor-specific sensor protocols into a unified VitalSignReading interface | Logical |
+| ARCH-002 | ThresholdEvaluator | Stateless evaluation engine — compares incoming readings against configurable thresholds | Logical |
+| ARCH-003 | AlarmDispatcher | Routes alarm events to audible, visual, and logging subsystems based on severity | Logical |
 
 ### Interface View
 
-| ID       | Interface                                  | Contract                                                                    | IEEE 42010 View |
-| -------- | ------------------------------------------ | --------------------------------------------------------------------------- | --------------- |
-| ARCH-004 | SensorProtocolAdapter → ThresholdEvaluator | Publishes VitalSignReading(type, value, timestamp) via in-process event bus | Interface       |
-| ARCH-005 | ThresholdEvaluator → AlarmDispatcher       | Emits AlarmTrigger(severity, vitalSignType, value, threshold, timestamp)    | Interface       |
+| ID | Interface | Contract | IEEE 42010 View |
+|----|-----------|----------|-----------------|
+| ARCH-004 | SensorProtocolAdapter → ThresholdEvaluator | Publishes VitalSignReading(type, value, timestamp) via in-process event bus | Interface |
+| ARCH-005 | ThresholdEvaluator → AlarmDispatcher | Emits AlarmTrigger(severity, vitalSignType, value, threshold, timestamp) | Interface |
 
 ### Data Flow View
 
-| ID       | Flow                                      | Description                                                         | IEEE 42010 View |
-| -------- | ----------------------------------------- | ------------------------------------------------------------------- | --------------- |
-| ARCH-006 | Sensor → Adapter → Evaluator → Dispatcher | End-to-end vital sign processing pipeline with <2.0s latency budget | Data Flow       |
+| ID | Flow | Description | IEEE 42010 View |
+|----|------|-------------|-----------------|
+| ARCH-006 | Sensor → Adapter → Evaluator → Dispatcher | End-to-end vital sign processing pipeline with <2.0s latency budget | Data Flow |
 
 ### Cross-Cutting Modules
 
-| ID       | Module      | Description                                                      | Tag           |
-| -------- | ----------- | ---------------------------------------------------------------- | ------------- |
+| ID | Module | Description | Tag |
+|----|--------|-------------|-----|
 | ARCH-007 | AuditLogger | Structured logging for all alarm events and sensor state changes | CROSS-CUTTING |
 ```
 
@@ -296,37 +287,34 @@ The command reads `architecture-design.md` and generates `specs/{feature}/v-mode
 ### Architecture Element Validation: ARCH-004 (SensorProtocolAdapter → ThresholdEvaluator Interface)
 
 #### Test Procedure: ITP-004-A (Interface Contract Testing — Event Schema)
-
 **Linked Architecture Element:** ARCH-004
 **ISO 29119-4 Technique:** Interface Contract Testing
 **Description:** Verify the SensorProtocolAdapter publishes events conforming to the VitalSignReading contract.
 
-- **Test Step: ITS-004-A1**
-  - **Given** the SensorProtocolAdapter is connected to a mock HR sensor
-  - **When** the sensor publishes a reading of 80 BPM
-  - **Then** a VitalSignReading(HR, 80, T) event is published to the event bus with all required fields
+* **Test Step: ITS-004-A1**
+  * **Given** the SensorProtocolAdapter is connected to a mock HR sensor
+  * **When** the sensor publishes a reading of 80 BPM
+  * **Then** a VitalSignReading(HR, 80, T) event is published to the event bus with all required fields
 
 #### Test Procedure: ITP-004-B (Data Flow Testing — End-to-End Pipeline)
-
 **Linked Architecture Element:** ARCH-004
 **ISO 29119-4 Technique:** Data Flow Testing
 **Description:** Verify data flows correctly from adapter through evaluator without transformation loss.
 
-- **Test Step: ITS-004-B1**
-  - **Given** the ThresholdEvaluator is subscribed to the event bus
-  - **When** the SensorProtocolAdapter publishes VitalSignReading(HR, 121, T)
-  - **Then** the ThresholdEvaluator receives the event with value=121 and type=HR intact
+* **Test Step: ITS-004-B1**
+  * **Given** the ThresholdEvaluator is subscribed to the event bus
+  * **When** the SensorProtocolAdapter publishes VitalSignReading(HR, 121, T)
+  * **Then** the ThresholdEvaluator receives the event with value=121 and type=HR intact
 
 #### Test Procedure: ITP-004-C (Interface Fault Injection — Adapter Failure)
-
 **Linked Architecture Element:** ARCH-004
 **ISO 29119-4 Technique:** Interface Fault Injection
 **Description:** Verify the system handles adapter-to-evaluator communication failure gracefully.
 
-- **Test Step: ITS-004-C1**
-  - **Given** the SensorProtocolAdapter is publishing readings normally
-  - **When** the event bus connection is interrupted for 3.0 seconds
-  - **Then** the ThresholdEvaluator emits a SensorTimeout event (not a false alarm)
+* **Test Step: ITS-004-C1**
+  * **Given** the SensorProtocolAdapter is publishing readings normally
+  * **When** the event bus connection is interrupted for 3.0 seconds
+  * **Then** the ThresholdEvaluator emits a SensorTimeout event (not a false alarm)
 ```
 
 ### Step 8: Build the Traceability Matrix (Progressive)
@@ -338,7 +326,6 @@ The command reads `architecture-design.md` and generates `specs/{feature}/v-mode
 Run after acceptance for Matrix A, after system-test for A+B, after integration-test for A+B+C, and after unit-test for A+B+C+D.
 
 **Section 1 — Coverage Audit:**
-
 ```
 ══════════════════════════════════════════════
   TRACEABILITY MATRIX — COVERAGE AUDIT
@@ -424,13 +411,13 @@ Run after acceptance for Matrix A, after system-test for A+B, after integration-
 
 **Section 3 — Matrix excerpt:**
 
-| REQ ID  | Requirement Intent                      | Test Case ID | Validation Condition                  | Scenario ID | Status     |
-| ------- | --------------------------------------- | ------------ | ------------------------------------- | ----------- | ---------- |
-| REQ-003 | HR alarm within 2.0s of upper threshold | ATP-003-A    | Alarm at threshold crossing           | SCN-003-A1  | ⬜ Pending |
-|         |                                         | ATP-003-B    | No alarm at exact boundary            | SCN-003-B1  | ⬜ Pending |
-|         |                                         | ATP-003-C    | Alarm timing under load               | SCN-003-C1  | ⬜ Pending |
-| REQ-007 | Sensor disconnect indicator within 3.0s | ATP-007-A    | Detect within time limit              | SCN-007-A1  | ⬜ Pending |
-|         |                                         | ATP-007-B    | Distinguish disconnect from flat-line | SCN-007-B1  | ⬜ Pending |
+| REQ ID | Requirement Intent | Test Case ID | Validation Condition | Scenario ID | Status |
+|---|---|---|---|---|---|
+| REQ-003 | HR alarm within 2.0s of upper threshold | ATP-003-A | Alarm at threshold crossing | SCN-003-A1 | ⬜ Pending |
+| | | ATP-003-B | No alarm at exact boundary | SCN-003-B1 | ⬜ Pending |
+| | | ATP-003-C | Alarm timing under load | SCN-003-C1 | ⬜ Pending |
+| REQ-007 | Sensor disconnect indicator within 3.0s | ATP-007-A | Detect within time limit | SCN-007-A1 | ⬜ Pending |
+| | | ATP-007-B | Distinguish disconnect from flat-line | SCN-007-B1 | ⬜ Pending |
 
 This matrix is the audit artifact that IEC 62304 auditors will review to verify software verification completeness.
 
@@ -442,7 +429,7 @@ This matrix is the audit artifact that IEC 62304 auditors will review to verify 
 
 The command reads `architecture-design.md` and generates `specs/{feature}/v-model/module-design.md` with detailed module designs aligned to DO-178C low-level requirements:
 
-````markdown
+```markdown
 ### Module: MOD-001 (SensorProtocolParser)
 
 **Source File:** `src/sensor_protocol_parser.py`
@@ -464,7 +451,6 @@ FUNCTION parse_vital_reading(raw_bytes: ByteArray) -> VitalSignReading:
     RETURN VitalSignReading(sensor_type, value, timestamp)
 END FUNCTION
 ```
-````
 
 #### State Machine View
 
@@ -472,28 +458,25 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name             | Type      | Size      | Constraint                        |
-| ---------------- | --------- | --------- | --------------------------------- |
-| HEADER_SIZE      | const int | 4 bytes   | Fixed at 8                        |
-| VITAL_SIGN_TYPES | enum      | 3 values  | {HR, BP, SpO2}                    |
-| VALID_RANGE      | dict      | 3 entries | HR: 0-300, BP: 0-400, SpO2: 0-100 |
+| Name | Type | Size | Constraint |
+|------|------|------|------------|
+| HEADER_SIZE | const int | 4 bytes | Fixed at 8 |
+| VITAL_SIGN_TYPES | enum | 3 values | {HR, BP, SpO2} |
+| VALID_RANGE | dict | 3 entries | HR: 0-300, BP: 0-400, SpO2: 0-100 |
 
 #### Error Handling & Return Codes
 
-| Error Condition    | Return                      | Upstream Contract                             |
-| ------------------ | --------------------------- | --------------------------------------------- |
-| Insufficient bytes | Error("Insufficient data")  | ARCH-001 Interface View: caller retries       |
+| Error Condition | Return | Upstream Contract |
+|----------------|--------|-------------------|
+| Insufficient bytes | Error("Insufficient data") | ARCH-001 Interface View: caller retries |
 | Out-of-range value | Error("Value out of range") | ARCH-001 Interface View: logged and discarded |
-
 ```
 
 ### Step 10: Generate Unit Test Plan
 
 ```
-
 /speckit.v-model.unit-test
-
-````
+```
 
 The command reads `module-design.md` and generates `specs/{feature}/v-model/unit-test.md` with white-box unit test procedures:
 
@@ -533,7 +516,7 @@ The command reads `module-design.md` and generates `specs/{feature}/v-model/unit
   * **Arrange:** Construct raw_bytes for HR with value = 301 (above maximum)
   * **Act:** Call parse_vital_reading(raw_bytes)
   * **Assert:** Returns Error("Value out of range for HR")
-````
+```
 
 ### Step 11: Continue with Spec Kit Core
 
@@ -552,26 +535,24 @@ For an Advanced Driver Assistance System (ADAS) with autonomous emergency brakin
 ```
 
 Example requirements:
-
 ```markdown
-| ID         | Description                                                                                                                                                     | Priority | Rationale                                               | Verification Method |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------- | ------------------- |
-| REQ-001    | The ADAS SHALL initiate emergency braking within 150 milliseconds of detecting a collision-imminent object at distances ≤ 30 meters at vehicle speeds ≥ 30 km/h | P1       | ISO 26262 ASIL-D — failure to brake is life-threatening | Test                |
-| REQ-002    | The ADAS SHALL NOT initiate emergency braking for stationary objects detected at distances > 100 meters (false positive prevention)                             | P1       | False braking on highways causes rear-end collisions    | Test                |
-| REQ-CN-001 | The ADAS MUST achieve ASIL-D integrity level per ISO 26262 Part 3 for the emergency braking function                                                            | P1       | Regulatory — highest automotive safety integrity level  | Inspection          |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-001 | The ADAS SHALL initiate emergency braking within 150 milliseconds of detecting a collision-imminent object at distances ≤ 30 meters at vehicle speeds ≥ 30 km/h | P1 | ISO 26262 ASIL-D — failure to brake is life-threatening | Test |
+| REQ-002 | The ADAS SHALL NOT initiate emergency braking for stationary objects detected at distances > 100 meters (false positive prevention) | P1 | False braking on highways causes rear-end collisions | Test |
+| REQ-CN-001 | The ADAS MUST achieve ASIL-D integrity level per ISO 26262 Part 3 for the emergency braking function | P1 | Regulatory — highest automotive safety integrity level | Inspection |
 ```
 
 The acceptance command then generates test cases with automotive-specific scenarios:
 
 ```markdown
 #### Test Case: ATP-001-A (Braking Initiation Time — Pedestrian)
-
-- **User Scenario: SCN-001-A1**
-  - **Given** the vehicle is traveling at 50 km/h on a dry road surface
-  - **And** the forward-facing sensor suite is fully operational
-  - **When** a pedestrian is detected at 25 meters in the vehicle's path
-  - **Then** the ADAS initiates full emergency braking within 150 milliseconds
-  - **And** the braking event is logged with timestamp, distance, speed, and object classification
+* **User Scenario: SCN-001-A1**
+  * **Given** the vehicle is traveling at 50 km/h on a dry road surface
+  * **And** the forward-facing sensor suite is fully operational
+  * **When** a pedestrian is detected at 25 meters in the vehicle's path
+  * **Then** the ADAS initiates full emergency braking within 150 milliseconds
+  * **And** the braking event is logged with timestamp, distance, speed, and object classification
 ```
 
 ## Example 3: Handling Requirement Changes
@@ -584,7 +565,6 @@ When requirements change after downstream artifacts already exist, start with im
 ```
 
 Output:
-
 ```
 ## Suspect Artifacts (Downstream of REQ-003)
 
@@ -633,20 +613,17 @@ Now you know exactly which artifacts need re-validation. Proceed with the change
 ```
 
 The command:
-
 1. Detects REQ-003 was modified (via `diff-requirements.sh`)
 2. Regenerates ONLY `ATP-003-*` and `SCN-003-*` sections
 3. Leaves all other ATPs/SCNs untouched
 4. Runs coverage validation to confirm no gaps
 
 Then re-run trace to update the matrix:
-
 ```
 /speckit.v-model.trace
 ```
 
 For CI integration, use JSON output to enforce blast-radius policies:
-
 ```bash
 # Block merge if blast radius exceeds threshold
 blast=$(impact-analysis.sh --json --downward REQ-003 ./v-model/ \
@@ -663,7 +640,6 @@ If you add requirements without regenerating acceptance tests:
 ```
 
 Output:
-
 ```
 ⚠️  EXCEPTION REPORT
 ────────────────────
@@ -675,7 +651,6 @@ OVERALL STATUS: ❌ NON-COMPLIANT
 ```
 
 Fix by running:
-
 ```
 /speckit.v-model.acceptance
 ```
