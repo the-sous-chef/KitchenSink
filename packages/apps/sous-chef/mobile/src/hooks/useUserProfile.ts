@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth as useIdpAuth } from '@clerk/expo';
 import type { UpdateProfileDto, UserProfile } from '@kitchensink/identity-service';
-import { deleteUserMe, getUserMe, patchUserMe } from '../services/api.js';
+import { deleteUserMe, getUserMe, patchUserMe } from '../services/api';
 
 const PROFILE_KEY = ['user', 'me'] as const;
 

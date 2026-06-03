@@ -1,8 +1,8 @@
 import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useUserProfile, useUpdateProfile } from '../hooks/useUserProfile.js';
-import { SuspensionBanner } from '../components/SuspensionBanner.js';
+import { useUserProfile, useUpdateProfile } from '../hooks/useUserProfile';
+import { SuspensionBanner } from '../components/SuspensionBanner';
 
 export function ProfileScreen(): JSX.Element {
     const { data, isLoading, error } = useUserProfile();

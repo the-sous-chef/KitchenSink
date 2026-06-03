@@ -1,7 +1,7 @@
 import { useAuth, useUser } from '@clerk/expo';
 import type { JSX } from 'react';
 import { Alert, Button, StyleSheet, Text, View } from 'react-native';
-import { useDeleteAccount } from '../hooks/useUserProfile.js';
+import { useDeleteAccount } from '../hooks/useUserProfile';
 
 export function AccountSettingsScreen(): JSX.Element {
     const { signOut } = useAuth();

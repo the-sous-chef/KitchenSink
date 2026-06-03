@@ -1,7 +1,7 @@
 import type { JSX, ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { useAuth } from '../hooks/useAuth.js';
-import { LoginScreen } from '../screens/login.js';
+import { useAuth } from '../hooks/useAuth';
+import { LoginScreen } from '../screens/login';
 
 interface AuthGateProps {
     children: ReactNode;

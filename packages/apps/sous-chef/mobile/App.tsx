@@ -3,9 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import type { JSX } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthGate } from './src/components/AuthGate.js';
-import { ProfileScreen } from './src/screens/profile.js';
-import { tokenCache } from './src/storage/tokenCache.js';
+import { AuthGate } from './src/components/AuthGate';
+import { ProfileScreen } from './src/screens/profile';
+import { tokenCache } from './src/storage/tokenCache';
 
 const queryClient = new QueryClient();
 

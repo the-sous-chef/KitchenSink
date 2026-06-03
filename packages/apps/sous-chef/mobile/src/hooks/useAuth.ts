@@ -1,6 +1,6 @@
 import { useAuth as useIdpAuth, useUser } from '@clerk/expo';
 import { useMemo } from 'react';
-import { type AuthState, IMPERSONATION_BLOCK, SUSPENDED_BLOCK } from '../types/auth.js';
+import { type AuthState, IMPERSONATION_BLOCK, SUSPENDED_BLOCK } from '../types/auth';
 
 export function deriveAuthState(input: {
     isLoaded: boolean;
