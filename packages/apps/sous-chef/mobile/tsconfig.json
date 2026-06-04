@@ -6,7 +6,8 @@
         "moduleResolution": "bundler",
         "module": "ESNext",
         "target": "ESNext",
-        "lib": ["ESNext"],
+        "skipLibCheck": true,
+        "lib": ["ESNext", "DOM"],
         "noEmit": true,
         "incremental": true,
         "paths": {
@@ -14,6 +15,6 @@
             "@kitchensink/identity-service/*": ["../../services/identity/src/*"]
         }
     },
-    "include": ["src/**/*", "app/**/*", "tests/**/*", "App.tsx"],
+    "include": ["src/**/*", "app/**/*", "tests/**/*", "App.tsx", "tamagui.config.ts"],
     "exclude": ["node_modules", "dist"]
 }
