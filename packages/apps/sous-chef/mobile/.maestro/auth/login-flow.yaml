@@ -1,26 +1,62 @@
-# Maestro E2E: Mobile auth flows
+# Maestro E2E: Mobile auth flows with Clerk
 #
-# Covers:
-#   - App launches and shows login screen
-#   - Login screen has email/password inputs
-#   - Sign-up navigation works
-#   - AuthGate renders children when authenticated (mocked)
+# Uses Clerk magic test emails (+clerk_test suffix) which auto-verify
+# with fixed OTP 424242 — no real email server needed.
+#
+# Pre-requisites:
+#   - App built as debug APK (expo prebuild + gradle assembleDebug)
+#   - Android emulator running with app installed
+#   - Clerk dashboard has email+password auth enabled
 #
 # Run: maestro test .maestro/auth/
 
-appId: com.thesouschef.mobile
+appId: io.souschef.mobile
 ---
 - launchApp:
       clearState: true
 
+# Login screen assertions
 - assertVisible: 'Sous Chef'
 - assertVisible: 'Email'
 - assertVisible: 'Password'
 - assertVisible: 'Sign in'
 
+# Navigate to sign-up
 - tapOn: 'Sign up'
 - assertVisible: 'Create your account'
-- assertVisible: 'Create account'
+
+# Sign up with Clerk magic email (+clerk_test suffix)
+- tapOn: 'Email'
+- inputText: 'maestro+clerk_test@example.com'
+
+- tapOn: 'Password'
+- inputText: 'TestPassword123!'
+
+- tapOn: 'Create account'
+
+# If email verification appears, enter magic OTP
+- runFlow:
+      when:
+          visible: 'Verification'
+      commands:
+          - inputText: '424242'
+
+# Should land back at login screen or app content
+- assertVisible:
+      id: 'login-screen'
+      optional: true
+
+# Navigate back to login and sign in
+- tapOn: 'Sign in'
+- tapOn: 'Email'
+- inputText: 'maestro+clerk_test@example.com'
+
+- tapOn: 'Password'
+- inputText: 'TestPassword123!'
 
 - tapOn: 'Sign in'
-- assertVisible: 'Sign in'
+
+# After successful auth, AuthGate renders children (ProfileScreen)
+- assertVisible:
+      id: 'profile-screen'
+      timeout: 10000
