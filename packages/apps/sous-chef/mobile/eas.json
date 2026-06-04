@@ -1,0 +1,16 @@
+{
+    "cli": {
+        "version": ">= 14.0.0"
+    },
+    "build": {
+        "e2e": {
+            "withoutCredentials": true,
+            "ios": {
+                "simulator": true
+            },
+            "android": {
+                "buildType": "apk"
+            }
+        }
+    }
+}
