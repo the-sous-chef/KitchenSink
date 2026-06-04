@@ -1,14 +1,19 @@
 import type { JSX, ReactNode } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import { LoginScreen } from '../screens/login';
+import { SignUpScreen } from '../screens/signup';
 
 interface AuthGateProps {
     children: ReactNode;
 }
 
+type Screen = 'login' | 'signup';
+
 export function AuthGate({ children }: AuthGateProps): JSX.Element {
     const { state } = useAuth();
+    const [screen, setScreen] = useState<Screen>('login');
 
     switch (state.status) {
         case 'loading':
@@ -18,7 +23,11 @@ export function AuthGate({ children }: AuthGateProps): JSX.Element {
                 </View>
             );
         case 'unauthenticated':
-            return <LoginScreen />;
+            if (screen === 'signup') {
+                return <SignUpScreen onBack={() => setScreen('login')} />;
+            }
+
+            return <LoginScreen onSignUp={() => setScreen('signup')} />;
         case 'blocked':
             return (
                 <View style={styles.center}>

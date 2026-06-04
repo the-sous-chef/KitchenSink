@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { Button, Input, SizableText, YStack } from 'tamagui';
 
-export function LoginScreen(): JSX.Element {
+export interface LoginScreenProps {
+    onSignUp: () => void;
+}
+
+export function LoginScreen({ onSignUp }: LoginScreenProps): JSX.Element {
     const { setActive } = useClerk();
     const { signIn } = useSignIn();
     const [email, setEmail] = useState('');
@@ -121,6 +125,19 @@ export function LoginScreen(): JSX.Element {
                     Sign in
                 </Button>
             )}
+
+            <Button
+                onPress={onSignUp}
+                backgroundColor="transparent"
+                color="rgba(0,0,0,0.5)"
+                fontSize={14}
+                pressStyle={{ opacity: 0.8 }}
+            >
+                Don't have an account?{' '}
+                <SizableText color="rgba(0,0,0,0.7)" fontSize={14} fontWeight="600">
+                    Sign up
+                </SizableText>
+            </Button>
         </YStack>
     );
 }

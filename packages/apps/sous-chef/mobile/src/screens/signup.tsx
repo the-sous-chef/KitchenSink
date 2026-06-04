@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { Button, Input, SizableText, YStack } from 'tamagui';
 
-export function SignUpScreen(): JSX.Element {
+export interface SignUpScreenProps {
+    onBack: () => void;
+}
+
+export function SignUpScreen({ onBack }: SignUpScreenProps): JSX.Element {
     const { setActive } = useClerk();
     const { signUp } = useSignUp();
     const [email, setEmail] = useState('');
@@ -125,6 +129,19 @@ export function SignUpScreen(): JSX.Element {
                     Create account
                 </Button>
             )}
+
+            <Button
+                onPress={onBack}
+                backgroundColor="transparent"
+                color="rgba(0,0,0,0.5)"
+                fontSize={14}
+                pressStyle={{ opacity: 0.8 }}
+            >
+                Already have an account?{' '}
+                <SizableText color="rgba(0,0,0,0.7)" fontSize={14} fontWeight="600">
+                    Sign in
+                </SizableText>
+            </Button>
         </YStack>
     );
 }
