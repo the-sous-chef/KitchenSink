@@ -37,9 +37,35 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+    install:
+        name: Install dependencies
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Cache dependencies
+              uses: actions/cache/save@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
     identity-workspace:
         name: ${{ matrix.workspace }}
         runs-on: ubuntu-latest
+        needs: install
         strategy:
             fail-fast: false
             matrix:
@@ -59,8 +85,14 @@ jobs:
                   node-version: 24
                   cache: npm
 
-            - name: Install dependencies
-              run: npm ci
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
             - name: Lint
               run: npm run lint --workspace=${{ matrix.workspace }}
@@ -68,13 +100,16 @@ jobs:
             - name: Typecheck
               run: npm run typecheck --workspace=${{ matrix.workspace }}
 
+            - name: Format check
+              run: npm run format:check --workspace=${{ matrix.workspace }}
+
             - name: Test
               run: npm run test --workspace=${{ matrix.workspace }}
 
             - name: Build
               run: npm run build --workspace=${{ matrix.workspace }}
 
-    e2e:
+    e2e-backend:
         name: E2E (${{ matrix.workspace }})
         runs-on: ubuntu-latest
         needs: identity-workspace
@@ -94,11 +129,72 @@ jobs:
                   node-version: 24
                   cache: npm
 
-            - name: Install dependencies
-              run: npm ci
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
             - name: Run e2e tests
               run: npm run test:e2e --workspace=${{ matrix.workspace }}
+
+    e2e-web:
+        name: E2E (web — Playwright)
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+            - name: Install Playwright browsers
+              run: npx playwright install chromium
+
+            - name: Run web e2e tests
+              run: npm run test:e2e --workspace=@kitchensink/web
+
+    e2e-mobile:
+        name: E2E (mobile — Vitest)
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+            - name: Run mobile e2e tests
+              run: npm run test:e2e --workspace=@kitchensink/mobile
 
     metric-gate:
         name: Test Distribution Metric Gate
@@ -113,6 +209,15 @@ jobs:
               with:
                   node-version: 24
                   cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
             - name: Install dependencies
               run: npm ci

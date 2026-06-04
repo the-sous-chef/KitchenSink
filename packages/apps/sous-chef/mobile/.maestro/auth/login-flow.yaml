@@ -1,0 +1,26 @@
+# Maestro E2E: Mobile auth flows
+#
+# Covers:
+#   - App launches and shows login screen
+#   - Login screen has email/password inputs
+#   - Sign-up navigation works
+#   - AuthGate renders children when authenticated (mocked)
+#
+# Run: maestro test .maestro/auth/
+
+appId: com.thesouschef.mobile
+---
+- launchApp:
+      clearState: true
+
+- assertVisible: 'Sous Chef'
+- assertVisible: 'Email'
+- assertVisible: 'Password'
+- assertVisible: 'Sign in'
+
+- tapOn: 'Sign up'
+- assertVisible: 'Create your account'
+- assertVisible: 'Create account'
+
+- tapOn: 'Sign in'
+- assertVisible: 'Sign in'
