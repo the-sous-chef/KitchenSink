@@ -13,26 +13,36 @@ export function SignUpScreen(): JSX.Element {
     const [busy, setBusy] = useState(false);
 
     async function handleSignUp() {
-        if (!signUp) return;
+        if (!signUp) {
+            return;
+        }
+
         setBusy(true);
         setError(null);
+
         try {
             const createResult = await signUp.create({ emailAddress: email });
+
             if (createResult.error) {
                 setError(
                     typeof createResult.error === 'string'
                         ? createResult.error
                         : (createResult.error.message ?? 'Sign-up failed'),
                 );
+
                 return;
             }
+
             const pwResult = await signUp.password({ password });
+
             if (pwResult.error) {
                 setError(
                     typeof pwResult.error === 'string' ? pwResult.error : (pwResult.error.message ?? 'Sign-up failed'),
                 );
+
                 return;
             }
+
             if (signUp.status === 'complete' && signUp.createdSessionId) {
                 await setActive({ session: signUp.createdSessionId });
             } else {

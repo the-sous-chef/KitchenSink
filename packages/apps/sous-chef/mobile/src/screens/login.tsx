@@ -13,26 +13,36 @@ export function LoginScreen(): JSX.Element {
     const [busy, setBusy] = useState(false);
 
     async function handleSignIn() {
-        if (!signIn) return;
+        if (!signIn) {
+            return;
+        }
+
         setBusy(true);
         setError(null);
+
         try {
             const createResult = await signIn.create({ identifier: email });
+
             if (createResult.error) {
                 setError(
                     typeof createResult.error === 'string'
                         ? createResult.error
                         : (createResult.error.message ?? 'Sign-in failed'),
                 );
+
                 return;
             }
+
             const pwResult = await signIn.password({ password });
+
             if (pwResult.error) {
                 setError(
                     typeof pwResult.error === 'string' ? pwResult.error : (pwResult.error.message ?? 'Sign-in failed'),
                 );
+
                 return;
             }
+
             if (signIn.status === 'complete' && signIn.createdSessionId) {
                 await setActive({ session: signIn.createdSessionId });
             } else {

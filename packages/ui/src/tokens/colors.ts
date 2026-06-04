@@ -1,4 +1,3 @@
-
 export const palette = {
     seafoam: '#3D8B85',
     'seafoam-light': '#5BA8A0',
