@@ -1,45 +1,45 @@
-import { useClerk, useSignIn } from '@clerk/expo';
+import { useClerk, useSignUp } from '@clerk/expo';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { Button, Input, SizableText, YStack } from 'tamagui';
 
-export function LoginScreen(): JSX.Element {
+export function SignUpScreen(): JSX.Element {
     const { setActive } = useClerk();
-    const { signIn } = useSignIn();
+    const { signUp } = useSignUp();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
 
-    async function handleSignIn() {
-        if (!signIn) return;
+    async function handleSignUp() {
+        if (!signUp) return;
         setBusy(true);
         setError(null);
         try {
-            const createResult = await signIn.create({ identifier: email });
+            const createResult = await signUp.create({ emailAddress: email });
             if (createResult.error) {
                 setError(
                     typeof createResult.error === 'string'
                         ? createResult.error
-                        : (createResult.error.message ?? 'Sign-in failed'),
+                        : (createResult.error.message ?? 'Sign-up failed'),
                 );
                 return;
             }
-            const pwResult = await signIn.password({ password });
+            const pwResult = await signUp.password({ password });
             if (pwResult.error) {
                 setError(
-                    typeof pwResult.error === 'string' ? pwResult.error : (pwResult.error.message ?? 'Sign-in failed'),
+                    typeof pwResult.error === 'string' ? pwResult.error : (pwResult.error.message ?? 'Sign-up failed'),
                 );
                 return;
             }
-            if (signIn.status === 'complete' && signIn.createdSessionId) {
-                await setActive({ session: signIn.createdSessionId });
+            if (signUp.status === 'complete' && signUp.createdSessionId) {
+                await setActive({ session: signUp.createdSessionId });
             } else {
                 setError('Additional verification required');
             }
         } catch (e) {
-            setError(e instanceof Error ? e.message : 'Sign-in failed');
+            setError(e instanceof Error ? e.message : 'Sign-up failed');
         } finally {
             setBusy(false);
         }
@@ -56,6 +56,10 @@ export function LoginScreen(): JSX.Element {
                 marginBottom="$3"
             >
                 Sous Chef
+            </SizableText>
+
+            <SizableText color="$color" fontSize={16} textAlign="center" opacity={0.7} marginBottom="$2">
+                Create your account
             </SizableText>
 
             <YStack gap="$3">
@@ -98,8 +102,8 @@ export function LoginScreen(): JSX.Element {
                 <ActivityIndicator color="#5BA8A0" />
             ) : (
                 <Button
-                    onPress={handleSignIn}
-                    disabled={!signIn || busy}
+                    onPress={handleSignUp}
+                    disabled={!signUp || busy}
                     backgroundColor="$primary"
                     color="white"
                     borderRadius="$5"
@@ -108,7 +112,7 @@ export function LoginScreen(): JSX.Element {
                     fontWeight="600"
                     pressStyle={{ backgroundColor: '#3D8B85' }}
                 >
-                    Sign in
+                    Create account
                 </Button>
             )}
         </YStack>
