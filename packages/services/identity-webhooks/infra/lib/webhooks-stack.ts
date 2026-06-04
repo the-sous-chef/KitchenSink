@@ -19,6 +19,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Construct } from 'constructs';
 
+import { SSM_BASE_PATHS } from './config.js';
 import type { DataStack } from './data-stack.js';
 import type { NetworkStack } from './network-stack.js';
 
@@ -64,9 +65,9 @@ export class WebhooksStack extends Stack {
             NODE_ENV: 'production',
             DB_SECRET_ARN: props.data.dbCredentialsSecret.secretArn,
             AUTH_SECRET_ARN: props.data.authSecretKey.secretArn,
-            IDP_JWKS_URL: derived('/kitchensink/auth/jwks-url'),
-            IDP_ISSUER: derived('/kitchensink/auth/issuer'),
-            IDP_AUDIENCE: derived('/kitchensink/auth/audience'),
+            IDP_JWKS_URL: derived(SSM_BASE_PATHS.jwksUrl),
+            IDP_ISSUER: derived(SSM_BASE_PATHS.issuer),
+            IDP_AUDIENCE: derived(SSM_BASE_PATHS.audience),
             DELETION_QUEUE_URL: props.data.deletionQueue.queueUrl,
             DELETION_QUEUE_ARN: props.data.deletionQueue.queueArn,
             MEDIA_BUCKET_NAME: props.data.mediaBucket.bucketName,

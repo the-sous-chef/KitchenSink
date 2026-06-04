@@ -13,6 +13,7 @@ import {
 } from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
 
+import { getAuthSecretName } from './config.js';
 import type { NetworkStack } from './network-stack.js';
 
 export interface DataStackProps extends StackProps {
@@ -30,7 +31,7 @@ export class DataStack extends Stack {
     public readonly mediaBucket: s3.Bucket;
     public readonly archiveBucket: s3.Bucket;
     public readonly dbCredentialsSecret: secretsmanager.Secret;
-    public readonly authSecretKey: secretsmanager.Secret;
+    public readonly authSecretKey: secretsmanager.ISecret;
     public readonly migrationPlanSecret: secretsmanager.Secret;
     public readonly databaseName: string;
 
@@ -49,15 +50,11 @@ export class DataStack extends Stack {
 
         const stageTag = props.stage ?? 'dev';
 
-        this.authSecretKey = new secretsmanager.Secret(this, 'IdentitySecret', {
-            secretName: `kitchensink/${stageTag}/auth/keys`,
-            description: 'IdP API credentials for identity boundary',
-            secretObjectValue: {
-                secretKey: SecretValue.unsafePlainText(''),
-                publishableKey: SecretValue.unsafePlainText(''),
-                webhookSigningSecret: SecretValue.unsafePlainText(''),
-            },
-        });
+        this.authSecretKey = secretsmanager.Secret.fromSecretNameV2(
+            this,
+            'ImportedAuthSecret',
+            getAuthSecretName(stageTag),
+        );
 
         this.migrationPlanSecret = new secretsmanager.Secret(this, 'IdentityMigrationPlanSecret', {
             description: 'Deployment bootstrap instructions for pg_trgm extension',

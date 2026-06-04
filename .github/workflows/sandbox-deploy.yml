@@ -34,9 +34,6 @@ env:
     NODE_VERSION: 24
     AWS_REGION: us-east-1
     CDK_DEFAULT_REGION: us-east-1
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk
-    EXPO_PUBLIC_IDP_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk
-    CLERK_SECRET_KEY: sk_test_dummy
 
 jobs:
     deploy:
@@ -68,7 +65,8 @@ jobs:
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
 
             - name: Login to Amazon ECR
@@ -111,8 +109,8 @@ jobs:
             - name: CDK Destroy (test cleanup)
               if: ${{ github.event.inputs.destroy == true }}
               run: |
-                STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity/infra/dist/bin/app.js" --all --force
-                STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
+                  STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity/infra/dist/bin/app.js" --all --force
+                  STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
 
     cleanup-pr-sandbox:
         name: Cleanup PR Sandbox
@@ -143,7 +141,8 @@ jobs:
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
 
             - name: CDK Destroy (identity service)
