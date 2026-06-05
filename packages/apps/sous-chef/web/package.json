@@ -14,7 +14,7 @@
         "format:check": "prettier --check ."
     },
     "dependencies": {
-        "@auth0/nextjs-auth0": "^4.3.0",
+        "@auth0/nextjs-auth0": "^4.6.1",
         "@kitchensink/auth-types": "*",
         "@testing-library/dom": "^10.4.1",
         "class-transformer": "^0.5.1",
