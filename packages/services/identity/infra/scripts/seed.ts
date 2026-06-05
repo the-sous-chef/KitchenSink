@@ -7,7 +7,7 @@ const DATABASE_URL =
 
 async function seed(): Promise<void> {
     const client = postgres(DATABASE_URL, { max: 1 });
-    const db = drizzle(client, { schema });
+    drizzle(client, { schema });
 
     console.log('=== Running migrations ===');
     console.log('  (drizzle-kit migrate runs separately; schema assumed synced)');
