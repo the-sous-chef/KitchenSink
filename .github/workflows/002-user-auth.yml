@@ -97,6 +97,12 @@ jobs:
             - name: Lint
               run: npm run lint --workspace=${{ matrix.workspace }}
 
+            - name: Generate Next.js types
+              if: matrix.workspace == '@kitchensink/web'
+              run: |
+                  cd packages/apps/sous-chef/web
+                  npx next build --no-lint
+
             - name: Typecheck
               run: npm run typecheck --workspace=${{ matrix.workspace }}
 

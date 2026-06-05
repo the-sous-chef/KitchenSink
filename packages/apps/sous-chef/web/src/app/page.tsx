@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { auth } from '@clerk/nextjs/server';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
     title: 'Home | Sous Chef',
     description: 'Your personal AI-powered recipe assistant',
