@@ -7,7 +7,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 import { palette, semantic } from '../dist/tokens/colors.js';
 import { radius } from '../dist/tokens/radius.js';
 import { shadows } from '../dist/tokens/shadows.js';
-import { space, size } from '../dist/tokens/spacing.js';
+import { space } from '../dist/tokens/spacing.js';
 import { fonts, fontSizes, fontWeights, lineHeights } from '../dist/tokens/typography.js';
 
 const outDir = process.argv[2] ?? 'dist';
