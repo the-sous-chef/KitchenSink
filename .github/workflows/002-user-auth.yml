@@ -131,17 +131,17 @@ jobs:
             - name: Lint
               run: npm run lint --workspace=${{ matrix.workspace }}
 
-            - name: Generate Next.js types
-              if: matrix.workspace == '@kitchensink/web'
-              run: |
-                  cd packages/apps/sous-chef/web
-                  npx next build
-
             - name: Restore UI build artifacts
               uses: actions/cache/restore@v5
               with:
                   path: packages/ui/dist
                   key: ${{ runner.os }}-ui-dist-${{ github.sha }}
+
+            - name: Generate Next.js types
+              if: matrix.workspace == '@kitchensink/web'
+              run: |
+                  cd packages/apps/sous-chef/web
+                  npx next build
 
             - name: Typecheck
               run: npm run typecheck --workspace=${{ matrix.workspace }}
