@@ -145,14 +145,16 @@ jobs:
 
             - name: Configure AWS credentials
               if: matrix.workspace == '@kitchensink/web'
+              id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
                   aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
-              if: matrix.workspace == '@kitchensink/web'
+              if: matrix.workspace == '@kitchensink/web' && steps.aws-creds.outcome == 'success'
               id: fetch-keys
               run: |
                   SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
@@ -160,6 +162,12 @@ jobs:
                   SECRET_KEY=$(echo "$SECRET" | jq -r '.secretKey')
                   echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
                   echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
+
+            - name: Set fallback Clerk keys for build
+              if: matrix.workspace == '@kitchensink/web' && steps.aws-creds.outcome != 'success'
+              run: |
+                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_placeholder_build_only" >> "$GITHUB_ENV"
+                  echo "CLERK_SECRET_KEY=sk_test_placeholder_build_only" >> "$GITHUB_ENV"
 
             - name: Build
               if: matrix.workspace != '@kitchensink/mobile'
