@@ -129,32 +129,10 @@ jobs:
               with:
                   path: packages/ui/dist
                   key: ${{ runner.os }}-ui-dist-${{ github.sha }}
-
-            - name: Configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
-                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
-
-            - name: Fetch Clerk keys from AWS Secrets Manager
-              id: fetch-keys
-              run: |
-                  SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
-                  PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
-                  SECRET_KEY=$(echo "$SECRET" | jq -r '.secretKey')
-                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
-                  echo "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
-                  echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
+                  continue-on-error: true
 
             - name: Lint
               run: npm run lint --workspace=${{ matrix.workspace }}
-
-            - name: Generate Next.js types
-              if: matrix.workspace == '@kitchensink/web'
-              run: |
-                  cd packages/apps/sous-chef/web
-                  npx next build
 
             - name: Typecheck
               run: npm run typecheck --workspace=${{ matrix.workspace }}
@@ -164,6 +142,24 @@ jobs:
 
             - name: Test
               run: npm run test --workspace=${{ matrix.workspace }}
+
+            - name: Configure AWS credentials
+              if: matrix.workspace == '@kitchensink/web'
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Fetch Clerk keys from AWS Secrets Manager
+              if: matrix.workspace == '@kitchensink/web'
+              id: fetch-keys
+              run: |
+                  SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
+                  PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
+                  SECRET_KEY=$(echo "$SECRET" | jq -r '.secretKey')
+                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
+                  echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
 
             - name: Build
               if: matrix.workspace != '@kitchensink/mobile'
