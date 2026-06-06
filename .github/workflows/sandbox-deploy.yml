@@ -39,7 +39,7 @@ jobs:
     deploy:
         name: Deploy Sandbox
         runs-on: ubuntu-latest
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && !github.event.pull_request.draft) }}
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
             STAGE: ${{ github.event.inputs.stage || format('mr-{0}', github.event.pull_request.number) }}
 
