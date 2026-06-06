@@ -129,7 +129,6 @@ jobs:
               with:
                   path: packages/ui/dist
                   key: ${{ runner.os }}-ui-dist-${{ github.sha }}
-                  continue-on-error: true
 
             - name: Lint
               run: npm run lint --workspace=${{ matrix.workspace }}
@@ -197,14 +196,16 @@ jobs:
                   key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
             - name: Configure AWS credentials
+              id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
                   aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
-              id: fetch-keys
+              if: steps.aws-creds.outcome == 'success'
               run: |
                   SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
                   PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
@@ -213,6 +214,7 @@ jobs:
                   echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
 
             - name: Run e2e tests
+              if: steps.aws-creds.outcome == 'success'
               run: npm run test:e2e --workspace=${{ matrix.workspace }}
 
     e2e-web:
@@ -239,14 +241,16 @@ jobs:
                   key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
             - name: Configure AWS credentials
+              id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
                   aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
-              id: fetch-keys
+              if: steps.aws-creds.outcome == 'success'
               run: |
                   SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
                   PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
@@ -255,9 +259,11 @@ jobs:
                   echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
 
             - name: Install Playwright browsers
+              if: steps.aws-creds.outcome == 'success'
               run: npx playwright install chromium
 
             - name: Run web e2e tests
+              if: steps.aws-creds.outcome == 'success'
               run: npm run test:e2e --workspace=@kitchensink/web
 
     e2e-mobile:
@@ -284,14 +290,16 @@ jobs:
                   key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
             - name: Configure AWS credentials
+              id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
                   aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
-              id: fetch-keys
+              if: steps.aws-creds.outcome == 'success'
               run: |
                   SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
                   PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
@@ -300,4 +308,5 @@ jobs:
                   echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
 
             - name: Run mobile e2e tests
+              if: steps.aws-creds.outcome == 'success'
               run: npm run test:e2e --workspace=@kitchensink/mobile
