@@ -163,14 +163,8 @@ jobs:
                   echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
                   echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
 
-            - name: Set fallback Clerk keys for build
-              if: matrix.workspace == '@kitchensink/web' && steps.aws-creds.outcome != 'success'
-              run: |
-                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_placeholder_build_only" >> "$GITHUB_ENV"
-                  echo "CLERK_SECRET_KEY=sk_test_placeholder_build_only" >> "$GITHUB_ENV"
-
             - name: Build
-              if: matrix.workspace != '@kitchensink/mobile'
+              if: matrix.workspace != '@kitchensink/mobile' && (matrix.workspace != '@kitchensink/web' || steps.aws-creds.outcome == 'success')
               run: npm run build --workspace=${{ matrix.workspace }}
 
     e2e:
