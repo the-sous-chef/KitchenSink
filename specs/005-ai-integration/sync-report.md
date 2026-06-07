@@ -160,7 +160,7 @@ Validate that dependency references to other features are present and not broken
 
 | Dependency | Location | Status |
 |------------|----------|--------|
-| `001-sous-chef-recipe-app` (Recipe entities) | `spec.md` Dependencies table, `plan.md` `output_recipe_id` FK | **Valid** — referenced but not resolvable in this worktree (expected) |
+| `001-commise-recipe-app` (Recipe entities) | `spec.md` Dependencies table, `plan.md` `output_recipe_id` FK | **Valid** — referenced but not resolvable in this worktree (expected) |
 | `002-user-auth` (Auth0 `users.sub`) | `spec.md`, `plan.md` FK definitions | **Valid** — worktree is `002-user-auth`; `users.sub` assumed present |
 | `010-subscriptions` (Premium) | `spec.md` Dependencies table, `plan.md` premium guards (FR-019) | **Valid** — referenced but out of scope for this worktree |
 

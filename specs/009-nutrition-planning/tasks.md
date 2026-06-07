@@ -64,7 +64,7 @@ T-001
   **Implements**: FR-036  
   **Acceptance**: GET/POST/PUT/DELETE `/v1/nutrition-plans`; returns `linkedMealPlans`; 403 for non-owner; Auth0 JWT; `class-validator` DTOs; GDPR middleware applied
 
-- [ ] **T-009** [P3] [US-001] Web UI: nutrition plan creation — `packages/apps/sous-chef/web/src/app/nutrition/plan/page.tsx`  
+- [ ] **T-009** [P3] [US-001] Web UI: nutrition plan creation — `packages/apps/commise/web/src/app/nutrition/plan/page.tsx`  
   **Depends on**: T-004  
   **Implements**: FR-036  
   **Acceptance**: Form fields (name, calories, protein, carbs, fat, activity, goal); optional TDEE calculator; plan list shows own + shared plans; accessible labels (NFR-003); status text + icon (NFR-004)
@@ -83,7 +83,7 @@ T-001
   **Implements**: FR-037  
   **Acceptance**: POST `/v1/nutrition-plans/{id}/link` idempotent; validates meal plan ownership; GET `/v1/nutrition-plans/{id}/compliance` returns daily[] + weekly summary; date range params; 403 auth
 
-- [ ] **T-010** [P3] [US-002] Web UI: compliance dashboard — `packages/apps/sous-chef/web/src/app/nutrition/compliance/page.tsx`  
+- [ ] **T-010** [P3] [US-002] Web UI: compliance dashboard — `packages/apps/commise/web/src/app/nutrition/compliance/page.tsx`  
   **Depends on**: T-005, T-009  
   **Implements**: FR-037  
   **Acceptance**: Daily macro breakdown (planned vs actual); weekly summary; `on_track`/`over`/`under` with icon + text (NFR-004); date picker; no-data state; table fallback (NFR-003)
@@ -107,7 +107,7 @@ T-001
   **Implements**: FR-038  
   **Acceptance**: POST `/v1/trainer/clients/{clientId}/nutrition-plan` (trainer_id set, is_public false); client POST `/v1/nutrition-plans/{id}/accept`; GET `/v1/trainer/clients/{clientId}/compliance`
 
-- [ ] **T-011** [P3] [US-003] Web UI: trainer-client management — `packages/apps/sous-chef/web/src/app/nutrition/trainer/page.tsx`  
+- [ ] **T-011** [P3] [US-003] Web UI: trainer-client management — `packages/apps/commise/web/src/app/nutrition/trainer/page.tsx`  
   **Depends on**: T-007, T-010  
   **Implements**: FR-038  
   **Acceptance**: Trainer invites client; trainer sees client list with compliance summary; trainer creates plan for client; client sees pending invites (accept/decline); client revokes access; premium gate
@@ -134,7 +134,7 @@ T-001
 
 ## US-001 — E2E Testing
 
-- [ ] **T-015** [P3] [US-001] E2E tests: nutrition plan flow — `packages/apps/sous-chef/web/tests/e2e/nutrition-planning.spec.ts`  
+- [ ] **T-015** [P3] [US-001] E2E tests: nutrition plan flow — `packages/apps/commise/web/tests/e2e/nutrition-planning.spec.ts`  
   **Depends on**: T-010  
   **Implements**: FR-036, FR-037  
   **Acceptance**: Scenario 1: create plan → visible on dashboard; Scenario 2: link meal plan → compliance shows planned vs actual with indicators; Scenario 3 (premium): trainer plan → client views; `getByRole`/`getByLabel` queries (NFR-003); passes in CI

@@ -9,7 +9,7 @@
 
 - Node.js `>=24.16.0` (per `.nvmrc`)
 - AWS CLI configured with target account + region credentials
-- `DOMAIN_NAME` environment variable set (e.g., `thesouschef.app`)
+- `DOMAIN_NAME` environment variable set (e.g., `thecommise.app`)
 - Docker (for local PostgreSQL + LocalStack)
 
 ---
@@ -43,7 +43,7 @@
 Create root `.env` (do **not** commit):
 
 ```bash
-DOMAIN_NAME=thesouschef.app
+DOMAIN_NAME=thecommise.app
 STAGE=dev
 AWS_ACCOUNT_ID=123456789012
 AWS_REGION=us-east-1
@@ -126,7 +126,7 @@ curl -H "Authorization: Bearer ${TOKEN}" \
 
 | Symptom | Root Cause | Resolution |
 | ------- | ---------- | ---------- |
-| `DOMAIN_NAME not set` | Missing env var | `export DOMAIN_NAME=thesouschef.app` before synth/deploy |
+| `DOMAIN_NAME not set` | Missing env var | `export DOMAIN_NAME=thecommise.app` before synth/deploy |
 | `Cannot find asset` | `dist/` missing | Run `npm run build` in `identity-webhooks` package |
 | RDS connection timeout | Security group rules | Verify `serviceSecurityGroup` allows ingress from ALB SG on port 3000 |
 | Webhook 403 | Signing secret mismatch | Re-sync `webhookSigningSecret` in Secrets Manager |
@@ -186,8 +186,8 @@ In the [Clerk Dashboard](https://dashboard.clerk.com):
 **Mobile Application (Expo)**
 
 - Application Type: Native
-- Allowed Callback URLs: `sous-chef://auth/callback`, `exp://localhost:8081/auth/callback`
-- Allowed Logout URLs: `sous-chef://auth/logout`
+- Allowed Callback URLs: `commise://auth/callback`, `exp://localhost:8081/auth/callback`
+- Allowed Logout URLs: `commise://auth/logout`
 
 **Backend API (Lambda functions — user.created webhook, deletion, reconciliation)**
 
@@ -220,15 +220,15 @@ For local development, webhooks cannot be triggered locally without a tunnel. Us
 ```bash
 # Start PostgreSQL in Docker
 docker run -d \
-  --name sous-chef-dev \
-  -e POSTGRES_USER=sous_chef \
+  --name commise-dev \
+  -e POSTGRES_USER=commise \
   -e POSTGRES_PASSWORD=dev_password \
-  -e POSTGRES_DB=sous_chef_dev \
+  -e POSTGRES_DB=commise_dev \
   -p 5432:5432 \
   postgres:16-alpine
 
 # Wait for ready
-until docker exec sous-chef-dev pg_isready -U sous_chef; do sleep 1; done
+until docker exec commise-dev pg_isready -U commise; do sleep 1; done
 
 # Run migrations (from packages/services/identity-webhooks/infra)
 npm run db:migrate --workspace=packages/services/identity-webhooks/infra
@@ -246,16 +246,16 @@ Copy `.env.template` to `.env` at the repo root and fill in:
 # Identity Provider (Clerk)
 export IDP_JWKS_URL="https://<your-clerk-frontend-api>.clerk.accounts.dev/.well-known/jwks.json"
 export IDP_ISSUER="https://<your-clerk-frontend-api>.clerk.accounts.dev"
-export IDP_AUDIENCE="https://api.thesouschef.app"
+export IDP_AUDIENCE="https://api.thecommise.app"
 export NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
 export CLERK_SECRET_KEY="sk_test_..."
 export CLERK_WEBHOOK_SIGNING_SECRET="whsec_..."
 
 # Domain (required for CDK HostedZone lookup)
-export DOMAIN_NAME="thesouschef.app"
+export DOMAIN_NAME="thecommise.app"
 
 # Database
-export DATABASE_URL="postgresql://sous_chef:dev_password@localhost:5432/sous_chef_dev"
+export DATABASE_URL="postgresql://commise:dev_password@localhost:5432/commise_dev"
 
 # Sentry (optional for local dev — can be empty)
 export SENTRY_DSN=""
@@ -346,7 +346,7 @@ npm run infra:deploy --workspace=@kitchensink/identity-webhooks -- --context env
 - `IDP_ISSUER` → SSM Parameter Store: `/kitchensink/auth/issuer/sandbox`
 - `IDP_AUDIENCE` → SSM Parameter Store: `/kitchensink/auth/audience/sandbox`
 - `AUTH_SECRET_KEY` → SSM Parameter Store: `/kitchensink/sandbox/auth/keys`
-- `SENTRY_DSN` → Secrets Manager: `sous-chef/dev/sentry/dsn`
+- `SENTRY_DSN` → Secrets Manager: `commise/dev/sentry/dsn`
 
 ---
 

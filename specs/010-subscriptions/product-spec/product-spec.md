@@ -1,4 +1,4 @@
-# Product Specification: Sous Chef - Subscriptions & Monetization
+# Product Specification: Commise - Subscriptions & Monetization
 
 **Branch**: `010-subscriptions`
 **Date**: 2026-05-09
@@ -10,7 +10,7 @@
 
 ## Vision
 
-Subscriptions in Sous Chef should monetize advanced value without hollowing out the core free experience. Free users should be able to meaningfully cook, organize, and share; premium users should unlock leverage features that save time, improve outcomes, and support professional workflows.
+Subscriptions in Commise should monetize advanced value without hollowing out the core free experience. Free users should be able to meaningfully cook, organize, and share; premium users should unlock leverage features that save time, improve outcomes, and support professional workflows.
 
 **Tagline**: "Free to cook. Premium to accelerate."
 
@@ -42,11 +42,11 @@ All open questions from the bootstrap revalidation are closed. The table below i
 
 ## Personas
 
-### Primary: P8 Alex (Sous Chef Power User)
+### Primary: P8 Alex (Commise Power User)
 
-**Archetype**: Sous Chef Power User
+**Archetype**: Commise Power User
 
-**Motivation**: Multi-feature daily power use, integrations, and automation across the full Sous Chef surface.
+**Motivation**: Multi-feature daily power use, integrations, and automation across the full Commise surface.
 
 **Subscription-specific goals and pains**:
 
@@ -78,7 +78,7 @@ All open questions from the bootstrap revalidation are closed. The table below i
 
 **Archetype**: Recipe Creator
 
-**Motivation**: Public creator profile (`souschef.com/@robin`), food-blogger brand, and audience monetization.
+**Motivation**: Public creator profile (`commise.com/@robin`), food-blogger brand, and audience monetization.
 
 **Subscription-specific goals and pains**:
 

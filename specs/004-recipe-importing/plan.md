@@ -224,7 +224,7 @@ const RecipeSchema = z.object({
 ### URL Fetching
 
 - **Timeout**: 10s per request
-- **User-Agent**: `SousChef/1.0 (+https://souschef.io/bot)` — identifies us to servers
+- **User-Agent**: `Commise/1.0 (+https://commise.io/bot)` — identifies us to servers
 - **Redirect handling**: Max 5 hops
 - **Rate limiting**: 30 requests/minute per user (configurable)
 - **Circuit breaker**: Open after 10 consecutive failures, half-open after 60s

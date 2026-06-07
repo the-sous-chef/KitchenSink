@@ -10,7 +10,7 @@
 
 This document presents the Failure Mode and Effects Analysis (FMEA) for the **Recipe Digitization** feature. Every system component (`SYS-001`..`SYS-032`) from `system-design.md` is assessed for realistic failure modes. Each hazard receives a unique `HAZ-NNN` identifier and is linked to risk-control measures (`REQ-NNN` / `SYS-NNN` / `ARCH-NNN`), enabling the traceability chain: Hazard → Mitigation → Requirement → Test Case (Matrix H in `traceability-matrix.md`).
 
-**Non-regulated context.** Sous Chef is a consumer recipe management application. There are no life-safety, vehicle-control, medical-device, or aviation-control concerns. Severity is measured against **user trust, data integrity, privacy, availability, and platform cost** — not personal injury. Safety-critical taxonomies (ISO 26262 ASIL, DO-178C DAL, IEC 62304) are intentionally **not** applied; `v-model-config.yml` sets `domain: ''`.
+**Non-regulated context.** Commise is a consumer recipe management application. There are no life-safety, vehicle-control, medical-device, or aviation-control concerns. Severity is measured against **user trust, data integrity, privacy, availability, and platform cost** — not personal injury. Safety-critical taxonomies (ISO 26262 ASIL, DO-178C DAL, IEC 62304) are intentionally **not** applied; `v-model-config.yml` sets `domain: ''`.
 
 ## ID Schema
 
@@ -345,7 +345,7 @@ Hazards whose mitigation depends on resolving an open design decision MUST be re
 
 ## Domain Note (non-regulated)
 
-This analysis intentionally omits regulated-domain artifacts (ASIL classification, DAL assignment, MC/DC obligations, IEC 62304 software safety classification). `v-model-config.yml` declares `domain: ''` (consumer SaaS); reintroduce regulated taxonomies only if Sous Chef enters a regulated domain. Severity is framed against user trust, data integrity, privacy, availability, and platform cost — the only failure axes that apply to a consumer recipe application.
+This analysis intentionally omits regulated-domain artifacts (ASIL classification, DAL assignment, MC/DC obligations, IEC 62304 software safety classification). `v-model-config.yml` declares `domain: ''` (consumer SaaS); reintroduce regulated taxonomies only if Commise enters a regulated domain. Severity is framed against user trust, data integrity, privacy, availability, and platform cost — the only failure axes that apply to a consumer recipe application.
 
 ## Glossary
 

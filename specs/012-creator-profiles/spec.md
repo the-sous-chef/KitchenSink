@@ -16,7 +16,7 @@ This feature owns the `CreatorProfile` entity and the `public-profile` audience 
 | Spec                                                            | Relationship                                                                                                          |
 | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | [002-user-auth](../002-user-auth/spec.md)           | **Required** — `@handle` is tied to an authenticated identity; profile creation requires a verified account           |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — recipes are the primary content surface on a creator profile                                           |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Required** — recipes are the primary content surface on a creator profile                                           |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Integration** — tip jars, premium recipe gates, and paid follows extend 010's billing model                         |
 | [011-recipe-digitization](../011-recipe-digitization/spec.md)   | **Peer** — `circle` is owned by 011; `public-profile` is owned here; the two audience scopes are siblings, not nested |
 

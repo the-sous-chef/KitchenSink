@@ -7,7 +7,7 @@
 
 ## Overview
 
-Recipe Importing enables users to bring recipes into the Sous Chef platform from three external sources: public website URLs, Instagram posts, and physical copies (via photo/OCR). The feature enforces attribution for web/Instagram imports (a legal requirement), deduplication by source URL, and visibility rules that differ by import type and subscription tier. It depends on the Recipe entity model (001), authentication (002), and subscription visibility rules (010).
+Recipe Importing enables users to bring recipes into the Commise platform from three external sources: public website URLs, Instagram posts, and physical copies (via photo/OCR). The feature enforces attribution for web/Instagram imports (a legal requirement), deduplication by source URL, and visibility rules that differ by import type and subscription tier. It depends on the Recipe entity model (001), authentication (002), and subscription visibility rules (010).
 
 ## Requirements
 
@@ -47,7 +47,7 @@ Recipe Importing enables users to bring recipes into the Sous Chef platform from
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------- | ------------------- |
 | REQ-IF-001 | The system SHALL integrate with Instagram's public oEmbed API for caption extraction from Instagram post URLs.                                                                         | P1       | oEmbed is the approved launch-phase integration method (C-003); Graph API upgrade is a future workstream. | Test                |
 | REQ-IF-002 | The system SHALL integrate with an OCR/text extraction service to process photos of physical recipe copies.                                                                            | P1       | Physical copy import requires machine-readable text extraction from images.                               | Test                |
-| REQ-IF-003 | The system SHALL integrate with the Recipe entity model defined in feature 001-sous-chef-recipe-app; all imported recipes MUST be stored as Recipe entities conforming to that schema. | P1       | Recipe Importing depends on 001 for the core data model.                                                  | Inspection          |
+| REQ-IF-003 | The system SHALL integrate with the Recipe entity model defined in feature 001-commise-recipe-app; all imported recipes MUST be stored as Recipe entities conforming to that schema. | P1       | Recipe Importing depends on 001 for the core data model.                                                  | Inspection          |
 | REQ-IF-004 | The system SHALL enforce authentication via feature 002-user-auth for all import actions; unauthenticated import attempts MUST be rejected.                                      | P1       | All import actions require authentication per spec dependency on 002.                                     | Test                |
 
 ### Constraint Requirements
@@ -69,7 +69,7 @@ Recipe Importing enables users to bring recipes into the Sous Chef platform from
 
 ## Dependencies
 
-- **001-sous-chef-recipe-app** — Required. Imported recipes are stored as Recipe entities defined in 001.
+- **001-commise-recipe-app** — Required. Imported recipes are stored as Recipe entities defined in 001.
 - **002-user-auth** — Required. All import actions require authenticated users.
 - **010-subscriptions** — Referenced. Visibility rules (private/public toggle after substantive edit) differ for free vs. premium users.
 

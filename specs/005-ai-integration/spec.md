@@ -4,13 +4,13 @@
 **Created**: 2026-04-14
 **Last updated**: 2026-05-10
 **Status**: Product decisions approved — plan/V-Model/test artifacts remain Draft; release audit ❌ BLOCKED
-**Input**: Split from `001-sous-chef-recipe-app` — AI-powered recipe generation (BYOK in-app + external agent platforms via OAuth).
+**Input**: Split from `001-commise-recipe-app` — AI-powered recipe generation (BYOK in-app + external agent platforms via OAuth).
 
 ## Dependencies
 
 | Spec                                                            | Relationship                                                                                     |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — AI-generated recipes are stored as Recipe entities defined in 001                 |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Required** — AI-generated recipes are stored as Recipe entities defined in 001                 |
 | [002-user-auth](../002-user-auth/spec.md)           | **Required** — all AI features require authentication; external agent OAuth builds on auth layer |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Referenced** — AI generation and instruction optimization are premium features                 |
 
@@ -18,9 +18,9 @@
 
 ### User Story 1 - AI-Powered Recipe Generation and Assistance (Priority: P2)
 
-A user can interact with AI for recipe generation in two ways. **In-app (BYOK)**: The user configures their preferred AI provider (OpenAI, Gemini, Anthropic, etc.) by storing their own API credentials in Sous Chef. When they request a recipe in the app, Sous Chef calls the user's configured provider and returns the result. **Via external agent platforms**: The user interacts with a Sous Chef custom agent inside platforms like ChatGPT or Gemini. The agent can read the user's recipe collection ("What chicken recipes do I have?") and save new recipes to their Sous Chef account — all after the user has authorized the agent via an OAuth consent flow.
+A user can interact with AI for recipe generation in two ways. **In-app (BYOK)**: The user configures their preferred AI provider (OpenAI, Gemini, Anthropic, etc.) by storing their own API credentials in Commise. When they request a recipe in the app, Commise calls the user's configured provider and returns the result. **Via external agent platforms**: The user interacts with a Commise custom agent inside platforms like ChatGPT or Gemini. The agent can read the user's recipe collection ("What chicken recipes do I have?") and save new recipes to their Commise account — all after the user has authorized the agent via an OAuth consent flow.
 
-**Why this priority**: AI integration is identified as critical for long-term product differentiation and value. The two-direction model (Sous Chef as AI client + Sous Chef as agent tool) maximizes reach — users get AI where they already are, and the app becomes a platform.
+**Why this priority**: AI integration is identified as critical for long-term product differentiation and value. The two-direction model (Commise as AI client + Commise as agent tool) maximizes reach — users get AI where they already are, and the app becomes a platform.
 
 **Independent Test**: In-app: configure an AI provider key, request "low-carb Italian dinner for 4," verify recipe is returned and saveable. External agent: authorize a test agent via OAuth, have it read the user's collection and save a new recipe, verify both operations succeed.
 
@@ -30,8 +30,8 @@ A user can interact with AI for recipe generation in two ways. **In-app (BYOK)**
 2. **Given** an AI-generated recipe is displayed, **When** the user chooses to save it, **Then** it is added to their collection as a private recipe they own.
 3. **Given** an AI-generated recipe is displayed, **When** the user declines to save, **Then** no recipe is stored.
 4. **Given** a user has not configured any AI provider credentials, **When** they attempt to generate a recipe in-app, **Then** the system guides them through provider setup.
-5. **Given** a user has authorized a Sous Chef agent on an external platform (e.g., ChatGPT), **When** the agent requests to read the user's recipes, **Then** the system returns the user's collection in a structured format.
-6. **Given** a user has authorized a Sous Chef agent on an external platform, **When** the agent creates a recipe on their behalf, **Then** the recipe is saved to the user's collection as a private, owned recipe.
+5. **Given** a user has authorized a Commise agent on an external platform (e.g., ChatGPT), **When** the agent requests to read the user's recipes, **Then** the system returns the user's collection in a structured format.
+6. **Given** a user has authorized a Commise agent on an external platform, **When** the agent creates a recipe on their behalf, **Then** the recipe is saved to the user's collection as a private, owned recipe.
 7. **Given** a user has NOT authorized an external agent, **When** the agent attempts to access their account, **Then** the system rejects the request and returns an authorization error.
 8. **Given** a user owns a recipe, **When** they request AI optimization of the instructions (simplify or streamline), **Then** the system returns improved instructions that the user can accept or reject. _(Premium feature)_
 
@@ -76,9 +76,9 @@ A user can interact with AI for recipe generation in two ways. **In-app (BYOK)**
 
 ## Assumptions
 
-- AI integration operates in two directions: (1) **BYOK in-app** — users store their own AI provider API keys (OpenAI, Gemini, Anthropic, etc.) and Sous Chef calls the provider on their behalf; (2) **External agent platform** — Sous Chef exposes an OAuth 2.0 API that custom agents on platforms like ChatGPT and Gemini use to read/write recipes on behalf of authorized users.
+- AI integration operates in two directions: (1) **BYOK in-app** — users store their own AI provider API keys (OpenAI, Gemini, Anthropic, etc.) and Commise calls the provider on their behalf; (2) **External agent platform** — Commise exposes an OAuth 2.0 API that custom agents on platforms like ChatGPT and Gemini use to read/write recipes on behalf of authorized users.
 - External agent platform integrations (ChatGPT GPT Actions, Gemini Extensions, etc.) will conform to each platform's required auth flow, which is typically OAuth 2.0 authorization code.
 
 ## Clarifications
 
-- **C-002 (AI Integration Model)**: AI integration operates as two distinct patterns: **(1) BYOK in-app** — users configure their preferred AI provider (OpenAI, Gemini, Anthropic) by storing their own API credentials; Sous Chef calls the provider to generate recipes within the app. **(2) External agent platform** — Sous Chef exposes an OAuth 2.1 API so custom agents on ChatGPT, Gemini, etc. can read the user's recipe collection and create recipes on their behalf. Users must explicitly authorize agents via OAuth consent and can revoke access at any time. Read (`recipes:read`) and write (`recipes:create`) scopes require separate consent steps. Both directions produce private, user-owned recipes. _(D-001, D-004)_
+- **C-002 (AI Integration Model)**: AI integration operates as two distinct patterns: **(1) BYOK in-app** — users configure their preferred AI provider (OpenAI, Gemini, Anthropic) by storing their own API credentials; Commise calls the provider to generate recipes within the app. **(2) External agent platform** — Commise exposes an OAuth 2.1 API so custom agents on ChatGPT, Gemini, etc. can read the user's recipe collection and create recipes on their behalf. Users must explicitly authorize agents via OAuth consent and can revoke access at any time. Read (`recipes:read`) and write (`recipes:create`) scopes require separate consent steps. Both directions produce private, user-owned recipes. _(D-001, D-004)_

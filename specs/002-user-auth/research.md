@@ -13,7 +13,7 @@
 
 ### Decision: REST API + Lambda REQUEST Authorizer
 
-**The core problem with HTTP API JWT authorizer** is that it validates the token's standard claims (`iss`, `aud`, `exp`, `nbf`, `iat`, `scope`/`scp`) and passes all token claims downstream via `$request.context.authorizer.jwt.claims` — including custom namespaced claims from Clerk `app_metadata` (e.g., `https://sous-chef.io/userId`). However, it **cannot enforce custom claim values at the authorizer level** to shape an IAM policy, deny access based on a `status: suspended` flag, or inject context values per-route. It is a binary pass/fail on standard OAuth claims only.
+**The core problem with HTTP API JWT authorizer** is that it validates the token's standard claims (`iss`, `aud`, `exp`, `nbf`, `iat`, `scope`/`scp`) and passes all token claims downstream via `$request.context.authorizer.jwt.claims` — including custom namespaced claims from Clerk `app_metadata` (e.g., `https://commise.io/userId`). However, it **cannot enforce custom claim values at the authorizer level** to shape an IAM policy, deny access based on a `status: suspended` flag, or inject context values per-route. It is a binary pass/fail on standard OAuth claims only.
 
 **HTTP API Lambda authorizer** (REQUEST type, not JWT type) is the missing comparison point: it allows custom logic and context injection while still using the HTTP API — potentially at lower cost and complexity than REST API. Evaluate this before committing to REST.
 
@@ -58,10 +58,10 @@ The authorizer returns a `context` object with scalar values only (strings, numb
 ```typescript
 // Returned by the REQUEST authorizer
 const context = {
-    userId: payload.sub, // string — canonical Sous Chef user ID
-    identityId: payload['https://sous-chef.io/identityId'], // string
-    email: payload['https://sous-chef.io/email'], // string
-    status: payload['https://sous-chef.io/status'], // string: 'active' | 'suspended'
+    userId: payload.sub, // string — canonical Commise user ID
+    identityId: payload['https://commise.io/identityId'], // string
+    email: payload['https://commise.io/email'], // string
+    status: payload['https://commise.io/status'], // string: 'active' | 'suspended'
     isImpersonating: 'false', // string (booleans as strings)
 };
 ```
@@ -72,7 +72,7 @@ const context = {
 
 ### Pattern
 
-When account deletion succeeds in the Sous Chef database but the Clerk Backend API call fails, the Clerk deletion is queued for async retry rather than blocking the user.
+When account deletion succeeds in the Commise database but the Clerk Backend API call fails, the Clerk deletion is queued for async retry rather than blocking the user.
 
 ```
 DELETE /users/{id}
@@ -160,7 +160,7 @@ EventBridge Scheduler (2022+) is preferred over EventBridge Rules for scheduled 
 
 ### Reconciliation Algorithm
 
-The reconciliation job detects Clerk users without a corresponding Sous Chef database record and creates the missing records. This covers:
+The reconciliation job detects Clerk users without a corresponding Commise database record and creates the missing records. This covers:
 
 1. Post-registration action timeout during signup (Clerk user created, DB write never happened)
 2. Failed initial DB write that exhausted all retries
@@ -488,7 +488,7 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as logsDest from 'aws-cdk-lib/aws-logs-destinations';
 
 const logGroup = new logs.LogGroup(this, 'AuthLayerLogs', {
-    logGroupName: '/sous-chef/auth-layer',
+    logGroupName: '/commise/auth-layer',
     retention: logs.RetentionDays.THREE_MONTHS,
     removalPolicy: RemovalPolicy.RETAIN,
 });

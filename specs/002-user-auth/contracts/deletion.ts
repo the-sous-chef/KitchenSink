@@ -1,7 +1,7 @@
 /**
  * @module contracts/deletion
  * @description Types for the async IdP user deletion queue (SQS).
- * When account deletion succeeds in the Sous Chef database but the IdP
+ * When account deletion succeeds in the Commise database but the IdP
  * Management API call fails, the IdP deletion is queued for async retry.
  *
  * Source spec: specs/002-user-auth/spec.md FR-024
@@ -18,7 +18,7 @@ export interface IdpDeletionMessage {
   /** IdP `sub` claim of the user to delete (e.g., `user_abc123`). */
   readonly identityUserId: string;
   /**
-   * Canonical Sous Chef user ID. Included for audit logging only —
+   * Canonical Commise user ID. Included for audit logging only —
    * the database record has already been deleted when this message is processed.
    */
   readonly userId: string;

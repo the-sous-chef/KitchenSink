@@ -12,8 +12,8 @@ KitchenSink is a Turborepo + npm workspaces monorepo. Root workspaces from `pack
 ```json
 "workspaces": [
   "packages/tools/*",
-  "packages/apps/sous-chef/web",
-  "packages/apps/sous-chef/mobile",
+  "packages/apps/commise/web",
+  "packages/apps/commise/mobile",
   "packages/ui"
 ]
 ```
@@ -45,7 +45,7 @@ From plan artifacts, expected implementation surfaces:
 ```text
 003-usda-food-data
    ↓ (ingredient nutrient source)
-001-sous-chef-recipe-app
+001-commise-recipe-app
    ↓ (recipe-level nutrition)
 006-meal-planning
    ↓ (meal_plan_entries nutrition_snapshot rollups)

@@ -47,18 +47,18 @@
 
 ### Layer 5: tasks.md ↔ Code — 🔧 18 RESOLVED (17 via path update, 1 reopened)
 
-All 18 CRITICAL drifts had a shared root cause: `tasks.md` referenced pre-restructure paths (`apps/web/`, `apps/mobile/`) while the actual monorepo uses `packages/apps/sous-chef/{web,mobile}/`.
+All 18 CRITICAL drifts had a shared root cause: `tasks.md` referenced pre-restructure paths (`apps/web/`, `apps/mobile/`) while the actual monorepo uses `packages/apps/commise/{web,mobile}/`.
 
 | Original DRIFT | Task | Action |
 |---|---|---|
-| DRIFT-026 | T-050 web middleware | ✅ Path updated → `packages/apps/sous-chef/web/src/middleware.ts` |
+| DRIFT-026 | T-050 web middleware | ✅ Path updated → `packages/apps/commise/web/src/middleware.ts` |
 | DRIFT-027 | T-060 mobile auto-auth | 🔁 **REOPENED** (`[x]` → `[ ]`). Current impl `mobile/App.tsx` does not match Expo Router `app/_layout.tsx` architecture. |
-| DRIFT-028 | T-051 web session | ✅ Path updated → `packages/apps/sous-chef/web/src/` |
-| DRIFT-029 | T-061 mobile token storage | ✅ Path updated → `packages/apps/sous-chef/mobile/src/storage/tokenCache.ts` + `services/` |
-| DRIFT-030 | T-052 web logout | ✅ Path updated → `packages/apps/sous-chef/web/src/` |
-| DRIFT-031 | T-062 mobile logout | ✅ Path updated → `packages/apps/sous-chef/mobile/src/` (services + hooks) |
+| DRIFT-028 | T-051 web session | ✅ Path updated → `packages/apps/commise/web/src/` |
+| DRIFT-029 | T-061 mobile token storage | ✅ Path updated → `packages/apps/commise/mobile/src/storage/tokenCache.ts` + `services/` |
+| DRIFT-030 | T-052 web logout | ✅ Path updated → `packages/apps/commise/web/src/` |
+| DRIFT-031 | T-062 mobile logout | ✅ Path updated → `packages/apps/commise/mobile/src/` (services + hooks) |
 | DRIFT-032 | T-021 user-created webhook | ✅ Path updated → `…/handlers/identityWebhook.ts` + description revised (consolidated svix dispatcher) |
-| DRIFT-033 | T-053 web profile | ✅ Path updated → `packages/apps/sous-chef/web/src/app/profile/page.tsx`. `(protected)` route group deliberately dropped (middleware-based protection). |
+| DRIFT-033 | T-053 web profile | ✅ Path updated → `packages/apps/commise/web/src/app/profile/page.tsx`. `(protected)` route group deliberately dropped (middleware-based protection). |
 | DRIFT-034..DRIFT-043 (10 implicit) | T-001 auth-types, T-023 reconciliation, et al. | ✅ False positives: paths were already exact matches in HEAD. Agent's path-walk error in initial scan. |
 
 ### Layer 6: spec.md ↔ Code — ✅ CLEAN
@@ -90,7 +90,7 @@ All 18 CRITICAL drifts had a shared root cause: `tasks.md` referenced pre-restru
 | **Direction** | Forward |
 | **Original severity** | CRITICAL |
 | **Source artifact** | `specs/002-user-auth/tasks.md` T-060 (path: `apps/mobile/app/_layout.tsx`) |
-| **Target artifact** | `packages/apps/sous-chef/mobile/App.tsx` (HEAD) |
+| **Target artifact** | `packages/apps/commise/mobile/App.tsx` (HEAD) |
 | **Evidence** | Mobile root uses single-entry `App.tsx`, not Expo Router root layout convention. |
 | **Resolution applied** | T-060 status `[x]` → `[ ]` + status note added explaining the Expo Router migration is pending. |
 | **Approved by** | user (HITL Group B) |

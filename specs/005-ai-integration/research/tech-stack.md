@@ -7,7 +7,7 @@
 
 ## Overview
 
-Feature 005 extends the Sous Chef platform with AI capabilities in two directions:
+Feature 005 extends the Commise platform with AI capabilities in two directions:
 
 1. In-app BYOK generation.
 2. OAuth-protected external-agent integrations.

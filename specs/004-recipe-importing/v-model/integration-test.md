@@ -425,7 +425,7 @@ Each test case MUST identify its technique by name and anchor to a specific arch
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that ARCH-013 correctly maps an `AttributedPayload` to the Drizzle ORM insert schema and returns a `RecipeEntity` conforming to the 001-sous-chef-recipe-app schema.
+**Description**: Verifies that ARCH-013 correctly maps an `AttributedPayload` to the Drizzle ORM insert schema and returns a `RecipeEntity` conforming to the 001-commise-recipe-app schema.
 
 - **Integration Scenario: ITS-013-A1**
     - **Given** ARCH-015 is available and the `recipes` table accepts the insert

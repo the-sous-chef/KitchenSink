@@ -20,7 +20,7 @@ Research ↔ product-spec alignment is strong; spec ↔ plan coverage is complet
 
 ### L1 – research/ ↔ product-spec/
 - **State**: PASSED
-- **Evidence**: research/README.md correctly maps 5 domain docs to spec.md FRs. product-spec/README.md links to spec.md, plan.md, user-journey.md, metrics.md, wireframes/. research/codebase-analysis.md uses `packages/apps/sous-chef/{web,mobile}`.
+- **Evidence**: research/README.md correctly maps 5 domain docs to spec.md FRs. product-spec/README.md links to spec.md, plan.md, user-journey.md, metrics.md, wireframes/. research/codebase-analysis.md uses `packages/apps/commise/{web,mobile}`.
 - **Drift**: None.
 
 ### L2 – product-spec/ ↔ spec.md
@@ -44,7 +44,7 @@ Research ↔ product-spec alignment is strong; spec ↔ plan coverage is complet
 ### L4 – plan.md ↔ tasks.md
 - **State**: PASSED with warnings
 - **Evidence**: Plan implementation order (§9) maps 1:1 to task dependency graph. T-001..T-015 cover DB migration, entity extension, URL endpoint, extractors, deduplication, paywall, file import, Instagram, clone, web UI, mobile UI, integration tests, and OCR.
-- **WARNING**: Tasks T-011, T-012 use file paths `src/web/components/...` and `src/web/features/...` instead of monorepo `packages/apps/sous-chef/web/...`. T-013 uses `src/mobile/screens/...` instead of `packages/apps/sous-chef/mobile/...`.
+- **WARNING**: Tasks T-011, T-012 use file paths `src/web/components/...` and `src/web/features/...` instead of monorepo `packages/apps/commise/web/...`. T-013 uses `src/mobile/screens/...` instead of `packages/apps/commise/mobile/...`.
 - **WARNING**: T-015 (OCR) depends on unresolved open question in plan.md §8 (“OCR library: AWS Textract vs Tesseract vs Google Cloud Vision?”).
 
 ### L5 – SKIPPED
@@ -56,7 +56,7 @@ Research ↔ product-spec alignment is strong; spec ↔ plan coverage is complet
 ### L7 – cross-links
 - **State**: PASSED
 - **Evidence**: 
-  - spec.md → `../001-sous-chef-recipe-app/spec.md`, `../002-user-auth/spec.md`, `../010-subscriptions/spec.md` — all directories exist.
+  - spec.md → `../001-commise-recipe-app/spec.md`, `../002-user-auth/spec.md`, `../010-subscriptions/spec.md` — all directories exist.
   - product-spec/README.md → `../spec.md`, `../plan.md`, `../v-model/requirements.md` — all exist.
   - research/README.md → `../spec.md`, `../plan.md`, `../tasks.md` — all exist.
   - tasks.md references `plan.md §7`, `plan.md §5`, `plan.md §2` — valid section anchors.
@@ -68,7 +68,7 @@ Research ↔ product-spec alignment is strong; spec ↔ plan coverage is complet
 
 | ID | Layer | Severity | Artifact | Description |
 |----|-------|----------|----------|-------------|
-| D-001 | L4 | INFO | tasks.md | File paths use old `src/web/` and `src/mobile/` conventions instead of `packages/apps/sous-chef/{web,mobile}/`. |
+| D-001 | L4 | INFO | tasks.md | File paths use old `src/web/` and `src/mobile/` conventions instead of `packages/apps/commise/{web,mobile}/`. |
 | D-002 | L3 | INFO | spec.md / plan.md | FR-012 (OCR/physical copy) is P1 in spec.md but deferred to P3 in plan.md §9 — open question in §8. |
 | D-003 | L2/L3 | INFO | Multiple | FR-014a (paywalled manual paste) remains “legal review required” with no operational rule defined. Correctly surfaced as warning. |
 | D-004 | L4 | INFO | tasks.md | T-015 OCR provider choice unresolved (AWS Textract vs Tesseract vs Google Cloud Vision). |
@@ -77,7 +77,7 @@ Research ↔ product-spec alignment is strong; spec ↔ plan coverage is complet
 
 ## Recommendations
 
-1. **Path conventions**: Update tasks.md file references to `packages/apps/sous-chef/web/...` and `packages/apps/sous-chef/mobile/...` before implementation starts.
+1. **Path conventions**: Update tasks.md file references to `packages/apps/commise/web/...` and `packages/apps/commise/mobile/...` before implementation starts.
 2. **FR-014a**: Do not block development; keep flagged for legal review while building blocking infrastructure (manual-flag field, audit log).
 3. **OCR scope**: Confirm P3 vs P1 scope with product owner before implementation begins; if P3, adjust acceptance criteria in spec.md to match.
 

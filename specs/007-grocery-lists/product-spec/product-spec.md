@@ -1,4 +1,4 @@
-# Product Specification: Sous Chef - Grocery Lists & Online Ordering
+# Product Specification: Commise - Grocery Lists & Online Ordering
 
 **Branch**: `007-grocery-lists`
 **Date**: 2026-05-09
@@ -10,7 +10,7 @@
 
 ## Vision
 
-Sous Chef grocery lists transform meal planning into shopping execution. A generated list should feel trustworthy, fast to use in-store, and optionally seamless to hand off into online checkout for premium users.
+Commise grocery lists transform meal planning into shopping execution. A generated list should feel trustworthy, fast to use in-store, and optionally seamless to hand off into online checkout for premium users.
 
 **Tagline**: "From plan to cart, without the chaos."
 
@@ -57,9 +57,9 @@ Sous Chef grocery lists transform meal planning into shopping execution. A gener
 
 ---
 
-### Tertiary: P8 Alex — Sous Chef Power User
+### Tertiary: P8 Alex — Commise Power User
 
-**Archetype**: Sous Chef Power User (multi-feature daily power use, integrations, automation)
+**Archetype**: Commise Power User (multi-feature daily power use, integrations, automation)
 **Core motivation**: Multi-feature daily power use, integrations, automation
 
 **Grocery-list goals and pains**:
@@ -96,7 +96,7 @@ Scope: Supports Epic A/B outcomes through grouping, fast interactions, and clear
 
 As an authenticated user, I can generate a grocery list from a meal plan so that all ingredients are aggregated in one place.
 
-**FRs**: [FR-028](../spec.md#feature-requirements), [FR-045](../../001-sous-chef-recipe-app/spec.md)
+**FRs**: [FR-028](../spec.md#feature-requirements), [FR-045](../../001-commise-recipe-app/spec.md)
 
 ### US-002: Deduplicate and Sum Ingredient Quantities
 
@@ -189,7 +189,7 @@ As a user, I can follow a link from a grocery list back to the meal plan it came
 
 ## Out of Scope (Current Spec Baseline)
 
-- Native payment processing inside Sous Chef app.
+- Native payment processing inside Commise app.
 - Fulfillment orchestration beyond provider handoff.
 - Guaranteed real-time bidirectional multi-user conflict resolution semantics (unless explicit sharing FRs are added).
 - Fully automated cross-unit conversion for unknown-density ingredients without user review.

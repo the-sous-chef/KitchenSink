@@ -22,7 +22,7 @@
       "layer": 4,
       "severity": "INFO",
       "artifact": "tasks.md",
-      "description": "File paths use old src/web/ and src/mobile/ conventions instead of packages/apps/sous-chef/{web,mobile}/."
+      "description": "File paths use old src/web/ and src/mobile/ conventions instead of packages/apps/commise/{web,mobile}/."
     },
     {
       "id": "D-002",

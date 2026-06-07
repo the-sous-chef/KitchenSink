@@ -2,7 +2,7 @@
 # Reference: .specify/extensions/v-model/docs/v-model-config.md
 #
 # Domain: empty string = non-regulated mode.
-# Sous Chef is a consumer recipe app — no safety-critical sections
+# Commise is a consumer recipe app — no safety-critical sections
 # (MC/DC, MISRA-C, WCET, FFI, ASIL decomposition) are appropriate.
 # Regulated values (iso_26262, do_178c, iec_62304) are intentionally NOT used.
 domain: ''

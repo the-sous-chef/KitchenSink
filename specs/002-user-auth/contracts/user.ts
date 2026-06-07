@@ -14,14 +14,14 @@ export type UserStatus = 'active' | 'suspended';
 export type SubscriptionTier = 'free' | 'premium';
 
 /**
- * Represents a registered Sous Chef user stored in the database.
- * The `id` field is the canonical identifier across all Sous Chef systems — it is a ULID
- * generated at signup and surfaced in tokens via the `https://sous-chef.io/userId` custom claim.
+ * Represents a registered Commise user stored in the database.
+ * The `id` field is the canonical identifier across all Commise systems — it is a ULID
+ * generated at signup and surfaced in tokens via the `https://commise.io/userId` custom claim.
  *
  * @see specs/002-user-auth/spec.md FR-013, FR-015, FR-018
  */
 export interface User {
-    /** Canonical Sous Chef user ID (ULID). Primary key. Never changes after creation. */
+    /** Canonical Commise user ID (ULID). Primary key. Never changes after creation. */
     readonly id: string;
     /**
      * IdP `sub` claim (e.g., `user_abc123`).
@@ -29,7 +29,7 @@ export interface User {
      */
     readonly identityUserId: string;
     /**
-     * User's email address. Synced from the IdP at registration. Read-only in Sous Chef;
+     * User's email address. Synced from the IdP at registration. Read-only in Commise;
      * email changes require the IdP email change flow.
      */
     readonly email: string;
@@ -50,7 +50,7 @@ export interface User {
 
 /**
  * The subset of User fields that can be updated via the account edit flow.
- * Email is excluded — it is read-only in Sous Chef.
+ * Email is excluded — it is read-only in Commise.
  *
  * @see specs/002-user-auth/spec.md FR-019, FR-020, FR-021
  */
@@ -74,7 +74,7 @@ export interface Account {
     readonly userId: string;
     /**
      * Subscription tier. Managed by the subscription feature.
-     * @see specs/001-sous-chef-recipe-app/spec.md FR-040, FR-041
+     * @see specs/001-commise-recipe-app/spec.md FR-040, FR-041
      */
     subscriptionTier: SubscriptionTier;
     /** ISO 8601 timestamp when the account was created. */

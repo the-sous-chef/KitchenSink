@@ -11,7 +11,7 @@ This directory contains the Product Forge Phase 1 research artifacts for feature
 
 ### [competitors.md](./competitors.md)
 
-Competitive landscape for AI-enabled recipe products with focus set requested for this feature: ChefGPT, SideChef AI, DishGen, and Whisk AI. Includes capability matrix, monetization posture, trust/safety posture, and differentiation thesis for Sous Chef's BYOK + OAuth external-agent model.
+Competitive landscape for AI-enabled recipe products with focus set requested for this feature: ChefGPT, SideChef AI, DishGen, and Whisk AI. Includes capability matrix, monetization posture, trust/safety posture, and differentiation thesis for Commise's BYOK + OAuth external-agent model.
 
 ### [ux-patterns.md](./ux-patterns.md)
 

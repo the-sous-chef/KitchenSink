@@ -40,7 +40,7 @@ The Meal Planning feature enables users to create structured meal plans over con
 
 | ID         | Description                                                                                                                                                      | Priority | Rationale                                                                                                                        | Verification Method |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| REQ-IF-001 | The system SHALL integrate with the Recipe entity API from feature 001-sous-chef-recipe-app to retrieve recipes for assignment to meal slots.                    | P1       | Meal plans assign Recipe entities from the user's collection; hard dependency on 001. Derived from Dependencies table.           | Test                |
+| REQ-IF-001 | The system SHALL integrate with the Recipe entity API from feature 001-commise-recipe-app to retrieve recipes for assignment to meal slots.                    | P1       | Meal plans assign Recipe entities from the user's collection; hard dependency on 001. Derived from Dependencies table.           | Test                |
 | REQ-IF-002 | The system SHALL integrate with the USDA food data service from feature 003-usda-food-data to compute nutritional summaries for meal plans.                      | P1       | Nutritional summaries depend on food data from 003; hard dependency. Derived from Dependencies table and FR-024.                 | Test                |
 | REQ-IF-003 | The system SHALL enforce authentication via the Auth0 integration from feature 002-user-auth for all meal planning operations.                             | P1       | All meal planning requires authentication; hard dependency on 002. Derived from Dependencies table.                              | Test                |
 | REQ-IF-004 | The system SHALL integrate with the AI provider configuration from feature 005-ai-integration to deliver AI meal suggestions, auto-generation for premium users. | P2       | AI features depend on the AI provider config from 005; referenced dependency. Derived from Dependencies table and FR-025/FR-026. | Test                |
@@ -61,11 +61,11 @@ The Meal Planning feature enables users to create structured meal plans over con
 - Users have an existing recipe collection in their account (from feature 001) before creating a meal plan; the system does not need to handle the case where a user has zero recipes for manual assignment.
 - Nutritional data is available for all ingredients in assigned recipes via the USDA food data integration (feature 003); partial data scenarios are handled by feature 003, not this feature.
 - The subscription tier check (premium vs. free) is enforced by the 010-subscriptions service; this feature consumes the result of that check rather than implementing it.
-- No assumptions specific to this spec beyond those in 001-sous-chef-recipe-app.
+- No assumptions specific to this spec beyond those in 001-commise-recipe-app.
 
 ## Dependencies
 
-- **001-sous-chef-recipe-app** (Required): Provides the Recipe entity and user recipe collection APIs.
+- **001-commise-recipe-app** (Required): Provides the Recipe entity and user recipe collection APIs.
 - **002-user-auth** (Required): Provides authentication and user identity for all meal planning operations.
 - **003-usda-food-data** (Required): Provides nutritional data used to compute meal plan summaries.
 - **005-ai-integration** (Referenced): Provides AI provider configuration consumed by AI suggestion and auto-generation features.

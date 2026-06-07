@@ -6,8 +6,8 @@ on:
         paths:
             - 'packages/services/identity/**'
             - 'packages/services/identity-webhooks/**'
-            - 'packages/apps/sous-chef/web/**'
-            - 'packages/apps/sous-chef/mobile/**'
+            - 'packages/apps/commise/web/**'
+            - 'packages/apps/commise/mobile/**'
             - 'packages/ui/**'
             - '.github/workflows/002-user-auth.yml'
             - 'package.json'
@@ -17,8 +17,8 @@ on:
         paths:
             - 'packages/services/identity/**'
             - 'packages/services/identity-webhooks/**'
-            - 'packages/apps/sous-chef/web/**'
-            - 'packages/apps/sous-chef/mobile/**'
+            - 'packages/apps/commise/web/**'
+            - 'packages/apps/commise/mobile/**'
             - 'packages/ui/**'
             - '.github/workflows/002-user-auth.yml'
             - 'package.json'
@@ -364,7 +364,7 @@ jobs:
             - name: Build Android APK
               if: steps.aws-creds.outcome == 'success'
               run: |
-                  cd packages/apps/sous-chef/mobile
+                  cd packages/apps/commise/mobile
                   npx expo prebuild --platform android --clean
                   cd android
                   ./gradlew :app:assembleDebug
@@ -383,8 +383,8 @@ jobs:
                   target: google_apis
                   arch: x86_64
                   script: |
-                      adb install packages/apps/sous-chef/mobile/android/app/build/outputs/apk/debug/app-debug.apk
-                      maestro test packages/apps/sous-chef/mobile/.maestro/auth/login-flow-android.yaml
+                      adb install packages/apps/commise/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+                      maestro test packages/apps/commise/mobile/.maestro/auth/login-flow-android.yaml
 
     e2e-mobile-ios:
         name: E2E (mobile iOS — Maestro)
@@ -437,7 +437,7 @@ jobs:
             - name: Install CocoaPods
               if: steps.aws-creds.outcome == 'success'
               run: |
-                  cd packages/apps/sous-chef/mobile
+                  cd packages/apps/commise/mobile
                   npx expo prebuild --platform ios --clean
                   cd ios
                   pod install --repo-update
@@ -445,8 +445,8 @@ jobs:
             - name: Build iOS Simulator App
               if: steps.aws-creds.outcome == 'success'
               run: |
-                  cd packages/apps/sous-chef/mobile/ios
-                  xcodebuild -workspace SousChef.xcworkspace -scheme SousChef -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' -derivedDataPath ./build
+                  cd packages/apps/commise/mobile/ios
+                  xcodebuild -workspace Commise.xcworkspace -scheme Commise -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' -derivedDataPath ./build
 
             - name: Install Maestro
               if: steps.aws-creds.outcome == 'success'
@@ -457,7 +457,7 @@ jobs:
             - name: Run Maestro iOS Tests
               if: steps.aws-creds.outcome == 'success'
               run: |
-                  maestro test packages/apps/sous-chef/mobile/.maestro/auth/login-flow-ios.yaml --device "iPhone 15"
+                  maestro test packages/apps/commise/mobile/.maestro/auth/login-flow-ios.yaml --device "iPhone 15"
 
     metric-gate:
         name: Test Distribution Metric Gate

@@ -47,7 +47,7 @@ Implementation follows the V-Model decomposition in [`v-model/system-design.md`]
 ### Hard dependencies
 
 - [`../002-user-auth/spec.md`](../002-user-auth/spec.md): authenticated identity and owner auth semantics.
-- [`../001-sous-chef-recipe-app/spec.md`](../001-sous-chef-recipe-app/spec.md): canonical recipe entity, visibility model, and feed surfaces.
+- [`../001-commise-recipe-app/spec.md`](../001-commise-recipe-app/spec.md): canonical recipe entity, visibility model, and feed surfaces.
 
 ### Integration dependencies
 

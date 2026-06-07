@@ -57,7 +57,7 @@
 | --- | --- | --- |
 | Task coverage exists for all Must Have US/FRs | ✅ | T024-T052 cover authoring, ingest, enrollment, progress |
 | Tasks checked vs unchecked | ❌ CRITICAL | **0/85** checked; 0 execution evidence |
-| Implementation workspaces exist | ❌ CRITICAL | 0 files found for `packages/api/cooking-school-*`, `packages/shared/cooking-school-*`, `packages/apps/sous-chef/{web,mobile}` feature areas |
+| Implementation workspaces exist | ❌ CRITICAL | 0 files found for `packages/api/cooking-school-*`, `packages/shared/cooking-school-*`, `packages/apps/commise/{web,mobile}` feature areas |
 
 **Evidence:**
 - `tasks.md` contains 85 tasks (T001-T085 with gaps) — all unchecked.
@@ -83,11 +83,11 @@
 | 010-subscriptions | Referenced (billing, payouts) | ❌ CRITICAL | No execution evidence of revenue-share/purchase flow |
 | 012-creator-profile | Referenced (educator identity) | ❌ CRITICAL | No contract integration evidence |
 | 005-ai-integration | Referenced (script drafting) | ⚠️ WARNING | No execution evidence |
-| 001-sous-chef-recipe-app | Referenced (recipe-linked lessons) | ⚠️ WARNING | No execution evidence |
+| 001-commise-recipe-app | Referenced (recipe-linked lessons) | ⚠️ WARNING | No execution evidence |
 
 | Check | Status |
 | --- | --- |
-| Monorepo workspace refs outside `packages/apps/sous-chef/{web,mobile}` | ℹ️ INFO — none found |
+| Monorepo workspace refs outside `packages/apps/commise/{web,mobile}` | ℹ️ INFO — none found |
 | `apps/X` refs flagged INFO | ℹ️ INFO — none found |
 
 ---
@@ -123,7 +123,7 @@
 
 ### WR-002 (L7): Referenced Dependency Integration Evidence
 
-- 005-ai-integration and 001-sous-chef-recipe-app are referenced but have no contract integration evidence.
+- 005-ai-integration and 001-commise-recipe-app are referenced but have no contract integration evidence.
 - **Fix path:** Add integration contract tests for AI draft (T055) and recipe link (T032) once implementation begins.
 
 ### WR-003 (L7): Forge Lifecycle State Drift
@@ -137,7 +137,7 @@
 
 - **IF-001:** `v-model/release-audit-report.md` blocked (102 untested) is expected pre-implementation.
 - **IF-002:** `verify-report.md` already contains valid multi-layer analysis (was run Phase 7).
-- **IF-003:** No monorepo workspace refs flagged outside `packages/apps/sous-chef/{web,mobile}`.
+- **IF-003:** No monorepo workspace refs flagged outside `packages/apps/commise/{web,mobile}`.
 
 ---
 

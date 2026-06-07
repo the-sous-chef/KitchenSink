@@ -15,14 +15,14 @@ Each journey covers one end-to-end flow per persona. Steps reference FR IDs in b
 
 ## Persona 1: New User (Avery) — Journey A: Signup to First Authenticated Session
 
-**Scenario**: Avery opens the app (mobile) and the website (web), signs up via the IdP, and is provisioned into Sous Chef with a canonical user identity.
+**Scenario**: Avery opens the app (mobile) and the website (web), signs up via the IdP, and is provisioned into Commise with a canonical user identity.
 
 ```mermaid
 sequenceDiagram
     participant U as Avery (Web/Mobile)
     participant A0 as IdP
     participant WH as Post-Registration Action/Webhook
-    participant DB as Sous Chef DB
+    participant DB as Commise DB
     participant API as Auth API
 
     Note over U, A0: P1 — Auth Entry
@@ -64,7 +64,7 @@ sequenceDiagram
     participant APP as Web/Mobile App
     participant A0 as IdP
     participant API as Auth API
-    participant DB as Sous Chef DB
+    participant DB as Commise DB
     participant SQS as Deletion Queue
 
     Note over U, APP: P1 — Session Continuity

@@ -122,7 +122,7 @@ Surface any already-implemented tasks or missing-impl code patterns.
 
 - `.forge-status.yml` line 71: `implement: not-started`
 - `tasks.md` defines 28 tasks; none have checked execution markers.
-- No source files for `src/billing/`, `PlanGuard`, `BillingService`, `WebhookService`, or Stripe-related modules exist under `packages/apps/sous-chef/`.
+- No source files for `src/billing/`, `PlanGuard`, `BillingService`, `WebhookService`, or Stripe-related modules exist under `packages/apps/commise/`.
 - No Drizzle migrations for subscription columns or `webhook_events` table exist.
 
 ### Result
@@ -137,8 +137,8 @@ Ensure all referenced features and paths exist; flag any `apps/X` broken referen
 
 ### Evidence
 
-- `spec.md` Dependencies table references 002-user-auth (required), 001-sous-chef-recipe-app, 004-recipe-importing, 005-ai-integration, 006-meal-planning, 007-grocery-lists, 009-nutrition-planning — all present in sibling `/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/` directories.
-- `research/codebase-analysis.md` references `packages/apps/sous-chef/web` and `packages/apps/sous-chef/mobile` as valid monorepo workspace paths.
+- `spec.md` Dependencies table references 002-user-auth (required), 001-commise-recipe-app, 004-recipe-importing, 005-ai-integration, 006-meal-planning, 007-grocery-lists, 009-nutrition-planning — all present in sibling `/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/` directories.
+- `research/codebase-analysis.md` references `packages/apps/commise/web` and `packages/apps/commise/mobile` as valid monorepo workspace paths.
 - No stray `apps/X` path references found in artifact body text.
 
 ### Result

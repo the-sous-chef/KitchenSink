@@ -3,7 +3,7 @@
 **Feature Branch**: `009-nutrition-planning`
 **Created**: 2026-04-14
 **Status**: Draft
-**Input**: Split from `001-sous-chef-recipe-app` — nutrition plans with macro targets, meal plan compliance tracking, and trainer-client model.
+**Input**: Split from `001-commise-recipe-app` — nutrition plans with macro targets, meal plan compliance tracking, and trainer-client model.
 
 ## Dependencies
 
@@ -11,7 +11,7 @@
 | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | [006-meal-planning](../006-meal-planning/spec.md)               | **Required** — nutrition plans link to meal plans for compliance analysis                      |
 | [003-usda-food-data](../003-usda-food-data/spec.md)             | **Required** — nutritional calculations depend on food data                                    |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — recipe nutritional data is the basis for compliance calculations                |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Required** — recipe nutritional data is the basis for compliance calculations                |
 | [002-user-auth](../002-user-auth/spec.md)           | **Required** — all features require authentication; trainer-client requires user relationships |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Referenced** — trainer nutrition planning and AI recipe swaps are premium features           |
 

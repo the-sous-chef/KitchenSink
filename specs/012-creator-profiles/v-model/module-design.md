@@ -20,7 +20,7 @@ This module design defines implementable `MOD-NNN` units for every architecture 
 ### Module: MOD-001 (creatorLifecycleController.handleCommand)
 
 **Parent Architecture Modules**: ARCH-001
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/controllers/creator-lifecycle.controller.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/controllers/creator-lifecycle.controller.ts`
 
 #### Algorithmic / Logic View
 
@@ -69,7 +69,7 @@ stateDiagram-v2
 ### Module: MOD-002 (handlePolicyValidator.validate)
 
 **Parent Architecture Modules**: ARCH-002
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/domain/handle-policy.validator.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/domain/handle-policy.validator.ts`
 
 #### Algorithmic / Logic View
 
@@ -118,7 +118,7 @@ stateDiagram-v2
 ### Module: MOD-003 (creatorProfileRepository.saveLifecycle)
 
 **Parent Architecture Modules**: ARCH-003
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/repositories/creator-profile.repository.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/repositories/creator-profile.repository.ts`
 
 #### Algorithmic / Logic View
 
@@ -167,7 +167,7 @@ stateDiagram-v2
 ### Module: MOD-004 (publicProfileQueryService.getByHandle)
 
 **Parent Architecture Modules**: ARCH-004
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/services/public-profile-query.service.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/services/public-profile-query.service.ts`
 
 #### Algorithmic / Logic View
 
@@ -216,7 +216,7 @@ stateDiagram-v2
 ### Module: MOD-005 (seoMetadataBuilder.build)
 
 **Parent Architecture Modules**: ARCH-005
-**Target Source File(s)**: `packages/apps/sous-chef/web/src/app/@[handle]/seo-metadata.builder.ts`
+**Target Source File(s)**: `packages/apps/commise/web/src/app/@[handle]/seo-metadata.builder.ts`
 
 #### Algorithmic / Logic View
 
@@ -265,7 +265,7 @@ stateDiagram-v2
 ### Module: MOD-006 (followCommandHandler.execute)
 
 **Parent Architecture Modules**: ARCH-006
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/services/follow-command.handler.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/services/follow-command.handler.ts`
 
 #### Algorithmic / Logic View
 
@@ -314,7 +314,7 @@ stateDiagram-v2
 ### Module: MOD-007 (followCounterProjector.applyDelta)
 
 **Parent Architecture Modules**: ARCH-007
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/projections/follow-counter.projector.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/projections/follow-counter.projector.ts`
 
 #### Algorithmic / Logic View
 
@@ -363,7 +363,7 @@ stateDiagram-v2
 ### Module: MOD-008 (feedFanoutAdapter.publishFollowEvent)
 
 **Parent Architecture Modules**: ARCH-008
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/adapters/feed-fanout.adapter.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/adapters/feed-fanout.adapter.ts`
 
 #### Algorithmic / Logic View
 
@@ -412,7 +412,7 @@ stateDiagram-v2
 ### Module: MOD-009 (collectionsApiService.handleRequest)
 
 **Parent Architecture Modules**: ARCH-009
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/services/collections-api.service.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/services/collections-api.service.ts`
 
 #### Algorithmic / Logic View
 
@@ -461,7 +461,7 @@ stateDiagram-v2
 ### Module: MOD-010 (collectionOrderingEngine.reorder)
 
 **Parent Architecture Modules**: ARCH-010
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/domain/collection-ordering.engine.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/domain/collection-ordering.engine.ts`
 
 #### Algorithmic / Logic View
 
@@ -510,7 +510,7 @@ stateDiagram-v2
 ### Module: MOD-011 (widgetFragmentRenderer.render)
 
 **Parent Architecture Modules**: ARCH-011
-**Target Source File(s)**: `packages/apps/sous-chef/web/src/app/@[handle]/widget/widget-fragment.renderer.ts`
+**Target Source File(s)**: `packages/apps/commise/web/src/app/@[handle]/widget/widget-fragment.renderer.ts`
 
 #### Algorithmic / Logic View
 
@@ -559,7 +559,7 @@ stateDiagram-v2
 ### Module: MOD-012 (analyticsSnapshotJob.runDaily)
 
 **Parent Architecture Modules**: ARCH-012
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/jobs/analytics-snapshot.job.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/jobs/analytics-snapshot.job.ts`
 
 #### Algorithmic / Logic View
 
@@ -608,7 +608,7 @@ stateDiagram-v2
 ### Module: MOD-013 (analyticsReadEndpoint.getOwnerSnapshot)
 
 **Parent Architecture Modules**: ARCH-013
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/controllers/analytics.controller.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/controllers/analytics.controller.ts`
 
 #### Algorithmic / Logic View
 
@@ -657,7 +657,7 @@ stateDiagram-v2
 ### Module: MOD-014 (moderationDmcaOrchestrator.transition)
 
 **Parent Architecture Modules**: ARCH-014
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/services/moderation-dmca.orchestrator.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/services/moderation-dmca.orchestrator.ts`
 
 #### Algorithmic / Logic View
 
@@ -706,7 +706,7 @@ stateDiagram-v2
 ### Module: MOD-015 (monetizationDelegationAdapter.forward)
 
 **Parent Architecture Modules**: ARCH-015
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/adapters/monetization-delegation.adapter.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/adapters/monetization-delegation.adapter.ts`
 
 #### Algorithmic / Logic View
 
@@ -755,7 +755,7 @@ stateDiagram-v2
 ### Module: MOD-016 (authzSessionFreshnessGuard.assertOwnerFresh)
 
 **Parent Architecture Modules**: ARCH-016
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/security/authz-session-freshness.guard.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/security/authz-session-freshness.guard.ts`
 
 #### Algorithmic / Logic View
 
@@ -804,7 +804,7 @@ stateDiagram-v2
 ### Module: MOD-017 (privacyErasureOrchestrator.execute)
 
 **Parent Architecture Modules**: ARCH-017
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/privacy/privacy-erasure.orchestrator.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/privacy/privacy-erasure.orchestrator.ts`
 
 #### Algorithmic / Logic View
 
@@ -853,7 +853,7 @@ stateDiagram-v2
 ### Module: MOD-018 (blockedInteractionFilter.enforce)
 
 **Parent Architecture Modules**: ARCH-018
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/security/blocked-interaction.filter.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/security/blocked-interaction.filter.ts`
 
 #### Algorithmic / Logic View
 
@@ -902,7 +902,7 @@ stateDiagram-v2
 ### Module: MOD-019 (abuseThrottleSpamDetection.evaluate)
 
 **Parent Architecture Modules**: ARCH-019
-**Target Source File(s)**: `packages/apps/sous-chef/api/src/creator-profiles/security/abuse-throttle-spam-detection.ts`
+**Target Source File(s)**: `packages/apps/commise/api/src/creator-profiles/security/abuse-throttle-spam-detection.ts`
 
 #### Algorithmic / Logic View
 

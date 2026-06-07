@@ -3,13 +3,13 @@
 **Feature Branch**: `003-usda-food-data`
 **Created**: 2026-04-14
 **Status**: Draft
-**Input**: User description: "Integrate USDA FoodData Central as the primary food/nutrition database backing Sous Chef recipes, using the event-driven queue-based architecture (SQS + Lambda + token bucket) for rate-limited async data fetching."
+**Input**: User description: "Integrate USDA FoodData Central as the primary food/nutrition database backing Commise recipes, using the event-driven queue-based architecture (SQS + Lambda + token bucket) for rate-limited async data fetching."
 
 ## Dependencies
 
 | Spec                                                            | Relationship                                                                                |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Downstream** — 001 FR-007 requires this spec's food/nutrition data for recipe ingredients |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Downstream** — 001 FR-007 requires this spec's food/nutrition data for recipe ingredients |
 | [002-user-auth](../002-user-auth/spec.md)           | **Required** — FR-035 uses the shared API Gateway authorizer provided by 002                |
 | [006-meal-planning](../006-meal-planning/spec.md)               | **Downstream** — meal plan nutritional summaries (FR-024) depend on food data               |
 | [007-grocery-lists](../007-grocery-lists/spec.md)               | **Downstream** — ingredient identity and unit normalization for grocery aggregation         |
@@ -19,7 +19,7 @@
 
 ### Session 2026-04-14
 
-- Q: Are the `/foods/*` API endpoints authenticated or public? → A: Sous Chef shared auth — same auth token/session as the Sous Chef app (shared API Gateway authorizer).
+- Q: Are the `/foods/*` API endpoints authenticated or public? → A: Commise shared auth — same auth token/session as the Commise app (shared API Gateway authorizer).
 - Q: What versioning strategy for our own food data API? → A: URL prefix versioning — `/v1/foods/{fdcId}`.
 - Q: What is the availability target for the food data API layer? → A: 99.9% uptime (~8.7 hours downtime/year).
 - Q: What is the canonical distinction between "Food" and "Ingredient"? → A: Food = USDA nutritional record. Ingredient = recipe component that MAY link to a Food via `fdcId`. All foods can be ingredients, but not all ingredients are foods (e.g., spices, oils may lack USDA matches). The link is optional.
@@ -29,7 +29,7 @@
 
 <!--
   Architecture reference: docs/architecture/usda/05-event-driven-queue-based.md
-  Integration reference: specs/001-sous-chef-recipe-app/spec.md (FR-007, ingredients, meal plans, grocery lists)
+  Integration reference: specs/001-commise-recipe-app/spec.md (FR-007, ingredients, meal plans, grocery lists)
 
   IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
   Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
@@ -38,9 +38,9 @@
 
 ### User Story 1 - Single Food Lookup (Cache Hit) (Priority: P1)
 
-A user is creating or viewing a recipe in Sous Chef and the system needs nutritional data for an ingredient. The ingredient's food data already exists in the local data store (PostgreSQL) because it was previously fetched from USDA. The system returns the food's caloric and macronutrient information instantly without any external API call.
+A user is creating or viewing a recipe in Commise and the system needs nutritional data for an ingredient. The ingredient's food data already exists in the local data store (PostgreSQL) because it was previously fetched from USDA. The system returns the food's caloric and macronutrient information instantly without any external API call.
 
-**Why this priority**: This is the happy path that covers the majority of requests once the local data store has warmed up. It fulfills FR-007 from the Sous Chef spec ("System MUST back ingredient data with a real food/nutrition database"). Without this, no recipe can display nutritional information.
+**Why this priority**: This is the happy path that covers the majority of requests once the local data store has warmed up. It fulfills FR-007 from the Commise spec ("System MUST back ingredient data with a real food/nutrition database"). Without this, no recipe can display nutritional information.
 
 **Independent Test**: Can be fully tested by seeding the local database with 5 known USDA foods, requesting each by `fdcId`, and verifying the system returns complete nutritional data (calories, protein, carbs, fat) with sub-50ms latency. No USDA API call should be made.
 
@@ -93,7 +93,7 @@ The system enforces the USDA FoodData Central rate limit of 1,000 requests per h
 
 A user imports or creates a recipe with multiple ingredients. The system resolves as many ingredients as possible from the local store immediately, and queues the remaining unknown ingredients for background fetching via the USDA batch endpoint. The batch endpoint accepts up to 20 `fdcIds` per request, consuming only 1 rate-limit token per batch call — maximizing throughput.
 
-**Why this priority**: Recipe creation and import are core Sous Chef workflows (FR-001, FR-008). Recipes typically contain 5-20 ingredients, making batch resolution essential for acceptable UX. Without batch support, a 20-ingredient recipe would consume 20 tokens instead of 1.
+**Why this priority**: Recipe creation and import are core Commise workflows (FR-001, FR-008). Recipes typically contain 5-20 ingredients, making batch resolution essential for acceptable UX. Without batch support, a 20-ingredient recipe would consume 20 tokens instead of 1.
 
 **Independent Test**: Can be fully tested by creating a recipe with 15 ingredients where 10 are locally cached and 5 are unknown. Verify the response includes full data for the 10 known ingredients and "pending" status for the 5 unknown ones. Verify the consumer makes exactly 1 USDA batch API call (not 5 individual calls) consuming 1 token.
 
@@ -131,7 +131,7 @@ The system enqueues missing-ingredient lookups into a durable Postgres-backed `f
 
 A user types an ingredient name (e.g., "chicken breast") while creating a recipe, and the system returns matching foods from the local PostgreSQL store. Search uses PostgreSQL's `pg_trgm` extension for fuzzy matching, so typos like "avacado" still match "avocado." Only locally-fetched foods are searchable — search does not trigger USDA API calls.
 
-**Why this priority**: Ingredient search is the primary interface between Sous Chef's recipe creation UI and the food data layer. However, it operates entirely on local data and doesn't involve the queue/async pattern — it's a read-only feature that improves incrementally as the local store grows.
+**Why this priority**: Ingredient search is the primary interface between Commise's recipe creation UI and the food data layer. However, it operates entirely on local data and doesn't involve the queue/async pattern — it's a read-only feature that improves incrementally as the local store grows.
 
 **Independent Test**: Can be fully tested by seeding 100 foods into PostgreSQL, searching for known foods by exact name and by misspelled name, and verifying relevant results are returned ranked by relevance within 200ms.
 
@@ -148,7 +148,7 @@ A user types an ingredient name (e.g., "chicken breast") while creating a recipe
 
 A scheduled EventBridge rule periodically identifies foods in the local store whose data is older than a configurable threshold (default: 30 days). These stale foods are re-queued on the Low Priority queue for background re-fetching from USDA. This ensures nutritional data stays reasonably current without manual intervention.
 
-**Why this priority**: Data freshness is important for accuracy (SC-010 in Sous Chef spec: "Nutritional calculations accurate to within 5% of source database values") but is not blocking for launch. The system works with stale data; refresh is an optimization.
+**Why this priority**: Data freshness is important for accuracy (SC-010 in Commise spec: "Nutritional calculations accurate to within 5% of source database values") but is not blocking for launch. The system works with stale data; refresh is an optimization.
 
 **Independent Test**: Can be fully tested by seeding 10 foods with `fetched_at` older than 30 days, triggering the scheduled refresh, and verifying all 10 are re-queued on the Low Priority queue and re-fetched with updated data.
 
@@ -222,7 +222,7 @@ Operations teams can monitor the health of the USDA data pipeline via CloudWatch
 - What happens when a food exists in USDA but the batch endpoint returns it without certain nutrient fields? (System stores whatever data USDA provides; missing fields are stored as `null`; the API response indicates which fields are available.)
 - What happens when PostgreSQL is unavailable? (Consumer Lambda fails; messages remain in SQS. API Lambda cannot serve any food data. This is a full outage of the food data layer.)
 - How does the system handle an `fdcId` that was previously tombstoned (`not_found`) but later becomes valid in USDA? (The stale-data refresh job can be configured to re-check tombstones after a configurable period, e.g., 90 days.)
-- How does the system handle recipe ingredients that have no USDA match (e.g., certain spices, oils, or proprietary blends)? (The `fdcId` link on the Sous Chef Ingredient is optional. Ingredients without a linked Food simply have no nutritional data from this system; nutritional summaries for recipes exclude unlinked ingredients or display them as "nutrition unavailable.")
+- How does the system handle recipe ingredients that have no USDA match (e.g., certain spices, oils, or proprietary blends)? (The `fdcId` link on the Commise Ingredient is optional. Ingredients without a linked Food simply have no nutritional data from this system; nutritional summaries for recipes exclude unlinked ingredients or display them as "nutrition unavailable.")
 
 ## Requirements _(mandatory)_
 
@@ -302,7 +302,7 @@ Operations teams can monitor the health of the USDA data pipeline via CloudWatch
 
 **Authentication**
 
-- **FR-035**: All `/v1/foods/*` API endpoints (`GET /v1/foods/{fdcId}`, `GET /v1/foods/{fdcId}/status`, `GET /v1/foods/search`) MUST require the same authentication as the Sous Chef application (shared API Gateway authorizer). Unauthenticated requests MUST receive `401 Unauthorized`.
+- **FR-035**: All `/v1/foods/*` API endpoints (`GET /v1/foods/{fdcId}`, `GET /v1/foods/{fdcId}/status`, `GET /v1/foods/search`) MUST require the same authentication as the Commise application (shared API Gateway authorizer). Unauthenticated requests MUST receive `401 Unauthorized`.
 
 ### Non-Functional Requirements _(constitution-derived)_
 
@@ -319,7 +319,7 @@ Operations teams can monitor the health of the USDA data pipeline via CloudWatch
 
 ### Key Entities
 
-- **Food**: Represents a single food item from the USDA FoodData Central database. A "Food" is a USDA nutritional record — distinct from a Sous Chef "Ingredient," which is a recipe component that MAY link to a Food via `fdcId`. All foods can be ingredients, but not all ingredients are foods (e.g., spices, oils may lack USDA matches; the `fdcId` link is optional on the Ingredient side). Key attributes: `fdcId` (unique identifier), `description` (human-readable name), `dataType` (e.g., Foundation, SR Legacy, Branded), `nutrients` (structured nutritional data including calories, protein, carbs, fat, and available micronutrients), `fetchStatus` (pending | fetched | failed | not_found | stale), `fetchedAt` (ISO 8601 timestamp of last successful USDA fetch), `lastRequestedAt` (ISO 8601 timestamp of most recent user request), `requestCount` (number of times this food has been requested). Stored in PostgreSQL; optionally cached in Redis. This entity fulfills Sous Chef FR-007 ("back ingredient data with a real food/nutrition database").
+- **Food**: Represents a single food item from the USDA FoodData Central database. A "Food" is a USDA nutritional record — distinct from a Commise "Ingredient," which is a recipe component that MAY link to a Food via `fdcId`. All foods can be ingredients, but not all ingredients are foods (e.g., spices, oils may lack USDA matches; the `fdcId` link is optional on the Ingredient side). Key attributes: `fdcId` (unique identifier), `description` (human-readable name), `dataType` (e.g., Foundation, SR Legacy, Branded), `nutrients` (structured nutritional data including calories, protein, carbs, fat, and available micronutrients), `fetchStatus` (pending | fetched | failed | not_found | stale), `fetchedAt` (ISO 8601 timestamp of last successful USDA fetch), `lastRequestedAt` (ISO 8601 timestamp of most recent user request), `requestCount` (number of times this food has been requested). Stored in PostgreSQL; optionally cached in Redis. This entity fulfills Commise FR-007 ("back ingredient data with a real food/nutrition database").
 
 - **FetchRequest**: Represents an intent to retrieve food data from the USDA API. Key attributes: `fdcId` (or array of `fdcIds` for batch), `requestedAt` (ISO 8601), `requestSource` (user-lookup | recipe-import | stale-refresh), `priority` (high | low). Manifests as an EventBridge event and an SQS message. Lifecycle: created by API Lambda on cache miss -> queued in SQS -> consumed by Consumer Lambda -> resolved (food stored or tombstoned).
 
@@ -340,7 +340,7 @@ Operations teams can monitor the health of the USDA data pipeline via CloudWatch
 - **SC-005**: The USDA batch endpoint MUST be used for multi-food fetches, achieving an effective throughput of at least 5,000 foods per hour (average batch fill rate of 5+ IDs per API call).
 - **SC-006**: Zero data loss from queue processing failures. All failed messages MUST be captured in the DLQ within 3 retry cycles. DLQ message count MUST be trackable via CloudWatch alarm.
 - **SC-007**: Food search queries against a local store of up to 50,000 foods MUST return results within 200ms at p95.
-- **SC-008**: Nutritional data stored locally MUST match USDA source values exactly (no rounding or transformation at ingestion). This supports Sous Chef SC-010 ("Nutritional calculations accurate to within 5% of source database values").
+- **SC-008**: Nutritional data stored locally MUST match USDA source values exactly (no rounding or transformation at ingestion). This supports Commise SC-010 ("Nutritional calculations accurate to within 5% of source database values").
 - **SC-009**: The food data API (`/v1/foods/*` endpoints) MUST maintain 99.9% availability measured monthly, excluding scheduled maintenance windows communicated 48 hours in advance. Availability is defined as successful responses (2xx/3xx/4xx) divided by total requests; only 5xx responses and timeouts count as downtime.
 
 ## Assumptions
@@ -349,9 +349,9 @@ Operations teams can monitor the health of the USDA data pipeline via CloudWatch
 - **A-002**: The lean launch variant (no Redis, `db.t4g.micro` PostgreSQL) is the default starting configuration. Redis is added when performance thresholds warrant it (p95 read latency > 100ms sustained, or lookup volume > 50K/day).
 - **A-003**: Eventual consistency is acceptable for food data. Users tolerate a 10-60 second delay for first-time food lookups in exchange for never blocking on an external API call.
 - **A-004**: The USDA API remains publicly available with a free tier and the current `POST /v1/foods` batch endpoint supporting up to 20 IDs per request.
-- **A-005**: This feature deploys as an AWS-hosted backend service (Lambda, SQS, EventBridge, RDS, optional ElastiCache) in `us-east-1`. It serves both the web and mobile Sous Chef clients through API Gateway.
+- **A-005**: This feature deploys as an AWS-hosted backend service (Lambda, SQS, EventBridge, RDS, optional ElastiCache) in `us-east-1`. It serves both the web and mobile Commise clients through API Gateway.
 - **A-006**: The food data workspace is a new package within the KitchenSink monorepo, following all workspace governance rules from Constitution Principle V.
 - **A-007**: Client-side polling (not WebSocket) is the launch notification mechanism. WebSocket (US-9) is deferred until UX testing validates the need.
-- **A-008**: The `foods` table schema is purpose-built for this feature. Integration with Sous Chef's `ingredients` entity (linking recipe ingredients to `fdcId` references) is a downstream concern handled by the Sous Chef recipe management feature, not by this specification.
-- **A-009**: The USDA API key is stored in AWS Secrets Manager and rotated per AWS best practices. The key is never exposed in client-facing responses or logged. All food data API endpoints share the Sous Chef application's authentication boundary (API Gateway authorizer); no separate auth mechanism is required for this feature.
+- **A-008**: The `foods` table schema is purpose-built for this feature. Integration with Commise's `ingredients` entity (linking recipe ingredients to `fdcId` references) is a downstream concern handled by the Commise recipe management feature, not by this specification.
+- **A-009**: The USDA API key is stored in AWS Secrets Manager and rotated per AWS best practices. The key is never exposed in client-facing responses or logged. All food data API endpoints share the Commise application's authentication boundary (API Gateway authorizer); no separate auth mechanism is required for this feature.
 - **A-010**: All food data API endpoints use URL prefix versioning (`/v1/foods/*`). Breaking changes require a new version prefix (`/v2/foods/*`). The USDA FoodData Central API's own `/v1/` prefix is independent and unrelated to our versioning.

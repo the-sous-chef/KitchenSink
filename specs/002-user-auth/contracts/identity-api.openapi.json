@@ -3,7 +3,7 @@
   "info": {
     "title": "KitchenSink Identity API",
     "version": "1.0.0",
-    "description": "REST API for user authentication, profile management, and admin operations. Consumed by Sous Chef web and mobile clients."
+    "description": "REST API for user authentication, profile management, and admin operations. Consumed by Commise web and mobile clients."
   },
   "servers": [
     {
@@ -11,7 +11,7 @@
       "description": "Identity API Gateway",
       "variables": {
         "stage": { "default": "dev", "enum": ["dev", "sandbox", "prod"] },
-        "domain": { "default": "thesouschef.app" }
+        "domain": { "default": "thecommise.app" }
       }
     }
   ],

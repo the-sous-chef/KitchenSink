@@ -4,7 +4,7 @@
 
 ## Product shell
 
-Sous Chef needs one coherent app shell across web and mobile. The navigation may be visually different by platform, but the information architecture must stay in lockstep.
+Commise needs one coherent app shell across web and mobile. The navigation may be visually different by platform, but the information architecture must stay in lockstep.
 
 ### Primary destinations
 
@@ -39,7 +39,7 @@ Sous Chef needs one coherent app shell across web and mobile. The navigation may
 
 ## Home screen requirements
 
-Home is the first post-login surface and must answer: "What should I do next in Sous Chef?"
+Home is the first post-login surface and must answer: "What should I do next in Commise?"
 
 ### Required Home modules
 

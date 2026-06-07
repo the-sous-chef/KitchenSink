@@ -56,7 +56,7 @@ Feature 013 defines a two-sided cooking school marketplace where educators autho
 - `010-subscriptions` (billing primitives, tier and payout primitives)
 - `012-creator-profiles` (educator identity and public handle pages)
 - `005-ai-integration` (lesson script drafting)
-- `001-sous-chef-recipe-app` (recipe entity linkage)
+- `001-commise-recipe-app` (recipe entity linkage)
 
 ## Glossary
 

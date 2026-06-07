@@ -23,7 +23,7 @@ Planned implementation introduces four new packages (`@kitchensink/digitization-
     - `@kitchensink/digitization-api` (NestJS)
     - `@kitchensink/circles-api` (NestJS)
     - `@kitchensink/shared-audience` (shared types/guards for 001/006/007)
-- Existing repo workspace layout currently includes `packages/tools/*`, `packages/apps/sous-chef/*`, `packages/ui`; `packages/api` and `packages/shared` exist as directories but are not yet workspace-registered packages.
+- Existing repo workspace layout currently includes `packages/tools/*`, `packages/apps/commise/*`, `packages/ui`; `packages/api` and `packages/shared` exist as directories but are not yet workspace-registered packages.
 
 ---
 

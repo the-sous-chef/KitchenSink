@@ -9,7 +9,7 @@
 | Parameter | Value |
 |-----------|-------|
 | Feature absolute | `/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/008-cooking-mode/` |
-| Monorepo | `packages/apps/sous-chef/{web,mobile}/` |
+| Monorepo | `packages/apps/commise/{web,mobile}/` |
 | L5 (code ↔ tests) | **Skipped per directive** |
 | L6 (missing-impl) | **INFO** — no code changes performed |
 | `apps/X` refs in tasks.md | Flagged **INFO** (uses legacy monorepo shorthand) |
@@ -119,11 +119,11 @@
 
 ### Monorepo code survey
 
-- `packages/apps/sous-chef/web/src/` — **No `features/cooking-mode/` directory.** Existing code: auth-only middleware, pages, components, hooks, lib, types (all auth0-related).
-- `packages/apps/sous-chef/mobile/src/` — **No `features/cooking-mode/` directory.** Existing code: auth-only screens, components, hooks, services, storage.
+- `packages/apps/commise/web/src/` — **No `features/cooking-mode/` directory.** Existing code: auth-only middleware, pages, components, hooks, lib, types (all auth0-related).
+- `packages/apps/commise/mobile/src/` — **No `features/cooking-mode/` directory.** Existing code: auth-only screens, components, hooks, services, storage.
 - `packages/shared/src/` — **Does not exist.** No shared cooking types, session store, timer service, or wake lock utilities found.
-- `packages/apps/sous-chef/web/package.json` — `expo-keep-awake` **not present**; no cooking-mode deps.
-- `packages/apps/sous-chef/mobile/package.json` — `expo-keep-awake` **not present**.
+- `packages/apps/commise/web/package.json` — `expo-keep-awake` **not present**; no cooking-mode deps.
+- `packages/apps/commise/mobile/package.json` — `expo-keep-awake` **not present**.
 
 ### Task implementation status (all 32 tasks NOT STARTED)
 
@@ -175,8 +175,8 @@
 | Check | Finding | Severity |
 |-------|---------|----------|
 | FR count | `product-spec.md` claims 5 Must Have stories mapped to canonical FRs, but `spec.md` only defines FR-032..FR-035 (4 FRs) | INFO |
-| Path shorthand | `tasks.md` uses `apps/web/…` and `apps/mobile/…` shorthand, but actual monorepo paths are `packages/apps/sous-chef/web/src/…` and `packages/apps/sous-chef/mobile/src/…` | INFO |
-| Workspace | Root `package.json` workspaces include `packages/apps/sous-chef/web` and `packages/apps/sous-chef/mobile`, so the shorthand is unambiguous in Turborepo context. | — |
+| Path shorthand | `tasks.md` uses `apps/web/…` and `apps/mobile/…` shorthand, but actual monorepo paths are `packages/apps/commise/web/src/…` and `packages/apps/commise/mobile/src/…` | INFO |
+| Workspace | Root `package.json` workspaces include `packages/apps/commise/web` and `packages/apps/commise/mobile`, so the shorthand is unambiguous in Turborepo context. | — |
 | Package deps | `expo-keep-awake` referenced in T-005 but absent from `mobile/package.json` | INFO (expected pre-impl) |
 
 ---

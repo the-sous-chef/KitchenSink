@@ -108,7 +108,7 @@
       "severity": null,
       "details": [
         "All internal relative links (./spec.md, ./plan.md, ./tasks.md, ./review.md, ./product-spec/*.md, ./research/*.md, ./v-model/*.md) resolve to existing files.",
-        "External links to sibling feature specs (../002-user-auth/*.md, ../001-sous-chef-recipe-app/*.md, etc.) are cross-feature references and may reside on other branches; they are not internal 014 drift.",
+        "External links to sibling feature specs (../002-user-auth/*.md, ../001-commise-recipe-app/*.md, etc.) are cross-feature references and may reside on other branches; they are not internal 014 drift.",
         "verify-report.md and review.md link targets are valid internal paths."
       ],
       "evidence": [

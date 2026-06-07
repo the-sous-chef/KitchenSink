@@ -9,7 +9,7 @@
 
 ```
 +------------------------------------------------------------------------------------------------+
-| Sous Chef Planner                                           [Week View] [Month View] [Profile] |
+| Commise Planner                                           [Week View] [Month View] [Profile] |
 +------------------------------------------------------------------------------------------------+
 | Plan: Family Week 19 (May 11 - May 17)   [AI Suggest] [Auto-Generate] [Optimize Waste]         |
 | [Status: Editable ●]  [Lock Plan]                                                                |

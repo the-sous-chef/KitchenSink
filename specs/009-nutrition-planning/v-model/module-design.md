@@ -1074,7 +1074,7 @@ N/A — Stateless
 
 | Name                   | Type         | Size/Constraints | Initialization | Description                                           |
 | ---------------------- | ------------ | ---------------- | -------------- | ----------------------------------------------------- |
-| `RECIPE_APP_BASE_URL`  | `string`     | URL              | Config/env     | Base URL of the 001-sous-chef-recipe-app internal API |
+| `RECIPE_APP_BASE_URL`  | `string`     | URL              | Config/env     | Base URL of the 001-commise-recipe-app internal API |
 | `INTERNAL_SERVICE_KEY` | `string`     | Secret           | Config/env     | Shared secret for internal service authentication     |
 | `RecipeNutritionData`  | Plain object | —                | Per-call       | Parsed per-recipe nutrition totals                    |
 | `Recipe`               | Plain object | —                | Per-call       | Full recipe with nutrition for swap suggestions       |

@@ -11,7 +11,7 @@ This directory contains the Product Forge Phase 1 research artifacts for feature
 
 ### [competitors.md](./competitors.md)
 
-Competitive landscape focused on monetization model fit for Sous Chef subscriptions. Compares Paprika (one-time), Mealime (freemium), PlateJoy (subscription), and SideChef Pro (premium). Includes 2026 pricing posture, gating strategy matrix, and positioning implications for free-vs-paid boundaries.
+Competitive landscape focused on monetization model fit for Commise subscriptions. Compares Paprika (one-time), Mealime (freemium), PlateJoy (subscription), and SideChef Pro (premium). Includes 2026 pricing posture, gating strategy matrix, and positioning implications for free-vs-paid boundaries.
 
 ### [ux-patterns.md](./ux-patterns.md)
 

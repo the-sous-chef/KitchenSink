@@ -8,7 +8,7 @@
 
 ## Summary
 
-This feature delivers IdP-based authentication and user lifecycle management for Sous Chef web (Next.js) and mobile (Expo), with a locked split architecture:
+This feature delivers IdP-based authentication and user lifecycle management for Commise web (Next.js) and mobile (Expo), with a locked split architecture:
 
 - **Identity Service**: NestJS 11 on **AWS ECS/Fargate** (Node 24) exposing REST endpoints consumed by web/mobile
 - **IdP Webhooks + Auth Pipeline**: raw **AWS Lambda** functions (Node 24.x, no NestJS) for:
@@ -217,12 +217,12 @@ All webhook handlers MUST validate incoming payloads against a Zod schema at the
 
 ### Performance Targets (NFR-011a)
 
-Sous Chef-controlled auth operations MUST meet:
+Commise-controlled auth operations MUST meet:
 - Silent token refresh endpoint ≤ 500ms P99
 - Profile data endpoint ≤ 1s P99
 - Webhook processing (API Gateway receipt → DB write) ≤ 2s P99
 
-These targets apply only to Sous Chef-controlled operations; IdP-hosted login page load times are out of scope.
+These targets apply only to Commise-controlled operations; IdP-hosted login page load times are out of scope.
 
 **Traceability**: NFR-011a, T-083 (CI performance gates), T-087 (retry strategy).
 
@@ -328,8 +328,8 @@ Added in response to sync-verify Run #1 Layer-3 findings (DRIFT-002..DRIFT-024).
 | FR | One-line scope | Primary plan locus |
 |---|---|---|
 | FR-001 | PKCE auth (Authorization Code Flow) on web + mobile | `Architectural Decisions` → `IdP control-plane handlers`, `Authorizer model`; tasks T-050/T-060 |
-| FR-002 | Mobile auto-display of auth screen when unauthenticated | Package `packages/apps/sous-chef/mobile/`; tasks T-060 |
-| FR-003 | Web redirect of unauthenticated users to IdP login | Package `packages/apps/sous-chef/web/` middleware; tasks T-050 |
+| FR-002 | Mobile auto-display of auth screen when unauthenticated | Package `packages/apps/commise/mobile/`; tasks T-060 |
+| FR-003 | Web redirect of unauthenticated users to IdP login | Package `packages/apps/commise/web/` middleware; tasks T-050 |
 | FR-004 | Social IdP providers (Google at minimum) | `IdP tenant strategy`; configuration owned by Clerk dashboard, tasks T-080 |
 | FR-005 | OAuth callback handling on both platforms | Decision `Authorizer model`; tasks T-050/T-060 |
 | FR-006 | Secure token storage: Keychain/Keystore (mobile) + httpOnly cookies (web) | Section `Security and reliability notes`; tasks T-051/T-061 |
@@ -340,7 +340,7 @@ Added in response to sync-verify Run #1 Layer-3 findings (DRIFT-002..DRIFT-024).
 | FR-013..FR-017 | `user.created` webhook → User/Account/Profile (atomic) + ULID + reconciliation | Decision `Shared schema contract`; package `packages/services/identity-webhooks/`; tasks T-021/T-023 |
 | FR-016a | Zod schema validation at webhook entry (sanitized logging + CloudWatch metric) | Section `Specification Additions and Clarifications (post-creation)`; tasks T-072 |
 | FR-017a | Nightly reconciliation diffing IdP users vs DB users | Decision `Reconciliation`; tasks T-023 |
-| FR-018..FR-021 | Profile visibility + account-edit flow | Package `packages/apps/sous-chef/web/` + `/mobile/`; tasks T-053/T-084 |
+| FR-018..FR-021 | Profile visibility + account-edit flow | Package `packages/apps/commise/web/` + `/mobile/`; tasks T-053/T-084 |
 | FR-022..FR-026 | Account deletion: confirmation, DB+IdP delete, anonymization, post-delete state | Decision `Deletion resiliency`; package `packages/services/identity-webhooks/` (deletion worker); tasks T-022 |
 | FR-027..FR-028 | Password reset via IdP-hosted flow (no app-side password handling) | Decision `Authorizer model` (IdP-managed); no app task — provided by Clerk hosted UI |
 

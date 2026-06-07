@@ -8,7 +8,7 @@
 **Version**: (not specified)
 **Git Tag**: (not specified)
 **Date**: 2026-05-10
-**Regulatory Context**: Non-regulated consumer SaaS (Sous Chef)
+**Regulatory Context**: Non-regulated consumer SaaS (Commise)
 
 130 requirement/acceptance rows traced across 5 traceability matrices.
 128 mapped scenario references: 0 passed, 0 failed, 0 skipped, 128 untested.

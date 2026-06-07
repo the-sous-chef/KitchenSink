@@ -7,7 +7,7 @@
 
 ## Overview
 
-The AI Integration feature decomposes into two primary subsystems: (1) **BYOK In-App AI** — a credential management and provider-dispatch pipeline that stores encrypted user API keys and calls external AI providers to generate and optimize recipes; (2) **External Agent Platform** — an OAuth 2.0 authorization server and scoped API layer that allows third-party agents (ChatGPT GPT Actions, Gemini Extensions) to read and write recipes on behalf of authorized users. Both subsystems produce private, user-owned Recipe entities that integrate with the existing `001-sous-chef-recipe-app` data model and require authentication from `002-user-auth`.
+The AI Integration feature decomposes into two primary subsystems: (1) **BYOK In-App AI** — a credential management and provider-dispatch pipeline that stores encrypted user API keys and calls external AI providers to generate and optimize recipes; (2) **External Agent Platform** — an OAuth 2.0 authorization server and scoped API layer that allows third-party agents (ChatGPT GPT Actions, Gemini Extensions) to read and write recipes on behalf of authorized users. Both subsystems produce private, user-owned Recipe entities that integrate with the existing `001-commise-recipe-app` data model and require authentication from `002-user-auth`.
 
 ## ID Schema
 

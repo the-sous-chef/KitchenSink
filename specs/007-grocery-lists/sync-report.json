@@ -157,7 +157,7 @@
       "severity": "INFO",
       "layer": "L7",
       "title": "Monorepo path drift: assumed API path does not exist",
-      "evidence": "research/codebase-analysis.md references packages/apps/sous-chef/api/src/grocery-lists/, but packages/api/ is empty and no api/ subdir exists under packages/apps/sous-chef/.",
+      "evidence": "research/codebase-analysis.md references packages/apps/commise/api/src/grocery-lists/, but packages/api/ is empty and no api/ subdir exists under packages/apps/commise/.",
       "recommendation": "Clarify canonical API location (likely packages/services/ or a new package) before module scaffolding."
     }
   ],

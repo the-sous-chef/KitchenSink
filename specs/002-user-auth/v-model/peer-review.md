@@ -60,7 +60,7 @@ However, `trace.md` Matrix A maps REQ-021 to `AT-021-A` with verification method
 **Evidence**:
 From `trace.md` Matrix C:
 
-> "Post-Registration Action → Sous Chef DB: No UTP (backend action)"
+> "Post-Registration Action → Commise DB: No UTP (backend action)"
 > "API Gateway Authorizer → IdP JWKS: No UTP (authorizer module)"
 > "Reconciliation Job → IdP Backend API + DB: No UTP (reconciliation module)"
 
@@ -93,7 +93,7 @@ Additionally, the suspension/reactivation flow (REQ-041, REQ-042, REQ-043, REQ-0
 
 **Resolution**: Add integration points to Matrix C for:
 
-1. Account Deletion Cascade → Sous Chef DB (REQ-024, REQ-025)
+1. Account Deletion Cascade → Commise DB (REQ-024, REQ-025)
 2. API Gateway Authorizer → Suspension Status Check (REQ-041, REQ-042)
 
 ---

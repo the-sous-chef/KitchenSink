@@ -62,7 +62,7 @@ Feature 005 targets the gap between those models: in-app BYOK generation plus OA
 
 ## Feature Parity Matrix
 
-| Capability                                              | ChefGPT    | SideChef AI | DishGen   | Whisk AI              | Sous Chef 005 Target                    |
+| Capability                                              | ChefGPT    | SideChef AI | DishGen   | Whisk AI              | Commise 005 Target                    |
 | ------------------------------------------------------- | ---------- | ----------- | --------- | --------------------- | --------------------------------------- |
 | In-app AI recipe generation                             | ✅         | ✅          | ✅        | ✅                    | ✅ (FR-016)                             |
 | Save generated recipe after preview                     | ✅         | ✅          | ✅        | ✅                    | ✅ (FR-017, FR-020)                     |
@@ -75,7 +75,7 @@ Feature 005 targets the gap between those models: in-app BYOK generation plus OA
 
 ## Pricing / Cost Posture Comparison
 
-| Model                  | Typical Competitor Posture                      | Sous Chef 005 Strategy                                                  |
+| Model                  | Typical Competitor Posture                      | Commise 005 Strategy                                                  |
 | ---------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- |
 | AI call cost bearer    | Platform pays, recovers via subscription/upsell | User pays their provider directly (BYOK)                                |
 | Marginal cost exposure | Scales with user generation volume              | Near-zero inference pass-through cost                                   |
@@ -83,7 +83,7 @@ Feature 005 targets the gap between those models: in-app BYOK generation plus OA
 
 ---
 
-## Market Gaps Sous Chef Targets
+## Market Gaps Commise Targets
 
 1. **Control gap**: Let users choose provider/model path (`FR-015`) instead of forcing a single black-box AI tier.
 2. **Interoperability gap**: First-class OAuth external-agent access (`FR-018`, `FR-021`) while preserving account consent boundaries.

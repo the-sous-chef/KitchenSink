@@ -18,7 +18,7 @@ Each metric is tied to a Must Have user story. "Measurable" means a queryable si
 
 ### US-001: Cross-platform Auth Entry and Callback
 
-**Story**: As a new user, I can authenticate on web/mobile and complete callback token exchange so I can enter Sous Chef securely.
+**Story**: As a new user, I can authenticate on web/mobile and complete callback token exchange so I can enter Commise securely.
 
 **FRs**: [FR-001](../spec.md#fr-001), [FR-002](../spec.md#fr-002), [FR-003](../spec.md#fr-003), [FR-004](../spec.md#fr-004), [FR-005](../spec.md#fr-005)
 
@@ -60,7 +60,7 @@ Each metric is tied to a Must Have user story. "Measurable" means a queryable si
 
 ### US-004: Signup-to-Database Identity Synchronization
 
-**Story**: As a newly registered user, my identity is synchronized to Sous Chef User/Account records with stable canonical ID, retry protection, and reconciliation fallback.
+**Story**: As a newly registered user, my identity is synchronized to Commise User/Account records with stable canonical ID, retry protection, and reconciliation fallback.
 
 **FRs**: [FR-013](../spec.md#fr-013), [FR-014](../spec.md#fr-014), [FR-015](../spec.md#fr-015), [FR-016](../spec.md#fr-016), [FR-017](../spec.md#fr-017)
 

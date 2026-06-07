@@ -12,7 +12,7 @@
 |  Import Conflict: Source Already Imported                                |
 +--------------------------------------------------------------------------+
 |                                                                          |
-|  [⚠] This source URL already exists in Sous Chef.                        |
+|  [⚠] This source URL already exists in Commise.                        |
 |                                                                          |
 |  Existing Recipe                                                         |
 |  +--------------------------------------------------------------------+  |

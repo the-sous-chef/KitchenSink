@@ -140,7 +140,7 @@ Per scan directive: L5 skipped. Research artifacts exist and were used to bootst
 | .forge-status.yml | Phase states | Research/Plan/Tasks/Bridge/V-Model complete; revalidation pending; implement not started |
 
 **Monorepo Path Check**:
-- Valid refs found: `packages/apps/sous-chef/web`, `packages/apps/sous-chef/mobile`.
+- Valid refs found: `packages/apps/commise/web`, `packages/apps/commise/mobile`.
 - No invalid `apps/X` refs discovered. All `src/` refs in v-model are relative to expected workspace layout.
 
 ---

@@ -19,7 +19,7 @@ UX pattern reference for food search-as-you-type, food disambiguation (brand vs 
 
 ### [codebase-analysis.md](./codebase-analysis.md)
 
-Monorepo and implementation fit analysis grounded in root `package.json`, `AGENTS.md`, and `plan.md`. Covers current workspace baseline, USDA-specific package boundaries, queue + Lambda placement, API versioning path, and integration points with Sous Chef applications.
+Monorepo and implementation fit analysis grounded in root `package.json`, `AGENTS.md`, and `plan.md`. Covers current workspace baseline, USDA-specific package boundaries, queue + Lambda placement, API versioning path, and integration points with Commise applications.
 
 ### [tech-stack.md](./tech-stack.md)
 

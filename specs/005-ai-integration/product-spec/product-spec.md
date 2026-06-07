@@ -1,4 +1,4 @@
-# Product Specification: Sous Chef - AI Integration
+# Product Specification: Commise - AI Integration
 
 **Branch**: `005-ai-integration`
 **Date**: 2026-05-09
@@ -10,7 +10,7 @@
 
 ## Vision
 
-Sous Chef AI Integration makes the recipe platform conversational, assistive, and interoperable without surrendering user control. Users can generate and refine recipes in-app using their preferred AI provider (BYOK), and can authorize external agent platforms to interact with their recipe data through explicit OAuth consent.
+Commise AI Integration makes the recipe platform conversational, assistive, and interoperable without surrendering user control. Users can generate and refine recipes in-app using their preferred AI provider (BYOK), and can authorize external agent platforms to interact with their recipe data through explicit OAuth consent.
 
 **Tagline**: "AI help, user control."
 
@@ -31,7 +31,7 @@ Sous Chef AI Integration makes the recipe platform conversational, assistive, an
 **Archetype**: AI Companion User
 **Core Motivation**: Conversational kitchen brain, hands-free assistance
 
-**Profile**: Quinn treats Sous Chef as a thinking partner in the kitchen. They want to ask natural-language questions mid-cook, get contextual suggestions without leaving the app, and trust that the AI understands their pantry and preferences over time.
+**Profile**: Quinn treats Commise as a thinking partner in the kitchen. They want to ask natural-language questions mid-cook, get contextual suggestions without leaving the app, and trust that the AI understands their pantry and preferences over time.
 
 **AI-specific goals**:
 
@@ -76,12 +76,12 @@ Sous Chef AI Integration makes the recipe platform conversational, assistive, an
 
 ---
 
-### Tertiary: P8 Alex — Sous Chef Power User
+### Tertiary: P8 Alex — Commise Power User
 
-**Archetype**: Sous Chef Power User
+**Archetype**: Commise Power User
 **Core Motivation**: Multi-feature daily power use, integrations, automation
 
-**Profile**: Alex uses Sous Chef heavily and wants AI to handle the tedious parts at scale. They're interested in batch operations, connecting external agent platforms, and automating repetitive tasks like tagging, normalization, and instruction cleanup across their entire recipe library.
+**Profile**: Alex uses Commise heavily and wants AI to handle the tedious parts at scale. They're interested in batch operations, connecting external agent platforms, and automating repetitive tasks like tagging, normalization, and instruction cleanup across their entire recipe library.
 
 **AI-specific goals**:
 
@@ -89,7 +89,7 @@ Sous Chef AI Integration makes the recipe platform conversational, assistive, an
 - Authorize external agents (ChatGPT, Gemini, custom tools) to read and write recipes via OAuth, with clear scope boundaries.
 - Revoke agent access instantly and see a full consent activity timeline.
 - Use AI-assisted instruction optimization across multiple recipes in one session.
-- Integrate Sous Chef into their broader automation stack via the MCP server.
+- Integrate Commise into their broader automation stack via the MCP server.
 
 **AI-specific pains**:
 
@@ -107,12 +107,12 @@ Sous Chef AI Integration makes the recipe platform conversational, assistive, an
 
 **Role**: Operational/platform role — not a user persona.
 
-Responsible for onboarding third-party AI agent platforms (e.g., ChatGPT plugins, Gemini extensions, custom MCP clients) to the Sous Chef agent API. Key responsibilities include:
+Responsible for onboarding third-party AI agent platforms (e.g., ChatGPT plugins, Gemini extensions, custom MCP clients) to the Commise agent API. Key responsibilities include:
 
 - **MCP server contracts**: Defining and versioning the tool schemas exposed via the Model Context Protocol server, ensuring external agents receive well-typed, stable interfaces for recipe read/write operations.
 - **OAuth scope governance**: Reviewing and approving the scopes available to external agents, ensuring least-privilege access and clear user-facing consent language.
 - **Prompt-injection threat reviews**: Auditing agent interaction patterns for prompt-injection vectors, particularly where external agent output could influence recipe content saved to user accounts.
-- **Third-party agent certification**: Evaluating new agent integrations before they're listed as trusted connectors in the Sous Chef consent flow.
+- **Third-party agent certification**: Evaluating new agent integrations before they're listed as trusted connectors in the Commise consent flow.
 
 This role surfaces in `FR-018` (external agent OAuth access) and `FR-021` (revocation and audit trail) and owns the security review gate before any new agent platform goes live.
 

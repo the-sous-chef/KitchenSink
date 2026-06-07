@@ -10,7 +10,7 @@ This analysis is a strategic landscape assessment, not a validated market-sizing
 
 ## Market thesis
 
-The cooking-app market appears crowded but fragmented. Users currently stitch together recipe storage, meal planning, grocery shopping, nutrition tracking, creator content, AI chat, and cooking education across separate tools. SousChef can compete if it proves that one connected household cooking workflow creates more repeat use than point solutions.
+The cooking-app market appears crowded but fragmented. Users currently stitch together recipe storage, meal planning, grocery shopping, nutrition tracking, creator content, AI chat, and cooking education across separate tools. Commise can compete if it proves that one connected household cooking workflow creates more repeat use than point solutions.
 
 Market-sizing reports vary widely and should be treated directionally, not as precise truth. The strongest current evidence is behavioral and indirect: consumers already spend across groceries, subscriptions, food content, nutrition apps, creator memberships, and cooking education. The opportunity hypothesis is to capture workflow share before competitors consolidate these jobs.
 
@@ -39,7 +39,7 @@ graph through explicit consent.
 
 ## Competitive segments
 
-| Segment               | Competitors                                                     | Strengths                                                      | Weaknesses SousChef can exploit                                                                 |
+| Segment               | Competitors                                                     | Strengths                                                      | Weaknesses Commise can exploit                                                                 |
 | --------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Recipe management     | Paprika, Samsung Food, Plan to Eat, Recipe Keeper               | Importing, organization, durable utility                       | Limited integrated nutrition, creator monetization, AI, and grocery execution.                  |
 | Meal planning         | Mealime, Eat This Much, Plan to Eat, Samsung Food               | Planning efficiency, diet filters, shopping lists              | Weak recipe ownership, household collaboration, creator/ecosystem expansion.                    |
@@ -54,7 +54,7 @@ graph through explicit consent.
 The CEO-level read is nuanced: competitors are already doing AI recipes, but
 few appear to own the full trusted workflow.
 
-| Competitor type             | Examples                                               | What they prove                                                                                               | SousChef opening                                                                                                |
+| Competitor type             | Examples                                               | What they prove                                                                                               | Commise opening                                                                                                |
 | --------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | General AI assistants       | ChatGPT, Gemini, Perplexity                            | Users can get recipes, substitutions, meal plans, budget ideas, and food-safety answers without a recipe app. | Become the persistent system of record and execution layer for AI cooking intent.                               |
 | Pure AI recipe generators   | DishGen, ChefGPT, ChefPro-style tools                  | Prompt-to-recipe, pantry recipes, macros recipes, and meal plans are now table stakes.                        | Differentiate through saved recipe ownership, cooking mode, grocery flow, confidence UX, and household context. |
@@ -69,17 +69,17 @@ strategic assets than generic generation alone.
 
 ## Strategic whitespace
 
-1. **Integrated household utility**: Most competitors own one job. SousChef can own the loop.
+1. **Integrated household utility**: Most competitors own one job. Commise can own the loop.
 2. **Recipe as the hub**: Every feature should attach to recipe objects: nutrition, planning, grocery, cooking mode, creator attribution, and education.
 3. **Trust and provenance**: AI-generated food content needs confidence, attribution, safety disclaimers, and nutrition-source clarity.
-4. **Creator monetization**: Food creators need revenue beyond ads, sponsorships, and platform dependence. SousChef can provide shoppable recipes, premium profiles, courses, and affiliate/subscription revenue paths.
+4. **Creator monetization**: Food creators need revenue beyond ads, sponsorships, and platform dependence. Commise can provide shoppable recipes, premium profiles, courses, and affiliate/subscription revenue paths.
 5. **Context-aware AI**: AI should know the user's recipes, pantry assumptions, nutrition goals, family preferences, plan, grocery context, and cooking history — not operate as a generic chat box.
-6. **AI persistence layer**: AI answers are ephemeral unless saved, structured, attributed, and connected to execution. SousChef can turn AI output into durable household cooking infrastructure.
-7. **External-agent bridge**: Users will keep using ChatGPT, Gemini, and other agents. SousChef should meet them there through explicit OAuth consent rather than forcing every AI interaction into the app.
+6. **AI persistence layer**: AI answers are ephemeral unless saved, structured, attributed, and connected to execution. Commise can turn AI output into durable household cooking infrastructure.
+7. **External-agent bridge**: Users will keep using ChatGPT, Gemini, and other agents. Commise should meet them there through explicit OAuth consent rather than forcing every AI interaction into the app.
 
 ## Competitive positioning
 
-| Dimension      | SousChef target position                                                                                                 |
+| Dimension      | Commise target position                                                                                                 |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Core promise   | Make home cooking easier from idea to table.                                                                             |
 | Differentiator | Full-stack cooking workflow, not isolated recipe storage or generic AI.                                                  |
@@ -102,8 +102,8 @@ strategic assets than generic generation alone.
 
 ## Strategic warning
 
-SousChef should not compete as “another AI recipe app.” That category is
+Commise should not compete as “another AI recipe app.” That category is
 commoditizing quickly. The winning position is **trusted cooking infrastructure
 for households and creators**, with AI as an accelerant inside the loop and
-SousChef as the durable system of record for recipes, plans, grocery context,
+Commise as the durable system of record for recipes, plans, grocery context,
 and cooking outcomes.

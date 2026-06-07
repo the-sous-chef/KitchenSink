@@ -7,7 +7,7 @@
 
 ## Competitive Landscape Overview
 
-USDA integration competes less on frontend polish and more on data coverage, licensing terms, update cadence, and operational constraints under rate limits. The key decision axis is whether Sous Chef should be USDA-first with local persistence (chosen), or API-aggregation first with external pass-through (rejected for this feature).
+USDA integration competes less on frontend polish and more on data coverage, licensing terms, update cadence, and operational constraints under rate limits. The key decision axis is whether Commise should be USDA-first with local persistence (chosen), or API-aggregation first with external pass-through (rejected for this feature).
 
 ---
 

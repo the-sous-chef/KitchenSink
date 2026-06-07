@@ -249,7 +249,7 @@ async function extractFromUrl(url: string): Promise<RecipeImportPayload>
 
 **Constants**:
 
-- `SCRAPER_UA = 'SousChefBot/1.0 (+https://souschef.app/bot)'`
+- `SCRAPER_UA = 'CommiseBot/1.0 (+https://commise.app/bot)'`
 - `CONFIDENCE_THRESHOLD = 0.4`
 - Fetch timeout: 10 000 ms
 
@@ -974,7 +974,7 @@ class RecipePersistenceAdapter {
     constructor(@InjectDrizzle() private readonly db: DrizzleDb) {}
 }
 
-// Drizzle table schema (from 001-sous-chef-recipe-app)
+// Drizzle table schema (from 001-commise-recipe-app)
 // recipesTable — columns: id (uuid), title, ingredients (jsonb), instructions (jsonb),
 //   sourceUrl, originalAuthor, platform, visibility, ownerId, isClone, clonedFromId,
 //   attributionNote, importedAt, createdAt, updatedAt
@@ -992,7 +992,7 @@ class RecipePersistenceAdapter {
 ### 4. Concurrency & Timing View
 
 - Each method is a single DB round-trip; no transactions spanning multiple calls.
-- Connection pooling managed by `pg` pool (configured in 001-sous-chef-recipe-app).
+- Connection pooling managed by `pg` pool (configured in 001-commise-recipe-app).
 - Stateless singleton.
 
 ---

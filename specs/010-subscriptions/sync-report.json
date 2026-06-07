@@ -102,7 +102,7 @@
       "name": "missing impl",
       "status": "INFO",
       "severity": null,
-      "description": "Implementation has not started (.forge-status.yml implement: not-started). No source files for billing, subscription, or webhook modules exist in packages/apps/sous-chef/.",
+      "description": "Implementation has not started (.forge-status.yml implement: not-started). No source files for billing, subscription, or webhook modules exist in packages/apps/commise/.",
       "evidence": [
         ".forge-status.yml line 71: implement: not-started",
         "0/28 tasks have checked execution markers",
@@ -117,8 +117,8 @@
       "severity": null,
       "description": "All cross-feature dependency references are valid; no broken apps/X links.",
       "evidence": [
-        "spec.md Dependencies table references 002-user-auth (required), 001-sous-chef-recipe-app, 004-recipe-importing, 005-ai-integration, 006-meal-planning, 007-grocery-lists, 009-nutrition-planning — all present in sibling spec directories",
-        "codebase-analysis.md references packages/apps/sous-chef/web and packages/apps/sous-chef/mobile as valid monorepo workspace paths",
+        "spec.md Dependencies table references 002-user-auth (required), 001-commise-recipe-app, 004-recipe-importing, 005-ai-integration, 006-meal-planning, 007-grocery-lists, 009-nutrition-planning — all present in sibling spec directories",
+        "codebase-analysis.md references packages/apps/commise/web and packages/apps/commise/mobile as valid monorepo workspace paths",
         "No stray 'apps/X' path references found in artifact body text"
       ],
       "findings": []

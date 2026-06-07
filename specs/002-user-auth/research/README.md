@@ -19,7 +19,7 @@ UX pattern reference for authentication and account lifecycle: signup, login, ca
 
 ### [codebase-analysis.md](./codebase-analysis.md)
 
-Monorepo structure analysis grounded in root `package.json`, `AGENTS.md`, and [plan.md](../plan.md). Covers: existing workspaces (`packages/tools/*`, `packages/apps/sous-chef/web`, `packages/apps/sous-chef/mobile`, `packages/ui`), planned auth package layout under `src/auth/*`, Lambda/API Gateway boundaries, and observability stack alignment.
+Monorepo structure analysis grounded in root `package.json`, `AGENTS.md`, and [plan.md](../plan.md). Covers: existing workspaces (`packages/tools/*`, `packages/apps/commise/web`, `packages/apps/commise/mobile`, `packages/ui`), planned auth package layout under `src/auth/*`, Lambda/API Gateway boundaries, and observability stack alignment.
 
 ### [tech-stack.md](./tech-stack.md)
 

@@ -32,10 +32,10 @@ The identity provider (IdP) User Authentication architecture decomposes 20 syste
 | ARCH-007 | Social Connection Configurator       | Configures IdP social connections (Google, etc.) in the IdP tenant. Surfaces social login buttons on both web (ARCH-001) and mobile (ARCH-004) login screens.                                                                                                                                                 | SYS-003                  | Component |
 | ARCH-008 | Token Refresh Service (Web)          | Clerk issues short-lived JWTs (default 60-second expiry) and refreshes them silently and automatically via the `@clerk/nextjs` SDK — no custom refresh service is required. This module's role is reduced to a session-staleness detector: if `auth()` returns no session after a refresh attempt, it redirects to the Clerk login page.                                                                             | SYS-004, SYS-001         | Service   |
 | ARCH-009 | Token Refresh Service (Mobile)       | Clerk issues short-lived JWTs refreshed silently and automatically by the `@clerk/expo` SDK. This module's role is reduced to a session-staleness detector: if `useAuth()` signals a signed-out state after a silent refresh attempt, it clears secure store and triggers re-authentication via `<ClerkProvider>`.                                                                                                 | SYS-004, SYS-002         | Service   |
-| ARCH-010 | Post-registration IdP handler        | IdP server-side hook (Node.js 22.x) that fires on `post-user-registration`. Generates UUIDv4, writes it to `app_metadata.userId`, then calls ARCH-011 to provision the Sous Chef user record.                                                                                                                             | SYS-005                  | Service   |
+| ARCH-010 | Post-registration IdP handler        | IdP server-side hook (Node.js 22.x) that fires on `post-user-registration`. Generates UUIDv4, writes it to `app_metadata.userId`, then calls ARCH-011 to provision the Commise user record.                                                                                                                             | SYS-005                  | Service   |
 | ARCH-011 | User Provisioning Lambda             | AWS Lambda (Node.js 22.x) that receives calls from ARCH-010. Creates User and Account records in PostgreSQL. Implements retry with exponential backoff (up to 3 attempts).                                                                                                                                        | SYS-005, SYS-006         | Service   |
-| ARCH-012 | Reconciliation Lambda                | AWS Lambda (Node.js 22.x) triggered on schedule (EventBridge) or via API endpoint. Fetches IdP user list, compares with Sous Chef DB, and calls ARCH-011 for any missing records.                                                                                                                               | SYS-007                  | Service   |
-| ARCH-013 | Profile View Component               | Web + mobile UI component that fetches and displays the authenticated user's display name, email, avatar, and account creation date from the Sous Chef API.                                                                                                                                                       | SYS-008                  | Component |
+| ARCH-012 | Reconciliation Lambda                | AWS Lambda (Node.js 22.x) triggered on schedule (EventBridge) or via API endpoint. Fetches IdP user list, compares with Commise DB, and calls ARCH-011 for any missing records.                                                                                                                               | SYS-007                  | Service   |
+| ARCH-013 | Profile View Component               | Web + mobile UI component that fetches and displays the authenticated user's display name, email, avatar, and account creation date from the Commise API.                                                                                                                                                       | SYS-008                  | Component |
 | ARCH-014 | Account Edit Component               | Web + mobile UI component for editing display name and avatar. Validates non-empty display name client-side. Email field is read-only with a note directing to the IdP.                                                                                                                                             | SYS-009                  | Component |
 | ARCH-015 | Account Edit API Handler             | Backend Lambda/NestJS handler for `PATCH /account`. Validates input, persists display name and avatar changes to PostgreSQL.                                                                                                                                                                                      | SYS-009                  | Service   |
 | ARCH-016 | Account Deletion Component           | Web + mobile UI component for account deletion. Requires user to type "DELETE" for confirmation before calling the deletion API.                                                                                                                                                                                  | SYS-010                  | Component |
@@ -47,8 +47,8 @@ The identity provider (IdP) User Authentication architecture decomposes 20 syste
 | ARCH-022 | Impersonation Token Exchange Service | Backend service that issues impersonation tokens via IdP token exchange for authorized personnel. Injects impersonation flag and impersonator identity into token claims.                                                                                                                                       | SYS-014                  | Service   |
 | ARCH-023 | Impersonation Audit Logger           | Middleware that detects impersonation flag in JWT claims and writes audit log entries (impersonator ID, impersonated user ID, action, timestamp) to CloudWatch Logs.                                                                                                                                              | SYS-014                  | Component |
 | ARCH-024 | API Gateway JWT Authorizer Lambda    | AWS Lambda authorizer (Node.js 22.x) using `jwks-rsa` + `jose`. Validates JWT signature, expiry, audience, and issuer. Extracts `app_metadata.userId` custom claim. Returns IAM policy.                                                                                                                           | SYS-015                  | Service   |
-| ARCH-025 | Suspension Status Checker            | Module within ARCH-024 that checks the user's suspension status (via IdP `blocked` flag or Sous Chef DB `status` field) and returns a Deny policy for suspended users.                                                                                                                                          | SYS-015, SYS-016         | Component |
-| ARCH-026 | User Suspension API Handler          | Backend Lambda/NestJS handler for `POST /admin/users/{id}/suspend` and `POST /admin/users/{id}/reactivate`. Calls IdP Backend API to block/unblock and updates Sous Chef DB `status`.                                                                                                                        | SYS-016                  | Service   |
+| ARCH-025 | Suspension Status Checker            | Module within ARCH-024 that checks the user's suspension status (via IdP `blocked` flag or Commise DB `status` field) and returns a Deny policy for suspended users.                                                                                                                                          | SYS-015, SYS-016         | Component |
+| ARCH-026 | User Suspension API Handler          | Backend Lambda/NestJS handler for `POST /admin/users/{id}/suspend` and `POST /admin/users/{id}/reactivate`. Calls IdP Backend API to block/unblock and updates Commise DB `status`.                                                                                                                        | SYS-016                  | Service   |
 | ARCH-027 | Structured Logger                    | [CROSS-CUTTING; rationale: shared infrastructure supports multiple SYS components] — Wraps `@aws-lambda-powertools/logger` to emit JSON-structured logs with correlation IDs and ISO 8601 timestamps. Used by all Lambda functions.                                                                               | SYS-017                  | Utility   |
 | ARCH-028 | CloudWatch Metrics Emitter           | [CROSS-CUTTING; rationale: shared infrastructure supports multiple SYS components] — Emits custom CloudWatch metrics for auth flow events (login success/failure, token refresh, signup, deletion, reconciliation). Used by all auth backend services.                                                            | SYS-017                  | Utility   |
 | ARCH-029 | Sentry Integration Wrapper           | [CROSS-CUTTING; rationale: shared infrastructure supports multiple SYS components] — Wraps `@sentry/aws-serverless` for Lambda error capture and `@sentry/react`/`@sentry/react-native` for client-side breadcrumbs and error events.                                                                             | SYS-017                  | Utility   |
@@ -277,7 +277,7 @@ sequenceDiagram
 
 | Direction | Name          | Type   | Format                                        | Constraints                               |
 | --------- | ------------- | ------ | --------------------------------------------- | ----------------------------------------- |
-| Input     | deep-link URL | string | `sous-chef://auth/callback?code=...`          | Must contain `code` and `state` params    |
+| Input     | deep-link URL | string | `commise://auth/callback?code=...`          | Must contain `code` and `state` params    |
 | Output    | tokens        | object | `{accessToken: string, refreshToken: string}` | Stored via ARCH-005                       |
 | Exception | CallbackError | Error  | `AuthSessionExpiredError` (ARCH-032)          | On invalid code or token exchange failure |
 
@@ -335,7 +335,7 @@ sequenceDiagram
 | Direction | Name         | Type      | Format                                  | Constraints                               |
 | --------- | ------------ | --------- | --------------------------------------- | ----------------------------------------- |
 | Input     | userId       | string    | UUIDv4 from auth context                | Required; obtained from ARCH-004/ARCH-003 |
-| Output    | profile UI   | ReactNode | Displays name, email, avatar, createdAt | All fields sourced from Sous Chef API     |
+| Output    | profile UI   | ReactNode | Displays name, email, avatar, createdAt | All fields sourced from Commise API     |
 | Exception | ProfileError | Error     | Error state UI shown                    | On API fetch failure                      |
 
 ### ARCH-014: Account Edit Component
@@ -401,7 +401,7 @@ sequenceDiagram
 
 | Direction | Name            | Type     | Format                             | Constraints                    |
 | --------- | --------------- | -------- | ---------------------------------- | ------------------------------ |
-| Input     | linkedProviders | string[] | List of currently linked providers | Fetched from Sous Chef API     |
+| Input     | linkedProviders | string[] | List of currently linked providers | Fetched from Commise API     |
 | Output    | onLink          | function | `(provider: string) => void`       | Calls ARCH-020 link endpoint   |
 | Output    | onUnlink        | function | `(provider: string) => void`       | Calls ARCH-020 unlink endpoint |
 | Exception | LinkError       | Error    | Inline error message               | On API failure                 |
@@ -542,7 +542,7 @@ sequenceDiagram
 
 **Intermediate formats**:
 
-- Deep-link: `sous-chef://auth/callback?code=<string>&state=<string>`
+- Deep-link: `commise://auth/callback?code=<string>&state=<string>`
 - Token response: `{access_token, refresh_token, expires_in}`
 - Secure store: key-value pairs in OS secure storage
 
@@ -649,7 +649,7 @@ sequenceDiagram
 
 ## Physical View — Deployment Topology
 
-The feature deploys within the Sous Chef AWS/serverless topology. Client-facing web/mobile modules run in their respective application packages. Backend API, worker, queue, database, cache, storage, observability, and infrastructure modules deploy to the configured AWS account and region. Each ARCH module maps to the runtime described in the Logical View and the package/source paths listed in the Development View.
+The feature deploys within the Commise AWS/serverless topology. Client-facing web/mobile modules run in their respective application packages. Backend API, worker, queue, database, cache, storage, observability, and infrastructure modules deploy to the configured AWS account and region. Each ARCH module maps to the runtime described in the Logical View and the package/source paths listed in the Development View.
 
 ## Development View — Source Organization
 

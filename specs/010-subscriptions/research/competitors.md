@@ -13,7 +13,7 @@ Subscription monetization in the recipe space clusters into three models:
 2. **Freemium conversion funnel** (Mealime, SideChef)
 3. **Full-subscription planning service** (PlateJoy)
 
-Sous Chef's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits closest to **freemium conversion** while preserving broad free utility to maximize top-of-funnel adoption.
+Commise's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits closest to **freemium conversion** while preserving broad free utility to maximize top-of-funnel adoption.
 
 ---
 
@@ -28,7 +28,7 @@ Sous Chef's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits 
 | **Free tier**                 | None                                                                                          |
 | **Monetization strength**     | Very low subscription friction; clear ownership proposition                                   |
 | **Monetization weakness**     | Weak recurring revenue expansion; limited upsell surface                                      |
-| **Implication for Sous Chef** | Demonstrates demand for simple utility value; not sufficient model for AI-heavy ongoing costs |
+| **Implication for Commise** | Demonstrates demand for simple utility value; not sufficient model for AI-heavy ongoing costs |
 
 ---
 
@@ -42,7 +42,7 @@ Sous Chef's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits 
 | **Premium gating style**      | Advanced planning convenience and integrated commerce experiences                  |
 | **Monetization strength**     | Clear value ladder from basic meal planning to premium convenience                 |
 | **Monetization weakness**     | Over-aggressive gating can suppress long-term free engagement                      |
-| **Implication for Sous Chef** | Validates gating AI/automation and commerce while leaving basic CRUD/planning free |
+| **Implication for Commise** | Validates gating AI/automation and commerce while leaving basic CRUD/planning free |
 
 ---
 
@@ -56,7 +56,7 @@ Sous Chef's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits 
 | **Premium gating style**      | Most meaningful functionality behind subscription                                                    |
 | **Monetization strength**     | Strong ARPU per paying user                                                                          |
 | **Monetization weakness**     | Lower funnel volume; higher acquisition friction                                                     |
-| **Implication for Sous Chef** | Useful for premium depth benchmark, but too paywall-heavy for community-driven recipe adoption goals |
+| **Implication for Commise** | Useful for premium depth benchmark, but too paywall-heavy for community-driven recipe adoption goals |
 
 ---
 
@@ -70,7 +70,7 @@ Sous Chef's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits 
 | **Premium gating style**      | Enhanced planning, premium content, deeper integrations                             |
 | **Monetization strength**     | Balances discovery and upsell with contextual prompts                               |
 | **Monetization weakness**     | Complexity in communicating exactly what is premium                                 |
-| **Implication for Sous Chef** | Reinforces need for explicit tier comparison and contextual paywall copy (`FR-042`) |
+| **Implication for Commise** | Reinforces need for explicit tier comparison and contextual paywall copy (`FR-042`) |
 
 ---
 
@@ -82,13 +82,13 @@ Sous Chef's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits 
 | Mealime                | Freemium              | Medium             | Planning automation + commerce                                       | Conversion from habit               |
 | PlateJoy               | Subscription          | Low-to-medium      | Full planning system                                                 | Premium service ARPU                |
 | SideChef Pro           | Freemium              | Medium-high        | Advanced workflows + integrations                                    | In-product upsell timing            |
-| **Sous Chef (target)** | Freemium subscription | **High (FR-040)**  | **Private + AI + automation + ordering + trainer planning (FR-041)** | Balanced funnel + premium expansion |
+| **Commise (target)** | Freemium subscription | **High (FR-040)**  | **Private + AI + automation + ordering + trainer planning (FR-041)** | Balanced funnel + premium expansion |
 
 ---
 
 ## Gating Strategy Comparison
 
-| Capability                 | Paprika     | Mealime        | PlateJoy          | SideChef Pro      | Sous Chef Target       |
+| Capability                 | Paprika     | Mealime        | PlateJoy          | SideChef Pro      | Commise Target       |
 | -------------------------- | ----------- | -------------- | ----------------- | ----------------- | ---------------------- |
 | Core recipe CRUD           | ✅ paid app | ✅ free        | ⚠️ partial        | ✅ free           | ✅ free (`FR-040`)     |
 | Private recipe controls    | N/A         | varies         | varies            | varies            | ✅ premium (`FR-041`)  |
@@ -102,7 +102,7 @@ Sous Chef's proposed model (`FR-040` free tier + `FR-041` premium unlocks) sits 
 
 ## Positioning Thesis for Feature 010
 
-Sous Chef should position premium around **outcome acceleration**, not basic access:
+Commise should position premium around **outcome acceleration**, not basic access:
 
 - Free tier proves utility and habit formation (recipe creation, sharing, manual planning).
 - Premium unlocks leverage layers (privacy controls, AI-assisted authoring/planning, commerce convenience, trainer workflows).

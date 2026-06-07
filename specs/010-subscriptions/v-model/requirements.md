@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Subscriptions & Monetization feature defines the free and premium tier model for the Sous Chef recipe application. It governs feature gating, upgrade prompts, subscription lifecycle management, and data retention on plan changes. The free tier provides core recipe and meal-planning functionality; the premium tier unlocks AI-powered features, private recipe visibility, online grocery ordering, and trainer nutrition planning. This feature is a cross-cutting concern that gates capabilities defined in specs 001, 004, 005, 006, 007, and 009.
+The Subscriptions & Monetization feature defines the free and premium tier model for the Commise recipe application. It governs feature gating, upgrade prompts, subscription lifecycle management, and data retention on plan changes. The free tier provides core recipe and meal-planning functionality; the premium tier unlocks AI-powered features, private recipe visibility, online grocery ordering, and trainer nutrition planning. This feature is a cross-cutting concern that gates capabilities defined in specs 001, 004, 005, 006, 007, and 009.
 
 ## Requirements
 
@@ -83,7 +83,7 @@ The Subscriptions & Monetization feature defines the free and premium tier model
 ## Dependencies
 
 - **spec 002 (auth0-user-auth)**: Required — subscription tier is a property of the authenticated user; the Auth0 user identity object must carry tier information.
-- **spec 001 (sous-chef-recipe-app)**: Referenced — gates private recipe visibility (FR-003).
+- **spec 001 (commise-recipe-app)**: Referenced — gates private recipe visibility (FR-003).
 - **spec 004 (recipe-importing)**: Referenced — gates clone-to-private for imported recipes (FR-011).
 - **spec 005 (ai-integration)**: Referenced — gates AI recipe generation (FR-016) and AI instruction optimization (FR-019).
 - **spec 006 (meal-planning)**: Referenced — gates AI meal suggestions (FR-025), auto-generated meal plans (FR-026), and food waste optimization (FR-027).

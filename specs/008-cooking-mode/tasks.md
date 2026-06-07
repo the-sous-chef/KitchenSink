@@ -63,12 +63,12 @@ T-007 depends on T-001
   - **Implements**: plan.md §4 component architecture, FR-032
   - **Acceptance**: Screen mounts at first step; sub-components render correctly; exit releases wake lock and clears session.
 
-- [ ] **T-011** [P3] [US-001] Add Cooking Mode web route/entry point wired to recipe selection — `packages/apps/sous-chef/web/src/routes/cooking.tsx`
+- [ ] **T-011** [P3] [US-001] Add Cooking Mode web route/entry point wired to recipe selection — `packages/apps/commise/web/src/routes/cooking.tsx`
   - **Depends on**: T-006, T-004
   - **Implements**: plan.md §1 Web target
   - **Acceptance**: Route `/cooking/:recipeId` loads CookingModeScreen; recipe instructions fetched from 001 API; auth gate enforced.
 
-- [ ] **T-012** [P3] [US-001] Add Cooking Mode mobile screen entry wired to recipe selection — `packages/apps/sous-chef/mobile/src/screens/CookingModeScreen.tsx`
+- [ ] **T-012** [P3] [US-001] Add Cooking Mode mobile screen entry wired to recipe selection — `packages/apps/commise/mobile/src/screens/CookingModeScreen.tsx`
   - **Depends on**: T-006, T-005
   - **Implements**: plan.md §1 Mobile target
   - **Acceptance**: Screen pushed from recipe detail; passes recipeId; auth gate enforced; Expo-compatible.

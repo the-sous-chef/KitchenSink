@@ -9,7 +9,7 @@
 
 ```
 +--------------------------------------------------------------------------+
-|  Sous Chef Food Search                              [User ▼] [Settings]  |
+|  Commise Food Search                              [User ▼] [Settings]  |
 +--------------------------------------------------------------------------+
 |  Q Search foods... (local store only)                                      |
 |                                                                            |

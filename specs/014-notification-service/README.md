@@ -11,7 +11,7 @@
 Multiple features publish events that should reach users (or systems acting on behalf of users):
 
 - **003 — USDA Food Data**: `food.backfill.completed`, fetch-failure events.
-- **001 — Sous Chef**: recipe lifecycle events referenced in product-spec.
+- **001 — Commise**: recipe lifecycle events referenced in product-spec.
 - **005 — AI Integration**: AI-generated content disclosures.
 - **008 — Cooking Mode**: timer alerts.
 - **009 — Nutrition Planning**: compliance-gap notifications.

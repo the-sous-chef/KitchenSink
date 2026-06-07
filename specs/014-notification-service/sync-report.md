@@ -111,7 +111,7 @@
   - `./product-spec/*.md` → exists
   - `./research/*.md` → exists
   - `./v-model/*.md` → exists
-- External sibling-feature cross-references (`../002-user-auth/`, `../001-sous-chef-recipe-app/`, etc.) are out-of-scope for internal 014 drift.
+- External sibling-feature cross-references (`../002-user-auth/`, `../001-commise-recipe-app/`, etc.) are out-of-scope for internal 014 drift.
 
 **Evidence**
 - `/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/014-notification-service/review.md` §100–106
@@ -140,7 +140,7 @@ All 7 Must Have stories have end-to-end traceability across the artifact chain.
 
 | Flag | Severity | Detail |
 |------|----------|--------|
-| `apps/X` refs | INFO | No `apps/X` references found in the artifact chain. Task file paths use `packages/api/` and `packages/shared/` conventions, consistent with monorepo `packages/apps/sous-chef/{web,mobile}`. |
+| `apps/X` refs | INFO | No `apps/X` references found in the artifact chain. Task file paths use `packages/api/` and `packages/shared/` conventions, consistent with monorepo `packages/apps/commise/{web,mobile}`. |
 
 ---
 

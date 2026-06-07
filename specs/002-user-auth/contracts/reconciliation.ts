@@ -1,7 +1,7 @@
 /**
  * @module contracts/reconciliation
  * @description Types for the nightly IdP reconciliation job.
- * The reconciliation job detects IdP users without a corresponding Sous Chef
+ * The reconciliation job detects IdP users without a corresponding Commise
  * database record and creates the missing User + Account records.
  *
  * Source spec: specs/002-user-auth/spec.md FR-017
@@ -23,7 +23,7 @@ export interface IdpUserRecord {
 }
 
 /**
- * Describes a single IdP user that has no matching record in the Sous Chef database.
+ * Describes a single IdP user that has no matching record in the Commise database.
  * These are "orphaned" users that the reconciliation job will create records for.
  */
 export interface OrphanedIdpUser {

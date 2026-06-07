@@ -26,7 +26,7 @@ The User Authentication module design decomposes 33 architecture modules (ARCH-0
 ### Module: MOD-001 (Web Auth Route Handler)
 
 **Parent Architecture Modules**: ARCH-001
-**Target Source File(s)**: `packages/apps/sous-chef/web/app/api/auth/[...idp]/route.ts`
+**Target Source File(s)**: `packages/apps/commise/web/app/api/auth/[...idp]/route.ts`
 
 #### Algorithmic / Logic View
 
@@ -104,7 +104,7 @@ N/A — Stateless
 ### Module: MOD-002 (Web Auth Middleware Guard)
 
 **Parent Architecture Modules**: ARCH-002
-**Target Source File(s)**: `packages/apps/sous-chef/web/middleware.ts`
+**Target Source File(s)**: `packages/apps/commise/web/middleware.ts`
 
 #### Algorithmic / Logic View
 
@@ -161,7 +161,7 @@ N/A — Stateless
 ### Module: MOD-003 (Web Session Cookie Manager)
 
 **Parent Architecture Modules**: ARCH-003
-**Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/session-manager.ts`
+**Target Source File(s)**: `packages/apps/commise/web/lib/auth/session-manager.ts`
 
 #### Algorithmic / Logic View
 
@@ -231,7 +231,7 @@ N/A — Stateless
 ### Module: MOD-004 (Mobile Auth Provider)
 
 **Parent Architecture Modules**: ARCH-004
-**Target Source File(s)**: `packages/apps/sous-chef/mobile/contexts/AuthProvider.tsx`
+**Target Source File(s)**: `packages/apps/commise/mobile/contexts/AuthProvider.tsx`
 
 #### Algorithmic / Logic View
 
@@ -305,14 +305,14 @@ N/A — Stateless (React component)
 ### Module: MOD-005 (Mobile Secure Token Store)
 
 **Parent Architecture Modules**: ARCH-005
-**Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/secure-token-store.ts`
+**Target Source File(s)**: `packages/apps/commise/mobile/utils/secure-token-store.ts`
 
 #### Algorithmic / Logic View
 
 ```pseudocode
 CONSTANTS = {
     KEYS: { ACCESS_TOKEN: "access_token", REFRESH_TOKEN: "refresh_token" },
-    SERVICE: "com.oursouschef.auth"
+    SERVICE: "com.ourcommise.auth"
 }
 
 FUNCTION getToken(key: "access_token" | "refresh_token") -> Promise<string | null>:
@@ -348,7 +348,7 @@ N/A — Stateless
 | -------------------- | ------ | ---------------------------- | ------------------- | ---------------------- |
 | `KEYS.ACCESS_TOKEN`  | string | const "access_token"         | Static              | Immutable              |
 | `KEYS.REFRESH_TOKEN` | string | const "refresh_token"        | Static              | Immutable              |
-| `SERVICE`            | string | const "com.oursouschef.auth" | Static              | Immutable              |
+| `SERVICE`            | string | const "com.ourcommise.auth" | Static              | Immutable              |
 | `value`              | string | JWT (variable)               | From IdP callback   | Written once per login |
 
 #### Error Handling & Return Codes
@@ -363,7 +363,7 @@ N/A — Stateless
 ### Module: MOD-006 (Mobile Auth Callback Handler)
 
 **Parent Architecture Modules**: ARCH-006
-**Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/auth-callback.ts`
+**Target Source File(s)**: `packages/apps/commise/mobile/utils/auth-callback.ts`
 
 #### Algorithmic / Logic View
 
@@ -425,7 +425,7 @@ N/A — Stateless
 ### Module: MOD-007 (Social Connection Configurator)
 
 **Parent Architecture Modules**: ARCH-007
-**Target Source File(s)**: `packages/apps/sous-chef/web/components/auth/SocialConnections.tsx`, `packages/apps/sous-chef/mobile/screens/SocialConnectionsScreen.tsx`
+**Target Source File(s)**: `packages/apps/commise/web/components/auth/SocialConnections.tsx`, `packages/apps/commise/mobile/screens/SocialConnectionsScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -481,7 +481,7 @@ N/A — Stateless
 ### Module: MOD-008 (Token Refresh Service — Web)
 
 **Parent Architecture Modules**: ARCH-008
-**Target Source File(s)**: `packages/apps/sous-chef/web/lib/auth/token-refresh.ts`
+**Target Source File(s)**: `packages/apps/commise/web/lib/auth/token-refresh.ts`
 
 #### Algorithmic / Logic View
 
@@ -549,7 +549,7 @@ LoggedOut --> [*]
 ### Module: MOD-009 (Token Refresh Service — Mobile)
 
 **Parent Architecture Modules**: ARCH-009
-**Target Source File(s)**: `packages/apps/sous-chef/mobile/utils/token-refresh.ts`
+**Target Source File(s)**: `packages/apps/commise/mobile/utils/token-refresh.ts`
 
 #### Algorithmic / Logic View
 
@@ -628,7 +628,7 @@ FUNCTION onPostRegistration(event):
         })
 
         // Call ARCH-011 (User Provisioning Lambda) asynchronously
-        CALL provisionSousChefUser({
+        CALL provisionCommiseUser({
             identityUserId: identityUserId,
             userId: userId,
             email: email
@@ -637,7 +637,7 @@ FUNCTION onPostRegistration(event):
     CATCH err:
         THROW ActionError("Post-registration failed: " + err.message)
 
-FUNCTION provisionSousChefUser(payload):
+FUNCTION provisionCommiseUser(payload):
     RETRY(3, EXPONENTIAL_BACKOFF(1000)):
         response = POST TO USER_PROVISIONING_LAMBDA_URL with payload
         IF response.status === 200:
@@ -723,7 +723,7 @@ N/A — Stateless (Lambda invocation model)
 | Field                 | Type   | Size/Constraints     | Initialization        | Lifecycle                  |
 | --------------------- | ------ | -------------------- | --------------------- | -------------------------- |
 | `users.id`            | UUIDv4 | Primary key          | Generated by Lambda   | Permanent                  |
-| `users.identity_id`   | string | Unique constraint    | From event payload    | Maps IdP ↔ Sous Chef       |
+| `users.identity_id`   | string | Unique constraint    | From event payload    | Maps IdP ↔ Commise       |
 | `accounts.id`         | UUIDv4 | Primary key          | Generated per account | Permanent                  |
 | `accounts.user_id`    | UUIDv4 | Foreign key to users | Set on insert         | Immutable                  |
 
@@ -814,7 +814,7 @@ N/A — Stateless
 ### Module: MOD-013 (Profile View Component)
 
 **Parent Architecture Modules**: ARCH-013
-**Target Source File(s)**: `packages/apps/sous-chef/web/components/profile/ProfileView.tsx`, `packages/apps/sous-chef/mobile/screens/ProfileScreen.tsx`
+**Target Source File(s)**: `packages/apps/commise/web/components/profile/ProfileView.tsx`, `packages/apps/commise/mobile/screens/ProfileScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -879,7 +879,7 @@ N/A — Stateless (React component)
 ### Module: MOD-014 (Account Edit Component)
 
 **Parent Architecture Modules**: ARCH-014
-**Target Source File(s)**: `packages/apps/sous-chef/web/components/account/AccountEdit.tsx`, `packages/apps/sous-chef/mobile/screens/AccountEditScreen.tsx`
+**Target Source File(s)**: `packages/apps/commise/web/components/account/AccountEdit.tsx`, `packages/apps/commise/mobile/screens/AccountEditScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1027,7 +1027,7 @@ N/A — Stateless
 ### Module: MOD-016 (Account Deletion Component)
 
 **Parent Architecture Modules**: ARCH-016
-**Target Source File(s)**: `packages/apps/sous-chef/web/components/account/AccountDelete.tsx`, `packages/apps/sous-chef/mobile/screens/AccountDeleteScreen.tsx`
+**Target Source File(s)**: `packages/apps/commise/web/components/account/AccountDelete.tsx`, `packages/apps/commise/mobile/screens/AccountDeleteScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1135,7 +1135,7 @@ FUNCTION handler(event: APIGatewayProxyEvent):
     userId = event.requestContext.authorizer.claims.sub
 
     TRY:
-        // Delete from Sous Chef DB (cascading deletes user-owned data)
+        // Delete from Commise DB (cascading deletes user-owned data)
         db.query("DELETE FROM accounts WHERE user_id = $1", [userId])
         db.query("DELETE FROM users WHERE id = $1", [userId])
 
@@ -1196,7 +1196,7 @@ Failed --> [*]
 ### Module: MOD-018 (Password Reset Link Component)
 
 **Parent Architecture Modules**: ARCH-018
-**Target Source File(s)**: `packages/apps/sous-chef/web/components/auth/PasswordResetLink.tsx`, `packages/apps/sous-chef/mobile/components/PasswordResetLink.tsx`
+**Target Source File(s)**: `packages/apps/commise/web/components/auth/PasswordResetLink.tsx`, `packages/apps/commise/mobile/components/PasswordResetLink.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1233,7 +1233,7 @@ N/A — Stateless (static component, no state)
 ### Module: MOD-019 (MFA Enrollment Component)
 
 **Parent Architecture Modules**: ARCH-019
-**Target Source File(s)**: `packages/apps/sous-chef/web/components/security/MFAEnrollment.tsx`, `packages/apps/sous-chef/mobile/screens/MFAScreen.tsx`
+**Target Source File(s)**: `packages/apps/commise/web/components/security/MFAEnrollment.tsx`, `packages/apps/commise/mobile/screens/MFAScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1357,7 +1357,7 @@ N/A — Stateless
 ### Module: MOD-021 (Social Account Linking Component)
 
 **Parent Architecture Modules**: ARCH-021
-**Target Source File(s)**: `packages/apps/sous-chef/web/components/account/SocialLinking.tsx`, `packages/apps/sous-chef/mobile/screens/SocialLinkingScreen.tsx`
+**Target Source File(s)**: `packages/apps/commise/web/components/account/SocialLinking.tsx`, `packages/apps/commise/mobile/screens/SocialLinkingScreen.tsx`
 
 #### Algorithmic / Logic View
 
@@ -1665,7 +1665,7 @@ FUNCTION checkSuspensionStatus(userId: string) -> SuspensionStatus:
         IF idpUser.blocked === true:
             RETURN { isSuspended: true, reason: "idp_blocked" }
 
-        // Fallback: check Sous Chef DB status field
+        // Fallback: check Commise DB status field
         dbStatus = db.query("SELECT status FROM users WHERE id = $1", [userId])
         IF dbStatus.rows.length > 0 AND dbStatus.rows[0].status === "suspended":
             RETURN { isSuspended: true, reason: "db_suspended" }
@@ -1849,7 +1849,7 @@ CONST METRIC_NAMES = {
 FUNCTION emitMetric(metricName: string, value: number, dimensions?: Dimensions):
     TRY:
         cloudwatch.putMetricData({
-            Namespace: "SousChef/Auth",
+            Namespace: "Commise/Auth",
             MetricData: [{
                 MetricName: METRIC_NAMES[metricName],
                 Value: value,
@@ -1963,7 +1963,7 @@ CLASS AuthStack extends Stack:
         IDP_CLIENT_ID = StringParameter.valueFromLookup(this, "IdpClientId")
 
         // API Gateway
-        api = new RestApi(this, "AuthApi", { description: "Sous Chef Auth API" })
+        api = new RestApi(this, "AuthApi", { description: "Commise Auth API" })
 
         // Lambdas (ARCH-010, ARCH-011, ARCH-012, ARCH-015, ARCH-017, ARCH-020, ARCH-022, ARCH-024, ARCH-026)
         userProvisioningLambda = new Function(this, "UserProvisioning", {
@@ -2031,7 +2031,7 @@ INTERFACE AccessTokenClaims {
         userId: string    // UUIDv4 — same as sub
     }
     iss: string           // "https://IDP_DOMAIN/"
-    aud: string           // "https://api.oursouschef.com"
+    aud: string           // "https://api.ourcommise.com"
     iat: number           // Unix timestamp
     exp: number           // Unix timestamp
     scope: string
@@ -2167,7 +2167,7 @@ N/A — Stateless (error class definitions)
 ### Module: MOD-033 (Auth UI Design Tokens Integration)
 
 **Parent Architecture Modules**: ARCH-033
-**Target Source File(s)**: `packages/apps/sous-chef/web/styles/auth-tokens.css`, `packages/apps/sous-chef/mobile/theme/auth-tokens.ts`
+**Target Source File(s)**: `packages/apps/commise/web/styles/auth-tokens.css`, `packages/apps/commise/mobile/theme/auth-tokens.ts`
 
 #### Algorithmic / Logic View
 

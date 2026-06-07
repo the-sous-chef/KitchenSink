@@ -114,4 +114,4 @@ Artifacts reviewed under `specs/011-recipe-digitization/`:
 - Additional Product Forge artifacts: `sync-verify-report.md`, `analyze-report.md`, `pre-impl-review.md`, `tracking-plan.md`
 - V-model: all 20 markdown artifacts under `v-model/`
 
-Reference format consulted: `specs/001-sous-chef-recipe-app/verify-report.md`.
+Reference format consulted: `specs/001-commise-recipe-app/verify-report.md`.

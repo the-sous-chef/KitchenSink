@@ -10,7 +10,7 @@
 
 This document presents the Failure Mode and Effects Analysis (FMEA) for the **Meal Planning** feature. Every system component (`SYS-001`..`SYS-008`) from `system-design.md` is assessed for realistic failure modes. Each hazard receives a unique `HAZ-NNN` identifier and is linked to mitigation controls (`REQ-NNN` / `SYS-NNN` / `ARCH-NNN`), enabling end-to-end traceability in Matrix H of `traceability-matrix.md`.
 
-**Non-regulated context.** Sous Chef meal planning is consumer SaaS software. There are no life-safety, medical-device, automotive, or avionics safety obligations in scope. Severity is evaluated against **user trust, data integrity, privacy, availability, and platform cost**. Regulated taxonomies (ASIL, DAL, IEC 62304 classes) are intentionally not used.
+**Non-regulated context.** Commise meal planning is consumer SaaS software. There are no life-safety, medical-device, automotive, or avionics safety obligations in scope. Severity is evaluated against **user trust, data integrity, privacy, availability, and platform cost**. Regulated taxonomies (ASIL, DAL, IEC 62304 classes) are intentionally not used.
 
 ## ID Schema
 

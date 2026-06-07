@@ -10,7 +10,7 @@
 
 This document presents the Failure Mode and Effects Analysis (FMEA) for the **Recipe Importing** feature. Every system component (`SYS-001`..`SYS-009`) from `system-design.md` is assessed for realistic failure modes. Each hazard receives a unique `HAZ-NNN` identifier and is linked to risk-control measures (`REQ-NNN` / `SYS-NNN` / `ARCH-NNN`), enabling the traceability chain: Hazard → Mitigation → Requirement → Test Case (Matrix H in `traceability-matrix.md`).
 
-**Non-regulated context.** Sous Chef is a consumer recipe management application. There are no life-safety, vehicle-control, medical-device, or aviation-control concerns. Severity is measured against **user trust, data integrity, privacy, availability, attribution compliance, and platform cost** — not personal injury.
+**Non-regulated context.** Commise is a consumer recipe management application. There are no life-safety, vehicle-control, medical-device, or aviation-control concerns. Severity is measured against **user trust, data integrity, privacy, availability, attribution compliance, and platform cost** — not personal injury.
 
 ## ID Schema
 

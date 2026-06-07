@@ -49,7 +49,7 @@ This document captures success metrics and ROI hypotheses for cooking mode at th
 
 ## 4. ROI Hypothesis
 
-Cooking mode should increase retained weekly engagement by making Sous Chef useful during the highest-intent moment: active cooking.
+Cooking mode should increase retained weekly engagement by making Commise useful during the highest-intent moment: active cooking.
 
 ### Hypothesized value drivers
 

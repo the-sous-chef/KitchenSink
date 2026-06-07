@@ -410,15 +410,15 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that SYS-010 correctly wraps the 001-sous-chef-recipe-app API and returns a `RecipeNutritionMap`.
+**Description**: Verifies that SYS-010 correctly wraps the 001-commise-recipe-app API and returns a `RecipeNutritionMap`.
 
 - **System Scenario: STS-010-A1**
-    - **Given** the 001-sous-chef-recipe-app service returns nutritional data for `recipeIds = ["r-1", "r-2"]`
+    - **Given** the 001-commise-recipe-app service returns nutritional data for `recipeIds = ["r-1", "r-2"]`
     - **When** SYS-010 `fetchRecipeNutrition(["r-1", "r-2"])` is called
     - **Then** the returned `RecipeNutritionMap` contains entries for both `"r-1"` and `"r-2"` with per-recipe nutritional totals
 
 - **System Scenario: STS-010-A2**
-    - **Given** the 001-sous-chef-recipe-app service returns a 404 for `recipeId = "r-999"`
+    - **Given** the 001-commise-recipe-app service returns a 404 for `recipeId = "r-999"`
     - **When** SYS-010 `fetchRecipeNutrition(["r-999"])` is called
     - **Then** `RecipeNotFoundError` is thrown
 
@@ -430,7 +430,7 @@ Each test case MUST identify its technique by name:
 
 - **System Scenario: STS-010-B1**
     - **Given** SYS-011 throws `UnauthorizedError` for outbound request authentication
-    - **When** SYS-010 attempts to call the 001-sous-chef-recipe-app API
+    - **When** SYS-010 attempts to call the 001-commise-recipe-app API
     - **Then** `UnauthorizedError` is propagated to the caller and no recipe data is returned
 
 ---

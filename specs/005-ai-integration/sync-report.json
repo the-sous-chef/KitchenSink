@@ -114,7 +114,7 @@
       "severity": null,
       "description": "All dependency references (001, 002, 010) are valid and no broken apps/X links found.",
       "evidence": [
-        "001-sous-chef-recipe-app referenced for Recipe entities — valid external dependency",
+        "001-commise-recipe-app referenced for Recipe entities — valid external dependency",
         "002-user-auth referenced for users.sub — worktree context matches",
         "010-subscriptions referenced for premium guards — valid external dependency",
         "No apps/X references detected in feature files"

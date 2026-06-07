@@ -36,7 +36,7 @@ export function isAuthSessionExpiredError(
 // ---------------------------------------------------------------------------
 
 /**
- * Thrown when a user record is not found in the Sous Chef database.
+ * Thrown when a user record is not found in the Commise database.
  * Usually indicates a reconciliation failure — the IdP user exists but the DB record does not.
  */
 export class UserNotFoundError extends Error {

@@ -642,7 +642,7 @@ Unit tests verify **internal module logic** — control flow, data transformatio
 
 **Technique**: Statement Coverage
 **Target View**: Algorithmic/Logic View
-**Description**: Verifies recipe fetching from the Recipe App (001-sous-chef-recipe-app) via internal API calls.
+**Description**: Verifies recipe fetching from the Recipe App (001-commise-recipe-app) via internal API calls.
 
 **Scenarios:**
 

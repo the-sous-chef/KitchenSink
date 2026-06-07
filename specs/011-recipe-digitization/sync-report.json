@@ -129,7 +129,7 @@
       "name": "Monorepo apps/X ref check (INFO)",
       "verdict": "INFO",
       "severity": "INFO",
-      "evidence": "Tasks T057-T062 reference paths under packages/apps/sous-chef/{web,mobile}/ only. No disallowed apps/X refs detected."
+      "evidence": "Tasks T057-T062 reference paths under packages/apps/commise/{web,mobile}/ only. No disallowed apps/X refs detected."
     },
     {
       "id": "L2-Constitution",

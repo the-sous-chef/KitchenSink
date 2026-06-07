@@ -323,14 +323,14 @@ const tools = {
 External Agent (Claude Desktop / custom)
   │
   ├─► GET /.well-known/oauth-protected-resource
-  │     ← { authorization_servers: ["https://sous-chef.auth0.com"] }
+  │     ← { authorization_servers: ["https://commise.auth0.com"] }
   │
-  ├─► GET https://sous-chef.auth0.com/.well-known/oauth-authorization-server
+  ├─► GET https://commise.auth0.com/.well-known/oauth-authorization-server
   │     ← { authorization_endpoint, token_endpoint, ... }
   │
   ├─► Authorization Code + PKCE flow (user consents in browser)
   │     scope: "recipes:read recipes:write meal-plans:read"
-  │     resource: "https://api.sous-chef.io/mcp"  ← RFC 8707
+  │     resource: "https://api.commise.io/mcp"  ← RFC 8707
   │
   ├─► POST /token → access_token (audience-bound to MCP server URI)
   │

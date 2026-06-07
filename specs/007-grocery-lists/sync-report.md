@@ -157,7 +157,7 @@
 ## L6: Code-Level Traceability (INFO)
 
 ### Evidence
-- `packages/apps/sous-chef/` exists with `web/` and `mobile/` (React / React Native)
+- `packages/apps/commise/` exists with `web/` and `mobile/` (React / React Native)
 - `packages/api/` exists as empty `.gitkeep` (no NestJS backend in this branch)
 - Searched entire `/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/packages/` for `grocery`, `pantry`, `culinary`, `aggregator` — **0 matches**
 - No Drizzle schema files, no migration files, no NestJS controllers/services/modules
@@ -177,7 +177,7 @@
 
 ### Findings
 - ℹ️ **INFO**: Zero implementation code found for feature 007. Consistent with `.forge-status.yml` showing `implement: not-started`. All T-IDs are not started.
-- ℹ️ **INFO**: Monorepo has `packages/apps/sous-chef/{web,mobile}` but no API backend yet. The codebase is in early setup (auth scaffolding only).
+- ℹ️ **INFO**: Monorepo has `packages/apps/commise/{web,mobile}` but no API backend yet. The codebase is in early setup (auth scaffolding only).
 
 ---
 
@@ -187,7 +187,7 @@
 | Spec | Relationship | File Exists? | Plan References? | Tasks Reference? |
 |------|-------------|--------------|------------------|------------------|
 | 006-meal-planning | Required | ✅ Yes | ✅ Yes | ✅ T-006, T-040 |
-| 001-sous-chef-recipe-app | Required | ✅ Yes | ✅ Yes | ✅ (ingredient source) |
+| 001-commise-recipe-app | Required | ✅ Yes | ✅ Yes | ✅ (ingredient source) |
 | 003-usda-food-data | Required | ✅ Yes | ✅ Yes | ✅ T-003, T-004 |
 | 002-user-auth | Required | ✅ Yes | ✅ Yes | ✅ T-021 (Guards) |
 | 010-subscriptions | Referenced | ✅ Yes | ✅ Yes | ✅ T-020 |
@@ -210,7 +210,7 @@
 | SC-009 | ✅ | ✅ | ✅ | ✅ | ✅ (REQ-CN-004) |
 
 ### apps/X Reference Notes
-- ℹ️ **INFO**: `research/codebase-analysis.md` references `packages/apps/sous-chef/api/src/grocery-lists/` — this directory does not exist in the current monorepo (packages/api is empty). This is expected pre-implementation drift; actual API backend will likely be in `packages/services/identity/` or a new API package.
+- ℹ️ **INFO**: `research/codebase-analysis.md` references `packages/apps/commise/api/src/grocery-lists/` — this directory does not exist in the current monorepo (packages/api is empty). This is expected pre-implementation drift; actual API backend will likely be in `packages/services/identity/` or a new API package.
 
 ### Findings
 - ✅ All required dependency specs present on disk
@@ -226,7 +226,7 @@
 1. **Before implementation**: Ensure `006-meal-planning` grocery-list generation hook exists (T-006 depends on meal plan APIs).
 2. **Post-implementation re-scan**: Re-run L5 and L6 after T-001..T-012 complete to validate code ↔ tasks traceability.
 3. **Store adapter caution**: Walmart API key and Instacart partner agreement are still external blockers. Keep store tasks mock-only until credentials available.
-4. **Monorepo path drift**: Clarify whether `packages/api/` or a new `packages/apps/sous-chef/api/` is the canonical API location before module scaffolding.
+4. **Monorepo path drift**: Clarify whether `packages/api/` or a new `packages/apps/commise/api/` is the canonical API location before module scaffolding.
 
 ---
 

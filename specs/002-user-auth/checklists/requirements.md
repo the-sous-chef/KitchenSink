@@ -62,9 +62,9 @@
 
 - [x] All 8 success criteria (SC-001 through SC-008) have quantitative thresholds
 - [x] Criteria are time-bound or condition-bound (not open-ended)
-- [x] Criteria align with Sous Chef integration (SC-007 references SC-009)
+- [x] Criteria align with Commise integration (SC-007 references SC-009)
 
-**Evidence**: SC-001: "under 60 seconds" (signup flow). SC-002: "within 3 seconds" (returning user auth). SC-003: "99.9% of refresh attempts" (token refresh). SC-004: "within 30 seconds" (account deletion). SC-005: "within 2 seconds" (profile load). SC-006: "100% of API requests without a valid access token receive 401" (zero unauthenticated access). SC-007: "10,000 concurrent authenticated users" with explicit reference to Sous Chef SC-009. SC-008: "within 60 seconds" (password reset email delivery).
+**Evidence**: SC-001: "under 60 seconds" (signup flow). SC-002: "within 3 seconds" (returning user auth). SC-003: "99.9% of refresh attempts" (token refresh). SC-004: "within 30 seconds" (account deletion). SC-005: "within 2 seconds" (profile load). SC-006: "100% of API requests without a valid access token receive 401" (zero unauthenticated access). SC-007: "10,000 concurrent authenticated users" with explicit reference to Commise SC-009. SC-008: "within 60 seconds" (password reset email delivery).
 
 **Result**: PASS
 
@@ -76,7 +76,7 @@
 - [x] No assumptions contradict the architecture or existing specs
 - [x] Assumptions document defaults that can be overridden
 
-**Evidence**: A-001 (IdP sole identity provider) aligns with feature scope. A-002 (IdP instance pre-configured) is a reasonable infrastructure prerequisite. A-003 (SDK choices: @clerk/expo, @clerk/nextjs) are industry-standard IdP SDKs. A-004 (UUIDv4 canonical identifier) provides IdP-independent identity. A-005 (IdP free/dev tier sufficient) is realistic for launch. A-006 (PostgreSQL from USDA architecture) aligns with 002 spec. A-007 (20-second action timeout with reconciliation safety net) matches IdP documentation. A-008 (no backend session store) aligns with token-based auth patterns. A-009 (shared API Gateway authorizer) explicitly satisfies USDA FR-035 and Sous Chef FR-045. A-010 (hard delete for GDPR) is a clear policy decision.
+**Evidence**: A-001 (IdP sole identity provider) aligns with feature scope. A-002 (IdP instance pre-configured) is a reasonable infrastructure prerequisite. A-003 (SDK choices: @clerk/expo, @clerk/nextjs) are industry-standard IdP SDKs. A-004 (UUIDv4 canonical identifier) provides IdP-independent identity. A-005 (IdP free/dev tier sufficient) is realistic for launch. A-006 (PostgreSQL from USDA architecture) aligns with 002 spec. A-007 (20-second action timeout with reconciliation safety net) matches IdP documentation. A-008 (no backend session store) aligns with token-based auth patterns. A-009 (shared API Gateway authorizer) explicitly satisfies USDA FR-035 and Commise FR-045. A-010 (hard delete for GDPR) is a clear policy decision.
 
 **Result**: PASS
 
@@ -142,13 +142,13 @@
 
 ---
 
-### 12. Sous Chef Integration
+### 12. Commise Integration
 
-- [x] Sous Chef FR-045 (authentication required for all features) is explicitly satisfied
+- [x] Commise FR-045 (authentication required for all features) is explicitly satisfied
 - [x] USDA FR-035 (shared API Gateway authorizer) is explicitly addressed
 - [x] Integration references to 001 and 002 specs are documented
 
-**Evidence**: User entity description explicitly states "This entity fulfills Sous Chef FR-045." A-009 explicitly states "The shared API Gateway authorizer referenced in USDA spec FR-035 is the IdP JWT authorizer implemented by this feature." Integration references comment block at top of User Scenarios section cites both specs: "specs/001-sous-chef-recipe-app/spec.md (FR-045: authentication required, FR-040/FR-041: subscription tiers)" and "specs/003-usda-food-data/spec.md (FR-035: shared API Gateway authorizer)." Account entity references Sous Chef FR-040/FR-041 for subscription tier extension point.
+**Evidence**: User entity description explicitly states "This entity fulfills Commise FR-045." A-009 explicitly states "The shared API Gateway authorizer referenced in USDA spec FR-035 is the IdP JWT authorizer implemented by this feature." Integration references comment block at top of User Scenarios section cites both specs: "specs/001-commise-recipe-app/spec.md (FR-045: authentication required, FR-040/FR-041: subscription tiers)" and "specs/003-usda-food-data/spec.md (FR-035: shared API Gateway authorizer)." Account entity references Commise FR-040/FR-041 for subscription tier extension point.
 
 **Result**: PASS
 
@@ -185,7 +185,7 @@
 - [x] Each critical FR is covered by at least one success criterion
 - [x] Success criteria can be validated through the acceptance scenarios
 
-**Evidence**: Story-to-FR mapping verified in item 2 above (all 8 stories map to FRs). Critical FR traceability: FR-001/FR-002/FR-003 (auth flows) -> SC-001 (signup time), SC-002 (returning user time). FR-007 (token refresh) -> SC-003 (99.9% refresh success). FR-022/FR-023/FR-024 (account deletion) -> SC-004 (deletion within 30s). FR-018 (profile page) -> SC-005 (profile load within 2s). FR-032 (API authorization) -> SC-006 (100% enforcement). FR-001 (scalability) -> SC-007 (10,000 concurrent users). FR-027 (password reset) -> SC-008 (email within 60s). SC-007 explicitly references Sous Chef SC-009 for alignment.
+**Evidence**: Story-to-FR mapping verified in item 2 above (all 8 stories map to FRs). Critical FR traceability: FR-001/FR-002/FR-003 (auth flows) -> SC-001 (signup time), SC-002 (returning user time). FR-007 (token refresh) -> SC-003 (99.9% refresh success). FR-022/FR-023/FR-024 (account deletion) -> SC-004 (deletion within 30s). FR-018 (profile page) -> SC-005 (profile load within 2s). FR-032 (API authorization) -> SC-006 (100% enforcement). FR-001 (scalability) -> SC-007 (10,000 concurrent users). FR-027 (password reset) -> SC-008 (email within 60s). SC-007 explicitly references Commise SC-009 for alignment.
 
 **Result**: PASS
 
@@ -198,7 +198,7 @@
 - [x] Error handling is addressed (FR-008/FR-016: retry logic, edge cases for outages and rate limits, NFR-009: custom errors)
 - [x] No obvious omissions for an authentication feature of this scope
 
-**Evidence**: Security: FR-006 (platform-specific secure storage), FR-032/FR-033 (JWT validation on every request), FR-028 (Sous Chef backend never stores passwords), FR-011 (refresh token revocation on logout), NFR-009 (typed custom errors). Error handling: FR-016 (3 retries with exponential backoff), FR-008 (redirect on expired refresh token), edge cases cover IdP outage, DB write failure, rate limits, action timeout. Reconciliation: FR-017 (orphaned user detection). Account lifecycle: creation (FR-013/FR-014), reading (FR-018), editing (FR-019/FR-020/FR-021), deletion (FR-022 through FR-026) with cascade. Platform parity: all flows specified for both mobile and web. GDPR: A-010 (hard delete), FR-025 (cascade delete).
+**Evidence**: Security: FR-006 (platform-specific secure storage), FR-032/FR-033 (JWT validation on every request), FR-028 (Commise backend never stores passwords), FR-011 (refresh token revocation on logout), NFR-009 (typed custom errors). Error handling: FR-016 (3 retries with exponential backoff), FR-008 (redirect on expired refresh token), edge cases cover IdP outage, DB write failure, rate limits, action timeout. Reconciliation: FR-017 (orphaned user detection). Account lifecycle: creation (FR-013/FR-014), reading (FR-018), editing (FR-019/FR-020/FR-021), deletion (FR-022 through FR-026) with cascade. Platform parity: all flows specified for both mobile and web. GDPR: A-010 (hard delete), FR-025 (cascade delete).
 
 **Result**: PASS
 
@@ -219,7 +219,7 @@
 | 9   | [NEEDS CLARIFICATION] Markers  | PASS   |
 | 10  | Internal Consistency           | PASS   |
 | 11  | Prose Quality and Formatting   | PASS   |
-| 12  | Sous Chef Integration          | PASS   |
+| 12  | Commise Integration          | PASS   |
 | 13  | Architecture Alignment         | PASS   |
 | 14  | No Unresolved Ambiguities      | PASS   |
 | 15  | Traceability                   | PASS   |
@@ -244,7 +244,7 @@
 - [ ] CHK003 Are token refresh, token revocation, expired refresh-token, and revoked refresh-token requirements all documented as separate session lifecycle states? [Completeness, Spec §FR-007–FR-011]
 - [ ] CHK004 Are IdP user.created webhook Action requirements complete for UUID generation, User creation, Account creation, `app_metadata` persistence, retry behavior, and reconciliation fallback? [Completeness, Spec §FR-013–FR-017]
 - [ ] CHK005 Are account lifecycle requirements complete for profile display, editable fields, read-only email boundaries, avatar constraints, deletion confirmation, cascade deletion, and post-deletion session cleanup? [Completeness, Spec §FR-018–FR-026]
-- [ ] CHK006 Are social-provider linking and unlinking requirements complete enough to preserve the canonical Sous Chef user ID and prevent duplicate User/Account records? [Completeness, Spec §FR-032–FR-034]
+- [ ] CHK006 Are social-provider linking and unlinking requirements complete enough to preserve the canonical Commise user ID and prevent duplicate User/Account records? [Completeness, Spec §FR-032–FR-034]
 - [ ] CHK007 Are impersonation requirements complete for authorization boundaries, audit fields, and prohibited privileged actions during impersonation? [Completeness, Spec §FR-035–FR-037]
 - [ ] CHK008 Are suspension/reactivation requirements complete for dual IdP/database state changes, denied API access, login messaging, and active-state restoration? [Completeness, Spec §FR-041–FR-044]
 
@@ -253,7 +253,7 @@
 - [ ] CHK009 Is "securely" in token storage requirements clarified with concrete platform storage properties and cookie flags rather than relying on a general security adjective? [Clarity, Spec §FR-006]
 - [ ] CHK010 Is "silently refreshes" clarified with user-visible behavior, retry boundaries, and failure transition criteria? [Clarity, Spec §FR-007, Spec §SC-003]
 - [ ] CHK011 Is "any protected route" defined clearly enough to determine whether public routes, auth callback routes, password reset routes, and static assets are excluded? [Clarity, Spec §FR-003]
-- [ ] CHK012 Is the custom claim containing the Sous Chef user ID named and namespaced consistently across the spec, plan, tasks, and IdP Action requirements? [Clarity, Spec §FR-015, Spec §FR-040]
+- [ ] CHK012 Is the custom claim containing the Commise user ID named and namespaced consistently across the spec, plan, tasks, and IdP Action requirements? [Clarity, Spec §FR-015, Spec §FR-040]
 - [ ] CHK013 Is "clear message" for suspended users and IdP outage cases specified with enough content requirements to avoid vague or misleading error states? [Clarity, Spec §FR-043, Spec §Edge Cases]
 - [ ] CHK014 Are avatar image constraints quantified with supported formats, maximum file size, validation failure behavior, and storage ownership assumptions? [Clarity, Spec §FR-021]
 - [ ] CHK015 Is "authorized support/engineering personnel" for impersonation defined with role, approval, or policy criteria rather than an ambiguous audience label? [Ambiguity, Spec §FR-035]
@@ -317,7 +317,7 @@
 
 - [ ] CHK053 Is the original `[NEEDS CLARIFICATION]` around account-deletion failure requirements resolved consistently with the current async-retry requirement? [Ambiguity, Existing Checklist §9, Spec §FR-024]
 - [ ] CHK054 Are FR references for impersonation and suspension reconciled where older notes mention FR-035/FR-038 but the current spec defines impersonation as FR-035–FR-037 and suspension as FR-041–FR-044? [Conflict, Spec §FR-035–FR-044]
-- [ ] CHK055 Is the IdP `sub` versus Sous Chef UUID canonical-identity boundary consistently stated anywhere tokens, audit logs, authorizer context, and database relations are mentioned? [Ambiguity, Spec §FR-015, Spec §FR-040, Spec §Key Entities]
+- [ ] CHK055 Is the IdP `sub` versus Commise UUID canonical-identity boundary consistently stated anywhere tokens, audit logs, authorizer context, and database relations are mentioned? [Ambiguity, Spec §FR-015, Spec §FR-040, Spec §Key Entities]
 - [ ] CHK056 Is the scope boundary for admin-only operations, support impersonation, suspension/reactivation, and lack of admin dashboard documented consistently enough to prevent accidental UI scope expansion? [Boundary, Spec §Out of Scope, Spec §FR-035–FR-044]
 - [ ] CHK057 Are password reset requirements explicit that the IdP owns password policy, reset email delivery, generic nonexistent-email messaging, and post-reset login behavior? [Clarity, Spec §FR-027–FR-028, Spec §US-7]
 - [ ] CHK058 Are recovery requirements defined for DLQ messages, reconciliation conflicts, and manual operational intervention when automatic IdP/database repair cannot complete? [Gap, Plan §Async IdP deletion, Plan §Reconciliation]

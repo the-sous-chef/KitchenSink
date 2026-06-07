@@ -99,7 +99,7 @@ L5 intentionally skipped per instructions.
 
 | ID | Severity | Finding | Evidence |
 |---|---|---|---|
-| L6-001 | INFO | No implementation files exist under `packages/apps/sous-chef/{web,mobile}/` for this feature. | `find` returned no results |
+| L6-001 | INFO | No implementation files exist under `packages/apps/commise/{web,mobile}/` for this feature. | `find` returned no results |
 | L6-002 | INFO | All task-referenced `src/` paths are planning targets, unimplemented in repository. | `tasks.md` lines 71-356; `verify-report.md` line 72 |
 | L6-003 | INFO | `.forge-status.yml` confirms `implement` state = not-started. | `.forge-status.yml` lines 68-70 |
 
@@ -114,7 +114,7 @@ L5 intentionally skipped per instructions.
 | L7-001 | PASSED | V-Model `requirements.md` REQ-001..REQ-020 align with `spec.md` FR-036..FR-039. | `v-model/requirements.md` lines 18-19; `acceptance-plan.md` lines 14-21 |
 | L7-002 | PASSED | System design components (SYS-001..SYS-005) map back to REQ IDs and FR IDs. | `v-model/system-design.md` lines 20-28 |
 | L7-003 | PASSED | Dependency specs (006, 003, 001, 002) are all marked Required in spec.md and reflected in plan.md. | `spec.md` lines 8-16; `plan.md` lines 26-34 |
-| L7-004 | INFO | Task file paths use generic `src/` prefix, not explicit monorepo `packages/apps/sous-chef/{web,mobile}/` locations. Flagged per monorepo guidance. | `AGENTS.md`; `tasks.md` lines 327-330 |
+| L7-004 | INFO | Task file paths use generic `src/` prefix, not explicit monorepo `packages/apps/commise/{web,mobile}/` locations. Flagged per monorepo guidance. | `AGENTS.md`; `tasks.md` lines 327-330 |
 | L7-005 | PASSED | `verify-report.md` prior run (2026-05-12) was PASS with 0 CRITICAL / 3 WARNING. No new artifacts since then. | `verify-report.md` lines 7-19 |
 
 ---

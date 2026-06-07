@@ -206,7 +206,7 @@ Phase 5F (Mobile Parity)                              ↓
 - [ ] **T-021** [US-004] `McpModule` scaffold + OAuth 2.1 guard — `packages/services/ai-integration/src/ai/mcp/mcp.module.ts`
   - **Depends on**: T-002
   - **Implements**: FR-018, NFR-001
-  - Scaffold `McpModule`, `McpOAuthGuard`, `McpOAuthStrategy`. Guard validates `Authorization: Bearer` against Auth0 JWKS. Token audience must include `https://api.sous-chef.io/mcp`. Requests without valid token return `401`. PKCE flow supported.
+  - Scaffold `McpModule`, `McpOAuthGuard`, `McpOAuthStrategy`. Guard validates `Authorization: Bearer` against Auth0 JWKS. Token audience must include `https://api.commise.io/mcp`. Requests without valid token return `401`. PKCE flow supported.
   - **Acceptance**: Guard rejects invalid tokens; PKCE flow works.
 
 - [ ] **T-022** [US-004] OAuth 2.1 discovery endpoints — `packages/services/ai-integration/src/ai/mcp/mcp.controller.ts`
@@ -251,7 +251,7 @@ Phase 5F (Mobile Parity)                              ↓
   - OAuth consent flow stores grant in `mcp_oauth_consents`. `DELETE /ai/mcp/consents/:clientId` revokes consent (sets `is_revoked: true`). Revoked tokens rejected by OAuth guard. User can revoke at any time.
   - **Acceptance**: Consent stored on grant; revocation invalidates tokens; revocable at any time.
 
-- [ ] **T-028** [US-005] OAuth consent management UI — app settings page — `packages/apps/sous-chef/web/src/app/settings/agent-connections/page.tsx`
+- [ ] **T-028** [US-005] OAuth consent management UI — app settings page — `packages/apps/commise/web/src/app/settings/agent-connections/page.tsx`
   - **Depends on**: T-027
   - **Implements**: FR-018, FR-021, NFR-003, NFR-004
   - Lists active external agent authorizations with platform name, granted scopes, grant date. Revoke button per connection. Accessible: all interactive elements queryable via `getByRole`/`getByLabel`. Color not sole conveyor of state.
@@ -263,7 +263,7 @@ Phase 5F (Mobile Parity)                              ↓
 
 > Covers FR-022: Confidence indicator and guard message on every AI-generated output surface.
 
-- [ ] **T-029** [US-007] EU AI Act disclosure strings + watermark component — `packages/apps/sous-chef/web/src/components/ai/ai-disclosure-banner.tsx`
+- [ ] **T-029** [US-007] EU AI Act disclosure strings + watermark component — `packages/apps/commise/web/src/components/ai/ai-disclosure-banner.tsx`
   - **Depends on**: T-015, T-017
   - **Implements**: FR-022, NFR-003, NFR-004
   - All AI-generated outputs display: "AI-generated content may be inaccurate. Verify before use." Nutrition advice additionally displays: "This is not medical advice. Consult a qualified professional." Disclosure visible in loading state. Accessible: text readable by screen readers.
@@ -343,13 +343,13 @@ Phase 5F (Mobile Parity)                              ↓
   - Test enqueue → process → complete flow. Test retry behavior. Test DLQ after max retries. Test concurrent job rejection.
   - **Acceptance**: Job lifecycle correct; retries and DLQ work; concurrency enforced.
 
-- [ ] **T-041** [US-002] E2E test: SSE streaming — `packages/apps/sous-chef/web/tests/e2e/ai/sse-streaming.spec.ts`
+- [ ] **T-041** [US-002] E2E test: SSE streaming — `packages/apps/commise/web/tests/e2e/ai/sse-streaming.spec.ts`
   - **Depends on**: T-015
   - **Implements**: FR-016, FR-017, NFR-003
   - `POST /ai/generate/recipe/stream` returns `text/event-stream`. Partial chunks received before final `done: true` event. Network capture verifies streaming (not buffered).
   - **Acceptance**: SSE works end-to-end; partial chunks visible; not buffered.
 
-- [ ] **T-042** [US-004] E2E test: MCP OAuth 2.1 PKCE flow — `packages/apps/sous-chef/web/tests/e2e/ai/mcp-oauth-flow.spec.ts`
+- [ ] **T-042** [US-004] E2E test: MCP OAuth 2.1 PKCE flow — `packages/apps/commise/web/tests/e2e/ai/mcp-oauth-flow.spec.ts`
   - **Depends on**: T-027
   - **Implements**: FR-018, FR-021
   - OAuth 2.1 PKCE consent flow completes end-to-end. Agent calls `recipes_list` and `recipe_save` with Bearer token. Revoke consent → subsequent agent calls return `401`.
@@ -363,7 +363,7 @@ Phase 5F (Mobile Parity)                              ↓
 
 ### US-001 / US-003 — Mobile: BYOK Provider Setup
 
-- [ ] **T-043** [P] [US-001] Mobile: BYOK provider configuration screen — `packages/apps/sous-chef/mobile/src/screens/settings/AiProviderScreen.tsx`
+- [ ] **T-043** [P] [US-001] Mobile: BYOK provider configuration screen — `packages/apps/commise/mobile/src/screens/settings/AiProviderScreen.tsx`
   - **Depends on**: T-007
   - **Implements**: FR-015, NFR-003, NFR-004
   - Screen lists configured providers with status (active / not configured). Add/replace key flow: provider picker → secure text input → save → confirmation. Delete key flow: swipe-to-delete or explicit remove button with confirmation dialog. Raw key never stored in device storage; only confirmation of ARN returned from API. Accessible: all inputs have labels queryable via `getByRole`/`getByLabel`. Color not sole conveyor of state.
@@ -371,19 +371,19 @@ Phase 5F (Mobile Parity)                              ↓
 
 ### US-002 — Mobile: AI Recipe Generation + Preview
 
-- [ ] **T-044** [P] [US-002] Mobile: AI recipe generation entry point + prompt input — `packages/apps/sous-chef/mobile/src/screens/ai/GenerateRecipeScreen.tsx`
+- [ ] **T-044** [P] [US-002] Mobile: AI recipe generation entry point + prompt input — `packages/apps/commise/mobile/src/screens/ai/GenerateRecipeScreen.tsx`
   - **Depends on**: T-043, T-016
   - **Implements**: FR-016, FR-022, NFR-003, NFR-004
   - User can enter ingredients, dietary constraints, cuisine, serving count. "Generate" button calls `POST /ai/generate/recipe` (async job) or stream variant. Loading state shows EU AI Act disclosure: "AI is generating your recipe..." with disclosure text visible. Accessible: form fields labeled; generate button has accessible name.
   - **Acceptance**: Prompt input works; generation triggered; disclosure shown during load.
 
-- [ ] **T-045** [P] [US-003] Mobile: AI recipe preview + save/discard flow — `packages/apps/sous-chef/mobile/src/screens/ai/RecipePreviewScreen.tsx`
+- [ ] **T-045** [P] [US-003] Mobile: AI recipe preview + save/discard flow — `packages/apps/commise/mobile/src/screens/ai/RecipePreviewScreen.tsx`
   - **Depends on**: T-044
   - **Implements**: FR-017, FR-020, FR-022, NFR-003, NFR-004
   - Generated recipe displayed in preview state (not auto-saved). Compact `AiGuardBanner` visible above recipe content: "AI-generated content may be inaccurate. Verify before use." Banner not dismissible on first 3 views; collapses to icon with tooltip after that. "Save to my recipes" calls save endpoint; saved recipe is private. "Discard" discards without saving.
   - **Acceptance**: Preview before save; guard banner rules enforced; private save.
 
-- [ ] **T-046** [P] [US-002] Mobile: SSE streaming display for recipe generation — `packages/apps/sous-chef/mobile/src/components/ai/StreamingRecipeCard.tsx`
+- [ ] **T-046** [P] [US-002] Mobile: SSE streaming display for recipe generation — `packages/apps/commise/mobile/src/components/ai/StreamingRecipeCard.tsx`
   - **Depends on**: T-044
   - **Implements**: FR-016, FR-022, NFR-003, NFR-004
   - Streaming variant of recipe card that updates in real-time as SSE chunks arrive. Shows partial ingredients, steps, title as they stream. Final state transitions to full preview. Error state if stream fails. Loading state with EU AI Act disclosure.
@@ -391,7 +391,7 @@ Phase 5F (Mobile Parity)                              ↓
 
 ### US-006 — Mobile: Premium Instruction Optimization
 
-- [ ] **T-047** [P] [US-006] Mobile: Instruction optimization entry point (Premium gate) — `packages/apps/sous-chef/mobile/src/screens/ai/OptimizeRecipeScreen.tsx`
+- [ ] **T-047** [P] [US-006] Mobile: Instruction optimization entry point (Premium gate) — `packages/apps/commise/mobile/src/screens/ai/OptimizeRecipeScreen.tsx`
   - **Depends on**: T-045, T-019
   - **Implements**: FR-019, FR-022, NFR-003, NFR-004
   - From recipe detail screen, "Optimize instructions" option (premium users only). Mode picker: "Simplify" or "Streamline". Calls `POST /ai/recipes/:id/optimize`. Displays optimized instructions in preview. "Replace original" or "Discard". Non-premium users see upgrade prompt instead of mode picker.
@@ -399,13 +399,13 @@ Phase 5F (Mobile Parity)                              ↓
 
 ### US-004 / US-005 — Mobile: External Agent Consent + Revocation
 
-- [ ] **T-048** [P] [US-004] Mobile: External agent consent screen (two-step OAuth) — `packages/apps/sous-chef/mobile/src/screens/settings/AgentConsentScreen.tsx`
+- [ ] **T-048** [P] [US-004] Mobile: External agent consent screen (two-step OAuth) — `packages/apps/commise/mobile/src/screens/settings/AgentConsentScreen.tsx`
   - **Depends on**: T-027
   - **Implements**: FR-018, NFR-003, NFR-004
   - Two distinct consent checkboxes (not bundled): "Allow agent to read my recipes" (`recipes:read`) and "Allow agent to save recipes for me" (`recipes:create`). User can grant read without write. Clear platform name and scope description. Confirm button disabled until at least one scope selected.
   - **Acceptance**: Two-step consent; read without write possible; confirm disabled until selection.
 
-- [ ] **T-049** [P] [US-005] Mobile: Agent connection list + revocation — `packages/apps/sous-chef/mobile/src/screens/settings/AgentConnectionsScreen.tsx`
+- [ ] **T-049** [P] [US-005] Mobile: Agent connection list + revocation — `packages/apps/commise/mobile/src/screens/settings/AgentConnectionsScreen.tsx`
   - **Depends on**: T-048
   - **Implements**: FR-021, NFR-003, NFR-004
   - Lists active external agent connections with platform name, granted scopes, grant date. Revoke button per connection with confirmation dialog. After revocation, connection removed from list. Empty state when no connections.
@@ -413,7 +413,7 @@ Phase 5F (Mobile Parity)                              ↓
 
 ### US-007 — Mobile: Guard Messaging
 
-- [ ] **T-050** [P] [US-007] Mobile: `AiGuardBanner` component + view-count persistence — `packages/apps/sous-chef/mobile/src/components/ai/AiGuardBanner.tsx`
+- [ ] **T-050** [P] [US-007] Mobile: `AiGuardBanner` component + view-count persistence — `packages/apps/commise/mobile/src/components/ai/AiGuardBanner.tsx`
   - **Depends on**: T-045
   - **Implements**: FR-022, NFR-003, NFR-004
   - Reusable banner component for all AI-generated content surfaces. Full text on first 3 views: "AI-generated content may be inaccurate. Verify before use." After 3 views: collapses to icon with tooltip. View count persisted in AsyncStorage per user. Nutrition variant includes additional medical disclaimer. Cannot be disabled.

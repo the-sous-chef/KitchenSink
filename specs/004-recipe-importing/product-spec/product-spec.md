@@ -1,4 +1,4 @@
-# Product Specification: Sous Chef - Recipe Importing
+# Product Specification: Commise - Recipe Importing
 
 **Branch**: `004-recipe-importing`
 **Date**: 2026-05-09
@@ -9,7 +9,7 @@
 
 ## Vision
 
-Recipe importing should let users bring existing recipes into Sous Chef in under a minute while preserving source attribution, preventing duplicates, and giving clear recovery paths when parsing fails.
+Recipe importing should let users bring existing recipes into Commise in under a minute while preserving source attribution, preventing duplicates, and giving clear recovery paths when parsing fails.
 
 **Tagline**: "Import fast. Attribute correctly. Recover gracefully."
 

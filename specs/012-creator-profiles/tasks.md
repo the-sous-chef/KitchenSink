@@ -63,10 +63,10 @@ T-036 -> T-040
 
 - [ ] **T-013** [P] [US-004] Implement public profile read endpoint (`GET /api/v1/creators/:handle`) with strict public payload schema — `packages/api/creator-profiles-api/src/creators/`
 - [ ] **T-014** [US-004] Implement profile SEO/canonical metadata builder for SSR consumers — `packages/api/creator-profiles-api/src/creators/seo/`
-- [ ] **T-015** [P] [US-004] Implement `/@handle` SSR route with profile API payloads and SEO metadata contract — `packages/apps/sous-chef/src/app/(profile)/[handle]/`
-- [ ] **T-016** [US-004] Implement profile page sections: bio, avatar, follower count, public collections, paginated public recipes — `packages/apps/sous-chef/src/app/(profile)/[handle]/`
-- [ ] **T-017** [US-004] Add recipe attribution link component linking public recipes back to creator profile — `packages/apps/sous-chef/src/components/creator-attribution/`
-- [ ] **T-018** [US-004] Implement profile route accessibility/usability smoke checks (desktop + mobile responsive) — `packages/apps/sous-chef/e2e/creator-profile.spec.ts`
+- [ ] **T-015** [P] [US-004] Implement `/@handle` SSR route with profile API payloads and SEO metadata contract — `packages/apps/commise/src/app/(profile)/[handle]/`
+- [ ] **T-016** [US-004] Implement profile page sections: bio, avatar, follower count, public collections, paginated public recipes — `packages/apps/commise/src/app/(profile)/[handle]/`
+- [ ] **T-017** [US-004] Add recipe attribution link component linking public recipes back to creator profile — `packages/apps/commise/src/components/creator-attribution/`
+- [ ] **T-018** [US-004] Implement profile route accessibility/usability smoke checks (desktop + mobile responsive) — `packages/apps/commise/e2e/creator-profile.spec.ts`
 
 ## US-002 — Public Collections
 
@@ -75,7 +75,7 @@ T-036 -> T-040
 - [ ] **T-021** [P] [US-002] Implement collections list/detail endpoints for public view with ownership/publicity enforcement — `packages/api/creator-profiles-api/src/collections/`
 - [ ] **T-022** [US-002] Implement owner collection CRUD endpoints with max 20 collections and 60-char name / 200-char description limits — `packages/api/creator-profiles-api/src/collections/`
 - [ ] **T-023** [US-002] Implement collection reordering persistence and deterministic response ordering — `packages/api/creator-profiles-api/src/collections/`
-- [ ] **T-024** [US-002] Add collection UI components to profile page with shareable collection URLs — `packages/apps/sous-chef/src/components/creator-collections/`
+- [ ] **T-024** [US-002] Add collection UI components to profile page with shareable collection URLs — `packages/apps/commise/src/components/creator-collections/`
 
 ## US-003 — Follow / Unfollow
 
@@ -83,14 +83,14 @@ T-036 -> T-040
 - [ ] **T-026** [P] [US-003] Implement follow endpoint (`POST /api/v1/creators/:handle/follow`) with idempotency guarantees — `packages/api/creator-profiles-api/src/follows/`
 - [ ] **T-027** [P] [US-003] Implement unfollow endpoint (`DELETE /api/v1/creators/:handle/follow`) with idempotency and counter integrity — `packages/api/creator-profiles-api/src/follows/`
 - [ ] **T-028** [P] [US-003] Implement follower/following count projection with ≤5s bounded consistency target — `packages/api/creator-profiles-api/src/follows/projector/`
-- [ ] **T-029** [US-003] Implement authenticated follow/unfollow interactions on profile page with optimistic UX and rollback — `packages/apps/sous-chef/src/components/follow-button/`
+- [ ] **T-029** [US-003] Implement authenticated follow/unfollow interactions on profile page with optimistic UX and rollback — `packages/apps/commise/src/components/follow-button/`
 
 ## US-005 — Embed Widget
 
 - [ ] **T-030** [P] [US-005] Implement embed widget endpoint (`GET /api/v1/creators/:handle/widget`) returning static HTML fragment (no JS) — `packages/api/creator-profiles-api/src/widget/`
 - [ ] **T-031** [P] [US-005] Enforce widget cache headers (`Cache-Control: public, max-age=300`) and CDN compatibility — `packages/api/creator-profiles-api/src/widget/`
 - [ ] **T-032** [US-005] Validate widget payload includes avatar, displayName, followerCount, and 3 most-recent public recipes only — `packages/api/creator-profiles-api/src/widget/__tests__/`
-- [ ] **T-033** [US-005] Add widget accessibility/usability smoke checks for desktop and mobile — `packages/apps/sous-chef/e2e/creator-widget.spec.ts`
+- [ ] **T-033** [US-005] Add widget accessibility/usability smoke checks for desktop and mobile — `packages/apps/commise/e2e/creator-widget.spec.ts`
 
 ## US-006 — Creator Analytics
 
@@ -98,7 +98,7 @@ T-036 -> T-040
 - [ ] **T-035** [P] [US-006] Implement daily analytics snapshot Lambda job over internal event data with aggregate-only fields — `packages/api/creator-profiles-api/src/analytics/jobs/`
 - [ ] **T-036** [P] [US-006] Implement owner-only analytics endpoint (`GET /api/v1/creators/:handle/analytics`) with strict authz checks — `packages/api/creator-profiles-api/src/analytics/`
 - [ ] **T-037** [US-006] Enforce analytics privacy requirements (no visitor identifiers/IPs in storage or responses) — `packages/api/creator-profiles-api/src/analytics/filters/`
-- [ ] **T-038** [US-006] Add analytics dashboard UI component for creator view with 7d/30d views, follower delta, top recipes — `packages/apps/sous-chef/src/components/creator-analytics/`
+- [ ] **T-038** [US-006] Add analytics dashboard UI component for creator view with 7d/30d views, follower delta, top recipes — `packages/apps/commise/src/components/creator-analytics/`
 
 ## Cross-cutting: Moderation, Privacy, Integration
 
@@ -116,7 +116,7 @@ T-036 -> T-040
 - [ ] **T-047** [US-001] Add API contract tests for all `/api/v1/creators/*` endpoints including authz and error envelopes — `packages/api/creator-profiles-api/src/__contracts__/`
 - [ ] **T-048** [US-001] Add integration tests for profile lifecycle, follow graph, collection ordering, and moderation transitions — `packages/api/creator-profiles-api/src/__integration__/`
 - [ ] **T-049** [US-001] Add unit tests for handle validator, follow projector, widget renderer, analytics aggregators, and privacy filters — `packages/api/creator-profiles-api/src/__tests__/`
-- [ ] **T-050** [P] [US-001] Add E2E tests: claim handle, public browse, follow/unfollow, collection browse, widget embed render, owner analytics view — `packages/apps/sous-chef/e2e/creator-profiles.spec.ts`
+- [ ] **T-050** [P] [US-001] Add E2E tests: claim handle, public browse, follow/unfollow, collection browse, widget embed render, owner analytics view — `packages/apps/commise/e2e/creator-profiles.spec.ts`
 - [ ] **T-051** [US-001] Add performance checks: profile SSR p95, follow API p95, widget cache-hit p95, analytics endpoint p95 — `packages/api/creator-profiles-api/src/__perf__/`
 - [ ] **T-052** [US-001] Add security/privacy tests for blocked-user restrictions, stale-session protections, and PII non-leak in public payloads — `packages/api/creator-profiles-api/src/__security__/`
 - [ ] **T-053** [US-001] Run full test suite + lint + typecheck for affected workspaces and archive evidence — `packages/api/creator-profiles-api/`

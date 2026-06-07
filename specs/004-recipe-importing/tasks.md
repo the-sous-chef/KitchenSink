@@ -66,10 +66,10 @@ T-002, T-013
 - [ ] **T-008** [P1] [US-401] API Endpoint: `POST /v1/recipes/import/file` — `packages/api/recipe/src/recipes/import/import.controller.ts`, `packages/api/recipe/src/recipes/import/parsers/json.parser.ts`, `packages/api/recipe/src/recipes/import/parsers/yaml.parser.ts`, `packages/api/recipe/src/recipes/import/parsers/markdown.parser.ts`
 - [ ] **T-009** [P2] [US-402] API Endpoint: `POST /v1/recipes/import/instagram` — `packages/api/recipe/src/recipes/import/instagram.service.ts`, `packages/api/recipe/src/recipes/import/dto/import-instagram.dto.ts`
 - [ ] **T-010** [P1] [US-404] API Endpoint: `POST /v1/recipes/{id}/clone` — `packages/api/recipe/src/recipes/clone/clone.controller.ts`, `packages/api/recipe/src/recipes/clone/clone.service.ts`
-- [ ] **T-011** [P1] [US-403] Attribution Display: Web UI component — `packages/apps/sous-chef/web/src/components/RecipeAttribution/RecipeAttribution.tsx`, `packages/apps/sous-chef/web/src/components/RecipeAttribution/RecipeAttribution.test.tsx`
-- [ ] **T-012** [P1] [US-401, US-402, US-408, US-409] Import UI: Web import flow — `packages/apps/sous-chef/web/src/features/import/ImportModal.tsx`, `packages/apps/sous-chef/web/src/features/import/ImportModal.test.tsx`, `packages/apps/sous-chef/web/tests/e2e/import-url.spec.ts`
-- [ ] **T-013** [P2] [US-401, US-402] Import UI: Mobile import flow (React Native / Expo) — `packages/apps/sous-chef/mobile/src/screens/ImportScreen.tsx`, `packages/apps/sous-chef/mobile/src/screens/ImportScreen.test.tsx`
-- [ ] **T-014** [P1] [(all FRs)] Integration Tests: Import pipeline end-to-end — `packages/api/recipe/tests/integration/import/`, `packages/apps/sous-chef/web/tests/e2e/import-url.spec.ts`
+- [ ] **T-011** [P1] [US-403] Attribution Display: Web UI component — `packages/apps/commise/web/src/components/RecipeAttribution/RecipeAttribution.tsx`, `packages/apps/commise/web/src/components/RecipeAttribution/RecipeAttribution.test.tsx`
+- [ ] **T-012** [P1] [US-401, US-402, US-408, US-409] Import UI: Web import flow — `packages/apps/commise/web/src/features/import/ImportModal.tsx`, `packages/apps/commise/web/src/features/import/ImportModal.test.tsx`, `packages/apps/commise/web/tests/e2e/import-url.spec.ts`
+- [ ] **T-013** [P2] [US-401, US-402] Import UI: Mobile import flow (React Native / Expo) — `packages/apps/commise/mobile/src/screens/ImportScreen.tsx`, `packages/apps/commise/mobile/src/screens/ImportScreen.test.tsx`
+- [ ] **T-014** [P1] [(all FRs)] Integration Tests: Import pipeline end-to-end — `packages/api/recipe/tests/integration/import/`, `packages/apps/commise/web/tests/e2e/import-url.spec.ts`
 
 ---
 
@@ -129,7 +129,7 @@ T-002, T-013
 - [ ] Returns `202 Accepted` with `{ importId, status: 'processing', estimatedSeconds }` for async path
 - [ ] Returns `200 OK` with `{ recipeId, status: 'imported', sourceAttribution }` for sync path
 - [ ] Returns `400` with `{ error, reason: 'paywalled_source', message }` for blocked domains
-- [ ] HTTP fetch uses `User-Agent: SousChef/1.0 (+https://souschef.io/bot)`
+- [ ] HTTP fetch uses `User-Agent: Commise/1.0 (+https://commise.io/bot)`
 - [ ] Timeout: 10s; max 5 redirects
 - [ ] Rate limit: 30 requests/minute per user
 - [ ] Circuit breaker: open after 10 consecutive failures, half-open after 60s
@@ -301,7 +301,7 @@ T-002, T-013
 - [ ] Color is not the sole conveyor of attribution state (NFR-004)
 - [ ] Storybook story or equivalent snapshot test
 
-**Files**: `packages/apps/sous-chef/web/src/components/RecipeAttribution/RecipeAttribution.tsx`, `packages/apps/sous-chef/web/src/components/RecipeAttribution/RecipeAttribution.test.tsx`
+**Files**: `packages/apps/commise/web/src/components/RecipeAttribution/RecipeAttribution.tsx`, `packages/apps/commise/web/src/components/RecipeAttribution/RecipeAttribution.test.tsx`
 
 ---
 
@@ -323,7 +323,7 @@ T-002, T-013
 - [ ] Paywalled source error shown with clear explanation message
 - [ ] Playwright E2E test: import from URL happy path
 
-**Files**: `packages/apps/sous-chef/web/src/features/import/ImportModal.tsx`, `packages/apps/sous-chef/web/src/features/import/ImportModal.test.tsx`, `packages/apps/sous-chef/web/tests/e2e/import-url.spec.ts`
+**Files**: `packages/apps/commise/web/src/features/import/ImportModal.tsx`, `packages/apps/commise/web/src/features/import/ImportModal.test.tsx`, `packages/apps/commise/web/tests/e2e/import-url.spec.ts`
 
 ---
 
@@ -342,7 +342,7 @@ T-002, T-013
 - [ ] Uses `expo-secure-store` for any cached import state
 - [ ] Matches web import flow behavior for success/error states
 
-**Files**: `packages/apps/sous-chef/mobile/src/screens/ImportScreen.tsx`, `packages/apps/sous-chef/mobile/src/screens/ImportScreen.test.tsx`
+**Files**: `packages/apps/commise/mobile/src/screens/ImportScreen.tsx`, `packages/apps/commise/mobile/src/screens/ImportScreen.test.tsx`
 
 ---
 
@@ -364,7 +364,7 @@ T-002, T-013
 - [ ] All tests pass with `npm test`
 - [ ] `npm run lint` passes with no errors
 
-**Files**: `packages/api/recipe/tests/integration/import/`, `packages/apps/sous-chef/web/tests/e2e/import-url.spec.ts`
+**Files**: `packages/api/recipe/tests/integration/import/`, `packages/apps/commise/web/tests/e2e/import-url.spec.ts`
 
 ---
 

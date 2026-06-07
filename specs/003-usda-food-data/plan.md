@@ -26,7 +26,7 @@ PostgreSQL (local food store + Redis cache)
 REST API Gateway         API Gateway
 (Lambda authorizer)      (search queries)
         ↑                      ↑
-   Sous Chef App         Search UX
+   Commise App         Search UX
 ```
 
 ### Data Flow

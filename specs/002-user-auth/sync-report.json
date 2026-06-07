@@ -17,7 +17,7 @@
     {"id":"DRIFT-T002-REWRITE","layer":3,"direction":"backward","severity":"RESOLVED","status":"resolved","note":"T-002 + plan.md updated to reflect schemas-in-identity refactor. (HITL Group C)"},
     {"id":"DRIFT-002..024","layer":3,"direction":"forward","severity":"WARNING","status":"deferred","note":"23 FR-traceability gaps deferred to next sync-verify run. (HITL Group D)"},
     {"id":"DRIFT-025","layer":4,"direction":"backward","severity":"WARNING","status":"open","note":"Will resolve once Group D applied."},
-    {"id":"DRIFT-026","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-050 path updated to packages/apps/sous-chef/web/src/middleware.ts"},
+    {"id":"DRIFT-026","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-050 path updated to packages/apps/commise/web/src/middleware.ts"},
     {"id":"DRIFT-027","layer":5,"direction":"forward","severity":"RESOLVED","status":"reopened","note":"T-060 reverted [x]->[ ] (Expo Router migration pending)"},
     {"id":"DRIFT-028","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-051 path updated"},
     {"id":"DRIFT-029","layer":5,"direction":"forward","severity":"RESOLVED","status":"resolved","note":"T-061 path updated"},

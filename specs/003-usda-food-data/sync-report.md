@@ -23,7 +23,7 @@
 ### Layer 1 — research/ ↔ product-spec/
 **Status**: `CLEAN`
 - Research conclusions (USDA-only, no third-party APIs, event-driven queue architecture) align with product-spec vision and core principles.
-- No incorrect `apps/web/` or `apps/mobile/` paths found in feature specs (research/codebase-analysis.md correctly uses `packages/apps/sous-chef/{web,mobile}`).
+- No incorrect `apps/web/` or `apps/mobile/` paths found in feature specs (research/codebase-analysis.md correctly uses `packages/apps/commise/{web,mobile}`).
 
 ### Layer 2 — product-spec/ ↔ spec.md
 **Status**: `WARNING`
@@ -52,7 +52,7 @@
 ### Layer 7 — Cross-link integrity
 **Status**: `CLEAN`
 - All markdown cross-links verified:
-  - `../001-sous-chef-recipe-app/spec.md` → exists
+  - `../001-commise-recipe-app/spec.md` → exists
   - `../002-user-auth/spec.md` → exists
   - `../006-meal-planning/spec.md` → exists
   - `../007-grocery-lists/spec.md` → exists

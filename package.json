@@ -19,8 +19,8 @@
         "packages/services/*",
         "packages/shared/*",
         "packages/infra/*",
-        "packages/apps/sous-chef/web",
-        "packages/apps/sous-chef/mobile",
+        "packages/apps/commise/web",
+        "packages/apps/commise/mobile",
         "packages/ui"
     ],
     "scripts": {

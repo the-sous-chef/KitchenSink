@@ -4,14 +4,14 @@
 **Created**: 2026-04-14
 **Last updated**: 2026-05-10
 **Status**: Product decisions revalidated — implementation/test gate blocked pending V-Model regeneration and test execution
-**Input**: Split from `001-sous-chef-recipe-app` — free/premium tier definitions, feature gating, upgrade prompts, and subscription lifecycle.
+**Input**: Split from `001-commise-recipe-app` — free/premium tier definitions, feature gating, upgrade prompts, and subscription lifecycle.
 
 ## Dependencies
 
 | Spec                                                            | Relationship                                                                                 |
 | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | [002-user-auth](../002-user-auth/spec.md)           | **Required** — subscription tier is a property of the authenticated user                     |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Referenced** — gates private recipe visibility (FR-003)                                    |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Referenced** — gates private recipe visibility (FR-003)                                    |
 | [004-recipe-importing](../004-recipe-importing/spec.md)         | **Referenced** — gates clone-to-private for imported recipes (FR-011)                        |
 | [005-ai-integration](../005-ai-integration/spec.md)             | **Referenced** — gates AI generation and instruction optimization (FR-016, FR-019)           |
 | [006-meal-planning](../006-meal-planning/spec.md)               | **Referenced** — gates AI meal suggestions, auto-generation, waste optimization (FR-025–027) |

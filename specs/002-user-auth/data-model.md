@@ -26,7 +26,7 @@
 
 ### User
 
-Represents a registered Sous Chef user. Canonical identity across all Sous Chef systems.
+Represents a registered Commise user. Canonical identity across all Commise systems.
 
 | Column                        | Type          | Constraints                 | Description                                                                                                           |
 | ----------------------------- | ------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -65,7 +65,7 @@ Account-scoped lifecycle + subscription anchor (subscription feature owns tier t
 | ------------------- | ------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `id`                | `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`               | Account identifier.                                                                                  |
 | `user_id`           | `TEXT`        | `UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE` | 1:1 FK to User (`UNIQUE` enforces one account per user).                                             |
-| `subscription_tier` | `TEXT`        | `NOT NULL DEFAULT 'free'`                                | Enum: `'free'` \| `'premium'`; managed by subscription feature (Sous Chef FR-040/FR-041 dependency). |
+| `subscription_tier` | `TEXT`        | `NOT NULL DEFAULT 'free'`                                | Enum: `'free'` \| `'premium'`; managed by subscription feature (Commise FR-040/FR-041 dependency). |
 | `created_at`        | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()`                                 | Creation timestamp.                                                                                  |
 | `updated_at`        | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()`                                 | Last update timestamp.                                                                               |
 
@@ -130,7 +130,7 @@ Represents secure client session state.
 | `accessToken`  | `string` | JWT bearer token for API calls.                                                                                              |
 | `sessionToken` | `string` | Session token used for silent renewal.                                                                                       |
 | `expiresAt`    | `string` | ISO 8601 access token expiry timestamp.                                                                                      |
-| `userId`       | `string` | App-generated ULID — the canonical Sous Chef user identifier, extracted from the `https://sous-chef.io/userId` custom claim. |
+| `userId`       | `string` | App-generated ULID — the canonical Commise user identifier, extracted from the `https://commise.io/userId` custom claim. |
 
 > **Historical note** _(superseded)_: The original design used `sub` (subject claim) as the sole identity field in AuthSession, and `refreshToken` for silent renewal. The current design uses `userId` (ULID) as the identity field and `sessionToken` for renewal.
 
@@ -226,7 +226,7 @@ Authenticated API request
   |
   +--> API Gateway REQUEST authorizer Lambda
         - Verify IdP JWT (signature, exp, aud, iss)
-        - Extract https://sous-chef.io/userId → userId (ULID)
+        - Extract https://commise.io/userId → userId (ULID)
         - Extract sub → identityUserId
         - Check users.status — deny 403 if suspended
         - Inject context: userId, identityUserId, email, status
@@ -255,22 +255,22 @@ Nightly reconciliation
 
 | Entity / Field                                      | Requirement coverage                                       | Notes                                                                                                   |
 | --------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `users.id` (ULID PK)                                | REQ-013, REQ-015, FR-013, FR-015                           | App-generated ULID is the canonical identifier; surfaced via `https://sous-chef.io/userId` custom claim |
+| `users.id` (ULID PK)                                | REQ-013, REQ-015, FR-013, FR-015                           | App-generated ULID is the canonical identifier; surfaced via `https://commise.io/userId` custom claim |
 | `users.identity_id` (secondary key)                    | REQ-013, FR-013                                            | IdP `user.id`; used for IdP Backend API calls and reconciliation                                    |
 | Atomic create: `users + accounts + profiles`        | REQ-014, FR-014                                            | Signup bootstrap path via `user.created` webhook                                                        |
 | `users.status`                                      | REQ-041, REQ-042, FR-041, FR-042                           | Suspension state enforced in authorizer                                                                 |
 | Cascading delete from `users`                       | REQ-025, FR-025                                            | Removes owned records on account deletion                                                               |
 | Reconciliation repair writes                        | REQ-017, FR-017                                            | Backfills missing records from IdP; keyed by `identity_id`                                               |
 | `webhook_events.svix_id`                            | FR-013, FR-016                                             | Idempotency for IdP webhook retries                                                                     |
-| Token/user identity contract (`AuthSession.userId`) | REQ-006, REQ-007, REQ-008, REQ-040, FR-006..FR-008, FR-040 | Consumed by web/mobile clients and APIs; ULID extracted from `https://sous-chef.io/userId` custom claim |
+| Token/user identity contract (`AuthSession.userId`) | REQ-006, REQ-007, REQ-008, REQ-040, FR-006..FR-008, FR-040 | Consumed by web/mobile clients and APIs; ULID extracted from `https://commise.io/userId` custom claim |
 
 ---
 
 ## Notes and invariants
 
-1. `users.id` (ULID) is the only canonical user identifier across Sous Chef systems. It is app-generated at signup and never changes.
+1. `users.id` (ULID) is the only canonical user identifier across Commise systems. It is app-generated at signup and never changes.
 2. `users.identity_id` is the IdP `user.id`. It is stored as a secondary key and used only for IdP Backend API calls (e.g., deletion, suspension).
-3. No `app_metadata` writeback to the IdP is required for the canonical user ID — the ULID is generated by the Sous Chef backend and injected into tokens via an IdP JWT template custom claim.
+3. No `app_metadata` writeback to the IdP is required for the canonical user ID — the ULID is generated by the Commise backend and injected into tokens via an IdP JWT template custom claim.
 4. Profile/account/user 1:1 boundaries are preserved for clear module ownership.
 5. All timestamp fields are ISO 8601 at interface boundaries (NFR-010).
 6. Storage engine remains RDS PostgreSQL 16 for this feature; Aurora DSQL is out of scope.

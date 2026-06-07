@@ -7,7 +7,7 @@
 
 ## Overview
 
-Cooking Mode is a step-by-step, hands-free-friendly interface for the Sous Chef recipe app, optimized for active kitchen use. It displays recipe instructions one step at a time in large, readable text, supports forward/backward navigation, integrates countdown timers for timed steps, and keeps the device screen active throughout the session. It consumes Recipe data from feature 001-sous-chef-recipe-app and requires authentication from 002-user-auth.
+Cooking Mode is a step-by-step, hands-free-friendly interface for the Commise recipe app, optimized for active kitchen use. It displays recipe instructions one step at a time in large, readable text, supports forward/backward navigation, integrates countdown timers for timed steps, and keeps the device screen active throughout the session. It consumes Recipe data from feature 001-commise-recipe-app and requires authentication from 002-user-auth.
 
 ## Requirements
 
@@ -41,7 +41,7 @@ Cooking Mode is a step-by-step, hands-free-friendly interface for the Sous Chef 
 
 | ID         | Description                                                                                                                       | Priority | Rationale                                                                               | Verification Method |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------- | ------------------- |
-| REQ-IF-001 | The system SHALL consume Recipe entity data (steps, timers, instructions) as defined in feature 001-sous-chef-recipe-app.         | P1       | Cooking Mode has no independent recipe data model; it renders from 001's Recipe entity. | Inspection          |
+| REQ-IF-001 | The system SHALL consume Recipe entity data (steps, timers, instructions) as defined in feature 001-commise-recipe-app.         | P1       | Cooking Mode has no independent recipe data model; it renders from 001's Recipe entity. | Inspection          |
 | REQ-IF-002 | The system SHALL require a valid authenticated session (per feature 002-user-auth) before allowing entry into Cooking Mode. | P1       | All features require authentication per 002-user-auth dependency.                 | Test                |
 
 | REQ-IF-003 | The system SHALL provide equivalent web and mobile user-facing workflows for Cooking Mode, including the same core capabilities, entitlement behavior, error states, accessibility semantics, and recovery paths unless an explicit V-Model parity exception is recorded. | P1 | KitchenSink Constitution Principle VIII requires web/mobile lockstep for every user-facing capability. | Test |
@@ -61,7 +61,7 @@ Cooking Mode is a step-by-step, hands-free-friendly interface for the Sous Chef 
 
 ## Dependencies
 
-- **001-sous-chef-recipe-app**: Provides the Recipe entity (steps, instructions, time durations) that Cooking Mode renders. Cooking Mode cannot function without a valid Recipe from this feature.
+- **001-commise-recipe-app**: Provides the Recipe entity (steps, instructions, time durations) that Cooking Mode renders. Cooking Mode cannot function without a valid Recipe from this feature.
 - **002-user-auth**: Provides authentication. All Cooking Mode entry points require a valid authenticated session.
 
 ## Glossary
@@ -72,7 +72,7 @@ Cooking Mode is a step-by-step, hands-free-friendly interface for the Sous Chef 
 | Step          | A single instruction unit within a recipe, displayed one at a time in Cooking Mode.                         |
 | Step Timer    | A countdown timer embedded within a recipe step that tracks a required wait duration (e.g., "bake 25 min"). |
 | Wake Lock     | A device API that prevents the screen from sleeping while Cooking Mode is active.                           |
-| Recipe Entity | The data model for a recipe as defined in feature 001-sous-chef-recipe-app.                                 |
+| Recipe Entity | The data model for a recipe as defined in feature 001-commise-recipe-app.                                 |
 
 ---
 

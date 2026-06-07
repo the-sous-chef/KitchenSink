@@ -190,8 +190,8 @@
         {
           "id": "L6-001",
           "severity": "INFO",
-          "message": "No implementation files exist under packages/apps/sous-chef/{web,mobile}/ for this feature.",
-          "evidence": "find packages/apps/sous-chef -type f -name '*nutrition*' returned no results"
+          "message": "No implementation files exist under packages/apps/commise/{web,mobile}/ for this feature.",
+          "evidence": "find packages/apps/commise -type f -name '*nutrition*' returned no results"
         },
         {
           "id": "L6-002",
@@ -233,8 +233,8 @@
         {
           "id": "L7-004",
           "severity": "INFO",
-          "message": "Task file paths use generic src/ prefix not explicit packages/apps/sous-chef/{web,mobile}/ monorepo locations. Flagged as INFO per monorepo guidance.",
-          "evidence": "AGENTS.md lists packages/apps/sous-chef/{web,mobile}/; tasks.md lines 327-330 (src/web), lines 354-356 (src/web)"
+          "message": "Task file paths use generic src/ prefix not explicit packages/apps/commise/{web,mobile}/ monorepo locations. Flagged as INFO per monorepo guidance.",
+          "evidence": "AGENTS.md lists packages/apps/commise/{web,mobile}/; tasks.md lines 327-330 (src/web), lines 354-356 (src/web)"
         },
         {
           "id": "L7-005",

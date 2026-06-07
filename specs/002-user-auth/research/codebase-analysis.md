@@ -12,8 +12,8 @@ KitchenSink is a **Turborepo + npm workspaces** monorepo. Root `package.json` de
 ```json
 "workspaces": [
     "packages/tools/*",
-    "packages/apps/sous-chef/web",
-    "packages/apps/sous-chef/mobile",
+    "packages/apps/commise/web",
+    "packages/apps/commise/mobile",
     "packages/ui"
 ]
 ```
@@ -32,11 +32,11 @@ KitchenSink is a **Turborepo + npm workspaces** monorepo. Root `package.json` de
 
 ## Existing Workspaces Relevant to Feature 002
 
-### `packages/apps/sous-chef/web`
+### `packages/apps/commise/web`
 
 Web authentication integration surface (Next.js + `@clerk/nextjs`) with protected-route redirects and callback handling.
 
-### `packages/apps/sous-chef/mobile`
+### `packages/apps/commise/mobile`
 
 Mobile authentication integration surface (Expo + `@clerk/expo`) with secure storage (`expo-secure-store`) and deep-link callback handling.
 

@@ -61,8 +61,8 @@
 | RDS PostgreSQL 16 | ✅ | `infra/lib/data-stack.ts` (T4G.MICRO) |
 | SQS + DLQ | ✅ | `infra/lib/data-stack.ts` |
 | CDK v2 Infrastructure | ✅ | `infra/lib/` (6 stacks) |
-| Web (Next.js + Clerk) | ✅ | `packages/apps/sous-chef/web/` |
-| Mobile (Expo + Clerk) | ✅ | `packages/apps/sous-chef/mobile/` |
+| Web (Next.js + Clerk) | ✅ | `packages/apps/commise/web/` |
+| Mobile (Expo + Clerk) | ✅ | `packages/apps/commise/mobile/` |
 | Identity service types | ✅ | `packages/services/identity/src/types/` |
 | Dockerfile | ✅ | `packages/services/identity/Dockerfile` |
 | docker-compose | ✅ | `infra/docker/docker-compose.yml` |

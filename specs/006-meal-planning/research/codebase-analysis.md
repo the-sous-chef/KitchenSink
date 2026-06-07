@@ -12,16 +12,16 @@ KitchenSink root workspace configuration (from `package.json`):
 ```json
 "workspaces": [
   "packages/tools/*",
-  "packages/apps/sous-chef/web",
-  "packages/apps/sous-chef/mobile",
+  "packages/apps/commise/web",
+  "packages/apps/commise/mobile",
   "packages/ui"
 ]
 ```
 
 Likely impact for feature 006:
 
-- `packages/apps/sous-chef/web`: planner UI, drag-drop, monthly/weekly views
-- `packages/apps/sous-chef/mobile`: mobile planner parity (FR-044 inherited dependency context)
+- `packages/apps/commise/web`: planner UI, drag-drop, monthly/weekly views
+- `packages/apps/commise/mobile`: mobile planner parity (FR-044 inherited dependency context)
 - API/backend workspace(s): meal plan endpoints and nutrition aggregation (location depends on existing 001 implementation layout)
 - shared models/types: meal plan DTOs and response contracts
 

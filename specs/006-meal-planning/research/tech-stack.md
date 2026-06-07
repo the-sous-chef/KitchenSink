@@ -7,7 +7,7 @@
 
 ## Overview
 
-Feature 006 stack choices emphasize planner interactivity, deterministic nutrition aggregation, and premium AI workflows while preserving compatibility with existing Sous Chef architecture.
+Feature 006 stack choices emphasize planner interactivity, deterministic nutrition aggregation, and premium AI workflows while preserving compatibility with existing Commise architecture.
 
 ---
 

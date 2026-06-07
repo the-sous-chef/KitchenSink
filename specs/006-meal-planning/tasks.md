@@ -122,7 +122,7 @@ Implements **SC-008**.
   - **Implements**: plan.md schema (finalization signal)
   - **Acceptance**: Locked plan rejects entry modifications with 423; unlock requires explicit action; lock timestamp recorded.
 
-- [ ] **T-012** [P2] [US-006-004] E2E Playwright test: create 7-day plan, assign 7 recipes, view nutrition, generate grocery list in under 10 minutes — `packages/apps/sous-chef/web/e2e/meal-planning/workflow.spec.ts`
+- [ ] **T-012** [P2] [US-006-004] E2E Playwright test: create 7-day plan, assign 7 recipes, view nutrition, generate grocery list in under 10 minutes — `packages/apps/commise/web/e2e/meal-planning/workflow.spec.ts`
   - **Depends on**: T-008, T-010
   - **Implements**: SC-008 (end-to-end verification)
   - **Acceptance**: Test completes within simulated 10-minute user session; all assertions pass in CI.
@@ -138,7 +138,7 @@ Implements **FR-025**.
   - **Implements**: FR-025 (AI integration)
   - **Acceptance**: Passes `planId`, `targetDate`, `mealType`, `preferences`, `macroTargets`; returns ranked recipe suggestions with match scores; 60s timeout with exponential backoff; premium gating returns 403 for non-premium users.
 
-- [ ] **T-014** [P2] [US-006-005] Frontend UI for AI suggestion panel in meal slot context menu — `packages/apps/sous-chef/web/src/components/meal-planning/AiSuggestionsPanel.tsx`
+- [ ] **T-014** [P2] [US-006-005] Frontend UI for AI suggestion panel in meal slot context menu — `packages/apps/commise/web/src/components/meal-planning/AiSuggestionsPanel.tsx`
   - **Depends on**: T-013, T-012
   - **Implements**: FR-025 (UX)
   - **Acceptance**: Panel opens from slot overflow menu; displays 3–5 suggestions with preview cards; clicking suggestion assigns to slot and recalculates nutrition live.
@@ -154,7 +154,7 @@ Implements **FR-026**.
   - **Implements**: FR-026 (auto-generation)
   - **Acceptance**: Accepts `preferences`, `dietaryRestrictions`, `macroTargets`, `excludedRecipes`; returns draft entries for all slots; does not overwrite existing entries unless `force=true`; premium gating.
 
-- [ ] **T-016** [P2] [US-006-006] Frontend modal for auto-generate constraints and draft review before applying — `packages/apps/sous-chef/web/src/components/meal-planning/AutoGenerateModal.tsx`
+- [ ] **T-016** [P2] [US-006-006] Frontend modal for auto-generate constraints and draft review before applying — `packages/apps/commise/web/src/components/meal-planning/AutoGenerateModal.tsx`
   - **Depends on**: T-015, T-012
   - **Implements**: FR-026 (UX)
   - **Acceptance**: Modal collects constraints, shows loading state, displays draft plan in calendar preview, allows accept (apply all) or reject (discard); accessible via `getByRole('dialog')`.
@@ -170,7 +170,7 @@ Implements **FR-027**.
   - **Implements**: FR-027 (optimization engine)
   - **Acceptance**: Returns proposed swaps ranked by ingredient overlap increase; includes `wasteRisk` signal for perishable ingredients used only once; premium gating.
 
-- [ ] **T-018** [P2] [US-006-007] Frontend UI to preview and accept/reject waste optimization proposals — `packages/apps/sous-chef/web/src/components/meal-planning/WasteOptimizationPanel.tsx`
+- [ ] **T-018** [P2] [US-006-007] Frontend UI to preview and accept/reject waste optimization proposals — `packages/apps/commise/web/src/components/meal-planning/WasteOptimizationPanel.tsx`
   - **Depends on**: T-017, T-012
   - **Implements**: FR-027 (UX)
   - **Acceptance**: Panel shows swap proposals with before/after ingredient overlap metrics; accept applies swap, reject dismisses with no plan change; perishable warnings highlighted with icon + text (not color alone).
@@ -179,12 +179,12 @@ Implements **FR-027**.
 
 ## Cross-Cutting Tasks
 
-- [ ] **T-019** [P2] [US-006-001–004] Implement drag-and-drop calendar UI with @dnd-kit/core + @dnd-kit/sortable — `packages/apps/sous-chef/web/src/components/meal-planning/MealPlanCalendar.tsx`
+- [ ] **T-019** [P2] [US-006-001–004] Implement drag-and-drop calendar UI with @dnd-kit/core + @dnd-kit/sortable — `packages/apps/commise/web/src/components/meal-planning/MealPlanCalendar.tsx`
   - **Depends on**: T-012
   - **Implements**: plan.md §4 (drag-and-drop UX)
   - **Acceptance**: Recipes draggable from sidebar to breakfast/lunch/dinner/snack slots; slots accept drops with visual feedback; keyboard accessible reordering; screen-reader announces drop results.
 
-- [ ] **T-020** [P2] [US-006-003] Frontend nutrition summary sticky footer with live totals — `packages/apps/sous-chef/web/src/components/meal-planning/NutritionSummary.tsx`
+- [ ] **T-020** [P2] [US-006-003] Frontend nutrition summary sticky footer with live totals — `packages/apps/commise/web/src/components/meal-planning/NutritionSummary.tsx`
   - **Depends on**: T-008, T-012
   - **Implements**: FR-024 (live UX)
   - **Acceptance**: Footer shows daily and weekly calorie/protein/carbs/fat/fiber totals; updates within 300ms of slot change; color pairs with text labels per NFR-004.

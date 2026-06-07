@@ -7,8 +7,8 @@
     "scanned_layers": ["L1", "L2", "L3", "L4", "L7"],
     "skipped_layers": ["L5"],
     "monorepo": {
-        "web_root": "/home/brandon/Development/KitchenSink/packages/apps/sous-chef/web",
-        "mobile_root": "/home/brandon/Development/KitchenSink/packages/apps/sous-chef/mobile",
+        "web_root": "/home/brandon/Development/KitchenSink/packages/apps/commise/web",
+        "mobile_root": "/home/brandon/Development/KitchenSink/packages/apps/commise/mobile",
         "shared_src_exists": false
     },
     "overall_status": "PASS",
@@ -154,20 +154,20 @@
                     "severity": "INFO",
                     "message": "0/32 tasks have implementation files. No CookingModeScreen, StepDisplay, StepNavigation, TimerBadge, ActiveTimers, TimerCard, or TimerAlert source files found in web or mobile packages.",
                     "expected_web_targets": [
-                        "packages/apps/sous-chef/web/src/features/cooking-mode/CookingModeScreen.tsx",
-                        "packages/apps/sous-chef/web/src/features/cooking-mode/StepDisplay.tsx",
-                        "packages/apps/sous-chef/web/src/features/cooking-mode/StepNavigation.tsx",
-                        "packages/apps/sous-chef/web/src/features/cooking-mode/TimerBadge.tsx",
-                        "packages/apps/sous-chef/web/src/features/cooking-mode/ActiveTimers.tsx",
-                        "packages/apps/sous-chef/web/src/features/cooking-mode/TimerCard.tsx"
+                        "packages/apps/commise/web/src/features/cooking-mode/CookingModeScreen.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/StepDisplay.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/StepNavigation.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/TimerBadge.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/ActiveTimers.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/TimerCard.tsx"
                     ],
                     "expected_mobile_targets": [
-                        "packages/apps/sous-chef/mobile/src/features/cooking-mode/CookingModeScreen.tsx",
-                        "packages/apps/sous-chef/mobile/src/features/cooking-mode/StepDisplay.tsx",
-                        "packages/apps/sous-chef/mobile/src/features/cooking-mode/StepNavigation.tsx",
-                        "packages/apps/sous-chef/mobile/src/features/cooking-mode/TimerBadge.tsx",
-                        "packages/apps/sous-chef/mobile/src/features/cooking-mode/ActiveTimers.tsx",
-                        "packages/apps/sous-chef/mobile/src/features/cooking-mode/TimerCard.tsx"
+                        "packages/apps/commise/mobile/src/features/cooking-mode/CookingModeScreen.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/StepDisplay.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/StepNavigation.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/TimerBadge.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/ActiveTimers.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/TimerCard.tsx"
                     ]
                 },
                 {
@@ -186,7 +186,7 @@
                 {
                     "id": "L7-001",
                     "severity": "INFO",
-                    "message": "tasks.md uses 'apps/web/…' and 'apps/mobile/…' shorthand instead of full monorepo paths 'packages/apps/sous-chef/web/src/…' and 'packages/apps/sous-chef/mobile/src/…'.",
+                    "message": "tasks.md uses 'apps/web/…' and 'apps/mobile/…' shorthand instead of full monorepo paths 'packages/apps/commise/web/src/…' and 'packages/apps/commise/mobile/src/…'.",
                     "note": "Unambiguous in Turborepo context; root package.json workspaces confirm correct resolution."
                 },
                 {
@@ -226,7 +226,7 @@
     ],
     "recommendations": [
         "Resolve FR-count mismatch in product-spec.md vs spec.md for clarity.",
-        "Update tasks.md target paths to use full monorepo paths (packages/apps/sous-chef/...) to avoid ambiguity.",
+        "Update tasks.md target paths to use full monorepo paths (packages/apps/commise/...) to avoid ambiguity.",
         "Add 'expo-keep-awake' to mobile/package.json dependencies before T-005 implementation."
     ]
 }

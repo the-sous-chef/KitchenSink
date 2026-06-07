@@ -7,7 +7,7 @@
 
 ## Overview
 
-Feature 007 extends existing Sous Chef architecture with grocery-specific aggregation and optional ordering handoff. The stack is anchored in TypeScript/NestJS/PostgreSQL and augmented by store partner APIs.
+Feature 007 extends existing Commise architecture with grocery-specific aggregation and optional ordering handoff. The stack is anchored in TypeScript/NestJS/PostgreSQL and augmented by store partner APIs.
 
 ---
 

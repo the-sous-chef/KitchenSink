@@ -7,7 +7,7 @@
 
 ## Overview
 
-Feature 004 extends the existing Sous Chef stack with import-specific extraction, normalization, and policy controls. Technology selection is constrained by existing TypeScript/NestJS architecture and source-attribution requirements.
+Feature 004 extends the existing Commise stack with import-specific extraction, normalization, and policy controls. Technology selection is constrained by existing TypeScript/NestJS architecture and source-attribution requirements.
 
 ---
 

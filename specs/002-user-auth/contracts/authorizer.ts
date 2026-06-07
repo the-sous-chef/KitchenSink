@@ -12,12 +12,12 @@ import type { UserStatus } from "./user.js";
 
 /**
  * Custom claims namespace used in IdP access tokens.
- * All Sous Chef custom claims are namespaced to comply with OIDC spec.
+ * All Commise custom claims are namespaced to comply with OIDC spec.
  */
-export const CLAIM_NAMESPACE = "https://sous-chef.io/" as const;
+export const CLAIM_NAMESPACE = "https://commise.io/" as const;
 
 /**
- * The decoded payload of an IdP access token with Sous Chef custom claims.
+ * The decoded payload of an IdP access token with Commise custom claims.
  * Validated by the Lambda REQUEST authorizer on every API request.
  */
 export interface IdpTokenPayload {
@@ -25,23 +25,23 @@ export interface IdpTokenPayload {
   readonly iss: string;
   /** IdP subject (IdP user ID, e.g., `user_abc123`). */
   readonly sub: string;
-  /** Token audience. Must include `https://api.sous-chef.io`. */
+  /** Token audience. Must include `https://api.commise.io`. */
   readonly aud: string | string[];
   /** Token expiration (Unix timestamp). */
   readonly exp: number;
   /** Token issued-at (Unix timestamp). */
   readonly iat: number;
-  /** Canonical Sous Chef user ID (UUIDv4). */
-  readonly "https://sous-chef.io/userId": string;
+  /** Canonical Commise user ID (UUIDv4). */
+  readonly "https://commise.io/userId": string;
   /**
    * IdP user ID — same as `sub`. Included for explicitness.
    * This is the spec's canonical claim path for the identity provider user identifier.
    */
-  readonly "https://sous-chef.io/identityId": string;
+  readonly "https://commise.io/identityId": string;
   /** User's email address. */
-  readonly "https://sous-chef.io/email": string;
+  readonly "https://commise.io/email": string;
   /** User's account status. Suspended users receive 403. */
-  readonly "https://sous-chef.io/status": UserStatus;
+  readonly "https://commise.io/status": UserStatus;
 }
 
 /**
@@ -55,7 +55,7 @@ export interface IdpTokenPayload {
  * @see research.md §1 — Context Injection
  */
 export interface AuthorizerContext {
-  /** Canonical Sous Chef user ID (UUIDv4). Primary identifier for all downstream operations. */
+  /** Canonical Commise user ID (UUIDv4). Primary identifier for all downstream operations. */
   userId: string;
   /** IdP `sub` claim. For IdP Backend API calls only. */
   identityUserId: string;

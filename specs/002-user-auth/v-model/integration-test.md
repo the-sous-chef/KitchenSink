@@ -204,7 +204,7 @@ Each test case identifies its technique by name and anchors to a specific archit
 **Description**: Verifies the full data flow: ARCH-006 receives the deep-link authorization code, exchanges it with the IdP, stores tokens via ARCH-005, and signals ARCH-004.
 
 - **Integration Scenario: ITS-006-A1**
-    - **Given** ARCH-006 receives a deep-link `sous-chef://auth/callback?code=<valid_code>&state=<valid_state>`
+    - **Given** ARCH-006 receives a deep-link `commise://auth/callback?code=<valid_code>&state=<valid_state>`
     - **When** ARCH-006 exchanges the code with the IdP's `/oauth/token` and receives `{access_token, refresh_token}`
     - **Then** ARCH-006 calls ARCH-005's `setToken()` with the received tokens, then dispatches auth state update to ARCH-004
 
@@ -385,10 +385,10 @@ Each test case identifies its technique by name and anchors to a specific archit
 
 **Technique**: Data Flow Testing
 **Target View**: Data Flow View
-**Description**: Verifies that ARCH-012 correctly fetches the IdP user list, compares it with the Sous Chef DB, and delegates missing records to ARCH-011.
+**Description**: Verifies that ARCH-012 correctly fetches the IdP user list, compares it with the Commise DB, and delegates missing records to ARCH-011.
 
 - **Integration Scenario: ITS-012-A1**
-    - **Given** the IdP Backend API returns a user list containing `user_A` and `user_B`, but only `user_A` exists in the Sous Chef DB
+    - **Given** the IdP Backend API returns a user list containing `user_A` and `user_B`, but only `user_A` exists in the Commise DB
     - **When** ARCH-012 compares the IdP list with the DB
     - **Then** ARCH-012 calls ARCH-011's `POST /internal/provision-user` for `user_B` only
 
@@ -706,7 +706,7 @@ Each test case identifies its technique by name and anchors to a specific archit
 **Description**: Verifies that ARCH-025 returns an active status to ARCH-024 for non-suspended users.
 
 - **Integration Scenario: ITS-025-A1**
-    - **Given** ARCH-024 calls ARCH-025 with a `userId` that is not suspended in the IdP or the Sous Chef DB
+    - **Given** ARCH-024 calls ARCH-025 with a `userId` that is not suspended in the IdP or the Commise DB
     - **When** ARCH-025 checks the `blocked` flag in the IdP and the `status` field in the DB
     - **Then** ARCH-025 returns `{status: "active"}` to ARCH-024
 
@@ -731,7 +731,7 @@ Each test case identifies its technique by name and anchors to a specific archit
 
 **Technique**: Data Flow Testing
 **Target View**: Data Flow View
-**Description**: Verifies that ARCH-026 correctly calls IdP Backend API to block the user and updates the Sous Chef DB `status` field.
+**Description**: Verifies that ARCH-026 correctly calls IdP Backend API to block the user and updates the Commise DB `status` field.
 
 - **Integration Scenario: ITS-026-A1**
     - **Given** an admin sends `POST /admin/users/{id}/suspend` with a valid admin JWT

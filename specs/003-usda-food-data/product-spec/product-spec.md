@@ -11,7 +11,7 @@
 
 **Runtime**: Node 24.x (per monorepo `.nvmrc` and root `package.json` engines field).
 
-USDA Food Data Integration makes nutritional data in Sous Chef trustworthy, low-latency, and operationally resilient. Instead of blocking user flows on third-party lookups, the system serves food data from a local store and uses event-driven backfill to continuously improve coverage. The user experience emphasizes clarity: instant cache hits, explicit pending states, and transparent disambiguation between branded and generic foods.
+USDA Food Data Integration makes nutritional data in Commise trustworthy, low-latency, and operationally resilient. Instead of blocking user flows on third-party lookups, the system serves food data from a local store and uses event-driven backfill to continuously improve coverage. The user experience emphasizes clarity: instant cache hits, explicit pending states, and transparent disambiguation between branded and generic foods.
 
 **Tagline**: "Authoritative nutrition, queue-safe UX."
 
@@ -182,7 +182,7 @@ Instrument queue health, latency, and failure signals with optional real-time cl
 
 - Modifying existing feature specs (`001`, `002`, `006`, `007`, `009`).
 - Recipe-level nutrition policy decisions for unmatched freeform ingredients beyond the provided status semantics.
-- New auth boundary separate from existing Sous Chef authorizer (explicitly excluded by FR-035/A-009).
+- New auth boundary separate from existing Commise authorizer (explicitly excluded by FR-035/A-009).
 
 ---
 

@@ -166,7 +166,7 @@ This confirms the gap is known but unresolved.
 
 ### Monorepo Path References
 
-- `tasks.md` references `packages/api/creator-profiles-api/*` as a new package path. This does not match the existing workspace list in the root README (`packages/apps/sous-chef/{web,mobile}`, `packages/ui`, `packages/tools/*`), but `T001` explicitly calls for workspace registration, so the path is planned, not stale.
+- `tasks.md` references `packages/api/creator-profiles-api/*` as a new package path. This does not match the existing workspace list in the root README (`packages/apps/commise/{web,mobile}`, `packages/ui`, `packages/tools/*`), but `T001` explicitly calls for workspace registration, so the path is planned, not stale.
 - No bare `apps/X` path references were found in task paths. All paths use `packages/` prefix or are underspecified controller-level references. No INFO flags raised on monorepo path mismatches.
 
 ---

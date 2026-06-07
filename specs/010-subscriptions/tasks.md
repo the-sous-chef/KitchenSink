@@ -194,31 +194,31 @@ T-018 ──→ T-026 ──→ T-027
 > Free-tier users see contextual upgrade prompts; 403 responses are intercepted. Implements FR-042.
 
 - [ ] **T-021** [P1] [US-004] Web frontend HTTP interceptor for `403 PREMIUM_REQUIRED`  
-  — `packages/apps/sous-chef/web/src/lib/billing-interceptor.ts`  
+  — `packages/apps/commise/web/src/lib/billing-interceptor.ts`  
   **Depends on**: T-005  
   **Implements**: FR-042 (three-tier prompt hierarchy per spec.md)  
   **Acceptance**: Attempting a premium action as free user shows upgrade CTA modal, not generic error toast; CTA links to checkout flow.
 
 - [ ] **T-022** [P1] [US-004] Build reusable `<UpgradePrompt>` component (web)  
-  — `packages/apps/sous-chef/web/src/components/UpgradePrompt.tsx`  
+  — `packages/apps/commise/web/src/components/UpgradePrompt.tsx`  
   **Depends on**: T-021  
   **Implements**: FR-042, NFR-003, NFR-004 (accessible, non-color-only state)  
   **Acceptance**: Component renders with `aria-label`; Playwright `getByRole` finds CTA; color is not sole state indicator.
 
 - [ ] **T-023** [P1] [US-004] Subscription status banner for `past_due` accounts (web)  
-  — `packages/apps/sous-chef/web/src/components/PastDueBanner.tsx`  
+  — `packages/apps/commise/web/src/components/PastDueBanner.tsx`  
   **Depends on**: T-011  
   **Implements**: FR-042, FR-043 (past-due banner per plan.md OQ-4)  
   **Acceptance**: Banner visible for `past_due` users on all pages; hidden for `active`/`free`/`trialing`; links to customer portal.
 
 - [ ] **T-024** [P1] [US-004] Mobile upgrade prompts (Expo / React Native)  
-  — `packages/apps/sous-chef/mobile/src/components/UpgradeSheet.tsx`  
+  — `packages/apps/commise/mobile/src/components/UpgradeSheet.tsx`  
   **Depends on**: T-021  
   **Implements**: FR-042 (mobile deep-link per spec.md Assumptions)  
   **Acceptance**: Premium action on mobile shows upgrade bottom sheet; tapping CTA opens system browser to web checkout URL.
 
 - [ ] **T-025** [P2] [US-004] E2E tests — upgrade flow (Playwright)  
-  — `packages/apps/sous-chef/web/e2e/upgrade-flow.spec.ts`  
+  — `packages/apps/commise/web/e2e/upgrade-flow.spec.ts`  
   **Depends on**: T-022, T-023  
   **Implements**: FR-042, NFR-003  
   **Acceptance**: Free user hits gated feature → upgrade prompt appears; `past_due` banner visible on dashboard; premium user accesses gated feature without prompt.
@@ -242,7 +242,7 @@ T-018 ──→ T-026 ──→ T-027
   **Acceptance**: Lapsed user can READ their own private recipes; cannot CREATE new private recipes or use AI features; `PlanGuard` only gates write/action endpoints for owned content.
 
 - [ ] **T-028** [P2] [US-005] Mobile subscription status screen and portal deep-link  
-  — `packages/apps/sous-chef/mobile/src/screens/SubscriptionScreen.tsx`  
+  — `packages/apps/commise/mobile/src/screens/SubscriptionScreen.tsx`  
   **Depends on**: T-011, T-024  
   **Implements**: FR-041, FR-043 (mobile billing surface per spec.md Assumptions)  
   **Acceptance**: Free user sees upgrade CTA; active premium user sees plan details and Manage button; `past_due` user sees recovery banner; all buttons open correct URLs in system browser via `Linking.openURL`.

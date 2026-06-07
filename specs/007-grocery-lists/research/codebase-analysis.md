@@ -12,8 +12,8 @@ Root workspaces from `package.json`:
 ```json
 "workspaces": [
     "packages/tools/*",
-    "packages/apps/sous-chef/web",
-    "packages/apps/sous-chef/mobile",
+    "packages/apps/commise/web",
+    "packages/apps/commise/mobile",
     "packages/ui"
 ]
 ```
@@ -28,11 +28,11 @@ Based on `plan.md` + `tasks.md` locations:
 
 | Concern                        | Proposed Placement                                                                        |
 | ------------------------------ | ----------------------------------------------------------------------------------------- |
-| Grocery API module             | `packages/apps/sous-chef/api/src/grocery-lists/`                                          |
-| Store API clients              | `packages/apps/sous-chef/api/src/grocery-lists/store-clients/`                            |
+| Grocery API module             | `packages/apps/commise/api/src/grocery-lists/`                                          |
+| Store API clients              | `packages/apps/commise/api/src/grocery-lists/store-clients/`                            |
 | Shared unit conversion utility | `packages/shared/src/culinary-units.ts` (as planned)                                      |
-| Web grocery list UI            | `packages/apps/sous-chef/web` routes/components                                           |
-| Mobile parity UI               | `packages/apps/sous-chef/mobile` screens/components (if included in implementation scope) |
+| Web grocery list UI            | `packages/apps/commise/web` routes/components                                           |
+| Mobile parity UI               | `packages/apps/commise/mobile` screens/components (if included in implementation scope) |
 
 ---
 
@@ -41,7 +41,7 @@ Based on `plan.md` + `tasks.md` locations:
 Feature-level dependencies from `spec.md`:
 
 - **006-meal-planning**: source meal plans for list generation
-- **001-sous-chef-recipe-app**: ingredient source records
+- **001-commise-recipe-app**: ingredient source records
 - **003-usda-food-data**: normalized ingredient identity/unit context
 - **002-user-auth**: authenticated access
 - **010-subscriptions**: premium gating for FR-031 ordering flow

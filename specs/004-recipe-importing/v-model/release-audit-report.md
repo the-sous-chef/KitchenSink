@@ -8,7 +8,7 @@
 **Version**: (not specified)
 **Git Tag**: (not specified)
 **Date**: 2026-05-10
-**Regulatory Context**: Non-regulated consumer SaaS (Sous Chef)
+**Regulatory Context**: Non-regulated consumer SaaS (Commise)
 
 56 requirement/acceptance rows traced across 5 traceability matrices.
 93 mapped scenario references: 0 passed, 0 failed, 0 skipped, 93 untested.
@@ -67,7 +67,7 @@
 | **REQ-NF-005** | Color MUST NOT be the sole conveyor of state in any UI component for this feature; icon / text label pairing is required.                                                                                                                  | ❌ MISSING           | Acceptance coverage for REQ-NF-005 | —           | ⬜ Untested |
 | **REQ-IF-001** | The system SHALL integrate with Instagram's public oEmbed API for caption extraction from Instagram post URLs.                                                                                                                             | ❌ MISSING           | Acceptance coverage for REQ-IF-001 | —           | ⬜ Untested |
 | **REQ-IF-002** | The system SHALL integrate with an OCR/text extraction service to process photos of physical recipe copies.                                                                                                                                | ❌ MISSING           | Acceptance coverage for REQ-IF-002 | —           | ⬜ Untested |
-| **REQ-IF-003** | The system SHALL integrate with the Recipe entity model defined in feature 001-sous-chef-recipe-app; all imported recipes MUST be stored as Recipe entities conforming to that schema.                                                     | ❌ MISSING           | Acceptance coverage for REQ-IF-003 | —           | ⬜ Untested |
+| **REQ-IF-003** | The system SHALL integrate with the Recipe entity model defined in feature 001-commise-recipe-app; all imported recipes MUST be stored as Recipe entities conforming to that schema.                                                     | ❌ MISSING           | Acceptance coverage for REQ-IF-003 | —           | ⬜ Untested |
 | **REQ-IF-004** | The system SHALL enforce authentication via feature 002-user-auth for all import actions; unauthenticated import attempts MUST be rejected.                                                                                          | ❌ MISSING           | Acceptance coverage for REQ-IF-004 | —           | ⬜ Untested |
 | **REQ-CN-001** | The system MUST NOT create more than one public recipe record per unique source URL; source URL is the deduplication key for public imports.                                                                                               | ❌ MISSING           | Acceptance coverage for REQ-CN-001 | —           | ⬜ Untested |
 | **REQ-CN-002** | The system MUST NOT make public any recipe imported from a paywalled / paid source, regardless of how it was entered.                                                                                                                      | ❌ MISSING           | Acceptance coverage for REQ-CN-002 | —           | ⬜ Untested |

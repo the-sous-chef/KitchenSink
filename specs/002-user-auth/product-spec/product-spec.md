@@ -1,4 +1,4 @@
-# Product Specification: Sous Chef - User Authentication
+# Product Specification: Commise - User Authentication
 
 **Branch**: `002-user-auth`
 **Date**: 2026-05-09
@@ -9,7 +9,7 @@
 
 ## Vision
 
-Sous Chef authentication should feel invisible when healthy and explicit when security boundaries are crossed. Users should get fast, predictable access across web and mobile, while account lifecycle actions (profile updates, deletion, suspension, MFA, and provider linking) remain understandable, auditable, and safe.
+Commise authentication should feel invisible when healthy and explicit when security boundaries are crossed. Users should get fast, predictable access across web and mobile, while account lifecycle actions (profile updates, deletion, suspension, MFA, and provider linking) remain understandable, auditable, and safe.
 
 **Tagline**: "Secure access, zero friction, full lifecycle control."
 
@@ -43,7 +43,7 @@ Sous Chef authentication should feel invisible when healthy and explicit when se
 ### Persona 2 (Secondary): P8 Alex — Power Cook
 
 **Canonical ID**: P8
-**Archetype**: Sous Chef Power User
+**Archetype**: Commise Power User
 **Core Motivation**: Multi-feature daily power use, integrations, automation
 
 **Auth-specific goals and pain points**:
@@ -109,7 +109,7 @@ Covers password reset delegation, MFA enrollment, social provider linking, imper
 
 #### US-001 — Cross-platform Auth Entry and Callback
 
-As a new user, I can authenticate on web/mobile and complete callback token exchange so I can enter Sous Chef securely.
+As a new user, I can authenticate on web/mobile and complete callback token exchange so I can enter Commise securely.
 
 **FRs**: FR-001, FR-002, FR-003, FR-004, FR-005
 
@@ -133,7 +133,7 @@ As an authenticated user, I can logout and fully invalidate local/remote session
 
 #### US-004 — Signup-to-Database Identity Synchronization
 
-As a newly registered user, my identity is synchronized to Sous Chef User/Account records with stable canonical ID, retry protection, and reconciliation fallback.
+As a newly registered user, my identity is synchronized to Commise User/Account records with stable canonical ID, retry protection, and reconciliation fallback.
 
 **FRs**: FR-013, FR-014, FR-015, FR-016, FR-017
 
@@ -167,7 +167,7 @@ As a user, I can permanently delete my account with explicit confirmation, immed
 
 #### US-008 — Password Reset Entry
 
-As a locked-out user, I can launch password reset through the IdP without exposing password handling to Sous Chef backend services.
+As a locked-out user, I can launch password reset through the IdP without exposing password handling to Commise backend services.
 
 **FRs**: FR-027, FR-028
 
@@ -211,7 +211,7 @@ As an authorized support operator, I can impersonate users for diagnostics with 
 
 Inherited from `spec.md` and unchanged in this product-spec layer:
 
-- Email change flow in Sous Chef UI (IdP-managed outside this feature)
+- Email change flow in Commise UI (IdP-managed outside this feature)
 - Admin dashboard for user management
 
 ---

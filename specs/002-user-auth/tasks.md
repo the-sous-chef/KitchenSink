@@ -67,13 +67,13 @@ T-030 → T-089[P]
   - Consolidate canonical auth/identity TypeScript types under `packages/services/identity/src/types/`: JWT claims (including custom `app_user_id` claim), authorizer context, session payload contracts. Add `User`, `Account`, `Profile` read/write DTOs used across service + lambdas. Add deletion queue message shape, reconciliation diff payload shape. All consumers import through `@kitchensink/identity-service` (or subpath `@kitchensink/identity-service/types`).
   - **Acceptance**: All dependent packages import shared contracts from `@kitchensink/identity-service`; no duplicated identity contract types.
 
-- [x] **T-050** [P] [US-001] Implement web protected-route middleware and login redirect — `packages/apps/sous-chef/web/src/middleware.ts`
+- [x] **T-050** [P] [US-001] Implement web protected-route middleware and login redirect — `packages/apps/commise/web/src/middleware.ts`
   - **Depends on**: T-030
   - **Implements**: REQ-001, REQ-003, REQ-005, REQ-IF-001, FR-001, FR-003, FR-005, ARCH-001, ARCH-002, MOD-001, MOD-002
   - Configure Next.js IdP middleware/handlers for protected routes. Redirect unauthenticated requests to IdP login.
   - **Acceptance**: Protected web routes always gate through IdP session.
 
-- [x] **T-060** [P] [US-001] Implement mobile auto-auth gate and callback — `packages/apps/sous-chef/mobile/App.tsx`
+- [x] **T-060** [P] [US-001] Implement mobile auto-auth gate and callback — `packages/apps/commise/mobile/App.tsx`
   - **Depends on**: T-030
   - **Implements**: REQ-001, REQ-002, REQ-005, REQ-IF-002, FR-001, FR-002, FR-005, ARCH-004, ARCH-006, MOD-004, MOD-006
   - Show auth screen automatically when no valid mobile session exists. Handle callback/deeplink token exchange path.
@@ -103,13 +103,13 @@ T-030 → T-089[P]
 
 > Covers FR-006..FR-009: httpOnly cookie (web), Keychain/Keystore (mobile), silent refresh, expired-session fallback.
 
-- [x] **T-051** [US-002] Implement secure web session persistence and refresh — `packages/apps/sous-chef/web/src/`
+- [x] **T-051** [US-002] Implement secure web session persistence and refresh — `packages/apps/commise/web/src/`
   - **Depends on**: T-050
   - **Implements**: REQ-006, REQ-007, REQ-008, REQ-009, FR-006, FR-007, FR-008, FR-009, ARCH-003, ARCH-008, MOD-003, MOD-008
   - Enforce httpOnly/Secure/SameSite cookies. Implement silent refresh behavior and expired-session fallback to login. Implement session expiry warning banner (5 min before expiry) with "Keep me signed in" button triggering silent refresh. Preserve unsaved form state in `localStorage` as a draft before redirecting to login; auto-restore after re-authentication.
   - **Acceptance**: Valid refresh token keeps user signed in without UX interruption.
 
-- [x] **T-061** [US-002] Implement secure mobile token storage and refresh — `packages/apps/sous-chef/mobile/src/storage/tokenCache.ts` + `mobile/src/services/`
+- [x] **T-061** [US-002] Implement secure mobile token storage and refresh — `packages/apps/commise/mobile/src/storage/tokenCache.ts` + `mobile/src/services/`
   - **Depends on**: T-060
   - **Implements**: REQ-006, REQ-007, REQ-008, REQ-009, REQ-IF-003, FR-006, FR-007, FR-008, FR-009, ARCH-005, ARCH-009, MOD-005, MOD-009
   - Persist tokens in platform secure storage (Keychain/Keystore via `expo-secure-store`). Implement silent refresh and invalid-refresh fallback.
@@ -121,13 +121,13 @@ T-030 → T-089[P]
 
 > Covers FR-010..FR-012: local session clear, IdP revocation, return to auth screen.
 
-- [x] **T-052** [US-003] Implement web logout and refresh token revocation — `packages/apps/sous-chef/web/src/`
+- [x] **T-052** [US-003] Implement web logout and refresh token revocation — `packages/apps/commise/web/src/`
   - **Depends on**: T-051
   - **Implements**: REQ-010, REQ-011, REQ-012, FR-010, FR-011, FR-012, ARCH-001, MOD-001
   - Clear session cookies and trigger IdP token revocation/logout flow.
   - **Acceptance**: Post-logout requests require re-authentication.
 
-- [x] **T-062** [US-003] Implement mobile logout and revocation — `packages/apps/sous-chef/mobile/src/` (services + hooks)
+- [x] **T-062** [US-003] Implement mobile logout and revocation — `packages/apps/commise/mobile/src/` (services + hooks)
   - **Depends on**: T-061
   - **Implements**: REQ-010, REQ-011, REQ-012, FR-010, FR-011, FR-012, ARCH-004, MOD-004
   - Clear secure storage and trigger IdP revocation/logout semantics.
@@ -205,7 +205,7 @@ T-030 → T-089[P]
   - Accept multipart/form-data avatar uploads with MIME-type validation (JPEG, PNG, WebP). Enforce 5 MB file-size limit and virus scan stub. Return deterministic 4xx errors for invalid uploads.
   - **Acceptance**: Valid images accepted; invalid MIME types and oversized files rejected before processing.
 
-- [x] **T-053** [US-006] Build web profile page integration (read-only) — `packages/apps/sous-chef/web/src/app/profile/page.tsx`
+- [x] **T-053** [US-006] Build web profile page integration (read-only) — `packages/apps/commise/web/src/app/profile/page.tsx`
   - **Depends on**: T-031, T-051
   - **Implements**: FR-018, REQ-018, ARCH-013, MOD-013
   - **Visual reference**: [`docs/mockups/screens/screen-profile.html`](../../docs/mockups/screens/screen-profile.html) · design tokens from [`docs/mockups/README.md`](../../docs/mockups/README.md)
@@ -254,7 +254,7 @@ T-030 → T-089[P]
 
 ## US-008 — Password Reset Entry
 
-> Covers FR-027..FR-028: IdP-hosted password reset flow; Sous Chef initiates redirect only.
+> Covers FR-027..FR-028: IdP-hosted password reset flow; Commise initiates redirect only.
 
 - [x] **T-034** [US-008] Implement password reset integration endpoints/links support — `packages/services/identity/src/auth/auth.controller.ts`
   - **Depends on**: T-030

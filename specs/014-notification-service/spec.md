@@ -11,7 +11,7 @@
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | [002-user-auth](../002-user-auth/spec.md)           | **Required** — Subscriber authentication and authenticated identity for recipient resolution use the shared auth mechanism owned by 002.   |
 | [003-usda-food-data](../003-usda-food-data/spec.md)             | **Downstream (launch consumer)** — 003 US-005 / FR-NOTIF publishes `food.backfill.completed` and `food.fetch.failed` through this service. |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Downstream** — recipe lifecycle notifications owned by 001 contract updates will be published through this service.                      |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Downstream** — recipe lifecycle notifications owned by 001 contract updates will be published through this service.                      |
 | [005-ai-integration](../005-ai-integration/spec.md)             | **Downstream** — AI-generated content disclosure events owned by 005 contract updates will use this service.                               |
 | [008-cooking-mode](../008-cooking-mode/spec.md)                 | **Downstream** — timer alert events owned by 008 contract updates will use this service.                                                   |
 | [009-nutrition-planning](../009-nutrition-planning/spec.md)     | **Downstream** — compliance-gap events owned by 009 contract updates will use this service.                                                |

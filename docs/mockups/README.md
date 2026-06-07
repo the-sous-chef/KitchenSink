@@ -1,4 +1,4 @@
-# Sous Chef — Figma Make Mockup Archive
+# Commise — Figma Make Mockup Archive
 
 Archive of the Figma Make-generated site for offline reference and design token extraction.
 

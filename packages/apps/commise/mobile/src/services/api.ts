@@ -1,0 +1,59 @@
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.commise.io';
+
+export type GetToken = () => Promise<string | null>;
+
+export class ApiError extends Error {
+    readonly statusCode: number;
+    readonly code?: string;
+    constructor(message: string, statusCode: number, code?: string) {
+        super(message);
+        this.name = 'ApiError';
+        this.statusCode = statusCode;
+        this.code = code;
+    }
+}
+
+interface RequestOptions {
+    method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+    body?: unknown;
+    headers?: Record<string, string>;
+}
+
+export async function apiRequest<T>(getToken: GetToken, path: string, opts: RequestOptions = {}): Promise<T> {
+    const token = await getToken();
+
+    if (!token) {
+        throw new ApiError('Not authenticated', 401, 'unauthenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        method: opts.method ?? 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            ...opts.headers,
+        },
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+
+    if (response.status === 204) {
+        return undefined as T;
+    }
+
+    const payload = (await response.json().catch(() => ({}))) as {
+        message?: string;
+        code?: string;
+    };
+
+    if (!response.ok) {
+        throw new ApiError(payload.message ?? `Request failed: ${response.status}`, response.status, payload.code);
+    }
+
+    return payload as T;
+}
+
+export const getUserMe = (getToken: GetToken) => apiRequest(getToken, '/v1/users/me');
+export const patchUserMe = (getToken: GetToken, body: unknown) =>
+    apiRequest(getToken, '/v1/profiles/me', { method: 'PATCH', body });
+export const deleteUserMe = (getToken: GetToken) => apiRequest(getToken, '/v1/users/me', { method: 'DELETE' });
+export const getAccount = (getToken: GetToken) => apiRequest(getToken, '/v1/accounts/me');

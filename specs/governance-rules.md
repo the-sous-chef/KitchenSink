@@ -153,7 +153,7 @@ Database column names that reference another feature's primary key **MUST** use 
 | -------------------- | -------------------------------------- | ------------------------ |
 | USDA food identifier | `fdc_id`                               | 003-usda-food-data       |
 | Meal plan reference  | `meal_plan_id`                         | 006-meal-planning        |
-| Recipe reference     | `recipe_id`                            | 001-sous-chef-recipe-app |
+| Recipe reference     | `recipe_id`                            | 001-commise-recipe-app |
 | User reference       | `user_id`                              | 002-user-auth      |
 | Subscription tier    | `plan` (values: `'free'`, `'premium'`) | 010-subscriptions        |
 

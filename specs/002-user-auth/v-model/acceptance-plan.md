@@ -337,7 +337,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** a new user completes IdP signup for the first time
 - **When** the user.created webhook post-registration handler runs
-- **Then** a User record with a UUIDv4 ID exists in the Sous Chef database linked to the IdP `sub`
+- **Then** a User record with a UUIDv4 ID exists in the Commise database linked to the IdP `sub`
 
 ---
 
@@ -354,7 +354,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** a new user completes IdP signup
 - **When** the user.created webhook action completes
-- **Then** an Account record associated with the new User exists in the Sous Chef database
+- **Then** an Account record associated with the new User exists in the Commise database
 
 ---
 
@@ -371,7 +371,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** a user has completed signup and logs in
 - **When** the access token is decoded
-- **Then** the token contains the Sous Chef UUIDv4 user ID as a custom claim sourced from `app_metadata`
+- **Then** the token contains the Commise UUIDv4 user ID as a custom claim sourced from `app_metadata`
 
 ---
 
@@ -386,7 +386,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 **ATS-016-A1**
 
-- **Given** the Sous Chef database is temporarily unavailable during signup
+- **Given** the Commise database is temporarily unavailable during signup
 - **When** the user.created webhook action runs and encounters a transient error
 - **Then** the action retries up to 3 times with exponential backoff and ultimately creates the User and Account records once the database recovers
 
@@ -394,7 +394,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** the database remains unavailable for all 3 retry attempts
 - **When** the user.created webhook action exhausts retries
-- **Then** the failure is logged and the IdP user exists without a Sous Chef record (to be resolved by reconciliation — REQ-017)
+- **Then** the failure is logged and the IdP user exists without a Commise record (to be resolved by reconciliation — REQ-017)
 
 ---
 
@@ -409,7 +409,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 **ATS-017-A1**
 
-- **Given** an IdP user exists without a corresponding Sous Chef User record
+- **Given** an IdP user exists without a corresponding Commise User record
 - **When** the reconciliation job or endpoint runs
 - **Then** the missing User and Account records are created and the IdP user's `app_metadata` is updated with the generated UUIDv4
 
@@ -432,7 +432,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** a user is authenticated
 - **When** they navigate to their profile page
-- **Then** the page displays their display name, email, avatar, and account creation date sourced from the Sous Chef database
+- **Then** the page displays their display name, email, avatar, and account creation date sourced from the Commise database
 
 ---
 
@@ -544,7 +544,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** a user has confirmed account deletion
 - **When** the deletion completes
-- **Then** the User and Account records no longer exist in the Sous Chef database AND the user no longer exists in the IdP
+- **Then** the User and Account records no longer exist in the Commise database AND the user no longer exists in the IdP
 
 ---
 
@@ -603,9 +603,9 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 ---
 
-#### Tier 2 — REQ-028: Passwords never handled by Sous Chef backend
+#### Tier 2 — REQ-028: Passwords never handled by Commise backend
 
-**AT-028-A** — No password data in Sous Chef API traffic
+**AT-028-A** — No password data in Commise API traffic
 
 | Field     | Detail     |
 | --------- | ---------- |
@@ -615,8 +615,8 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 **ATS-028-A1**
 
 - **Given** a user completes the password reset flow
-- **When** all network traffic to the Sous Chef backend is inspected
-- **Then** no password or password-related data appears in any request or response to Sous Chef endpoints
+- **When** all network traffic to the Commise backend is inspected
+- **Then** no password or password-related data appears in any request or response to Commise endpoints
 
 ---
 
@@ -818,7 +818,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 **ATS-038-A1**
 
-- **Given** a request is made to any Sous Chef API endpoint without an Authorization header
+- **Given** a request is made to any Commise API endpoint without an Authorization header
 - **When** the API Gateway processes the request
 - **Then** the response is `401 Unauthorized`
 
@@ -853,7 +853,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 ---
 
-#### Tier 2 — REQ-040: Access token includes Sous Chef user ID as custom claim
+#### Tier 2 — REQ-040: Access token includes Commise user ID as custom claim
 
 **AT-040-A** — User ID claim present in access token
 
@@ -866,7 +866,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** a user is authenticated and makes an API request
 - **When** the API handler reads the decoded token
-- **Then** the Sous Chef UUIDv4 user ID is available as a custom claim without an additional database lookup
+- **Then** the Commise UUIDv4 user ID is available as a custom claim without an additional database lookup
 
 ---
 
@@ -887,7 +887,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** an admin triggers user suspension via the backend API
 - **When** the suspension completes
-- **Then** the user is blocked in the IdP AND the User entity `status` is `suspended` in the Sous Chef database
+- **Then** the user is blocked in the IdP AND the User entity `status` is `suspended` in the Commise database
 
 ---
 
@@ -1071,7 +1071,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 #### Tier 2 — REQ-IF-008: Post-registration action creates records via backend API
 
-**AT-IF-008-A** — Post-registration action calls Sous Chef backend
+**AT-IF-008-A** — Post-registration action calls Commise backend
 
 | Field     | Detail                 |
 | --------- | ---------------------- |
@@ -1082,7 +1082,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 - **Given** a new user completes IdP signup
 - **When** the user.created webhook post-registration handler runs
-- **Then** the Sous Chef backend receives a call containing the IdP `sub` claim and the generated UUIDv4, and creates the User and Account records
+- **Then** the Commise backend receives a call containing the IdP `sub` claim and the generated UUIDv4, and creates the User and Account records
 
 ---
 
@@ -1121,14 +1121,14 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 **ATS-IF-010-A1**
 
 - **Given** the reconciliation endpoint or scheduled job receives a list of IdP users
-- **When** it identifies users without Sous Chef records
+- **When** it identifies users without Commise records
 - **Then** it creates the missing records and returns a summary of repairs made
 
 ---
 
-#### Tier 2 — REQ-CN-002: Passwords never handled by Sous Chef backend
+#### Tier 2 — REQ-CN-002: Passwords never handled by Commise backend
 
-**AT-CN-002-A** — No password data in Sous Chef API or database
+**AT-CN-002-A** — No password data in Commise API or database
 
 | Field     | Detail     |
 | --------- | ---------- |
@@ -1137,9 +1137,9 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 **ATS-CN-002-A1**
 
-- **Given** all Sous Chef API endpoints and database schemas are reviewed
+- **Given** all Commise API endpoints and database schemas are reviewed
 - **When** inspected for any password storage, processing, or transmission
-- **Then** no password fields, password hashes, or password-related logic exist in any Sous Chef component
+- **Then** no password fields, password hashes, or password-related logic exist in any Commise component
 
 ---
 
@@ -1154,7 +1154,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 
 **ATS-CN-003-A1**
 
-- **Given** the Sous Chef database schema and application logic are reviewed
+- **Given** the Commise database schema and application logic are reviewed
 - **When** inspected for use of the IdP `sub` claim as a primary identifier
 - **Then** the `sub` is used only for IdP API calls; all internal references use the UUIDv4 user ID
 
@@ -1176,11 +1176,11 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 | REQ-010    | User is authenticated                                         | After logout, API calls return `401`; no tokens in local storage                                       | Scenario-Based Testing     |
 | REQ-011    | User has logged out                                           | Previously issued refresh token rejected by IdP                                                        | Scenario-Based Testing     |
 | REQ-012    | User has logged out                                           | Web: redirected to IdP login; Mobile: IdP login screen shown                                           | Scenario-Based Testing     |
-| REQ-013    | New user completes IdP signup                                 | User record with UUIDv4 exists in Sous Chef database                                                   | Scenario-Based Testing     |
+| REQ-013    | New user completes IdP signup                                 | User record with UUIDv4 exists in Commise database                                                   | Scenario-Based Testing     |
 | REQ-014    | New user completes IdP signup                                 | Account record associated with User exists in database                                                 | Scenario-Based Testing     |
-| REQ-015    | User has signed up and logged in                              | Decoded access token contains Sous Chef UUIDv4 as custom claim                                         | Scenario-Based Testing     |
+| REQ-015    | User has signed up and logged in                              | Decoded access token contains Commise UUIDv4 as custom claim                                         | Scenario-Based Testing     |
 | REQ-016    | Database temporarily unavailable during signup                | User and Account records created after database recovers; no orphaned IdP user                         | Fault Injection            |
-| REQ-017    | IdP user exists without Sous Chef records                     | Reconciliation creates missing records; `app_metadata` updated                                         | Scenario-Based Testing     |
+| REQ-017    | IdP user exists without Commise records                     | Reconciliation creates missing records; `app_metadata` updated                                         | Scenario-Based Testing     |
 | REQ-018    | User is authenticated                                         | Profile page displays display name, email, avatar, and creation date from database                     | Scenario-Based Testing     |
 | REQ-019    | User is on account edit page                                  | Display name and avatar fields are editable and changes are accepted                                   | Scenario-Based Testing     |
 | REQ-020    | User has saved profile edits                                  | Edits persist after logout and re-login                                                                | Scenario-Based Testing     |
@@ -1191,7 +1191,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 | REQ-025    | User with recipes/meal plans confirms deletion                | All user-owned records removed from database                                                           | Scenario-Based Testing     |
 | REQ-026    | Account deletion completed                                    | User logged out and returned to auth screen                                                            | Scenario-Based Testing     |
 | REQ-027    | IdP login screen displayed                                    | "Forgot Password" link initiates IdP reset flow; user receives reset email                             | Scenario-Based Testing     |
-| REQ-028    | User completes password reset                                 | No password data in any Sous Chef API request or response                                              | Inspection                 |
+| REQ-028    | User completes password reset                                 | No password data in any Commise API request or response                                              | Inspection                 |
 | REQ-029    | User is on account settings page                              | MFA enrollment option visible and navigates to IdP MFA flow                                            | Scenario-Based Testing     |
 | REQ-030    | User initiates MFA enrollment                                 | TOTP enrollment completes; authenticator app generates valid codes                                     | Scenario-Based Testing     |
 | REQ-031    | User has enrolled in MFA                                      | IdP prompts for second factor on every subsequent login                                                | Scenario-Based Testing     |
@@ -1203,7 +1203,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 | REQ-037    | Support engineer is impersonating a user                      | Password change, account deletion, and MFA modification requests rejected                              | Equivalence Partitioning   |
 | REQ-038    | API endpoint exists                                           | Requests without token return `401`; requests with expired token return `401`                          | Equivalence Partitioning   |
 | REQ-039    | API Gateway authorizer deployed                               | Requests with wrong key or audience return `401`                                                       | Boundary Value Analysis    |
-| REQ-040    | User is authenticated and makes API request                   | Decoded token contains Sous Chef UUIDv4 as custom claim                                                | Scenario-Based Testing     |
+| REQ-040    | User is authenticated and makes API request                   | Decoded token contains Commise UUIDv4 as custom claim                                                | Scenario-Based Testing     |
 | REQ-041    | Admin triggers suspension via backend API                     | User blocked in IdP; User entity `status` = `suspended` in database                                    | Scenario-Based Testing     |
 | REQ-042    | User is suspended; holds valid access token                   | API Gateway returns `403 Forbidden`                                                                    | Scenario-Based Testing     |
 | REQ-043    | User account is suspended                                     | Login attempt shows suspension message (not generic error)                                             | Scenario-Based Testing     |
@@ -1215,10 +1215,10 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 | REQ-NF-014 | Auth flows executed across environments                       | CloudWatch custom metrics present for all flow types with correct dimensions                           | Scenario-Based Testing     |
 | REQ-NF-015 | Client-side token refresh failure triggered                   | Sentry event exists with breadcrumbs for preceding auth state transitions                              | Fault Injection            |
 | REQ-NF-016 | Authenticated API request made                                | Single trace spans client through API Gateway to backend in X-Ray / OTel                               | Scenario-Based Testing     |
-| REQ-IF-008 | New user completes IdP signup                                 | Sous Chef backend receives call with `sub` and UUIDv4; records created                                 | Scenario-Based Testing     |
+| REQ-IF-008 | New user completes IdP signup                                 | Commise backend receives call with `sub` and UUIDv4; records created                                 | Scenario-Based Testing     |
 | REQ-IF-009 | JWT presented to API Gateway authorizer                       | Valid JWT returns Allow policy; invalid JWT returns Deny policy                                        | Interface Contract Testing |
 | REQ-IF-010 | IdP user list provided to reconciliation endpoint             | Missing records created; repair summary returned                                                       | Scenario-Based Testing     |
-| REQ-CN-002 | All Sous Chef API endpoints and schemas reviewed              | No password fields, hashes, or password logic in any Sous Chef component                               | Inspection                 |
+| REQ-CN-002 | All Commise API endpoints and schemas reviewed              | No password fields, hashes, or password logic in any Commise component                               | Inspection                 |
 | REQ-CN-003 | Database schema and application logic reviewed                | IdP `sub` used only for IdP API calls; UUIDv4 used for all internal references                         | Inspection                 |
 
 ---
@@ -1254,7 +1254,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 | REQ-025     | 1                  | Scenario-Based Testing     | All user-owned data removed on deletion                            |
 | REQ-026     | 1                  | Scenario-Based Testing     | User returned to auth screen after deletion                        |
 | REQ-027     | 1                  | Scenario-Based Testing     | Password reset flow initiated; reset email received                |
-| REQ-028     | 1                  | Inspection                 | No password data in Sous Chef API traffic                          |
+| REQ-028     | 1                  | Inspection                 | No password data in Commise API traffic                          |
 | REQ-029     | 1                  | Scenario-Based Testing     | MFA enrollment option present and functional                       |
 | REQ-030     | 1                  | Scenario-Based Testing     | TOTP enrollment completes; valid codes generated                   |
 | REQ-031     | 1                  | Scenario-Based Testing     | Second factor required on every login after enrollment             |
@@ -1281,7 +1281,7 @@ Non-functional, interface, and constraint requirements use the full ID prefix in
 | REQ-IF-008  | 1                  | Scenario-Based Testing     | Backend receives call with sub and UUIDv4; records created         |
 | REQ-IF-009  | 2                  | Interface Contract Testing | Valid JWT returns Allow; invalid JWT returns Deny                  |
 | REQ-IF-010  | 1                  | Scenario-Based Testing     | Missing records created; repair summary returned                   |
-| REQ-CN-002  | 1                  | Inspection                 | No password data in any Sous Chef component                        |
+| REQ-CN-002  | 1                  | Inspection                 | No password data in any Commise component                        |
 | REQ-CN-003  | 1                  | Inspection                 | IdP sub used only for IdP calls; UUIDv4 used internally            |
 | **Total**   | **~70**            |                            |                                                                    |
 
@@ -1307,10 +1307,10 @@ The feature is considered shippable when all of the following conditions are met
 
 ### Security Gates
 
-- REQ-CN-002: Inspection confirms no password data exists in any Sous Chef component.
+- REQ-CN-002: Inspection confirms no password data exists in any Commise component.
 - REQ-CN-003: Inspection confirms IdP `sub` is not used as a primary identifier in the database or application logic.
 - REQ-006: Token storage security confirmed on both platforms (httpOnly cookies on web; Keychain/Keystore on mobile).
-- REQ-028: Inspection confirms no password data passes through Sous Chef API traffic.
+- REQ-028: Inspection confirms no password data passes through Commise API traffic.
 
 ### Regression
 

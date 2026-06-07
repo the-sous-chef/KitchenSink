@@ -25,7 +25,7 @@ For recipe importing, users care less about social discovery and more about **sp
 | **Duplicate handling**           | User-mediated; limited canonical source de-dup guidance                     |
 | **Attribution visibility**       | Source retained, but UI emphasis varies by platform                         |
 | **Error recovery UX**            | Good parser fallback, limited structured remediation guidance               |
-| **Gap opportunity vs Sous Chef** | Better legal-state communication and deterministic duplicate-to-clone flow  |
+| **Gap opportunity vs Commise** | Better legal-state communication and deterministic duplicate-to-clone flow  |
 
 ---
 
@@ -38,7 +38,7 @@ For recipe importing, users care less about social discovery and more about **sp
 | **Duplicate handling**           | Inconsistent across deployments; mostly user-managed                     |
 | **Attribution visibility**       | Available, but not always prominent in default UI                        |
 | **Error recovery UX**            | Technical; expects advanced user troubleshooting                         |
-| **Gap opportunity vs Sous Chef** | Consumer-grade parse-and-confirm and explicit paywall/legal error states |
+| **Gap opportunity vs Commise** | Consumer-grade parse-and-confirm and explicit paywall/legal error states |
 
 ---
 
@@ -51,7 +51,7 @@ For recipe importing, users care less about social discovery and more about **sp
 | **Duplicate handling**           | Usually append-or-create behavior without canonical clone-first UX               |
 | **Attribution visibility**       | Source field exists; variable prominence in recipe detail                        |
 | **Error recovery UX**            | Better than many OSS peers, still form-heavy for non-technical users             |
-| **Gap opportunity vs Sous Chef** | Guided duplicate resolution tied directly to clone workflow (`FR-008`, `FR-011`) |
+| **Gap opportunity vs Commise** | Guided duplicate resolution tied directly to clone workflow (`FR-008`, `FR-011`) |
 
 ---
 
@@ -64,13 +64,13 @@ For recipe importing, users care less about social discovery and more about **sp
 | **Duplicate handling**           | Primarily user sorting/curation after capture                                |
 | **Attribution visibility**       | Source retained but secondary to planning workflow                           |
 | **Error recovery UX**            | Practical but not deeply diagnostic                                          |
-| **Gap opportunity vs Sous Chef** | Better parser transparency and explicit legal/attribution policy enforcement |
+| **Gap opportunity vs Commise** | Better parser transparency and explicit legal/attribution policy enforcement |
 
 ---
 
 ## Feature Parity Matrix (Import Domain)
 
-| Capability                                        | Paprika     | Mealie        | Tandoor      | Plan To Eat | Sous Chef 004 Target           |
+| Capability                                        | Paprika     | Mealie        | Tandoor      | Plan To Eat | Commise 004 Target           |
 | ------------------------------------------------- | ----------- | ------------- | ------------ | ----------- | ------------------------------ |
 | URL import from recipe websites                   | ✅          | ✅            | ✅           | ✅          | ✅ (`FR-008`)                  |
 | Instagram caption import path                     | ⚠️ Limited  | ⚠️ Plugin/DIY | ⚠️ Variable  | ❌          | ✅ (`FR-009`)                  |

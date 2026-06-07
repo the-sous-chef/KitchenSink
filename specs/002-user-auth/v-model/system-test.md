@@ -130,7 +130,7 @@ Each test case MUST identify its technique by name:
 - **System Scenario: STS-003-A1**
     - **Given** the IdP tenant has the Google social connection enabled
     - **When** the web client initiates login with `connection=google-oauth2` parameter in the `/authorize` request
-    - **Then** the IdP redirects to Google's OAuth consent screen; the Sous Chef backend receives no Google credentials directly
+    - **Then** the IdP redirects to Google's OAuth consent screen; the Commise backend receives no Google credentials directly
 
 - **System Scenario: STS-003-A2**
     - **Given** the IdP tenant has the Google social connection enabled
@@ -202,7 +202,7 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that the Action calls the Sous Chef provisioning service with the correct payload after setting `app_metadata`.
+**Description**: Verifies that the Action calls the Commise provisioning service with the correct payload after setting `app_metadata`.
 
 - **System Scenario: STS-005-B1**
     - **Given** `app_metadata.userId` has been set on the IdP user
@@ -263,10 +263,10 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that the reconciliation job identifies IdP users without Sous Chef database records and creates the missing User/Account records.
+**Description**: Verifies that the reconciliation job identifies IdP users without Commise database records and creates the missing User/Account records.
 
 - **System Scenario: STS-007-A1**
-    - **Given** the IdP contains 3 users and the Sous Chef database contains records for only 2 of them
+    - **Given** the IdP contains 3 users and the Commise database contains records for only 2 of them
     - **When** the reconciliation job runs (scheduled or triggered via API endpoint)
     - **Then** the job calls the provisioning service for the missing user, the response includes `{ repaired: 1, failed: 0 }`, and the database now contains records for all 3 users
 
@@ -291,7 +291,7 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that the profile view component fetches user data from the Sous Chef database via an authorized API call and renders the correct fields.
+**Description**: Verifies that the profile view component fetches user data from the Commise database via an authorized API call and renders the correct fields.
 
 - **System Scenario: STS-008-A1**
     - **Given** a valid JWT is present in the request (web: session cookie; mobile: Authorization header)
@@ -379,12 +379,12 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that the password reset flow is fully delegated to the IdP and the Sous Chef backend never handles password data.
+**Description**: Verifies that the password reset flow is fully delegated to the IdP and the Commise backend never handles password data.
 
 - **System Scenario: STS-011-A1**
     - **Given** a user requests password reset via the "Forgot Password" link
     - **When** the client initiates the password reset flow
-    - **Then** the client redirects to the IdP's hosted password reset page; no password data is sent to or processed by any Sous Chef backend endpoint
+    - **Then** the client redirects to the IdP's hosted password reset page; no password data is sent to or processed by any Commise backend endpoint
 
 - **System Scenario: STS-011-A2**
     - **Given** the IdP's password reset flow completes successfully
@@ -406,7 +406,7 @@ Each test case MUST identify its technique by name:
 - **System Scenario: STS-012-A1**
     - **Given** an authenticated user navigates to account settings
     - **When** the user initiates MFA enrollment
-    - **Then** the client redirects to the IdP's MFA enrollment UI; the Sous Chef backend does not receive or store TOTP secrets
+    - **Then** the client redirects to the IdP's MFA enrollment UI; the Commise backend does not receive or store TOTP secrets
 
 #### Test Case: STP-012-B (MFA Enforcement on Subsequent Login)
 
@@ -417,7 +417,7 @@ Each test case MUST identify its technique by name:
 - **System Scenario: STS-012-B1**
     - **Given** a user has completed MFA enrollment in the IdP
     - **When** the user initiates a new login via the Authorization Code Flow
-    - **Then** the IdP challenges the user for the TOTP second factor before issuing tokens; the Sous Chef client receives tokens only after successful MFA verification
+    - **Then** the IdP challenges the user for the TOTP second factor before issuing tokens; the Commise client receives tokens only after successful MFA verification
 
 ---
 
@@ -429,7 +429,7 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that linking a social provider via IdP Backend API does not create new User/Account records and preserves the canonical Sous Chef user ID.
+**Description**: Verifies that linking a social provider via IdP Backend API does not create new User/Account records and preserves the canonical Commise user ID.
 
 - **System Scenario: STS-013-A1**
     - **Given** an authenticated user with `app_metadata.userId = <uuid>` initiates social account linking
@@ -512,7 +512,7 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Equivalence Partitioning
 **Target View**: Decomposition View
-**Description**: Verifies that the authorizer denies access for users with `status = suspended` in the Sous Chef database.
+**Description**: Verifies that the authorizer denies access for users with `status = suspended` in the Commise database.
 
 - **System Scenario: STS-015-C1**
     - **Given** a valid JWT for a user whose `status` field in the database is `suspended`

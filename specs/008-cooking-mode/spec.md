@@ -3,13 +3,13 @@
 **Feature Branch**: `008-cooking-mode`
 **Created**: 2026-04-14
 **Status**: Draft
-**Input**: Split from `001-sous-chef-recipe-app` — step-by-step hands-free cooking interface with timers and screen wake lock.
+**Input**: Split from `001-commise-recipe-app` — step-by-step hands-free cooking interface with timers and screen wake lock.
 
 ## Dependencies
 
 | Spec                                                            | Relationship                                                     |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — cooking mode renders Recipe instructions from 001 |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Required** — cooking mode renders Recipe instructions from 001 |
 | [002-user-auth](../002-user-auth/spec.md)           | **Required** — all features require authentication               |
 
 ## User Scenarios & Testing _(mandatory)_
@@ -56,7 +56,7 @@ A user selects a recipe and enters "Cooking Mode," which presents a step-by-step
 
 ### Key Entities
 
-None specific — Cooking Mode consumes the Recipe entity defined in [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md).
+None specific — Cooking Mode consumes the Recipe entity defined in [001-commise-recipe-app](../001-commise-recipe-app/spec.md).
 
 ## Success Criteria _(mandatory)_
 

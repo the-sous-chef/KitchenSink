@@ -76,7 +76,7 @@
 | Item | Verdict | Notes |
 | ---- | ------- | ----- |
 | Implementation readiness | **INFO** | `implement` phase is `not-started`. 0/100 tasks complete. No source packages (`digitization-api`, `circles-api`, `digitization-ocr`, `shared-audience`) exist yet. Only T001-level workspace globs and T006-level tsconfig aliases may already be present in root configs. |
-| Monorepo apps/X refs | **INFO** | Tasks T057–T062 reference paths under `packages/apps/sous-chef/{web,mobile}/` only. No disallowed `apps/X` references detected. |
+| Monorepo apps/X refs | **INFO** | Tasks T057–T062 reference paths under `packages/apps/commise/{web,mobile}/` only. No disallowed `apps/X` references detected. |
 
 ---
 
@@ -91,8 +91,8 @@
 **Evidence for CRITICAL:**
 - Commit `13808a8`: "rename auth0Id to clerkId"
 - Commit `3ab8212`: "remove stale auth0 env vars after clerk migration"
-- `packages/apps/sous-chef/web/package.json` depends on `@clerk/nextjs` (no Auth0 SDK)
-- `packages/apps/sous-chef/mobile/package.json` depends on `@clerk/expo` (no Auth0 SDK)
+- `packages/apps/commise/web/package.json` depends on `@clerk/nextjs` (no Auth0 SDK)
+- `packages/apps/commise/mobile/package.json` depends on `@clerk/expo` (no Auth0 SDK)
 - `pre-impl-review.md` still lists "Auth0 bearer middleware" as a design input — this is stale post-migration.
 
 ---

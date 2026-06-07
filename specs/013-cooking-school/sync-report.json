@@ -95,7 +95,7 @@
       "findings": [
         "L4.1 All 10 Must Have FRs and 5 Must Have USs have task coverage (verified T024-T052 decomposition)",
         "L4.2 NO tasks are checked (0/85); no execution evidence exists",
-        "L4.3 CRITICAL: No implementation files found for planned workspaces (packages/api/cooking-school-*, packages/shared/cooking-school-*, packages/apps/sous-chef/{web,mobile} feature files)",
+        "L4.3 CRITICAL: No implementation files found for planned workspaces (packages/api/cooking-school-*, packages/shared/cooking-school-*, packages/apps/commise/{web,mobile} feature files)",
         "L4.4 CRITICAL: This is a pre-implement state; task-to-code traceability cannot yet be closed"
       ]
     },
@@ -122,8 +122,8 @@
         "L7.2 CRITICAL: 010-subscriptions dependency (billing/payout/revenue-share) is referenced but no contract execution evidence exists",
         "L7.3 CRITICAL: 012-creator-profile dependency (educator identity via CreatorProfile) is referenced but no integration execution evidence exists",
         "L7.4 WARNING: 005-ai-integration dependency (AI script drafting) is referenced but no integration execution evidence exists",
-        "L7.5 WARNING: 001-sous-chef-recipe-app dependency (recipe-linked lessons) is referenced but no integration execution evidence exists",
-        "L7.6 No monorepo workspace refs found outside packages/apps/sous-chef/{web,mobile}; no apps/X flagged"
+        "L7.5 WARNING: 001-commise-recipe-app dependency (recipe-linked lessons) is referenced but no integration execution evidence exists",
+        "L7.6 No monorepo workspace refs found outside packages/apps/commise/{web,mobile}; no apps/X flagged"
       ]
     }
   },
@@ -144,7 +144,7 @@
       "severity": "CRITICAL",
       "artifact": "plan.md / tasks.md",
       "finding": "No implementation code found for planned API, shared contracts, web, or mobile packages.",
-      "target": "packages/api/cooking-school-*, packages/shared/cooking-school-*, packages/apps/sous-chef/{web,mobile}",
+      "target": "packages/api/cooking-school-*, packages/shared/cooking-school-*, packages/apps/commise/{web,mobile}",
       "evidence": "Glob searches returned 0 files for planned workspaces.",
       "monorepo_impact": true
     },
@@ -175,7 +175,7 @@
       "severity": "WARNING",
       "artifact": "spec.md §Dependencies",
       "finding": "Referenced dependencies 005 and 001 lack integration execution evidence.",
-      "target": "005-ai-integration, 001-sous-chef-recipe-app",
+      "target": "005-ai-integration, 001-commise-recipe-app",
       "evidence": "No contract test snapshots or integration evidence found."
     },
     {
@@ -205,7 +205,7 @@
       "id": "IF-003",
       "layer": "L7",
       "severity": "INFO",
-      "finding": "No monorepo workspace refs outside packages/apps/sous-chef/{web,mobile} found. No apps/X refs flagged."
+      "finding": "No monorepo workspace refs outside packages/apps/commise/{web,mobile} found. No apps/X refs flagged."
     }
   ]
 }

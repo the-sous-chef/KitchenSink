@@ -75,7 +75,7 @@ None of the benchmarked tools natively combine all four target capabilities as o
 
 ## Feature Parity Matrix (vs Feature 007 Scope)
 
-| Capability                                | FR Mapping                 | AnyList | Out of Milk | Bring | Apple Reminders | Sous Chef 007 Target |
+| Capability                                | FR Mapping                 | AnyList | Out of Milk | Bring | Apple Reminders | Commise 007 Target |
 | ----------------------------------------- | -------------------------- | ------- | ----------- | ----- | --------------- | -------------------- |
 | Meal-plan auto generation                 | FR-028                     | ◑       | ○           | ○     | ○               | ●                    |
 | Cross-recipe dedupe + quantity sum        | FR-028                     | ◑       | ◑           | ◑     | ○               | ●                    |

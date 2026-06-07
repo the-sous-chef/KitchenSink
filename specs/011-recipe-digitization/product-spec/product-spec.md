@@ -41,7 +41,7 @@ Riley receives Circle invitations from Sage and browses the family archive to pl
 
 **Should Have**: Circle recipes surfaced in her meal planning (006) ingredient picker.
 
-### Tertiary — P8 Alex (Sous Chef Power User)
+### Tertiary — P8 Alex (Commise Power User)
 
 Alex uses Circles for team sharing (catering crew, kitchen brigade). He pushes bulk imports and expects the queue to handle volume without manual babysitting.
 

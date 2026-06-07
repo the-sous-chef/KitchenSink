@@ -339,8 +339,8 @@ Returns [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728) Protected Resource Me
 
 ```json
 {
-    "authorization_servers": ["https://sous-chef.auth0.com"],
-    "resource": "https://api.sous-chef.io/mcp"
+    "authorization_servers": ["https://commise.auth0.com"],
+    "resource": "https://api.commise.io/mcp"
 }
 ```
 
@@ -352,7 +352,7 @@ Returns Auth0 authorization server metadata (auto-discovered by MCP clients).
 
 MCP protocol handler. Standard JSON-RPC 2.0 batch and single requests over HTTP POST with `Bearer` token.
 
-**Authentication:** OAuth 2.1 with PKCE. Token audience must include `https://api.sous-chef.io/mcp`.
+**Authentication:** OAuth 2.1 with PKCE. Token audience must include `https://api.commise.io/mcp`.
 
 **MCP Tools exposed:**
 
@@ -666,7 +666,7 @@ Secrets Manager key deletion policy: key is deleted when user removes BYOK key f
 | OQ-3 | **MCP OAuth client registration UI?** External agents need a `client_id`/`client_secret` per integration. Self-service registration portal or email-request?                                              | Open   | Recommend: self-service portal in app settings.                 |
 | OQ-4 | **Prompt template versioning strategy?** Do we allow users to fork and customize system prompts? If yes, user-specific template overrides need a `created_by = userId` path.                              | Open   | V2 scope. V1: platform-only templates with versioned updates.   |
 | OQ-5 | **Anthropic data processing agreement?** Has the legal team executed OpenAI DPA + SCCs? Is there an Anthropic DPA? Required before EU user prompts can flow.                                              | Open   | Block EU AI features until DPA is executed.                     |
-| OQ-6 | **Nutrition advice AI risk classification?** Under EU AI Act, nutrition advice touching medical conditions may be **high-risk**. Is Sous Chef claiming to give medical advice, or is it general wellness? | Open   | Classification determines mandatory conformity assessment.      |
+| OQ-6 | **Nutrition advice AI risk classification?** Under EU AI Act, nutrition advice touching medical conditions may be **high-risk**. Is Commise claiming to give medical advice, or is it general wellness? | Open   | Classification determines mandatory conformity assessment.      |
 
 ---
 

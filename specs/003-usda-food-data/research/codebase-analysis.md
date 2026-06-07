@@ -12,8 +12,8 @@ KitchenSink is a Turborepo + npm workspaces monorepo. Root `package.json` curren
 ```json
 "workspaces": [
   "packages/tools/*",
-  "packages/apps/sous-chef/web",
-  "packages/apps/sous-chef/mobile",
+  "packages/apps/commise/web",
+  "packages/apps/commise/mobile",
   "packages/ui"
 ]
 ```
@@ -28,11 +28,11 @@ Turbo tasks are standardized at root (`build`, `test`, `lint`, `typecheck`, `for
 
 Tooling and utility packages.
 
-### `packages/apps/sous-chef/web`
+### `packages/apps/commise/web`
 
-Web client consuming Sous Chef APIs; downstream consumer of food search + nutrition data.
+Web client consuming Commise APIs; downstream consumer of food search + nutrition data.
 
-### `packages/apps/sous-chef/mobile`
+### `packages/apps/commise/mobile`
 
 Mobile client requiring ingredient-matching and nutrition views.
 
@@ -95,7 +95,7 @@ This supports read-path determinism (FR-001/FR-002), async fetch state (FR-003/F
 
 ## Auth Architecture
 
-Food endpoints inherit existing Sous Chef auth boundary (shared API Gateway authorizer), not a separate auth stack.
+Food endpoints inherit existing Commise auth boundary (shared API Gateway authorizer), not a separate auth stack.
 
 - `GET /v1/foods/{fdcId}`
 - `GET /v1/foods/{fdcId}/status`
@@ -120,7 +120,7 @@ Core runtime topology in plan:
 ## Workspace Dependency Graph
 
 ```
-Sous Chef Web/Mobile
+Commise Web/Mobile
     -> /v1/foods API
         -> PostgreSQL + optional Redis (read path)
         -> EventBridge (on miss)

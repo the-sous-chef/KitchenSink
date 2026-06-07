@@ -20,7 +20,7 @@ Each journey represents an end-to-end user flow. Steps annotate requirement cove
 ```mermaid
 sequenceDiagram
     participant Alex as Alex (Web)
-    participant API as Sous Chef API
+    participant API as Commise API
     participant Guard as PlanGuard
     participant UI as Upgrade Prompt UI
 
@@ -79,7 +79,7 @@ sequenceDiagram
     participant Webhook as Webhook Service
     participant DB as Account Store
     participant Morgan as Morgan
-    participant API as Sous Chef API
+    participant API as Commise API
 
     Stripe->>Webhook: invoice.payment_failed
     Webhook->>DB: status=past_due

@@ -9,7 +9,7 @@
 /**
  * Client-side representation of an active authentication session.
  * The `userId` is extracted from the access token's custom claim
- * `https://sous-chef.io/userId` and is the canonical Sous Chef UUID.
+ * `https://commise.io/userId` and is the canonical Commise UUID.
  *
  * @see specs/002-user-auth/spec.md FR-006, FR-007, FR-008, FR-009
  */
@@ -30,14 +30,14 @@ export interface AuthSession {
    */
   readonly expiresAt: string;
   /**
-   * Canonical Sous Chef user ID (UUIDv4).
-   * Extracted from the access token's `https://sous-chef.io/userId` custom claim.
+   * Canonical Commise user ID (UUIDv4).
+   * Extracted from the access token's `https://commise.io/userId` custom claim.
    * Do NOT use `identityUserId` as an application identifier.
    */
   readonly userId: string;
   /**
    * IdP `sub` claim (e.g., `user_abc123`).
-   * Used only for client-side IdP API calls. Not a Sous Chef application identifier.
+   * Used only for client-side IdP API calls. Not a Commise application identifier.
    */
   readonly identityUserId: string;
 }
