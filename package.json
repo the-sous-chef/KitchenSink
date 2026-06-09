@@ -4,15 +4,15 @@
     "private": true,
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/the-sous-chef/KitchenSink.git"
+        "url": "git+https://github.com/radicle-co/KitchenSink.git"
     },
-    "homepage": "https://github.com/the-sous-chef/KitchenSink#readme",
+    "homepage": "https://github.com/radicle-co/KitchenSink#readme",
     "bugs": {
-        "url": "https://github.com/the-sous-chef/KitchenSink/issues"
+        "url": "https://github.com/radicle-co/KitchenSink/issues"
     },
     "packageManager": "npm@11.11.0",
     "engines": {
-        "node": ">=24.16.0"
+        "node": "24.x"
     },
     "workspaces": [
         "packages/tools/*",
@@ -29,7 +29,7 @@
         "test:e2e": "turbo run test:e2e",
         "lint": "turbo run lint format:check",
         "typecheck": "turbo run typecheck",
-        "dev:local": "turbo run dev:local --filter=@kitchensink/identity-service",
+        "dev:local": "turbo run dev:local",
         "format": "turbo run format",
         "format:check": "turbo run format:check",
         "prepare": "husky || true"
