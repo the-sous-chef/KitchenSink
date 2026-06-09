@@ -25,7 +25,7 @@ if (!domainName) {
 
 const env = account ? { account, region } : { region };
 const isProd = stage === 'prod';
-const isSandbox = stage.startsWith('sandbox-') || stage.startsWith('mr-');
+const isSandbox = stage.startsWith('sandbox-') || stage.startsWith('mr-') || stage.startsWith('pr-');
 
 const networkStack = new NetworkStack(app, `IdentityNetwork-${stage}`, {
     env,
