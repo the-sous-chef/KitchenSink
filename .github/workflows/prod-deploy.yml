@@ -66,8 +66,7 @@ jobs:
                   ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                   IMAGE_TAG: ${{ github.sha }}
               run: |
-                  cd packages/services/identity
-                  docker build -t kitchensink-identity .
+                  docker build -f packages/services/identity/Dockerfile -t kitchensink-identity .
                   docker tag kitchensink-identity:latest ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
                   docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
 
