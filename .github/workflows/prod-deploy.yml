@@ -22,11 +22,11 @@ concurrency:
 
 env:
     NODE_VERSION: 24
-    AWS_REGION: us-east-1
-    CDK_DEFAULT_REGION: us-east-1
+    AWS_REGION: ${{ vars.AWS_REGION }}
+    CDK_DEFAULT_REGION: ${{ vars.AWS_REGION }}
     CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
     STAGE: prod
-    DOMAIN_NAME: armoury-app.com
+    DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
 
 jobs:
     deploy:
