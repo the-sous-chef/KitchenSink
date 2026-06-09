@@ -23,7 +23,7 @@ import tseslint from 'typescript-eslint';
 export function createConfig(tsconfigPath = './tsconfig.json', tsconfigRootDir = process.cwd()) {
     return [
         {
-            ignores: ['dist/**', 'node_modules/**', '*.config.js', '*.config.ts'],
+            ignores: ['dist/**', 'node_modules/**', '*.config.js', '*.config.ts', '**/*.mjs'],
         },
         eslint.configs.recommended,
         ...tseslint.configs.recommended,

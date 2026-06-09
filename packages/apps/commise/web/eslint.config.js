@@ -4,7 +4,7 @@ import { createConfig } from '@kitchensink/eslint';
 export default tseslint.config(
     ...createConfig('./tsconfig.json', import.meta.dirname),
     {
-        ignores: ['.next/**', 'next-env.d.ts', '**/*.config.*', '**/*.config.ts'],
+        ignores: ['.next/**', 'next-env.d.ts', '**/*.config.*', '**/*.config.ts', 'scripts/**'],
     },
     {
         files: ['tests/**/*.ts', 'tests/**/*.tsx'],

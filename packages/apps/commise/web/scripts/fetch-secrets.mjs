@@ -19,7 +19,7 @@ const ENV_FILE = resolve(import.meta.dirname, '../.env.local');
 try {
     const raw = execSync(
         `aws secretsmanager get-secret-value --secret-id ${SECRET_ID} --query SecretString --output text`,
-        { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+        { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     );
     const { PUBLISHABLE_KEY: publishableKey, SECRET_KEY: secretKey } = JSON.parse(raw.trim());
 

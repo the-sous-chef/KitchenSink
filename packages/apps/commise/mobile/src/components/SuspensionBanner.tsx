@@ -14,8 +14,8 @@ export function SuspensionBanner({ status }: SuspensionBannerProps) {
         <View style={styles.container} accessibilityRole="alert">
             <Text style={styles.title}>Account Suspended</Text>
             <Text style={styles.message}>
-                Your account is suspended. Commise access is paused until support restores your account. Please
-                contact support if you believe this is a mistake.
+                Your account is suspended. Commise access is paused until support restores your account. Please contact
+                support if you believe this is a mistake.
             </Text>
         </View>
     );
