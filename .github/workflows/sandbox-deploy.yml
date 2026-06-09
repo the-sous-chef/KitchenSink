@@ -63,6 +63,9 @@ jobs:
             - name: Build identity service package
               run: npm run build --workspace=packages/services/identity
 
+            - name: Prune dev dependencies
+              run: npm prune --omit=dev
+
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -132,6 +135,9 @@ jobs:
 
             - name: Build identity service package
               run: npm run build --workspace=packages/services/identity
+
+            - name: Prune dev dependencies
+              run: npm prune --omit=dev
 
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
