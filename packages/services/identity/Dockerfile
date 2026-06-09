@@ -1,23 +1,9 @@
-FROM node:24-slim AS builder
+FROM node:24-slim
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-COPY tsconfig.json nest-cli.json ./
-COPY src ./src
-
-RUN npm ci
-RUN npm run build
-
-FROM node:24-slim AS runtime
-
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
-COPY --from=builder /app/dist ./dist
-
-RUN npm ci --omit=dev
+COPY node_modules ./node_modules
+COPY packages/services/identity/dist ./dist
 
 EXPOSE 3001
-
 CMD ["node", "dist/main.js"]

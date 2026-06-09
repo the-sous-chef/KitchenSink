@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
         inputs:
             stage:
-                description: 'Sandbox stage name (e.g. sandbox-pr-123, mr-456)'
+                description: 'Sandbox stage name (e.g. sandbox-pr-123, pr-7)'
                 required: true
                 type: string
             destroy:
@@ -13,7 +13,7 @@ on:
                 default: false
                 type: boolean
     pull_request:
-        types: [opened, synchronize, reopened]
+        types: [opened, synchronize, reopened, closed]
         paths:
             - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity/**'
@@ -27,21 +27,23 @@ permissions:
     contents: read
 
 concurrency:
-    group: sandbox-deploy-${{ github.event.inputs.stage || github.event.pull_request.number }}
+    group: sandbox-deploy-${{ github.event.inputs.stage || format('pr-{0}', github.event.pull_request.number) }}
     cancel-in-progress: false
 
 env:
     NODE_VERSION: 24
     AWS_REGION: us-east-1
     CDK_DEFAULT_REGION: us-east-1
+    CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
+    DOMAIN_NAME: armoury-app.com
 
 jobs:
-    deploy:
-        name: Deploy Sandbox
+    deploy-pr-sandbox:
+        name: Deploy PR Sandbox (pr-${{ github.event.pull_request.number }})
         runs-on: ubuntu-latest
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
         env:
-            STAGE: ${{ github.event.inputs.stage || format('mr-{0}', github.event.pull_request.number) }}
+            STAGE: ${{ format('pr-{0}', github.event.pull_request.number) }}
 
         steps:
             - name: Checkout
@@ -62,6 +64,9 @@ jobs:
             - name: Build identity service package
               run: npm run build --workspace=packages/services/identity
 
+            - name: Prune dev dependencies
+              run: npm prune --omit=dev
+
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -73,13 +78,88 @@ jobs:
               id: login-ecr
               uses: aws-actions/amazon-ecr-login@v2
 
+            - name: Ensure ECR repository exists
+              run: aws ecr describe-repositories --repository-names kitchensink-identity || aws ecr create-repository --repository-name kitchensink-identity
+
             - name: Build, tag, and push identity service Docker image
               env:
                   ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                   IMAGE_TAG: ${{ github.sha }}
               run: |
-                  cd packages/services/identity
-                  docker build -t kitchensink-identity .
+                  docker build -f packages/services/identity/Dockerfile -t kitchensink-identity .
+                  docker tag kitchensink-identity:latest ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
+                  docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
+
+            - name: CDK Bootstrap (if needed)
+              run: npx cdk bootstrap aws://${{ env.CDK_DEFAULT_ACCOUNT }}/${{ env.AWS_REGION }}
+
+            - name: Build identity service infra
+              run: npm run infra:build --workspace=packages/services/identity
+
+            - name: Build identity-webhooks infra
+              run: npm run infra:build --workspace=packages/services/identity-webhooks
+
+            - name: CDK Synth (identity service)
+              run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk synth --app "node packages/services/identity/infra/dist/bin/app.js" --all
+
+            - name: CDK Synth (identity-webhooks)
+              run: STAGE=${{ env.STAGE }} npx cdk synth --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all
+
+            - name: CDK Deploy (identity service)
+              run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
+
+            - name: CDK Deploy (identity-webhooks)
+              run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never
+
+    deploy-manual:
+        name: Deploy Manual Sandbox
+        runs-on: ubuntu-latest
+        if: github.event_name == 'workflow_dispatch'
+        env:
+            STAGE: ${{ github.event.inputs.stage }}
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build webhooks package
+              run: npm run build --workspace=packages/services/identity-webhooks
+
+            - name: Build identity service package
+              run: npm run build --workspace=packages/services/identity
+
+            - name: Prune dev dependencies
+              run: npm prune --omit=dev
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
+
+            - name: Ensure ECR repository exists
+              run: aws ecr describe-repositories --repository-names kitchensink-identity || aws ecr create-repository --repository-name kitchensink-identity
+
+            - name: Build, tag, and push identity service Docker image
+              env:
+                  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                  IMAGE_TAG: ${{ github.sha }}
+              run: |
+                  docker build -f packages/services/identity/Dockerfile -t kitchensink-identity .
                   docker tag kitchensink-identity:latest ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
                   docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
 
@@ -113,11 +193,11 @@ jobs:
                   STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
 
     cleanup-pr-sandbox:
-        name: Cleanup PR Sandbox
+        name: Cleanup PR Sandbox (pr-${{ github.event.pull_request.number }})
         runs-on: ubuntu-latest
         if: github.event_name == 'pull_request' && github.event.action == 'closed'
         env:
-            STAGE: ${{ format('mr-{0}', github.event.pull_request.number) }}
+            STAGE: ${{ format('pr-{0}', github.event.pull_request.number) }}
 
         steps:
             - name: Checkout
@@ -132,12 +212,6 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Build identity service infra
-              run: npm run infra:build --workspace=packages/services/identity
-
-            - name: Build identity-webhooks infra
-              run: npm run infra:build --workspace=packages/services/identity-webhooks
-
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -145,8 +219,16 @@ jobs:
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.AWS_REGION }}
 
+            - name: Build identity service infra
+              run: npm run infra:build --workspace=packages/services/identity
+
+            - name: Build identity-webhooks infra
+              run: npm run infra:build --workspace=packages/services/identity-webhooks
+
             - name: CDK Destroy (identity service)
               run: STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity/infra/dist/bin/app.js" --all --force
+              continue-on-error: true
 
             - name: CDK Destroy (identity-webhooks)
               run: STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
+              continue-on-error: true
