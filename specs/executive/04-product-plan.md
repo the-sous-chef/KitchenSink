@@ -6,7 +6,7 @@
 
 ## Product strategy stack
 
-| Layer            | SousChef definition                                                                                                     |
+| Layer            | Commise definition                                                                                                     |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Company mission  | Help households cook better, waste less, and feel confident in the kitchen.                                             |
 | Company strategy | Build the trusted consumer platform for recipe-centered cooking workflows.                                              |
@@ -15,7 +15,7 @@
 | Product goals    | Activation, retention, paid conversion, and creator/content supply after core loop validation.                          |
 
 AI is a strategic accelerant in this stack, not a separate product lane. The
-roadmap should treat `005-ai-integration` as the moment SousChef starts setting
+roadmap should treat `005-ai-integration` as the moment Commise starts setting
 expectations for AI-generated recipes: user control, preview before save,
 default-private generated recipes, explicit consent for external agents,
 confidence messaging, and nutrition boundaries.
@@ -28,7 +28,7 @@ confidence messaging, and nutrition boundaries.
 4. **Workflow over feature count**: each feature must strengthen the loop from idea → table.
 5. **Design for households**: planning, grocery, cooking, and nutrition are multi-person contexts even when one user owns the account.
 6. **AI should reduce effort, not own judgment**: users approve generated recipes, substitutions, grocery mappings, and nutrition interpretations.
-7. **Meet AI users where they are**: users will ask ChatGPT, Gemini, and other agents for cooking help. SousChef should provide consented agent access and durable recipe storage rather than forcing every interaction into the app.
+7. **Meet AI users where they are**: users will ask ChatGPT, Gemini, and other agents for cooking help. Commise should provide consented agent access and durable recipe storage rather than forcing every interaction into the app.
 8. **Generated content starts private**: AI-created recipes should enter the graph as private, editable user-owned drafts until the user deliberately shares or publishes them.
 9. **No ungrounded nutrition authority**: AI can support wellness-oriented cooking, but the product must avoid medical, diagnostic, or treatment claims.
 
@@ -77,7 +77,7 @@ AI discovery should specifically test:
 
 ## Growth model
 
-| Growth component | SousChef approach                                                                                                    |
+| Growth component | Commise approach                                                                                                    |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Engine           | Retained households create/import recipes, plan meals, generate lists, cook, and share outcomes.                     |
 | Fuel             | Recipes, creator content, user household data, AI-assisted imports, and grocery/nutrition integrations.              |

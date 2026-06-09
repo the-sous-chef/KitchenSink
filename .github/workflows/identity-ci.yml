@@ -2,26 +2,22 @@ name: Identity CI
 
 on:
     push:
-        branches: [main, 002-auth0-user-auth]
+        branches: [main, 002-user-auth]
         paths:
-            - 'packages/shared/auth-types/**'
-            - 'packages/infra/identity/**'
-            - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity/**'
-            - 'packages/apps/sous-chef/web/**'
-            - 'packages/apps/sous-chef/mobile/**'
+            - 'packages/services/identity-webhooks/**'
+            - 'packages/apps/commise/web/**'
+            - 'packages/apps/commise/mobile/**'
             - '.github/workflows/identity-ci.yml'
             - 'package.json'
             - 'package-lock.json'
             - 'turbo.json'
     pull_request:
         paths:
-            - 'packages/shared/auth-types/**'
-            - 'packages/infra/identity/**'
-            - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity/**'
-            - 'packages/apps/sous-chef/web/**'
-            - 'packages/apps/sous-chef/mobile/**'
+            - 'packages/services/identity-webhooks/**'
+            - 'packages/apps/commise/web/**'
+            - 'packages/apps/commise/mobile/**'
             - '.github/workflows/identity-ci.yml'
             - 'package.json'
             - 'package-lock.json'
@@ -30,25 +26,17 @@ on:
 permissions:
     contents: read
 
+env:
+    AWS_REGION: us-east-1
+
 concurrency:
     group: identity-ci-${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
 jobs:
-    identity-workspace:
-        name: ${{ matrix.workspace }}
+    install:
+        name: Install dependencies
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    - workspace: '@kitchensink/auth-types'
-                    - workspace: '@kitchensink/identity-infra'
-                    - workspace: '@kitchensink/identity-webhooks'
-                    - workspace: '@kitchensink/identity-service'
-                    - workspace: '@kitchensink/web'
-                    - workspace: '@kitchensink/mobile'
-
         steps:
             - name: Checkout
               uses: actions/checkout@v6
@@ -62,18 +50,263 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
+            - name: Cache dependencies
+              uses: actions/cache/save@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+    build-ui:
+        name: Build @kitchensink/ui
+        runs-on: ubuntu-latest
+        needs: [install]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+            - name: Build UI package
+              run: npm run build --workspace=@kitchensink/ui
+
+            - name: Cache UI build artifacts
+              uses: actions/cache/save@v5
+              with:
+                  path: packages/ui/dist
+                  key: ${{ runner.os }}-ui-dist-${{ github.sha }}
+
+    identity-workspace:
+        name: ${{ matrix.workspace }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - workspace: '@kitchensink/identity-service'
+                    - workspace: '@kitchensink/identity-webhooks'
+                    - workspace: '@kitchensink/web'
+                    - workspace: '@kitchensink/mobile'
+        needs: [install, build-ui]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+            - name: Restore UI build artifacts
+              uses: actions/cache/restore@v5
+              with:
+                  path: packages/ui/dist
+                  key: ${{ runner.os }}-ui-dist-${{ github.sha }}
+
             - name: Lint
               run: npm run lint --workspace=${{ matrix.workspace }}
 
             - name: Typecheck
               run: npm run typecheck --workspace=${{ matrix.workspace }}
 
+            - name: Format check
+              run: npm run format:check --workspace=${{ matrix.workspace }}
+
             - name: Test
               run: npm run test --workspace=${{ matrix.workspace }}
 
+            - name: Configure AWS credentials
+              if: matrix.workspace == '@kitchensink/web'
+              id: aws-creds
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
+
+            - name: Fetch Clerk keys from AWS Secrets Manager
+              if: matrix.workspace == '@kitchensink/web' && steps.aws-creds.outcome == 'success'
+              id: fetch-keys
+              run: |
+                  SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
+                  PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
+                  SECRET_KEY=$(echo "$SECRET" | jq -r '.secretKey')
+                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
+                  echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
+
             - name: Build
+              if: matrix.workspace != '@kitchensink/mobile' && (matrix.workspace != '@kitchensink/web' || steps.aws-creds.outcome == 'success')
               run: npm run build --workspace=${{ matrix.workspace }}
 
-            - name: CDK Synth (infra only)
-              if: matrix.workspace == '@kitchensink/identity-infra'
-              run: npm run synth:quiet --workspace=${{ matrix.workspace }}
+    e2e:
+        name: E2E (${{ matrix.workspace }})
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        strategy:
+            fail-fast: false
+            matrix:
+                workspace:
+                    - '@kitchensink/identity-service'
+                    - '@kitchensink/identity-webhooks'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+            - name: Configure AWS credentials
+              id: aws-creds
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
+
+            - name: Fetch Clerk keys from AWS Secrets Manager
+              if: steps.aws-creds.outcome == 'success'
+              run: |
+                  SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
+                  PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
+                  SECRET_KEY=$(echo "$SECRET" | jq -r '.secretKey')
+                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
+                  echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
+
+            - name: Run e2e tests
+              if: steps.aws-creds.outcome == 'success'
+              run: npm run test:e2e --workspace=${{ matrix.workspace }}
+
+    e2e-web:
+        name: E2E (web — Playwright)
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+            - name: Configure AWS credentials
+              id: aws-creds
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
+
+            - name: Fetch Clerk keys from AWS Secrets Manager
+              if: steps.aws-creds.outcome == 'success'
+              run: |
+                  SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
+                  PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
+                  SECRET_KEY=$(echo "$SECRET" | jq -r '.secretKey')
+                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
+                  echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
+
+            - name: Install Playwright browsers
+              if: steps.aws-creds.outcome == 'success'
+              run: npx playwright install chromium
+
+            - name: Run web e2e tests
+              if: steps.aws-creds.outcome == 'success'
+              run: npm run test:e2e --workspace=@kitchensink/web
+
+    e2e-mobile:
+        name: E2E (mobile — Vitest)
+        runs-on: ubuntu-latest
+        needs: identity-workspace
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: npm
+
+            - name: Restore dependencies
+              uses: actions/cache/restore@v5
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      packages/*/*/node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+            - name: Configure AWS credentials
+              id: aws-creds
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ env.AWS_REGION }}
+              continue-on-error: true
+
+            - name: Fetch Clerk keys from AWS Secrets Manager
+              if: steps.aws-creds.outcome == 'success'
+              run: |
+                  SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
+                  PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
+                  SECRET_KEY=$(echo "$SECRET" | jq -r '.secretKey')
+                  echo "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> "$GITHUB_ENV"
+                  echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
+
+            - name: Run mobile e2e tests
+              if: steps.aws-creds.outcome == 'success'
+              run: npm run test:e2e --workspace=@kitchensink/mobile

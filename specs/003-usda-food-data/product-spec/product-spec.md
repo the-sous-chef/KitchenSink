@@ -11,7 +11,7 @@
 
 **Runtime**: Node 24.x (per monorepo `.nvmrc` and root `package.json` engines field).
 
-USDA Food Data Integration makes nutritional data in Sous Chef trustworthy, low-latency, and operationally resilient. Instead of blocking user flows on third-party lookups, the system serves food data from a local store and uses event-driven backfill to continuously improve coverage. The user experience emphasizes clarity: instant cache hits, explicit pending states, and transparent disambiguation between branded and generic foods.
+USDA Food Data Integration makes nutritional data in Commise trustworthy, low-latency, and operationally resilient. Instead of blocking user flows on third-party lookups, the system serves food data from a local store and uses event-driven backfill to continuously improve coverage. The user experience emphasizes clarity: instant cache hits, explicit pending states, and transparent disambiguation between branded and generic foods.
 
 **Tagline**: "Authoritative nutrition, queue-safe UX."
 
@@ -142,9 +142,9 @@ Instrument queue health, latency, and failure signals with optional real-time cl
    As a recipe author, unknown ingredient IDs are fetched in batch efficiently, so large recipes resolve nutrition without token waste.
    **FRs**: FR-012, FR-023, FR-024
 
-5. **US-005 — Demand-weighted backfill priority and DLQ recovery**
+5. **US-005 — Demand-weighted backfill priority and durable recovery**
    As an operations engineer, user-facing misses naturally rise in priority as demand grows and failed messages are recoverable, so the pipeline remains reliable and fair under traffic spikes.
-   **Mechanism**: Rather than a static `priority: 'high' | 'normal'` enum on `FoodFetchRequested`, the consumer maintains a Redis sorted set keyed by `fdcId` with score = duplicate-request count (`ZINCRBY` on every duplicate enqueue). The rate-limited consumer pulls highest-score `fdcId` first; SQS acts as the wake-up signal, Redis is the actual priority queue. A single user request gets baseline priority; a viral recipe driving 50 polls for the same missing food jumps to the front automatically; background batch enrichment enqueues at score 0 and drains during idle periods. No explicit escalation policy is needed — priority is emergent from demand. In-app notifications inform the requester when a pending food becomes available.
+   **Mechanism**: A durable Postgres `fetch_queue` table is the priority queue, the dedup, and the audit trail in one row per `fdc_id`. Enqueue is a single `INSERT … ON CONFLICT DO UPDATE SET request_count = request_count + 1` — duplicate requests increment a counter rather than spawning new rows. The consumer (a Fargate worker rate-limited to the USDA 1000 req/hr cap via a token bucket) selects via `ORDER BY request_count DESC, first_requested ASC FOR UPDATE SKIP LOCKED`, so the most-requested item wins and FIFO is the tie-breaker. Wakeup is event-driven via Postgres `LISTEN/NOTIFY` (no cron, no SQS, no Redis). A single user request gets baseline priority; a viral recipe driving 50 polls for the same missing food jumps to the front automatically; background batch enrichment enqueues at `request_count=0` and drains during idle periods. No explicit escalation policy is needed — priority is emergent from demand. Transient 5xx errors retry with exponential backoff up to 5 attempts before being marked `status='tombstone'` (the operational DLQ-equivalent, queryable in SQL and re-runnable by flipping the status back to `pending`). 404s tombstone immediately. In-app notifications inform the requester when a pending food becomes available.
    **FRs**: FR-014, FR-015, FR-016, FR-017, FR-018
 
 ### Should Have
@@ -182,7 +182,7 @@ Instrument queue health, latency, and failure signals with optional real-time cl
 
 - Modifying existing feature specs (`001`, `002`, `006`, `007`, `009`).
 - Recipe-level nutrition policy decisions for unmatched freeform ingredients beyond the provided status semantics.
-- New auth boundary separate from existing Sous Chef authorizer (explicitly excluded by FR-035/A-009).
+- New auth boundary separate from existing Commise authorizer (explicitly excluded by FR-035/A-009).
 
 ---
 

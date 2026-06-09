@@ -379,7 +379,7 @@ The three tiers map to: **Feature/Epic → User Story / REQ → BDD Scenario**.
 | REQ-NF-001 | Inspection          | TypeScript `strict: true` enforced; no `any` outside test doubles            |
 | REQ-NF-002 | Inspection          | All exported functions and interfaces carry JSDoc                            |
 | REQ-CN-003 | Inspection          | Ingredient data sourced exclusively from meal plan and recipe entities       |
-| REQ-IF-002 | Inspection          | Ingredient data consumed from Recipe entities per `001-sous-chef-recipe-app` |
+| REQ-IF-002 | Inspection          | Ingredient data consumed from Recipe entities per `001-commise-recipe-app` |
 
 ---
 

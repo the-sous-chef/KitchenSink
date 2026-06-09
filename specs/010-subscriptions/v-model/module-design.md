@@ -557,7 +557,7 @@ CLASS Auth0TierClaimAdapter:
       IF session IS null:
         THROW AuthIdentityError({ code: 'AUTH_IDENTITY_FAILED', userId })
       claims = session.user
-      subscriptionTier = claims['https://sous-chef.app/subscriptionTier']
+      subscriptionTier = claims['https://commise.app/subscriptionTier']
       IF subscriptionTier IS null OR subscriptionTier NOT IN ['free', 'premium']:
         // Claim missing or invalid — default to 'free' (fail-safe)
         RETURN 'free'
@@ -584,7 +584,7 @@ N/A — Stateless (reads from Auth0 session per call; no retained state)
 | Name                | Type                                                  | Size/Constraints | Initialization    | Description                             |
 | ------------------- | ----------------------------------------------------- | ---------------- | ----------------- | --------------------------------------- |
 | `AuthIdentityError` | `Error & { code: string; userId: string }`            | —                | Thrown on failure | Typed error for Auth0 identity failures |
-| `CLAIM_NAMESPACE`   | `string` = `'https://sous-chef.app/subscriptionTier'` | Static constant  | Module load       | Auth0 custom claim namespace key        |
+| `CLAIM_NAMESPACE`   | `string` = `'https://commise.app/subscriptionTier'` | Static constant  | Module load       | Auth0 custom claim namespace key        |
 
 #### Error Handling & Return Codes
 

@@ -4,16 +4,16 @@
 **Created**: 2026-04-14
 **Last Updated**: 2026-05-10
 **Status**: Pre-handoff (open questions resolved — see revision log in review.md)
-**Input**: Split from `001-sous-chef-recipe-app` — grocery list generation from meal plans with ingredient aggregation, deduplication, and online ordering integration.
+**Input**: Split from `001-commise-recipe-app` — grocery list generation from meal plans with ingredient aggregation, deduplication, and online ordering integration.
 
 ## Dependencies
 
 | Spec                                                            | Relationship                                               |
 | --------------------------------------------------------------- | ---------------------------------------------------------- |
 | [006-meal-planning](../006-meal-planning/spec.md)               | **Required** — grocery lists are generated from meal plans |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — ingredient data comes from Recipe entities  |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Required** — ingredient data comes from Recipe entities  |
 | [003-usda-food-data](../003-usda-food-data/spec.md)             | **Required** — ingredient identity and unit normalization  |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all grocery features require authentication |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — all grocery features require authentication |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Referenced** — online ordering is a premium feature      |
 
 ## User Scenarios & Testing _(mandatory)_

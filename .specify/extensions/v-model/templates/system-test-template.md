@@ -23,7 +23,6 @@ technical and component-oriented.
 ## ISO 29119 Test Techniques
 
 Each test case MUST identify its technique by name:
-
 - **Interface Contract Testing** — Verifies API contracts from the Interface View
 - **Boundary Value Analysis** — Tests data limits from the Data Design View
 - **Equivalence Partitioning** — Tests representative data classes
@@ -45,6 +44,14 @@ Each test case MUST identify its technique by name:
   - Prohibited phrases in STS: "the user clicks", "the user sees", "the user navigates"
   - Do NOT renumber existing IDs when updating
   - Append new items; update modified items in-place by ID
+
+  LIFECYCLE TAGS (when evolving):
+  - [DEPRECATED — Superseded by STP-NNN-X]: Test case replaced (parent SYS superseded)
+  - [DEPRECATED — Withdrawn: <reason>]: Test case removed (parent SYS withdrawn)
+  - [SUSPECT — Parent SYS-NNN {deprecated|modified}]: Parent system component changed;
+    resolve by re-parenting, deprecating, regenerating, or confirming active.
+  - Deprecated STPs/STSs stay in the document; they are never deleted.
+  - Coverage checks (SYS→STP) exclude deprecated SYS and deprecated STP items.
 -->
 
 ### Component Verification: SYS-001 ([Component Name])
@@ -57,15 +64,15 @@ Each test case MUST identify its technique by name:
 **Target View**: Interface View
 **Description**: [What this test verifies about the component's behavior]
 
-- **System Scenario: STS-001-A1**
-  - **Given** [component state / system precondition]
-  - **When** [component action / API call / event]
-  - **Then** [expected component behavior / output / state change]
+* **System Scenario: STS-001-A1**
+  * **Given** [component state / system precondition]
+  * **When** [component action / API call / event]
+  * **Then** [expected component behavior / output / state change]
 
-- **System Scenario: STS-001-A2**
-  - **Given** [error precondition]
-  - **When** [invalid input / failure condition]
-  - **Then** [expected error handling / degradation behavior]
+* **System Scenario: STS-001-A2**
+  * **Given** [error precondition]
+  * **When** [invalid input / failure condition]
+  * **Then** [expected error handling / degradation behavior]
 
 #### Test Case: STP-001-B ([Verification Condition])
 
@@ -73,10 +80,10 @@ Each test case MUST identify its technique by name:
 **Target View**: Dependency View
 **Description**: [What this test verifies about failure behavior]
 
-- **System Scenario: STS-001-B1**
-  - **Given** [dependency failure precondition]
-  - **When** [component attempts operation]
-  - **Then** [expected isolation / fallback behavior]
+* **System Scenario: STS-001-B1**
+  * **Given** [dependency failure precondition]
+  * **When** [component attempts operation]
+  * **Then** [expected isolation / fallback behavior]
 
 ---
 
@@ -90,25 +97,28 @@ Each test case MUST identify its technique by name:
 **Target View**: Data Design View
 **Description**: [What this test verifies about data handling]
 
-- **System Scenario: STS-002-A1**
-  - **Given** [data at boundary condition]
-  - **When** [component processes the data]
-  - **Then** [expected behavior at boundary]
+* **System Scenario: STS-002-A1**
+  * **Given** [data at boundary condition]
+  * **When** [component processes the data]
+  * **Then** [expected behavior at boundary]
 
 ---
 
 [Continue for all system components...]
 
-<!-- SAFETY-CRITICAL SECTION: Only include when v-model-config.yml domain is set -->
+<!-- SAFETY-CRITICAL SECTION: Only include when a domain overlay is loaded (Step 2a) -->
 
 <!--
-## Structural Coverage (DO-178C §6.4.4.2 / ISO 26262-6 §9.4.5)
+> **Note:** If a domain overlay is loaded, use the overlay's version of this section.
+> The tables below show the generic structure; domain overlays provide domain-specific column headers and content.
+
+## Structural Coverage
 
 | Component | Coverage Target | Technique | Rationale |
 |-----------|----------------|-----------|-----------|
-| SYS-NNN | MC/DC 100% | Modified Condition/Decision Coverage | [ASIL/DAL level] |
+| SYS-NNN | [target] | [Coverage technique] | [Safety level justification] |
 
-## Resource Usage Testing (DO-178C §6.3.4 / ISO 26262-6 §9.4.4)
+## Resource Usage Testing
 
 | Component | Resource | Measurement | Threshold | Verification Method |
 |-----------|----------|-------------|-----------|---------------------|
@@ -121,14 +131,14 @@ Each test case MUST identify its technique by name:
 
 ## Coverage Summary
 
-| Metric                         | Count           |
-| ------------------------------ | --------------- |
-| Total System Components (SYS)  | [N]             |
-| Total Test Cases (STP)         | [N]             |
-| Total Scenarios (STS)          | [N]             |
-| Components with ≥1 STP         | [N] / [N] ([%]) |
-| Test Cases with ≥1 STS         | [N] / [N] ([%]) |
-| **Overall Coverage (SYS→STP)** | **[%]**         |
+| Metric | Count |
+|--------|-------|
+| Total System Components (SYS) | [N] ([N] active, [N] deprecated) |
+| Total Test Cases (STP) | [N] |
+| Total Scenarios (STS) | [N] |
+| Components with ≥1 STP | [N] / [N] ([%]) (active items only) |
+| Test Cases with ≥1 STS | [N] / [N] ([%]) |
+| **Overall Coverage (SYS→STP)** | **[%]** |
 
 ## Uncovered Components
 

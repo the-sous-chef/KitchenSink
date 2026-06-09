@@ -10,7 +10,7 @@
 
 This document presents the Failure Mode and Effects Analysis (FMEA) for the **Nutrition Planning** feature. Every system component (`SYS-001`..`SYS-014`) from `system-design.md` is assessed for realistic failure modes. Each hazard receives a unique `HAZ-NNN` identifier and is linked to risk-control measures (`REQ-NNN` / `SYS-NNN` / `ARCH-NNN`), enabling the traceability chain: Hazard → Mitigation → Requirement → Test Case (Matrix H in `traceability-matrix.md`).
 
-**Non-regulated context.** Sous Chef nutrition planning is a **consumer-grade wellness** feature, not a medical device and not a clinical decision-support system. Outputs are planning guidance only and explicitly **NOT medical advice**. Severity is measured against user trust, data integrity, privacy, availability, and subscription/business impact — not personal injury. Safety-critical taxonomies (ISO 26262 ASIL, DO-178C DAL, IEC 62304) are intentionally **not** applied; `v-model-config.yml` sets `domain: ''`.
+**Non-regulated context.** Commise nutrition planning is a **consumer-grade wellness** feature, not a medical device and not a clinical decision-support system. Outputs are planning guidance only and explicitly **NOT medical advice**. Severity is measured against user trust, data integrity, privacy, availability, and subscription/business impact — not personal injury. Safety-critical taxonomies (ISO 26262 ASIL, DO-178C DAL, IEC 62304) are intentionally **not** applied; `v-model-config.yml` sets `domain: ''`.
 
 ## ID Schema
 

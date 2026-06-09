@@ -2,12 +2,43 @@
   "schema_version": "1.0",
   "extensions": {
     "product-forge": {
-      "version": "1.3.0",
+      "version": "1.5.1",
       "source": "local",
-      "manifest_hash": "sha256:7a2c37cc1a19f7128516017b6084046309d8b32ce0811a6dbbb8ceb2e4ff4b56",
+      "manifest_hash": "sha256:3556b7ea53b5d2bf6d282e09dea46563f136437a0b6e1039507218d9c8abdf80",
       "enabled": true,
       "priority": 10,
       "registered_commands": {
+        "copilot": [
+          "speckit.product-forge.forge",
+          "speckit.product-forge.research",
+          "speckit.product-forge.product-spec",
+          "speckit.product-forge.revalidate",
+          "speckit.product-forge.bridge",
+          "speckit.product-forge.plan",
+          "speckit.product-forge.tasks",
+          "speckit.product-forge.implement",
+          "speckit.product-forge.verify-full",
+          "speckit.product-forge.test-plan",
+          "speckit.product-forge.test-run",
+          "speckit.product-forge.status",
+          "speckit.product-forge.problem-discovery",
+          "speckit.product-forge.api-docs",
+          "speckit.product-forge.security-check",
+          "speckit.product-forge.tracking-plan",
+          "speckit.product-forge.pre-impl-review",
+          "speckit.product-forge.code-review",
+          "speckit.product-forge.release-readiness",
+          "speckit.product-forge.sync-verify",
+          "speckit.product-forge.change-request",
+          "speckit.product-forge.portfolio",
+          "speckit.product-forge.backfill",
+          "speckit.product-forge.monitoring-setup",
+          "speckit.product-forge.migration-plan",
+          "speckit.product-forge.i18n-harvest",
+          "speckit.product-forge.experiment-design",
+          "speckit.product-forge.feature-flag-cleanup",
+          "speckit.product-forge.retrospective"
+        ],
         "opencode": [
           "speckit.product-forge.forge",
           "speckit.product-forge.research",
@@ -30,6 +61,13 @@
           "speckit.product-forge.release-readiness",
           "speckit.product-forge.sync-verify",
           "speckit.product-forge.change-request",
+          "speckit.product-forge.portfolio",
+          "speckit.product-forge.backfill",
+          "speckit.product-forge.monitoring-setup",
+          "speckit.product-forge.migration-plan",
+          "speckit.product-forge.i18n-harvest",
+          "speckit.product-forge.experiment-design",
+          "speckit.product-forge.feature-flag-cleanup",
           "speckit.product-forge.retrospective"
         ]
       },
@@ -37,9 +75,9 @@
       "installed_at": "2026-04-07T00:31:44.906001+00:00"
     },
     "v-model": {
-      "version": "0.5.0",
+      "version": "0.6.0",
       "source": "local",
-      "manifest_hash": "sha256:c89d91c523153817207ade169da55838933d45827ac4602cd159bb104feb78f5",
+      "manifest_hash": "sha256:e89860aa0c9734f5bcc4823e38bb039671d958d755f7d14e6f382693bc1b6f89",
       "enabled": true,
       "priority": 10,
       "registered_commands": {

@@ -319,7 +319,7 @@ Each test case MUST identify its technique by name:
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that `persistRecipe(attributedPayload)` writes a `RecipeEntity` conforming to the 001-sous-chef-recipe-app schema and returns the persisted entity with a generated `id` (REQ-IF-003).
+**Description**: Verifies that `persistRecipe(attributedPayload)` writes a `RecipeEntity` conforming to the 001-commise-recipe-app schema and returns the persisted entity with a generated `id` (REQ-IF-003).
 
 - **System Scenario: STS-007-A1**
     - **Given** a valid `AttributedPayload` with all required fields (`title`, `ingredients`, `instructions`, `visibility`, `attribution`)

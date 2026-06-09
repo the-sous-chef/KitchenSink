@@ -32,7 +32,6 @@ Generate an ISO 29119-compliant System Test Plan where **every system component*
 Run `{SCRIPT}` from the repository root and parse the JSON output.
 
 The script returns JSON with these keys:
-
 - `VMODEL_DIR`: Path to `specs/{feature}/v-model/` directory
 - `FEATURE_DIR`: Path to `specs/{feature}/` directory
 - `BRANCH`: Current branch name
@@ -72,15 +71,14 @@ For each `SYS-NNN` component in the Decomposition View, generate one or more tes
 
 Each test case MUST name its ISO 29119 technique explicitly. Select based on the design view being verified:
 
-| Design View      | Primary Technique              | What It Tests                                       |
-| ---------------- | ------------------------------ | --------------------------------------------------- |
-| Interface View   | **Interface Contract Testing** | API contracts, protocol compliance, error responses |
-| Data Design View | **Boundary Value Analysis**    | Data limits, thresholds, ranges                     |
-| Data Design View | **Equivalence Partitioning**   | Representative data classes                         |
-| Dependency View  | **Fault Injection**            | Failure propagation, graceful degradation           |
+| Design View | Primary Technique | What It Tests |
+|-------------|------------------|---------------|
+| Interface View | **Interface Contract Testing** | API contracts, protocol compliance, error responses |
+| Data Design View | **Boundary Value Analysis** | Data limits, thresholds, ranges |
+| Data Design View | **Equivalence Partitioning** | Representative data classes |
+| Dependency View | **Fault Injection** | Failure propagation, graceful degradation |
 
 **Rules**:
-
 - Every SYS component gets at least one test case from its most relevant design view
 - Components appearing in multiple views should have test cases from each view
 - A single SYS may have Interface Contract + Boundary Value + Fault Injection test cases
@@ -129,7 +127,6 @@ For each test case (`STP-NNN-X`), generate one or more executable scenarios (`ST
 System test scenarios MUST use **technical, component-oriented language**. They verify architectural behavior, not user journeys.
 
 **PROHIBITED phrases** (these belong in acceptance scenarios, not system tests):
-
 - "the user clicks"
 - "the user sees"
 - "the user navigates"
@@ -140,7 +137,6 @@ System test scenarios MUST use **technical, component-oriented language**. They 
 - "the form displays"
 
 **REQUIRED language style**:
-
 - "the [component name] receives [input]"
 - "the [component name] returns [output]"
 - "the [component name] raises [error/exception]"
@@ -151,7 +147,6 @@ System test scenarios MUST use **technical, component-oriented language**. They 
 **Examples**:
 
 ❌ WRONG (user-centric — belongs in acceptance test):
-
 ```
 Given a logged-in user on the dashboard
 When the user clicks "Export Report"
@@ -159,7 +154,6 @@ Then the user sees a download dialog
 ```
 
 ✅ CORRECT (component-centric — system test):
-
 ```
 Given the Report Generator service has a valid dataset of 500 records
 When the export API receives a GET request to /api/reports/export?format=csv
@@ -169,7 +163,6 @@ Then the service returns a 200 response with Content-Type: text/csv within 3 sec
 #### 4.2 Scenario Quality Criteria
 
 Every STS scenario must satisfy:
-
 1. **Technical precision**: References specific components, APIs, data formats, or error codes
 2. **Measurable outcomes**: Includes thresholds, response codes, or state transitions (not subjective judgments)
 3. **Isolation**: Tests one component behavior per scenario (not end-to-end user flows)
@@ -182,7 +175,7 @@ Every STS scenario must satisfy:
 #### 5.1 Structural Coverage (DO-178C §6.4.4.2 / ISO 26262-6 §9.4.5)
 
 | Component | Coverage Target | Technique | Rationale |
-| --------- | --------------- | --------- | --------- |
+|-----------|----------------|-----------|-----------|
 
 - Specify MC/DC (Modified Condition/Decision Coverage) targets per component
 - Map to the ASIL/DAL level from the system design's FFI section
@@ -190,7 +183,7 @@ Every STS scenario must satisfy:
 #### 5.2 Resource Usage Testing (DO-178C §6.3.4 / ISO 26262-6 §9.4.4)
 
 | Component | Resource | Measurement | Threshold | Verification Method |
-| --------- | -------- | ----------- | --------- | ------------------- |
+|-----------|----------|-------------|-----------|---------------------|
 
 - WCET (Worst Case Execution Time) per critical component
 - Maximum stack depth
@@ -212,7 +205,6 @@ Write the complete system test plan to `{VMODEL_DIR}/system-test.md` using the t
 ### 7. Report Completion
 
 Display a summary:
-
 - Total test cases (STP) and scenarios (STS) generated
 - Coverage: X/Y SYS components covered (must be 100% or flagged)
 - Technique distribution: Interface Contract [N], Boundary Value [N], Fault Injection [N], Equivalence Partitioning [N]
@@ -226,7 +218,6 @@ Display a summary:
 ### Strict Translation Rules
 
 When generating from `system-design.md`:
-
 - **DO NOT** invent test conditions for capabilities not in the design
 - **DO NOT** test user journeys — that is the acceptance test plan's job
 - **DO** generate at least one STP per SYS component

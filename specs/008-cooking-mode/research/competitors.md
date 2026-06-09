@@ -12,7 +12,7 @@ Cooking-mode competitors cluster into two groups:
 1. **Recipe-management incumbents** (Paprika, Yummly, Kitchen Stories) with polished reading and timer UX.
 2. **Assistant-led experiences** (SideChef and similar) emphasizing guided flow and voice-adjacent interaction.
 
-The core opportunity for Sous Chef is not just “having cook mode,” but delivering a reliable **hands-busy** workflow with robust timer handling, wake lock behavior, and accessible controls that survive real kitchen conditions.
+The core opportunity for Commise is not just “having cook mode,” but delivering a reliable **hands-busy** workflow with robust timer handling, wake lock behavior, and accessible controls that survive real kitchen conditions.
 
 ---
 
@@ -27,7 +27,7 @@ The core opportunity for Sous Chef is not just “having cook mode,” but deliv
 | **Core Weaknesses**                  | Limited collaborative guidance features, conservative UI modernization                     |
 | **Timers**                           | Inline + manual timers, trusted by power users                                             |
 | **Voice**                            | Limited/native-assistant dependent                                                         |
-| **Key gap vs Sous Chef opportunity** | Opportunity to exceed with richer accessibility telemetry and modern cross-platform parity |
+| **Key gap vs Commise opportunity** | Opportunity to exceed with richer accessibility telemetry and modern cross-platform parity |
 
 ---
 
@@ -40,7 +40,7 @@ The core opportunity for Sous Chef is not just “having cook mode,” but deliv
 | **Core Weaknesses**                  | Heavier “guided recipe” opinionation can feel rigid for experienced users                            |
 | **Timers**                           | Step-attached timers and progress guidance                                                           |
 | **Voice**                            | Some voice-friendly interaction patterns                                                             |
-| **Key gap vs Sous Chef opportunity** | Deliver equivalent guidance with clearer local-first resilience and stronger screen-reader semantics |
+| **Key gap vs Commise opportunity** | Deliver equivalent guidance with clearer local-first resilience and stronger screen-reader semantics |
 
 ---
 
@@ -53,7 +53,7 @@ The core opportunity for Sous Chef is not just “having cook mode,” but deliv
 | **Core Weaknesses**                  | Cooking mode is strong but ecosystem-driven priorities can dilute pure in-kitchen UX |
 | **Timers**                           | Present, with contextual prompts                                                     |
 | **Voice**                            | Limited first-party voice control                                                    |
-| **Key gap vs Sous Chef opportunity** | Compete on focused, uncluttered cooking flow rather than discovery-heavy experience  |
+| **Key gap vs Commise opportunity** | Compete on focused, uncluttered cooking flow rather than discovery-heavy experience  |
 
 ---
 
@@ -66,13 +66,13 @@ The core opportunity for Sous Chef is not just “having cook mode,” but deliv
 | **Core Weaknesses**                  | Visual richness can increase interaction overhead in messy kitchen contexts              |
 | **Timers**                           | Built-in timer support                                                                   |
 | **Voice**                            | Not a primary differentiator                                                             |
-| **Key gap vs Sous Chef opportunity** | Outperform on utilitarian, large-target, accessibility-first controls for active cooking |
+| **Key gap vs Commise opportunity** | Outperform on utilitarian, large-target, accessibility-first controls for active cooking |
 
 ---
 
 ## Feature Parity Matrix (Cooking Mode Focus)
 
-| Capability                       | Paprika | SideChef | Yummly | Kitchen Stories |        Sous Chef target (008)         |
+| Capability                       | Paprika | SideChef | Yummly | Kitchen Stories |        Commise target (008)         |
 | -------------------------------- | :-----: | :------: | :----: | :-------------: | :-----------------------------------: |
 | One-step-at-a-time view          |   ✅    |    ✅    |   ✅   |       ✅        |              ✅ (FR-032)              |
 | Large readable typography        |   ✅    |    ✅    |   ✅   |       ✅        |          ✅ (FR-032, SC-007)          |

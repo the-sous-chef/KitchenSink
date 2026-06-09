@@ -1,0 +1,225 @@
+{
+  "reportType": "sync-verify",
+  "featureSlug": "012-creator-profiles",
+  "generatedAt": "2026-06-02",
+  "worktreePath": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth",
+  "scope": "Pre-implementation 7-layer scan (L1–L4, L6, L7; L5 skipped)",
+  "mode": "READ-ONLY",
+  "overallGate": "BLOCKED",
+  "layers": [
+    {
+      "id": "L1",
+      "name": "research ↔ product-spec",
+      "direction": "backwards",
+      "status": "PASS",
+      "severity": null,
+      "findings": [
+        {
+          "id": "L1-F01",
+          "severity": "PASSED",
+          "message": "Personas P11 Robin, P5 Morgan, P9 Drew map 1:1 from research.md to product-spec user stories.",
+          "evidence": "research.md §2 (personas) → product-spec §2 (Must/Should/Could stories) with matching assignments."
+        },
+        {
+          "id": "L1-F02",
+          "severity": "PASSED",
+          "message": "Problem statement (no public identity) translates directly to product-spec vision.",
+          "evidence": "research.md §1 → product-spec §1 Vision: 'giving every user the option to become a public creator'."
+        },
+        {
+          "id": "L1-F03",
+          "severity": "PASSED",
+          "message": "Monetization delegation to feature 010 is consistent in both artifacts.",
+          "evidence": "research.md §5 (monetization) and product-spec §4.2 both defer billing to 010."
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "name": "product-spec ↔ spec.md",
+      "direction": "forwards",
+      "status": "CRITICAL",
+      "severity": "CRITICAL",
+      "findings": [
+        {
+          "id": "L2-F01",
+          "severity": "CRITICAL",
+          "message": "spec.md defines only 6 high-level FRs; product-spec defines 30 FRs. Must Have detail is lost.",
+          "evidence": "product-spec/product-spec.md §3 (FR-001..FR-030) vs spec.md §3 (FR-001..FR-006)."
+        },
+        {
+          "id": "L2-F02",
+          "severity": "CRITICAL",
+          "message": "FR-003 (handle uniqueness <100ms), FR-005 (30d/14d cooldown), FR-007-009 (SSR metadata, display rules, privacy), FR-015 (≤5s consistency), FR-017-019 (collection constraints) are present in product-spec but absent from spec.md.",
+          "evidence": "Direct comparison of product-spec FR list to spec.md FR list."
+        },
+        {
+          "id": "L2-F03",
+          "severity": "WARNING",
+          "message": "spec.md includes a known-drift disclaimer (§33-36) acknowledging the gap.",
+          "evidence": "spec.md: 'The detailed FR enumeration ... is carried in product-spec/product-spec.md pending revalidation or a formal crosswalk'."
+        }
+      ],
+      "recommendation": "Complete the formal crosswalk from product-spec FRs into spec.md before implementation begins. Until then, treat product-spec as the authoritative upstream."
+    },
+    {
+      "id": "L3",
+      "name": "spec.md ↔ plan.md",
+      "direction": "forwards",
+      "status": "WARNING",
+      "severity": "WARNING",
+      "findings": [
+        {
+          "id": "L3-F01",
+          "severity": "WARNING",
+          "message": "plan.md assumes the full 30-FR scope from product-spec/V-model while spec.md only provides 6 FRs.",
+          "evidence": "plan.md §24 references schema/cooldown/reservation/SEO/moderation concerns not in spec.md FRs."
+        },
+        {
+          "id": "L3-F02",
+          "severity": "WARNING",
+          "message": "plan.md architecture traces to REQ-001..REQ-018 (V-model), which derive from product-spec, not spec.md.",
+          "evidence": "plan.md §32: 'Follows the V-Model decomposition in v-model/system-design.md'."
+        },
+        {
+          "id": "L3-F03",
+          "severity": "PASSED",
+          "message": "All Must Have stories (US-001..US-006) are explicitly addressed in plan.md.",
+          "evidence": "plan.md §26: 'Must Have stories addressed: US-001, US-002, US-003, US-004, US-005, US-006'."
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "name": "plan.md ↔ tasks.md",
+      "direction": "forwards",
+      "status": "PASS",
+      "severity": null,
+      "findings": [
+        {
+          "id": "L4-F01",
+          "severity": "PASSED",
+          "message": "60 tasks across 7 phases align 1:1 with plan.md phase decomposition.",
+          "evidence": "tasks.md task count: 60 (T001..T060). Phase mapping matches plan.md §84-122."
+        },
+        {
+          "id": "L4-F02",
+          "severity": "PASSED",
+          "message": "Each Must Have story has at least one task mapping.",
+          "evidence": "US-001→T002/T007/T012/T015; US-002→T009/T010/T021/T022/T023; US-003→T008/T024/T025/T026; US-004→T019/T020/T028; US-005→T029/T030; US-006→T011/T035/T036/T038."
+        },
+        {
+          "id": "L4-F03",
+          "severity": "PASSED",
+          "message": "Dependency graph is internally consistent and matches plan.md sequencing.",
+          "evidence": "tasks.md dependency chains: Setup → Schema → Domain APIs → Web/Widget → Analytics/Moderation → Integration → Verification."
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "name": "tasks.md ↔ code",
+      "direction": "forwards",
+      "status": "SKIPPED",
+      "severity": null,
+      "findings": [
+        {
+          "id": "L5-F01",
+          "severity": "INFO",
+          "message": "Skipped per run instructions."
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "name": "code ↔ spec.md",
+      "direction": "backwards",
+      "status": "INFO",
+      "severity": "INFO",
+      "findings": [
+        {
+          "id": "L6-F01",
+          "severity": "INFO",
+          "message": "No implementation files found for planned creator-profiles modules.",
+          "evidence": "glob('**/*creator*') returned zero implementation matches. No packages/api/creator-profiles-api exists."
+        },
+        {
+          "id": "L6-F02",
+          "severity": "INFO",
+          "message": "Missing implementation is expected for a pre-implementation planning phase.",
+          "evidence": "verify-report.md §13: 'CODE_TASKS_COVERAGE = 0/58' and 'all tasks are unchecked'."
+        }
+      ]
+    },
+    {
+      "id": "L7",
+      "name": "spec.md ↔ research.md",
+      "direction": "full-circuit",
+      "status": "PASS",
+      "severity": null,
+      "findings": [
+        {
+          "id": "L7-F01",
+          "severity": "PASSED",
+          "message": "Research personas and needs are fully reflected in spec.md FRs and scope.",
+          "evidence": "P11 (handle) → FR-001; P5 (browse) → FR-001/Follow; P9 (embed) → FR-004; analytics → FR-005."
+        },
+        {
+          "id": "L7-F02",
+          "severity": "PASSED",
+          "message": "Out-of-scope items from research match spec.md exclusions.",
+          "evidence": "Video hosting (013), Circle (011), AI bio (005), verified badge workflow are all in spec.md Out-of-Scope."
+        }
+      ]
+    }
+  ],
+  "crossCutting": {
+    "governance": [
+      {
+        "rule": "GR-002",
+        "status": "PASS",
+        "evidence": "spec.md §67 and tasks.md T005 enforce /api/v1/* across all 012 endpoints."
+      },
+      {
+        "rule": "GR-007",
+        "status": "PASS",
+        "evidence": "tasks.md T004 requires imports from @kitchensink/shared-recipe-core and forbids local duplicate core entities."
+      },
+      {
+        "rule": "GR-014",
+        "status": "PASS",
+        "evidence": "spec.md §31 defines public-profile scope and excludes circle (011) and published-lesson (013)."
+      }
+    ],
+    "monorepoPaths": {
+      "flags": [],
+      "notes": [
+        "tasks.md references packages/api/creator-profiles-api/* as a new planned package. This is not yet present in the workspace; T001 covers registration. No stale app/X references found."
+      ]
+    }
+  },
+  "recommendations": [
+    {
+      "priority": 1,
+      "message": "Resolve L2 CRITICAL by completing the formal crosswalk from product-spec/product-spec.md FRs (FR-001..FR-030) into spec.md. Until then, treat product-spec as the authoritative FR source."
+    },
+    {
+      "priority": 2,
+      "message": "Address L3 WARNING: after crosswalk, re-validate plan.md task-to-FR mappings to reference spec.md FRs rather than only product-spec FRs."
+    },
+    {
+      "priority": 3,
+      "message": "No action for L6: missing implementation is expected and correct for a pre-implementation planning scan."
+    }
+  ],
+  "artifactInventory": [
+    { "artifact": "spec.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/spec.md", "read": true },
+    { "artifact": "product-spec/product-spec.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/product-spec/product-spec.md", "read": true },
+    { "artifact": "plan.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/plan.md", "read": true },
+    { "artifact": "tasks.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/tasks.md", "read": true },
+    { "artifact": "research.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/research.md", "read": true },
+    { "artifact": "v-model/requirements.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/v-model/requirements.md", "read": true },
+    { "artifact": "v-model/release-audit-report.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/v-model/release-audit-report.md", "read": true },
+    { "artifact": "verify-report.md", "path": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/012-creator-profiles/verify-report.md", "read": true }
+  ]
+}

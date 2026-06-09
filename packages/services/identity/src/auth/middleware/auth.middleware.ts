@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException, type NestMiddleware } from '@nestjs/common';
 import type { Request, Response, NextFunction } from 'express';
 
-import type { AuthorizerContext } from '@kitchensink/auth-types';
+import type { AuthorizerContext } from '../../types/index.js';
 
 const PUBLIC_PATHS = new Set(['/health']);
 
@@ -10,6 +10,7 @@ export class AuthMiddleware implements NestMiddleware {
     public use(req: Request & { user?: AuthorizerContext }, _res: Response, next: NextFunction): void {
         if (PUBLIC_PATHS.has(req.path)) {
             next();
+
             return;
         }
 
@@ -48,10 +49,9 @@ function isAuthorizerContext(value: unknown): value is AuthorizerContext {
     const ctx = value as Partial<AuthorizerContext>;
 
     return (
-        typeof ctx.sub === 'string' &&
+        typeof ctx.userId === 'string' &&
         Array.isArray(ctx.scopes) &&
         Array.isArray(ctx.permissions) &&
-        typeof ctx.isM2M === 'boolean' &&
-        (ctx.tokenType === 'user' || ctx.tokenType === 'm2m')
+        ctx.tokenType === 'user'
     );
 }

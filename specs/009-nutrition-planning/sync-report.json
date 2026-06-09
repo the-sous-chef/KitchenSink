@@ -1,0 +1,257 @@
+{
+  "feature_slug": "009-nutrition-planning",
+  "scan_date": "2026-06-02",
+  "worktree": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth",
+  "mode": "pre-implement",
+  "instructions": { "l5_skip": true, "l6_missing_impl": "INFO" },
+  "overall_result": "PASS",
+  "critical_count": 0,
+  "warning_count": 3,
+  "info_count": 2,
+  "layers": [
+    {
+      "layer": "L1",
+      "name": "research ↔ product-spec",
+      "status": "PASS",
+      "findings": [
+        {
+          "id": "L1-001",
+          "severity": "PASSED",
+          "message": "RQ-1 competitor analysis (MyFitnessPal, Cronometer) reflected in product-spec personas and macro target approaches.",
+          "evidence": "research.md lines 20-64; product-spec.md lines 36-40 (P4 Sam goals/pains)"
+        },
+        {
+          "id": "L1-002",
+          "severity": "PASSED",
+          "message": "RQ-3 GDPR Article 9 compliance mapped to trainer-client consent gate (US-005) in product-spec.",
+          "evidence": "research.md lines 95-120; product-spec.md lines 136-139"
+        },
+        {
+          "id": "L1-003",
+          "severity": "PASSED",
+          "message": "RQ-5 consumption dependency on 001/003/006 surfaced in product-spec dependency diagram and personas.",
+          "evidence": "research.md lines 140-170; product-spec.md dependency context"
+        },
+        {
+          "id": "L1-004",
+          "severity": "WARNING",
+          "message": "product-spec Could Have stories (US-008 dietary filters, US-009 deficiency alerts) originate from research domain brief but are not formalized as FR IDs in spec.md.",
+          "evidence": "product-spec.md lines 155-168 (WARNING annotations); verify-report.md W-002"
+        }
+      ]
+    },
+    {
+      "layer": "L2",
+      "name": "product-spec ↔ spec.md",
+      "status": "PASS",
+      "findings": [
+        {
+          "id": "L2-001",
+          "severity": "PASSED",
+          "message": "Must Have stories US-001..US-002 (core nutrition planning) map to FR-036 and FR-037.",
+          "evidence": "product-spec.md line 191-192; spec.md lines 47-48"
+        },
+        {
+          "id": "L2-002",
+          "severity": "PASSED",
+          "message": "Must Have stories US-003..US-004 (premium trainer-client + recipe swap) map to FR-038 and FR-039.",
+          "evidence": "product-spec.md line 193-194; spec.md lines 49-50"
+        },
+        {
+          "id": "L2-003",
+          "severity": "CRITICAL",
+          "message": "NO Must Have requirements missing from spec.md.",
+          "evidence": "4 Must Have stories exist → 4 explicit FRs (FR-036..FR-039) present in spec.md."
+        },
+        {
+          "id": "L2-004",
+          "severity": "PASSED",
+          "message": "NFRs (NFR-001..NFR-004) explicitly present in spec.md and cross-referenced in product-spec README.",
+          "evidence": "spec.md lines 54-57; product-spec/README.md line 29"
+        },
+        {
+          "id": "L2-005",
+          "severity": "WARNING",
+          "message": "Should Have story US-005 (Client Consent Gate) references REQ-008, but spec.md only lists consent as a trailing assumption, not a formal FR.",
+          "evidence": "spec.md lines 69-71; product-spec.md lines 134-139; verify-report.md W-003"
+        }
+      ]
+    },
+    {
+      "layer": "L3",
+      "name": "spec.md ↔ plan.md",
+      "status": "PASS",
+      "findings": [
+        {
+          "id": "L3-001",
+          "severity": "PASSED",
+          "message": "FR-036 (create plan with targets) implemented in plan.md §2 Data Model and §3 CRUD API.",
+          "evidence": "plan.md lines 41-63 (nutrition_plans table); lines 122-128 (endpoints)"
+        },
+        {
+          "id": "L3-002",
+          "severity": "PASSED",
+          "message": "FR-037 (link + compliance) implemented in plan.md §4 Compliance Tracking with calculation flow.",
+          "evidence": "plan.md lines 189-218 (updateCompliance flow, ComplianceStatus enum)"
+        },
+        {
+          "id": "L3-003",
+          "severity": "PASSED",
+          "message": "FR-038 (trainer-client) implemented in plan.md §5 Trainer-Client Model with sharing flow and privacy rules.",
+          "evidence": "plan.md lines 222-246"
+        },
+        {
+          "id": "L3-004",
+          "severity": "PASSED",
+          "message": "FR-039 (AI recipe swap) referenced in plan.md §8 Implementation Order step 7.",
+          "evidence": "plan.md line 284"
+        },
+        {
+          "id": "L3-005",
+          "severity": "PASSED",
+          "message": "SC-010 (5% accuracy) enforced in compliance calculation with ±5% status thresholds.",
+          "evidence": "plan.md lines 212-217; tasks.md lines 124, 210"
+        },
+        {
+          "id": "L3-006",
+          "severity": "PASSED",
+          "message": "All 4 NFRs addressed in plan.md and tasks.md.",
+          "evidence": "NFR-001 (strict TS) in tasks.md line 125; NFR-002 (JSDoc) tasks.md line 123; NFR-003 (accessible names) tasks.md line 322; NFR-004 (not color-only) tasks.md line 235"
+        },
+        {
+          "id": "L3-007",
+          "severity": "PASSED",
+          "message": "Dependency table in spec.md matches plan.md architecture context.",
+          "evidence": "spec.md lines 8-16; plan.md lines 26-34 (GDPR Article 9 compliance)"
+        },
+        {
+          "id": "L3-008",
+          "severity": "WARNING",
+          "message": "Plan.md open questions (activity granularity, goal presets, consent checkbox) are not directly captured as tasks but implicitly addressed through task acceptance criteria.",
+          "evidence": "plan.md lines 268-273; tasks.md T-003/T-014 acceptance criteria"
+        }
+      ]
+    },
+    {
+      "layer": "L4",
+      "name": "plan.md ↔ tasks.md",
+      "status": "PASS",
+      "findings": [
+        {
+          "id": "L4-001",
+          "severity": "PASSED",
+          "message": "All 4 plan.md data model tables have corresponding migration/task T-001.",
+          "evidence": "plan.md lines 42-70; tasks.md T-001 lines 49-70"
+        },
+        {
+          "id": "L4-002",
+          "severity": "PASSED",
+          "message": "Each plan.md API endpoint exists as a task (T-004, T-005, T-007, T-009).",
+          "evidence": "plan.md lines 122-139; tasks.md lines 134-241, 275-298"
+        },
+        {
+          "id": "L4-003",
+          "severity": "PASSED",
+          "message": "Compliance calculation logic in plan.md §4 is decomposed into T-006 and T-007.",
+          "evidence": "plan.md lines 193-207; tasks.md lines 194-216 (T-006), lines 219-241 (T-007)"
+        },
+        {
+          "id": "L4-004",
+          "severity": "PASSED",
+          "message": "Task dependency graph reflects plan.md §8 implementation order.",
+          "evidence": "tasks.md lines 9-29 (graph); plan.md lines 276-284 (order)"
+        },
+        {
+          "id": "L4-005",
+          "severity": "PASSED",
+          "message": "All 17 tasks cover plan.md phases: DB (2), Services (5), Trainer (2), Frontend (3), AI (1), Cross-cut (4).",
+          "evidence": "tasks.md lines 522-542 (summary table)"
+        }
+      ]
+    },
+    {
+      "layer": "L5",
+      "name": "tasks.md ↔ tests",
+      "status": "SKIPPED",
+      "findings": [
+        {
+          "id": "L5-001",
+          "severity": "SKIPPED",
+          "message": "L5 intentionally skipped per instructions.",
+          "evidence": "N/A"
+        }
+      ]
+    },
+    {
+      "layer": "L6",
+      "name": "tasks.md ↔ code",
+      "status": "INFO",
+      "findings": [
+        {
+          "id": "L6-001",
+          "severity": "INFO",
+          "message": "No implementation files exist under packages/apps/commise/{web,mobile}/ for this feature.",
+          "evidence": "find packages/apps/commise -type f -name '*nutrition*' returned no results"
+        },
+        {
+          "id": "L6-002",
+          "severity": "INFO",
+          "message": "All task-referenced src/ paths are planning targets, unimplemented in repository.",
+          "evidence": "tasks.md references src/nutrition/*, src/web/nutrition/*, src/db/*; verify-report.md line 72"
+        },
+        {
+          "id": "L6-003",
+          "severity": "INFO",
+          "message": ".forge-status.yml confirm implement state = not-started.",
+          "evidence": ".forge-status.yml lines 68-70: implement not-started, tasks.md present but no T-IDs marked complete."
+        }
+      ]
+    },
+    {
+      "layer": "L7",
+      "name": "cross-cutting checks",
+      "status": "PASS",
+      "findings": [
+        {
+          "id": "L7-001",
+          "severity": "PASSED",
+          "message": "V-Model requirements.md REQ-001..REQ-020 align with spec.md FR-036..FR-039.",
+          "evidence": "v-model/requirements.md lines 18-19 (REQ-001 → FR-036); acceptance-plan.md lines 14-21 (AC-001..AC-010 traceability)"
+        },
+        {
+          "id": "L7-002",
+          "severity": "PASSED",
+          "message": "System design components (SYS-001..SYS-005) map back to REQ IDs and FR IDs.",
+          "evidence": "v-model/system-design.md lines 20-28 (SYS↔REQ traceability table)"
+        },
+        {
+          "id": "L7-003",
+          "severity": "PASSED",
+          "message": "Dependency specs (006, 003, 001, 002) are all marked Required in spec.md and reflected in plan.md.",
+          "evidence": "spec.md lines 8-16; plan.md lines 26-34 (dependency graph)"
+        },
+        {
+          "id": "L7-004",
+          "severity": "INFO",
+          "message": "Task file paths use generic src/ prefix not explicit packages/apps/commise/{web,mobile}/ monorepo locations. Flagged as INFO per monorepo guidance.",
+          "evidence": "AGENTS.md lists packages/apps/commise/{web,mobile}/; tasks.md lines 327-330 (src/web), lines 354-356 (src/web)"
+        },
+        {
+          "id": "L7-005",
+          "severity": "PASSED",
+          "message": "verify-report.md prior run (2026-05-12) was PASS with 0 CRITICAL / 3 WARNING. No new artifacts since then.",
+          "evidence": "verify-report.md lines 7-19 (summary table); file timestamps unchanged since 2026-05-12/2026-05-26."
+        }
+      ]
+    }
+  ],
+  "artifact_inventory": {
+    "research": ["research.md", "research/README.md", "research/competitors.md", "research/ux-patterns.md", "research/codebase-analysis.md", "research/tech-stack.md", "research/metrics-roi.md"],
+    "product_spec": ["product-spec/product-spec.md", "product-spec/user-journey.md", "product-spec/metrics.md", "product-spec/README.md", "product-spec/wireframes/nutrition-dashboard.md", "product-spec/wireframes/nutrition-goal-setup.md", "product-spec/wireframes/nutrition-meal-breakdown.md", "product-spec/wireframes/nutrition-weekly.md", "product-spec/wireframes/nutrition-deficiency-alert.md"],
+    "spec": ["spec.md"],
+    "plan": ["plan.md"],
+    "tasks": ["tasks.md"],
+    "v_model": ["v-model/requirements.md", "v-model/system-design.md", "v-model/architecture-design.md", "v-model/module-design.md", "v-model/acceptance-plan.md", "v-model/system-test.md", "v-model/integration-test.md", "v-model/unit-test.md", "v-model/hazard-analysis.md", "v-model/trace.md", "v-model/traceability-matrix.md", "v-model/release-audit-report.md"],
+    "other": [".forge-status.yml", "review.md", "verify-report.md", "checklists/requirements.md"]
+  }
+}

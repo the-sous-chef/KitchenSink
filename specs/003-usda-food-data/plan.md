@@ -26,7 +26,7 @@ PostgreSQL (local food store + Redis cache)
 REST API Gateway         API Gateway
 (Lambda authorizer)      (search queries)
         ↑                      ↑
-   Sous Chef App         Search UX
+   Commise App         Search UX
 ```
 
 ### Data Flow
@@ -193,31 +193,53 @@ FoodFetchCompleted {
 }
 ```
 
-### SQS Queue
+### Fetch Queue (Postgres)
 
-**Queue**: `usda-fetch-queue` (Standard)
-**DLQ**: `usda-fetch-dlq`
-**Rate limiter**: Token bucket in Lambda consumer
-**Visibility timeout**: 6× Lambda timeout (allow full processing + 5 retries)
+**Table**: `fetch_queue` — durable priority queue for missing-ingredient lookups.
+
+```sql
+CREATE TABLE fetch_queue (
+  fdc_id           text PRIMARY KEY,
+  request_count    int  NOT NULL DEFAULT 1,
+  first_requested  timestamptz NOT NULL DEFAULT now(),
+  last_requested   timestamptz NOT NULL DEFAULT now(),
+  status           text NOT NULL DEFAULT 'pending', -- pending|in_flight|done|tombstone
+  attempts         int  NOT NULL DEFAULT 0,
+  last_error       text,
+  fetched_at       timestamptz
+);
+CREATE INDEX idx_fetch_queue_priority
+  ON fetch_queue (request_count DESC, first_requested ASC)
+  WHERE status = 'pending';
+```
+
+**Wakeup channel**: Postgres `LISTEN/NOTIFY` on channel `fetch_queued`. Enqueue statement is paired with `pg_notify('fetch_queued', fdc_id)`. No SQS, no Redis on the critical path.
+
+**Rate limiter**: Single shared token bucket (USDA 1000 req/hr = 1 token / 3.6s) maintained in the consumer process (and refilled from a Postgres `rate_limiter_state` row if multiple consumers ever run).
+
+**Lease timeout**: Rows stuck in `status='in_flight'` for >30s are reverted to `pending` by a watchdog query run on consumer start and every minute (recovers from consumer crashes).
+
+**No DLQ infrastructure**: Tombstone rows (`status='tombstone'`) are the audit trail — queryable via SQL, alertable via CloudWatch metric, and reprocessable by setting `status='pending'`.
 
 ---
 
 ## 5. Lambda Functions
 
-### food-fetch-consumer (SQS trigger)
+### food-fetch-consumer (Fargate worker, event-driven)
 
-- **Runtime**: Node.js 22.x
+- **Runtime**: Node.js 22.x in a Fargate task (single instance, scale-to-zero via ECS desired-count=0/1 toggle if cost-critical)
 - **Memory**: 512 MB
-- **Timeout**: 30s
-- **Rate limiting**: Token bucket (Redis or in-memory) capped at 1,000 req/hr to USDA API
-- **Concurrency**: 5 max (pre-configured reservation)
-- **Error handling**: 5 retries with exponential backoff → DLQ
+- **Trigger**: Postgres `LISTEN fetch_queued` (one connection held open for the worker lifetime)
+- **Drain loop**: On notify wakeup → `SELECT … FOR UPDATE SKIP LOCKED LIMIT 1 ORDER BY request_count DESC, first_requested ASC` → process → `UPDATE` → loop until queue empty → block on next NOTIFY
+- **Rate limiting**: In-process token bucket capped at 1,000 req/hr to USDA API
+- **Error handling**: 5 attempts with exponential backoff (`last_requested = now() + interval '2^attempts seconds'`) → `status='tombstone'`
+- **Lease recovery**: Watchdog query reverts `in_flight` rows older than 30s to `pending`
 
 ### food-search-indexer (EventBridge trigger)
 
-- Triggered by `FoodFetchCompleted`
+- Triggered by `FoodFetchCompleted` event emitted by the consumer on successful fetch
 - Updates PostgreSQL `search_vector` with new food data
-- Invalidates Redis cache
+- Invalidates any application-layer cache
 
 ### usda-bulk-sync (EventBridge scheduled)
 
@@ -237,11 +259,11 @@ FoodFetchCompleted {
 - **Degraded mode**: If USDA API unavailable, return 503 with retry-after header
 - **Circuit breaker**: After 5 consecutive failures, open circuit for 60s
 
-### Redis Cache (optional accelerator)
+### Application-layer cache (optional, in-process)
 
-- **Key pattern**: `food:{fdcId}` → full food JSON
-- **TTL**: 1 hour for fetched foods, 5 minutes for pending
-- **Cache-aside**: Read-through on cache miss
+- Postgres `foods` table is the source of truth and is already fast (B-tree primary key on `fdc_id`, shared_buffers serves hot rows in microseconds at this scale).
+- An optional in-process LRU cache in the NestJS API process MAY accelerate repeated lookups within a single request handler lifetime; no shared cache infrastructure is required at MVP scale.
+- **No ElastiCache Redis** is provisioned. The original "Redis sorted set" priority-queue design was replaced by Postgres-as-queue (see §4 Fetch Queue). Reintroduce Redis only when single-Postgres-CPU `ORDER BY` of `fetch_queue` exceeds ~5ms p99 — a horizon well beyond launch.
 
 ---
 
@@ -291,7 +313,7 @@ CREATE INDEX idx_foods_data_type ON foods(data_type);
 ## 9. Open Questions (from Research)
 
 1. **Branded Foods sync**: Full 3.1 GB monthly update vs incremental API — preference?
-2. **WebSocket notifications**: Required for P3 (FR-036), deferred or in-scope for initial release?
+2. **WebSocket notifications**: Required as optional enhancement per FR-034 — deferred or in-scope for initial release?
 
 ---
 

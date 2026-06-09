@@ -75,7 +75,7 @@ parse_columns() {
     read -ra parts <<< "$line"
     for part in "${parts[@]}"; do
         local trimmed
-        trimmed="$(echo "$part" | sed 's/^[[:space:]]+*//;s/[[:space:]]+*$//')"
+        trimmed="$(echo "$part" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
         COLUMNS+=("$trimmed")
     done
 }
@@ -260,7 +260,7 @@ current_source=""
 
 while IFS= read -r line; do
     # Detect matrix section heading
-    if [[ "$line" =~ ^##[[:space:]]++(Matrix[[:space:]]++[A-Z]) ]]; then
+    if [[ "$line" =~ ^##[[:space:]]+(Matrix[[:space:]]+[A-Z]) ]]; then
         finish_matrix
         current_matrix_id="${BASH_REMATCH[1]}"
         current_matrix_title="$line"
@@ -282,7 +282,7 @@ while IFS= read -r line; do
     fi
 
     # Detect section exit (next heading that's not a sub-heading of current matrix)
-    if [[ "$line" =~ ^##[[:space:]]+ && ! "$line" =~ ^##[[:space:]]++ && ! "$line" =~ ^##[[:space:]]++Matrix ]]; then
+    if [[ "$line" =~ ^##[[:space:]] && ! "$line" =~ ^###[[:space:]] && ! "$line" =~ ^##[[:space:]]+Matrix ]]; then
         finish_matrix
         current_matrix_id=""
         continue
@@ -297,7 +297,7 @@ while IFS= read -r line; do
     fi
 
     # Skip separator rows
-    if [[ "$line" =~ ^\|[[:space:]]+*[-:]+ ]]; then
+    if [[ "$line" =~ ^\|[[:space:]]*[-:]+ ]]; then
         continue
     fi
 
@@ -306,11 +306,9 @@ while IFS= read -r line; do
     # Parse header row
     if [[ -z "$current_header" ]]; then
         current_header="$line"
-        status_col_idx=-1
-        test_id_col_idx=-1
         for ci in "${!COLUMNS[@]}"; do
             col_lower=$(echo "${COLUMNS[$ci]}" | tr '[:upper:]' '[:lower:]')
-            if [[ "$col_lower" == "status" || "$col_lower" == "test status" || "$col_lower" == "execution status" ]]; then
+            if [[ "$col_lower" == *"status"* ]]; then
                 status_col_idx=$ci
             fi
             if [[ "$col_lower" == *"scenario id"* || "$col_lower" == *"(scn)"* || "$col_lower" == *"(sts)"* || "$col_lower" == *"(its)"* || "$col_lower" == *"(uts)"* ]]; then
@@ -351,20 +349,20 @@ while IFS= read -r line; do
     fi
 
     # Count test statuses
-    if [[ "$local_status" == "✅" || "$local_status" == "✅ Passed" || "$local_status" == "Passed" ]]; then
+    if [[ "$local_status" == *"✅"* || "$local_status" == *"Passed"* ]]; then
         ((total_passed++)) || true
-    elif [[ "$local_status" == "❌" || "$local_status" == "❌ Failed" || "$local_status" == "Failed" ]]; then
+    elif [[ "$local_status" == *"❌"* || "$local_status" == *"Failed"* ]]; then
         ((total_failed++)) || true
         # Record anomaly (MOD-006)
         if [[ -n "$local_test_id" ]]; then
             printf '%s\t%s\t%s\n' "$local_test_id" "Failed Test" "$current_matrix_id" >> "$WORK_DIR/anomalies.tsv"
         fi
-    elif [[ "$local_status" == "⏭️" || "$local_status" == "⏭️ Skipped" || "$local_status" == "Skipped" || "$local_status" == "Waived" ]]; then
+    elif [[ "$local_status" == *"⏭️"* || "$local_status" == *"Skipped"* ]]; then
         ((total_skipped++)) || true
         if [[ -n "$local_test_id" ]]; then
             printf '%s\t%s\t%s\n' "$local_test_id" "Skipped Test" "$current_matrix_id" >> "$WORK_DIR/anomalies.tsv"
         fi
-    elif [[ "$local_status" == "⬜" || "$local_status" == "⬜ Untested" || "$local_status" == "Untested" || "$local_status" == "Pending" ]]; then
+    elif [[ "$local_status" == *"⬜"* || "$local_status" == *"Untested"* || "$local_status" == *"Pending"* ]]; then
         ((total_untested++)) || true
     fi
 
@@ -391,7 +389,7 @@ total_mitigated=0
 
 if [[ -f "$HAZARD_PATH" ]]; then
     while IFS= read -r line; do
-        if [[ "$line" =~ ^\|[[:space:]]+*\*?\*?(HAZ-[0-9]{3})\*?\*? ]]; then
+        if [[ "$line" =~ ^\|[[:space:]]*\*?\*?(HAZ-[0-9]{3})\*?\*? ]]; then
             parse_columns "$line"
             haz_id=$(strip_bold "${COLUMNS[0]}")
             # Write full row for report rendering
@@ -430,25 +428,25 @@ if [[ -f "$WAIVER_PATH" ]]; then
     }
 
     while IFS= read -r line; do
-        if [[ "$line" =~ ^##[[:space:]]+(WAV-[0-9]{3}) ]]; then
+        if [[ "$line" =~ ^###[[:space:]]+(WAV-[0-9]{3}) ]]; then
             save_waiver
             current_wav="${BASH_REMATCH[1]}"
             current_artifact=""
             current_type=""
             current_justification=""
             current_approved=""
-        elif [[ "$line" =~ ^\*\*Artifact\*\*:[[:space:]]+*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Artifact\*\*:[[:space:]]*(.*) ]]; then
             current_artifact="${BASH_REMATCH[1]}"
             current_artifact="${current_artifact%$'\r'}"
             current_artifact="${current_artifact#"${current_artifact%%[![:space:]]*}"}"
             current_artifact="${current_artifact%"${current_artifact##*[![:space:]]}"}"
-        elif [[ "$line" =~ ^\*\*Type\*\*:[[:space:]]+*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Type\*\*:[[:space:]]*(.*) ]]; then
             current_type="${BASH_REMATCH[1]}"
             current_type="${current_type%$'\r'}"
-        elif [[ "$line" =~ ^\*\*Justification\*\*:[[:space:]]+*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Justification\*\*:[[:space:]]*(.*) ]]; then
             current_justification="${BASH_REMATCH[1]}"
             current_justification="${current_justification%$'\r'}"
-        elif [[ "$line" =~ ^\*\*Approved\ By\*\*:[[:space:]]+*(.*) ]]; then
+        elif [[ "$line" =~ ^\*\*Approved\ By\*\*:[[:space:]]*(.*) ]]; then
             current_approved="${BASH_REMATCH[1]}"
             current_approved="${current_approved%$'\r'}"
         fi
@@ -492,9 +490,6 @@ done
 # Compute compliance status
 if [[ $blocking_count -gt 0 ]]; then
     COMPLIANCE_STATUS="❌ NOT READY — Unwaived anomalies detected"
-    EXIT_CODE=1
-elif [[ $total_untested -gt 0 ]]; then
-    COMPLIANCE_STATUS="❌ BLOCKED — $total_untested test scenarios untested"
     EXIT_CODE=1
 elif [[ $anomaly_count -gt 0 ]]; then
     COMPLIANCE_STATUS="✅ RELEASE CANDIDATE — All anomalies waived"

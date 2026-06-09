@@ -8,7 +8,7 @@ The optional configuration file controls extension behavior at the project level
 
 ```yaml
 # v-model-config.yml
-domain: "" # Regulated domain identifier (optional)
+domain: ""  # Regulated domain identifier (optional)
 ```
 
 ## Fields
@@ -21,12 +21,12 @@ domain: "" # Regulated domain identifier (optional)
 
 Controls safety-critical section generation across V-Model commands.
 
-| Value        | Standard                    | System Design Extras                | System Test Extras               | Architecture Design Extras                | Integration Test Extras                    | Module Design Extras                                     | Unit Test Extras                               |
-| ------------ | --------------------------- | ----------------------------------- | -------------------------------- | ----------------------------------------- | ------------------------------------------ | -------------------------------------------------------- | ---------------------------------------------- |
-| `""` (empty) | None                        | —                                   | —                                | —                                         | —                                          | —                                                        | —                                              |
-| `iso_26262`  | ISO 26262 (Automotive)      | FFI analysis, Restricted Complexity | MC/DC targets, WCET verification | ASIL Decomposition, Defensive Programming | SIL/HIL Compatibility, Resource Contention | Complexity Limits (≤10), Memory Management, MISRA/CERT-C | MC/DC Coverage, Variable-Level Fault Injection |
-| `do_178c`    | DO-178C (Aerospace)         | FFI analysis, Restricted Complexity | MC/DC targets, WCET verification | ASIL Decomposition, Temporal Constraints  | SIL/HIL Compatibility, Resource Contention | Single Entry/Exit, Memory Management, Complexity Limits  | MC/DC Coverage, Variable-Level Fault Injection |
-| `iec_62304`  | IEC 62304 (Medical Devices) | FFI analysis, Restricted Complexity | MC/DC targets, WCET verification | ASIL Decomposition, Defensive Programming | SIL/HIL Compatibility, Resource Contention | Complexity Limits (≤10), Memory Management               | MC/DC Coverage, Variable-Level Fault Injection |
+| Value | Standard | System Design Extras | System Test Extras | Architecture Design Extras | Integration Test Extras | Module Design Extras | Unit Test Extras |
+|-------|----------|---------------------|--------------------|---------------------------|------------------------|---------------------|-----------------|
+| `""` (empty) | None | — | — | — | — | — | — |
+| `iso_26262` | ISO 26262 (Automotive) | FFI analysis, Restricted Complexity | MC/DC targets, WCET verification | ASIL Decomposition, Defensive Programming | SIL/HIL Compatibility, Resource Contention | Complexity Limits (≤10), Memory Management, MISRA/CERT-C | MC/DC Coverage, Variable-Level Fault Injection |
+| `do_178c` | DO-178C (Aerospace) | FFI analysis, Restricted Complexity | MC/DC targets, WCET verification | ASIL Decomposition, Temporal Constraints | SIL/HIL Compatibility, Resource Contention | Single Entry/Exit, Memory Management, Complexity Limits | MC/DC Coverage, Variable-Level Fault Injection |
+| `iec_62304` | IEC 62304 (Medical Devices) | FFI analysis, Restricted Complexity | MC/DC targets, WCET verification | ASIL Decomposition, Defensive Programming | SIL/HIL Compatibility, Resource Contention | Complexity Limits (≤10), Memory Management | MC/DC Coverage, Variable-Level Fault Injection |
 
 ### Behavior
 
@@ -42,7 +42,6 @@ domain: "iso_26262"
 ```
 
 This triggers:
-
 - `/speckit.v-model.system-design`: Adds **Freedom from Interference** (FFI) and **Restricted Complexity** sections
 - `/speckit.v-model.system-test`: Adds **Structural Coverage** (MC/DC) and **Resource Usage Testing** (WCET, stack, heap) sections
 - `/speckit.v-model.architecture-design`: Adds **ASIL Decomposition** (safety integrity allocation per module) and **Defensive Programming** sections

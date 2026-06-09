@@ -9,8 +9,8 @@
 
 KitchenSink uses npm workspaces + Turborepo with active app workspaces:
 
-- `packages/apps/sous-chef/web`
-- `packages/apps/sous-chef/mobile`
+- `packages/apps/commise/web`
+- `packages/apps/commise/mobile`
 - `packages/ui`
 - `packages/tools/*`
 

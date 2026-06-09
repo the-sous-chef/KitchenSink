@@ -8,19 +8,19 @@
 
 ## Module Catalogue
 
-| MOD ID  | Name                       | Parent ARCH | Target Source File(s)                          | Statefulness |
-| ------- | -------------------------- | ----------- | ---------------------------------------------- | ------------ |
-| MOD-001 | SPI Transfer Handler       | ARCH-001    | `src/hal/spi_driver.c`, `src/hal/spi_driver.h` | Stateless    |
-| MOD-002 | CRC-16 Verifier            | ARCH-002    | `src/sensor/crc_verifier.c`                    | Stateless    |
-| MOD-003 | Enzyme Kinetics Calculator | ARCH-003    | `src/calibration/enzyme_kinetics.c`            | Stateless    |
-| MOD-004 | Tolerance Checker          | ARCH-004    | `src/calibration/tolerance.c`                  | Stateless    |
-| MOD-005 | Hypo/Hyper Detector        | ARCH-005    | `src/alert/threshold_eval.c`                   | Stateless    |
-| MOD-006 | Alarm State Machine        | ARCH-006    | `src/alert/alarm_fsm.c`                        | Stateful     |
-| MOD-007 | BLE Link Controller        | ARCH-007    | `src/ble/link_ctrl.c`                          | Stateful     |
-| MOD-008 | CBOR Encoder               | ARCH-008    | `src/ble/cbor_encoder.c`                       | Stateless    |
-| MOD-009 | Flash FIFO Manager         | ARCH-009    | `src/storage/flash_fifo.c`                     | Stateful     |
-| MOD-010 | Report Generator           | ARCH-010    | `src/export/report_gen.c`                      | Stateless    |
-| MOD-011 | Event Logger               | ARCH-011    | `src/diag/event_logger.c`                      | Stateless    |
+| MOD ID | Name | Parent ARCH | Target Source File(s) | Statefulness |
+|--------|------|-------------|----------------------|--------------|
+| MOD-001 | SPI Transfer Handler | ARCH-001 | `src/hal/spi_driver.c`, `src/hal/spi_driver.h` | Stateless |
+| MOD-002 | CRC-16 Verifier | ARCH-002 | `src/sensor/crc_verifier.c` | Stateless |
+| MOD-003 | Enzyme Kinetics Calculator | ARCH-003 | `src/calibration/enzyme_kinetics.c` | Stateless |
+| MOD-004 | Tolerance Checker | ARCH-004 | `src/calibration/tolerance.c` | Stateless |
+| MOD-005 | Hypo/Hyper Detector | ARCH-005 | `src/alert/threshold_eval.c` | Stateless |
+| MOD-006 | Alarm State Machine | ARCH-006 | `src/alert/alarm_fsm.c` | Stateful |
+| MOD-007 | BLE Link Controller | ARCH-007 | `src/ble/link_ctrl.c` | Stateful |
+| MOD-008 | CBOR Encoder | ARCH-008 | `src/ble/cbor_encoder.c` | Stateless |
+| MOD-009 | Flash FIFO Manager | ARCH-009 | `src/storage/flash_fifo.c` | Stateful |
+| MOD-010 | Report Generator | ARCH-010 | `src/export/report_gen.c` | Stateless |
+| MOD-011 | Event Logger | ARCH-011 | `src/diag/event_logger.c` | Stateless |
 
 ## Module Designs
 
@@ -53,15 +53,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name      | Type       | Size/Constraints | Initialization  | Description                    |
-| --------- | ---------- | ---------------- | --------------- | ------------------------------ |
-| sensor_id | `uint8_t`  | 0–255            | Caller-supplied | Sensor index on SPI bus        |
-| sample    | `uint16_t` | 0–65535          | From SPI RX     | Raw 16-bit ADC count           |
-| crc       | `uint16_t` | 0–65535          | From SPI RX     | CRC-16/CCITT over sample bytes |
-| clock_hz  | `uint32_t` | 4 000 000 Hz     | Factory config  | SPI clock frequency            |
-| cs_pin    | `uint8_t`  | GPIO pin number  | Factory config  | Chip-select GPIO pin           |
-| cpol      | `uint8_t`  | 0 or 1           | Factory config  | Clock polarity                 |
-| cpha      | `uint8_t`  | 0 or 1           | Factory config  | Clock phase                    |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| sensor_id | `uint8_t` | 0–255 | Caller-supplied | Sensor index on SPI bus |
+| sample | `uint16_t` | 0–65535 | From SPI RX | Raw 16-bit ADC count |
+| crc | `uint16_t` | 0–65535 | From SPI RX | CRC-16/CCITT over sample bytes |
+| clock_hz | `uint32_t` | 4 000 000 Hz | Factory config | SPI clock frequency |
+| cs_pin | `uint8_t` | GPIO pin number | Factory config | Chip-select GPIO pin |
+| cpol | `uint8_t` | 0 or 1 | Factory config | Clock polarity |
+| cpha | `uint8_t` | 0 or 1 | Factory config | Clock phase |
 
 ```c
 typedef struct {
@@ -80,9 +80,9 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                                   | Error Code / Exception | Architecture Contract            | Recovery                              |
-| ------------------------------------------------- | ---------------------- | -------------------------------- | ------------------------------------- |
-| SPI bus timeout (no response within clock window) | `SPI_Timeout`          | ARCH-001 returns error to caller | Retry transfer up to configured limit |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| SPI bus timeout (no response within clock window) | `SPI_Timeout` | ARCH-001 returns error to caller | Retry transfer up to configured limit |
 
 ---
 
@@ -113,11 +113,11 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name       | Type       | Size/Constraints  | Initialization | Description             |
-| ---------- | ---------- | ----------------- | -------------- | ----------------------- |
-| CRC16_POLY | `uint16_t` | 0x1021 (constant) | Compile-time   | CRC-16/CCITT polynomial |
-| CRC16_INIT | `uint16_t` | 0xFFFF (constant) | Compile-time   | CRC initial seed value  |
-| computed   | `uint16_t` | 0–65535           | CRC16_INIT     | Running CRC accumulator |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| CRC16_POLY | `uint16_t` | 0x1021 (constant) | Compile-time | CRC-16/CCITT polynomial |
+| CRC16_INIT | `uint16_t` | 0xFFFF (constant) | Compile-time | CRC initial seed value |
+| computed | `uint16_t` | 0–65535 | CRC16_INIT | Running CRC accumulator |
 
 ```c
 #define CRC16_POLY  0x1021   // CRC-16/CCITT polynomial
@@ -131,9 +131,9 @@ typedef enum {
 
 #### Error Handling & Return Codes
 
-| Error Condition                                   | Error Code / Exception | Architecture Contract              | Recovery                            |
-| ------------------------------------------------- | ---------------------- | ---------------------------------- | ----------------------------------- |
-| CRC mismatch between computed and received values | `CRC_MISMATCH`         | ARCH-002 discards corrupted sample | Caller requests re-read from sensor |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| CRC mismatch between computed and received values | `CRC_MISMATCH` | ARCH-002 discards corrupted sample | Caller requests re-read from sensor |
 
 ---
 
@@ -169,14 +169,14 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name           | Type       | Size/Constraints         | Initialization        | Description                                       |
-| -------------- | ---------- | ------------------------ | --------------------- | ------------------------------------------------- |
-| a0, a1, a2, a3 | `float32`  | Factory-calibrated range | Factory-programmed    | Polynomial coefficients for enzyme kinetics curve |
-| curve_version  | `uint8_t`  | 0–255                    | Factory-programmed    | Calibration curve revision identifier             |
-| expiry_epoch_s | `uint32_t` | Unix epoch seconds       | Factory-programmed    | Calibration curve expiration timestamp            |
-| timestamp_ms   | `uint64_t` | Monotonic ms             | From sample           | Measurement timestamp                             |
-| nanoamps       | `float32`  | Validated sensor range   | From validated sample | Sensor current input                              |
-| glucose_mg_dl  | `float32`  | 20.0–500.0 mg/dL         | Computed              | Converted glucose concentration                   |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| a0, a1, a2, a3 | `float32` | Factory-calibrated range | Factory-programmed | Polynomial coefficients for enzyme kinetics curve |
+| curve_version | `uint8_t` | 0–255 | Factory-programmed | Calibration curve revision identifier |
+| expiry_epoch_s | `uint32_t` | Unix epoch seconds | Factory-programmed | Calibration curve expiration timestamp |
+| timestamp_ms | `uint64_t` | Monotonic ms | From sample | Measurement timestamp |
+| nanoamps | `float32` | Validated sensor range | From validated sample | Sensor current input |
+| glucose_mg_dl | `float32` | 20.0–500.0 mg/dL | Computed | Converted glucose concentration |
 
 ```c
 typedef struct {
@@ -200,9 +200,9 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                                           | Error Code / Exception    | Architecture Contract          | Recovery                              |
-| --------------------------------------------------------- | ------------------------- | ------------------------------ | ------------------------------------- |
-| Calibration curve past expiration timestamp               | `CalibrationCurveExpired` | ARCH-003 rejects conversion    | Alert user to replace sensor          |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Calibration curve past expiration timestamp | `CalibrationCurveExpired` | ARCH-003 rejects conversion | Alert user to replace sensor |
 | Computed glucose outside 20–500 mg/dL physiological range | `OutOfPhysiologicalRange` | ARCH-003 flags invalid reading | Discard reading; log diagnostic event |
 
 ---
@@ -241,14 +241,14 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                  | Type      | Size/Constraints | Initialization | Description                                                  |
-| --------------------- | --------- | ---------------- | -------------- | ------------------------------------------------------------ |
-| TOLERANCE_SPLIT_MG_DL | `float32` | 75.0 (constant)  | Compile-time   | ISO 15197 split point between percent and absolute tolerance |
-| TOLERANCE_PERCENT     | `float32` | 0.15 (constant)  | Compile-time   | ±15% tolerance above split point                             |
-| TOLERANCE_ABSOLUTE    | `float32` | 15.0 (constant)  | Compile-time   | ±15 mg/dL tolerance below split point                        |
-| CLAMP_LOW             | `float32` | 20.0 (constant)  | Compile-time   | Minimum clamped glucose value                                |
-| CLAMP_HIGH            | `float32` | 500.0 (constant) | Compile-time   | Maximum clamped glucose value                                |
-| confidence            | `float32` | 0.0–1.0          | Computed       | Tolerance confidence score                                   |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| TOLERANCE_SPLIT_MG_DL | `float32` | 75.0 (constant) | Compile-time | ISO 15197 split point between percent and absolute tolerance |
+| TOLERANCE_PERCENT | `float32` | 0.15 (constant) | Compile-time | ±15% tolerance above split point |
+| TOLERANCE_ABSOLUTE | `float32` | 15.0 (constant) | Compile-time | ±15 mg/dL tolerance below split point |
+| CLAMP_LOW | `float32` | 20.0 (constant) | Compile-time | Minimum clamped glucose value |
+| CLAMP_HIGH | `float32` | 500.0 (constant) | Compile-time | Maximum clamped glucose value |
+| confidence | `float32` | 0.0–1.0 | Computed | Tolerance confidence score |
 
 ```c
 #define TOLERANCE_SPLIT_MG_DL  75.0f   // ISO 15197 split point
@@ -266,9 +266,9 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                                   | Error Code / Exception | Architecture Contract                 | Recovery                                         |
-| ------------------------------------------------- | ---------------------- | ------------------------------------- | ------------------------------------------------ |
-| Reading outside tolerance band (confidence = 0.0) | `confidence == 0.0`    | ARCH-004 flags low-confidence reading | Downstream consumers check confidence before use |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Reading outside tolerance band (confidence = 0.0) | `confidence == 0.0` | ARCH-004 flags low-confidence reading | Downstream consumers check confidence before use |
 
 ---
 
@@ -295,12 +295,12 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name                  | Type           | Size/Constraints                      | Initialization    | Description                             |
-| --------------------- | -------------- | ------------------------------------- | ----------------- | --------------------------------------- |
-| hypo_threshold_mg_dl  | `float32`      | Default 55.0 mg/dL                    | User-configurable | Hypoglycemia threshold                  |
-| hyper_threshold_mg_dl | `float32`      | Default 400.0 mg/dL                   | User-configurable | Hyperglycemia threshold                 |
-| alert_type            | `alert_type_t` | ALERT_NONE / ALERT_HYPO / ALERT_HYPER | N/A               | Enumerated alert classification         |
-| glucose_value         | `float32`      | 20.0–500.0 mg/dL                      | From reading      | Glucose value that triggered the breach |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| hypo_threshold_mg_dl | `float32` | Default 55.0 mg/dL | User-configurable | Hypoglycemia threshold |
+| hyper_threshold_mg_dl | `float32` | Default 400.0 mg/dL | User-configurable | Hyperglycemia threshold |
+| alert_type | `alert_type_t` | ALERT_NONE / ALERT_HYPO / ALERT_HYPER | N/A | Enumerated alert classification |
+| glucose_value | `float32` | 20.0–500.0 mg/dL | From reading | Glucose value that triggered the breach |
 
 ```c
 typedef struct {
@@ -318,9 +318,9 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition              | Error Code / Exception | Architecture Contract     | Recovery                        |
-| ---------------------------- | ---------------------- | ------------------------- | ------------------------------- |
-| No threshold breach detected | `None` (Option type)   | ARCH-005 returns no event | Normal flow; no action required |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| No threshold breach detected | `None` (Option type) | ARCH-005 returns no event | Normal flow; no action required |
 
 ---
 
@@ -380,12 +380,12 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name               | Type            | Size/Constraints                              | Initialization | Description                                |
-| ------------------ | --------------- | --------------------------------------------- | -------------- | ------------------------------------------ |
-| state              | `alarm_state_t` | SILENT / SOUNDING / ACKNOWLEDGED / ESCALATING | ALARM_SILENT   | Current FSM state                          |
-| sounding_since_ms  | `uint64_t`      | Monotonic ms                                  | 0              | Timestamp when alarm began sounding        |
-| escalation_retries | `uint8_t`       | 0–3                                           | 0              | SMS dispatch retry counter                 |
-| ack_timeout_ms     | `uint32_t`      | 900 000 (15 min)                              | Factory config | Time before unacknowledged alarm escalates |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| state | `alarm_state_t` | SILENT / SOUNDING / ACKNOWLEDGED / ESCALATING | ALARM_SILENT | Current FSM state |
+| sounding_since_ms | `uint64_t` | Monotonic ms | 0 | Timestamp when alarm began sounding |
+| escalation_retries | `uint8_t` | 0–3 | 0 | SMS dispatch retry counter |
+| ack_timeout_ms | `uint32_t` | 900 000 (15 min) | Factory config | Time before unacknowledged alarm escalates |
 
 ```c
 typedef enum {
@@ -405,10 +405,10 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                                       | Error Code / Exception          | Architecture Contract              | Recovery                                         |
-| ----------------------------------------------------- | ------------------------------- | ---------------------------------- | ------------------------------------------------ |
-| Acknowledgment timeout (15 min without user response) | FSM transitions to `ESCALATING` | ARCH-006 dispatches SMS escalation | Up to 3 SMS retries before logging failure       |
-| All SMS retries exhausted                             | `LogEscalationFailure`          | ARCH-006 returns to SILENT         | Log critical event; manual intervention required |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Acknowledgment timeout (15 min without user response) | FSM transitions to `ESCALATING` | ARCH-006 dispatches SMS escalation | Up to 3 SMS retries before logging failure |
+| All SMS retries exhausted | `LogEscalationFailure` | ARCH-006 returns to SILENT | Log critical event; manual intervention required |
 
 ---
 
@@ -467,12 +467,12 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name               | Type          | Size/Constraints                                  | Initialization   | Description                                                      |
-| ------------------ | ------------- | ------------------------------------------------- | ---------------- | ---------------------------------------------------------------- |
-| state              | `ble_state_t` | DISCONNECTED / PAIRING / CONNECTED / RECONNECTING | BLE_DISCONNECTED | Current BLE link FSM state                                       |
-| reconnect_attempts | `uint8_t`     | 0–10                                              | 0                | Reconnection attempt counter                                     |
-| backoff_ms         | `uint32_t`    | 1 000–30 000 ms                                   | 1000             | Exponential backoff interval (doubles per retry, capped at 30 s) |
-| peer_addr          | `uint8_t[6]`  | 6-byte BLE address                                | From pairing     | Bonded peer BLE MAC address                                      |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| state | `ble_state_t` | DISCONNECTED / PAIRING / CONNECTED / RECONNECTING | BLE_DISCONNECTED | Current BLE link FSM state |
+| reconnect_attempts | `uint8_t` | 0–10 | 0 | Reconnection attempt counter |
+| backoff_ms | `uint32_t` | 1 000–30 000 ms | 1000 | Exponential backoff interval (doubles per retry, capped at 30 s) |
+| peer_addr | `uint8_t[6]` | 6-byte BLE address | From pairing | Bonded peer BLE MAC address |
 
 ```c
 typedef enum {
@@ -492,9 +492,9 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                      | Error Code / Exception      | Architecture Contract            | Recovery                                    |
-| ------------------------------------ | --------------------------- | -------------------------------- | ------------------------------------------- |
-| Secure pairing failure               | `ReportPairError`           | ARCH-007 returns to DISCONNECTED | User retries pairing                        |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Secure pairing failure | `ReportPairError` | ARCH-007 returns to DISCONNECTED | User retries pairing |
 | Reconnection exhausted (10 attempts) | `ReportConnectionAbandoned` | ARCH-007 returns to DISCONNECTED | Data buffered locally until next connection |
 
 ---
@@ -528,15 +528,15 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name          | Type           | Size/Constraints        | Initialization | Description                         |
-| ------------- | -------------- | ----------------------- | -------------- | ----------------------------------- |
-| payload       | `uint8_t[256]` | Max 256 bytes           | Zeroed         | CBOR-encoded packet payload buffer  |
-| length        | `uint16_t`     | 0–256                   | 0              | Actual encoded payload length       |
-| sequence_no   | `uint32_t`     | Monotonic counter       | From caller    | Packet sequence number for ordering |
-| timestamp_ms  | `uint64_t`     | Monotonic ms            | From record    | Measurement timestamp               |
-| glucose_mg_dl | `float32`      | 20.0–500.0              | From record    | Glucose concentration               |
-| confidence    | `float32`      | 0.0–1.0                 | From record    | Tolerance confidence score          |
-| alert_type    | `uint8_t`      | 0=none, 1=hypo, 2=hyper | From record    | Alert classification code           |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| payload | `uint8_t[256]` | Max 256 bytes | Zeroed | CBOR-encoded packet payload buffer |
+| length | `uint16_t` | 0–256 | 0 | Actual encoded payload length |
+| sequence_no | `uint32_t` | Monotonic counter | From caller | Packet sequence number for ordering |
+| timestamp_ms | `uint64_t` | Monotonic ms | From record | Measurement timestamp |
+| glucose_mg_dl | `float32` | 20.0–500.0 | From record | Glucose concentration |
+| confidence | `float32` | 0.0–1.0 | From record | Tolerance confidence score |
+| alert_type | `uint8_t` | 0=none, 1=hypo, 2=hyper | From record | Alert classification code |
 
 ```c
 typedef struct {
@@ -555,9 +555,9 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                           | Error Code / Exception | Architecture Contract             | Recovery                                 |
-| ----------------------------------------- | ---------------------- | --------------------------------- | ---------------------------------------- |
-| Encoded CBOR payload exceeds 256-byte MTU | `PayloadTooLarge`      | ARCH-008 rejects oversized packet | Caller splits or truncates record fields |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Encoded CBOR payload exceeds 256-byte MTU | `PayloadTooLarge` | ARCH-008 rejects oversized packet | Caller splits or truncates record fields |
 
 ---
 
@@ -599,16 +599,16 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name              | Type           | Size/Constraints           | Initialization | Description                      |
-| ----------------- | -------------- | -------------------------- | -------------- | -------------------------------- |
-| FLASH_SIZE_BYTES  | `uint32_t`     | 8 388 608 (8 MB, constant) | Compile-time   | Total NOR flash capacity         |
-| RECORD_SIZE_BYTES | `uint32_t`     | 32 (constant)              | Compile-time   | Size of one serialized record    |
-| MAX_RECORDS       | `uint32_t`     | 262 144 (constant)         | Compile-time   | Maximum records in FIFO          |
-| RETENTION_DAYS    | `uint32_t`     | 90 (constant)              | Compile-time   | Data retention period            |
-| state             | `fifo_state_t` | READY / WRITING / EVICTING | FIFO_READY     | Current FIFO FSM state           |
-| head              | `uint32_t`     | 0–(MAX_RECORDS−1)          | 0              | Index of oldest record           |
-| tail              | `uint32_t`     | 0–(MAX_RECORDS−1)          | 0              | Index of next write slot         |
-| count             | `uint32_t`     | 0–MAX_RECORDS              | 0              | Current number of stored records |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| FLASH_SIZE_BYTES | `uint32_t` | 8 388 608 (8 MB, constant) | Compile-time | Total NOR flash capacity |
+| RECORD_SIZE_BYTES | `uint32_t` | 32 (constant) | Compile-time | Size of one serialized record |
+| MAX_RECORDS | `uint32_t` | 262 144 (constant) | Compile-time | Maximum records in FIFO |
+| RETENTION_DAYS | `uint32_t` | 90 (constant) | Compile-time | Data retention period |
+| state | `fifo_state_t` | READY / WRITING / EVICTING | FIFO_READY | Current FIFO FSM state |
+| head | `uint32_t` | 0–(MAX_RECORDS−1) | 0 | Index of oldest record |
+| tail | `uint32_t` | 0–(MAX_RECORDS−1) | 0 | Index of next write slot |
+| count | `uint32_t` | 0–MAX_RECORDS | 0 | Current number of stored records |
 
 ```c
 #define FLASH_SIZE_BYTES      (8 * 1024 * 1024)  // 8 MB NOR flash
@@ -632,8 +632,8 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                        | Error Code / Exception | Architecture Contract | Recovery                                    |
-| -------------------------------------- | ---------------------- | --------------------- | ------------------------------------------- |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
 | Flash write-back verification mismatch | `FlashWriteVerifyFail` | ARCH-009 aborts write | Retry write; if persistent, mark sector bad |
 
 ---
@@ -670,13 +670,13 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name       | Type              | Size/Constraints        | Initialization | Description                     |
-| ---------- | ----------------- | ----------------------- | -------------- | ------------------------------- |
-| start_ts   | `uint64_t`        | Unix epoch ms           | From request   | Report time range start         |
-| end_ts     | `uint64_t`        | Unix epoch ms           | From request   | Report time range end           |
-| format     | `export_format_t` | FORMAT_CSV / FORMAT_PDF | From request   | Requested export format         |
-| data       | `uint8_t*`        | Variable length         | NULL           | Serialized report output buffer |
-| size_bytes | `uint32_t`        | 0–max export size       | 0              | Actual report data size         |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| start_ts | `uint64_t` | Unix epoch ms | From request | Report time range start |
+| end_ts | `uint64_t` | Unix epoch ms | From request | Report time range end |
+| format | `export_format_t` | FORMAT_CSV / FORMAT_PDF | From request | Requested export format |
+| data | `uint8_t*` | Variable length | NULL | Serialized report output buffer |
+| size_bytes | `uint32_t` | 0–max export size | 0 | Actual report data size |
 
 ```c
 typedef enum { FORMAT_CSV, FORMAT_PDF } export_format_t;
@@ -696,9 +696,9 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                           | Error Code / Exception | Architecture Contract            | Recovery                |
-| ----------------------------------------- | ---------------------- | -------------------------------- | ----------------------- |
-| No readings found in requested time range | `NoDataInRange`        | ARCH-010 returns error to caller | User adjusts date range |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| No readings found in requested time range | `NoDataInRange` | ARCH-010 returns error to caller | User adjusts date range |
 
 ---
 
@@ -727,14 +727,14 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name               | Type          | Size/Constraints                          | Initialization | Description                                |
-| ------------------ | ------------- | ----------------------------------------- | -------------- | ------------------------------------------ |
-| LOG_PARTITION_SIZE | `uint32_t`    | 524 288 (512 KB, constant)                | Compile-time   | Reserved flash partition for diagnostics   |
-| severity           | `log_level_t` | DEBUG / INFO / WARNING / ERROR / CRITICAL | From entry     | Log message severity level                 |
-| source_module      | `uint8_t`     | ARCH-0xx numeric ID                       | From caller    | Originating architecture module identifier |
-| message            | `char[128]`   | Max 128 characters                        | From entry     | Human-readable diagnostic message          |
-| timestamp_ms       | `uint64_t`    | Monotonic ms                              | From entry     | Event timestamp                            |
-| log_write_offset   | `uint32_t`    | 0–LOG_PARTITION_SIZE                      | 0              | Atomic write pointer into log partition    |
+| Name | Type | Size/Constraints | Initialization | Description |
+|------|------|-----------------|----------------|-------------|
+| LOG_PARTITION_SIZE | `uint32_t` | 524 288 (512 KB, constant) | Compile-time | Reserved flash partition for diagnostics |
+| severity | `log_level_t` | DEBUG / INFO / WARNING / ERROR / CRITICAL | From entry | Log message severity level |
+| source_module | `uint8_t` | ARCH-0xx numeric ID | From caller | Originating architecture module identifier |
+| message | `char[128]` | Max 128 characters | From entry | Human-readable diagnostic message |
+| timestamp_ms | `uint64_t` | Monotonic ms | From entry | Event timestamp |
+| log_write_offset | `uint32_t` | 0–LOG_PARTITION_SIZE | 0 | Atomic write pointer into log partition |
 
 ```c
 typedef enum {
@@ -757,22 +757,29 @@ typedef struct {
 
 #### Error Handling & Return Codes
 
-| Error Condition                         | Error Code / Exception     | Architecture Contract               | Recovery                                        |
-| --------------------------------------- | -------------------------- | ----------------------------------- | ----------------------------------------------- |
-| Log partition full (wrap-around)        | N/A (silent FIFO eviction) | ARCH-011 overwrites oldest entries  | Oldest log entries evicted; no error propagated |
-| Entry below configured minimum severity | N/A (filtered)             | ARCH-011 drops low-severity entries | No action; entry silently discarded             |
+| Error Condition | Error Code / Exception | Architecture Contract | Recovery |
+|----------------|----------------------|----------------------|----------|
+| Log partition full (wrap-around) | N/A (silent FIFO eviction) | ARCH-011 overwrites oldest entries | Oldest log entries evicted; no error propagated |
+| Entry below configured minimum severity | N/A (filtered) | ARCH-011 drops low-severity entries | No action; entry silently discarded |
 
 ---
 
 ## Coverage Summary
 
-| Metric                                    | Count                         |
-| ----------------------------------------- | ----------------------------- |
-| Total Module Designs (MOD)                | 11                            |
-| External Modules (`[EXTERNAL]`)           | 0                             |
-| Cross-Cutting Modules (`[CROSS-CUTTING]`) | 1 (MOD-011)                   |
-| Stateful Modules                          | 3 (MOD-006, MOD-007, MOD-009) |
-| Stateless Modules                         | 8                             |
-| Total Parent Architecture Modules Covered | 11 / 11 (100%)                |
-| Modules with Pseudocode                   | 11 / 11 (100%)                |
-| **Forward Coverage (ARCH→MOD)**           | **100%**                      |
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | 11 |
+| External Modules (`[EXTERNAL]`) | 0 |
+| Cross-Cutting Modules (`[CROSS-CUTTING]`) | 1 (MOD-011) |
+| Stateful Modules | 3 (MOD-006, MOD-007, MOD-009) |
+| Stateless Modules | 8 |
+| Total Parent Architecture Modules Covered | 11 / 11 (100%) |
+| Modules with Pseudocode | 11 / 11 (100%) |
+| **Forward Coverage (ARCH→MOD)** | **100%** |
+
+## Governing Standards
+
+| Standard | Full Name | Role in this Document |
+|----------|-----------|----------------------|
+| **IEEE 1016:2009** | IEEE Standard for Information Technology — Software Design Descriptions | Detailed design structure: algorithm specification, interface definition, data structure descriptions |
+| **ISO/IEC/IEEE 12207:2017** | Systems and Software Engineering — Software Life Cycle Processes | Lifecycle process governance (Clause 8.4 — Software Detailed Design): requirement allocation, algorithm specification completeness |

@@ -1074,7 +1074,7 @@ N/A — Stateless
 
 | Name                   | Type         | Size/Constraints | Initialization | Description                                           |
 | ---------------------- | ------------ | ---------------- | -------------- | ----------------------------------------------------- |
-| `RECIPE_APP_BASE_URL`  | `string`     | URL              | Config/env     | Base URL of the 001-sous-chef-recipe-app internal API |
+| `RECIPE_APP_BASE_URL`  | `string`     | URL              | Config/env     | Base URL of the 001-commise-recipe-app internal API |
 | `INTERNAL_SERVICE_KEY` | `string`     | Secret           | Config/env     | Shared secret for internal service authentication     |
 | `RecipeNutritionData`  | Plain object | —                | Per-call       | Parsed per-recipe nutrition totals                    |
 | `Recipe`               | Plain object | —                | Per-call       | Full recipe with nutrition for swap suggestions       |
@@ -1146,7 +1146,7 @@ stateDiagram-v2
 | ----------------------- | ------------ | ---------------- | -------------- | ---------------------------------------------------- |
 | `AUTH0_ISSUER`          | `string`     | URL              | Config/env     | Auth0 tenant issuer URL                              |
 | `AUTH0_AUDIENCE`        | `string`     | String           | Config/env     | Auth0 API audience identifier                        |
-| `AUTH_SERVICE_BASE_URL` | `string`     | URL              | Config/env     | Base URL of the 002-auth0-user-auth internal API     |
+| `AUTH_SERVICE_BASE_URL` | `string`     | URL              | Config/env     | Base URL of the 002-user-auth internal API     |
 | `jwksClient`            | JWKS client  | —                | Module init    | Cached JWKS client for public key retrieval          |
 | `AuthenticatedUser`     | Plain object | —                | Per-call       | `{ userId: string, email: string, roles: string[] }` |
 

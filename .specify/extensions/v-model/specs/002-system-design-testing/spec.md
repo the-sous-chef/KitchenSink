@@ -1,8 +1,8 @@
 # Feature Specification: System Design ↔ System Testing
 
-**Feature Branch**: `002-system-design-testing`
-**Created**: 2026-02-20
-**Status**: Approved
+**Feature Branch**: `002-system-design-testing`  
+**Created**: 2026-02-20  
+**Status**: Approved  
 **Input**: Extend the V-Model Extension Pack down one level — from Requirements ↔ Acceptance Testing (v0.1.0) to System Design ↔ System Testing (v0.2.0). The system design command generates an IEEE 1016-compliant Software Design Description organized into mandatory design views (Decomposition, Dependency, Interface, Data). The system test command generates an ISO/IEC/IEEE 29119-compliant test plan targeting the architectural views with rigorous techniques (Interface Contract Testing, Boundary Value Analysis, Fault Injection). Safety-critical additions (Freedom from Interference, MC/DC Coverage, WCET Analysis) are included as optional sections activated by domain configuration.
 
 ## Governing Standards
@@ -15,7 +15,7 @@ This feature is guided by the following international standards:
 - **DO-178C** — Airborne software certification. Adds MC/DC (Modified Condition/Decision Coverage) structural coverage requirements for DAL A/B software.
 - **IEC 62304** — Medical device software lifecycle. Requires traceability from software architecture to risk controls.
 
-## User Scenarios & Testing _(mandatory)_
+## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Generate IEEE 1016-Compliant System Design (Priority: P1)
 
@@ -128,7 +128,7 @@ A Windows-based automotive ADAS team runs `validate-system-coverage.ps1` to get 
 - **What happens when safety-critical sections (FFI, MC/DC) are requested but the project is not configured for a regulated domain?** The sections should be omitted by default and only included when the domain configuration enables them.
 - **What happens when the AI identifies a necessary technical capability not in requirements.md (a Derived Requirement)?** The command must flag it as `[DERIVED REQUIREMENT: description]` rather than silently creating a SYS-NNN component, prompting the user to update requirements.md and re-run (FR-019).
 
-## Requirements _(mandatory)_
+## Requirements *(mandatory)*
 
 ### Functional Requirements
 
@@ -156,7 +156,7 @@ A Windows-based automotive ADAS team runs `validate-system-coverage.ps1` to get 
 - **FR-011**: The extension MUST provide `validate-system-coverage.sh` (Bash) that deterministically validates: (a) every `REQ-NNN` has ≥1 `SYS-NNN` mapping (forward), (b) every `SYS-NNN` has ≥1 `STP-NNN-X` test case (backward), (c) no orphaned SYS or STP identifiers exist.
 - **FR-012**: The validation script MUST exit with code 0 on full coverage and code 1 on any gap, with human-readable gap reports suitable for CI logs.
 - **FR-013**: The extension MUST provide `validate-system-coverage.ps1` (PowerShell) with identical behavior, output format, and exit codes as the Bash script.
-- **FR-020** _(v0.2.1 patch)_: The `validate-system-coverage.sh` and `validate-system-coverage.ps1` scripts MUST support **partial validation**: when `system-test.md` is absent, the scripts SHALL validate forward coverage (`REQ→SYS`) only and gracefully bypass `SYS→STP→STS` backward coverage checks, exiting with code 0 if forward coverage is complete. This enables running the validation script after generating `system-design.md` but before generating `system-test.md`.
+- **FR-020** *(v0.2.1 patch)*: The `validate-system-coverage.sh` and `validate-system-coverage.ps1` scripts MUST support **partial validation**: when `system-test.md` is absent, the scripts SHALL validate forward coverage (`REQ→SYS`) only and gracefully bypass `SYS→STP→STS` backward coverage checks, exiting with code 0 if forward coverage is complete. This enables running the validation script after generating `system-design.md` but before generating `system-test.md`.
 
 **Traceability & Matrix:**
 
@@ -178,7 +178,7 @@ A Windows-based automotive ADAS team runs `validate-system-coverage.ps1` to get 
 - **Extended Traceability Matrix**: The audit artifact split into two complementary matrices to prevent visual bloat: Matrix A (Validation — REQ → ATP → SCN, user view) and Matrix B (Verification — REQ → SYS → STP → STS, architectural view). Key attributes per matrix: Requirement ID, linked artifacts per layer, Coverage Status, Coverage Percentage. The split mirrors how enterprise ALM tools present validation vs. verification traceability.
 - **System Coverage Report**: The output of `validate-system-coverage.sh` — a summary of forward coverage (REQ→SYS), backward coverage (SYS→STP), orphan detection, and overall pass/fail status with exit codes suitable for CI enforcement.
 
-## Success Criteria _(mandatory)_
+## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 

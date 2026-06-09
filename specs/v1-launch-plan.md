@@ -17,7 +17,7 @@ This document is the canonical launch plan for v1 of KitchenSink. It defines:
 
 1. The complete v1 scope (all 14 features).
 2. The milestone ladder (`M0`–`M8`) with internal codenames, feature assignments, entry criteria, artifact remediation work, and exit criteria.
-3. The two public-facing launch gates: **Sous Chef Beta** (end of `M4`) and **Sous Chef 1.0** (end of `M6`).
+3. The two public-facing launch gates: **Commise Beta** (end of `M4`) and **Commise 1.0** (end of `M6`).
 4. Parallelization rules between milestones.
 5. Milestone-to-feature traceability so each feature's `review.md` can reference its milestone.
 
@@ -31,7 +31,7 @@ All 14 features are in v1 scope. No features are deferred to v2.
 
 | Feature | Title                       | Owner Milestone   | Public Launch    |
 | ------- | --------------------------- | ----------------- | ---------------- |
-| `001`   | Sous Chef Recipe App (core) | `M1` Rivendell    | Beta             |
+| `001`   | Commise Recipe App (core) | `M1` Rivendell    | Beta             |
 | `002`   | Auth0 User Auth             | `M0` Shire        | Beta             |
 | `003`   | USDA Food Data              | `M1` Rivendell    | Beta             |
 | `004`   | Recipe Importing            | `M1` Rivendell    | Beta             |
@@ -90,7 +90,7 @@ Each milestone has three required sections: **Entry**, **Artifact Remediation**,
 **Artifact Remediation**:
 
 - **`001`**:
-    - Resolve the two architectural blockers called out in `specs/001-sous-chef-recipe-app/review.md`: API URL prefix collision (see [GR-002](./governance-rules.md#gr-002-api-url-prefix-standard)) and missing `shared/recipe-core` type library (see [GR-007](./governance-rules.md#gr-007-shared-type-library-ownership)).
+    - Resolve the two architectural blockers called out in `specs/001-commise-recipe-app/review.md`: API URL prefix collision (see [GR-002](./governance-rules.md#gr-002-api-url-prefix-standard)) and missing `shared/recipe-core` type library (see [GR-007](./governance-rules.md#gr-007-shared-type-library-ownership)).
     - Burn down `verify-report.md`: 5 critical / 2 warning → 0 / 0.
     - Close 337 untested + 178 missing trace refs.
 - **`003`**: Burn down 1 critical / 2 warning → 0 / 0. Close 131 untested + 107 missing trace refs.
@@ -156,7 +156,7 @@ Each milestone has three required sections: **Entry**, **Artifact Remediation**,
 
 ---
 
-### 3.5 `M4` — Milestone Helm's Deep → **Sous Chef Beta**
+### 3.5 `M4` — Milestone Helm's Deep → **Commise Beta**
 
 **Features**: `006` Meal Planning
 **Theme**: Closes the planning loop. Last feature before public Beta.
@@ -190,7 +190,7 @@ Each milestone has three required sections: **Entry**, **Artifact Remediation**,
 
 **Entry**:
 
-- Sous Chef Beta in market for at least 14 calendar days with telemetry collected against the metrics defined in [`beta-exit-criteria.md`](./beta-exit-criteria.md) §"Beta Exit Criteria for 1.0 Promotion".
+- Commise Beta in market for at least 14 calendar days with telemetry collected against the metrics defined in [`beta-exit-criteria.md`](./beta-exit-criteria.md) §"Beta Exit Criteria for 1.0 Promotion".
 - AI cost-per-active-user projection from Beta usage available.
 
 **Artifact Remediation**:
@@ -211,7 +211,7 @@ Each milestone has three required sections: **Entry**, **Artifact Remediation**,
 
 ---
 
-### 3.7 `M6` — Milestone Gondor → **Sous Chef 1.0**
+### 3.7 `M6` — Milestone Gondor → **Commise 1.0**
 
 **Features**: `010` Subscriptions
 **Theme**: Monetization. Last feature before 1.0 promotion.
@@ -316,8 +316,8 @@ Each milestone has three required sections: **Entry**, **Artifact Remediation**,
 
 ## 5. Public Launch Progression
 
-1. **Sous Chef Beta** — limited launch at end of `M4`. Invite/waitlist gated. Includes features `001`–`004`, `006`, `007`, `008`, `011`. **Does not** include AI (`005`), nutrition (`009`), or paid tier (`010`).
-2. **Sous Chef 1.0** — promotion at end of `M6`. Adds `005`, `009`, `010`. Public sign-up open.
+1. **Commise Beta** — limited launch at end of `M4`. Invite/waitlist gated. Includes features `001`–`004`, `006`, `007`, `008`, `011`. **Does not** include AI (`005`), nutrition (`009`), or paid tier (`010`).
+2. **Commise 1.0** — promotion at end of `M6`. Adds `005`, `009`, `010`. Public sign-up open.
 3. **Post-1.0 v1 increments** — `M7` adds `012` + `013`; `M8` adds `014`. v1 is "complete" only when `M8` exits.
 
 ---
@@ -330,8 +330,8 @@ Each milestone has three required sections: **Entry**, **Artifact Remediation**,
 | 2026-05-12 | Auth (`002`) ships first; recipes/ingredients (`001`, `003`, `004`) ship next.               | Director of Product |
 | 2026-05-12 | `005` AI work is concentrated in `M5`, after Beta — no AI carve-out into earlier milestones. | Director of Product |
 | 2026-05-12 | `011` Recipe Digitization assigned to `M2`, runs in parallel with `M3`.                      | Director of Product |
-| 2026-05-12 | Sous Chef Beta is the public-launch event at end of `M4`; `006` is in Beta.                  | Director of Product |
-| 2026-05-12 | Sous Chef 1.0 is the public-launch event at end of `M6`; gated by Beta exit criteria.        | Director of Product |
+| 2026-05-12 | Commise Beta is the public-launch event at end of `M4`; `006` is in Beta.                  | Director of Product |
+| 2026-05-12 | Commise 1.0 is the public-launch event at end of `M6`; gated by Beta exit criteria.        | Director of Product |
 | 2026-05-12 | Internal milestone naming convention adopted: `Milestone <Cool Name>` (Tolkien locations).   | Director of Product |
 
 ---

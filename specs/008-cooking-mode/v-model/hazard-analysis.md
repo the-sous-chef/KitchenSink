@@ -12,7 +12,7 @@ This document presents the Failure Mode and Effects Analysis (FMEA) for the **Co
 
 Each hazard uses a unique `HAZ-NNN` identifier and links to risk controls via valid `REQ-*`, `SYS-*`, and `ARCH-*` identifiers from this feature. Full hazard-to-test lineage is captured in Matrix H of `traceability-matrix.md`.
 
-**Non-regulated context.** Sous Chef is a consumer recipe application. Severity is measured in terms of user trust, workflow continuity, data integrity, accessibility, and device resource impact (battery/performance), not personal injury. Safety-critical taxonomies are intentionally not applied.
+**Non-regulated context.** Commise is a consumer recipe application. Severity is measured in terms of user trust, workflow continuity, data integrity, accessibility, and device resource impact (battery/performance), not personal injury. Safety-critical taxonomies are intentionally not applied.
 
 ## ID Schema
 

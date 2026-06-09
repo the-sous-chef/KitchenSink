@@ -11,7 +11,7 @@ This directory contains Product Forge Phase 1 research artifacts for feature 004
 
 ### [competitors.md](./competitors.md)
 
-Competitive landscape focused on requested comparators: **Paprika, Mealie, Tandoor, and Plan To Eat**. Includes import capability matrix, attribution/legal posture differences, duplicate handling patterns, and differentiation opportunities for Sous Chef import workflows.
+Competitive landscape focused on requested comparators: **Paprika, Mealie, Tandoor, and Plan To Eat**. Includes import capability matrix, attribution/legal posture differences, duplicate handling patterns, and differentiation opportunities for Commise import workflows.
 
 ### [ux-patterns.md](./ux-patterns.md)
 

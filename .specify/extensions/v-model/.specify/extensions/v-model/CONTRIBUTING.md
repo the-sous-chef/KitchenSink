@@ -160,12 +160,12 @@ GOOGLE_API_KEY=... pytest tests/evals/ -m eval -v
 
 ### Test Architecture
 
-| Layer                  | Framework               | Tests | What it validates                                                              |
-| ---------------------- | ----------------------- | ----- | ------------------------------------------------------------------------------ |
-| **BATS**               | bats-core               | 27    | Bash script logic: setup, coverage validation, matrix building, diff detection |
-| **Pester**             | Pester 5                | 27    | PowerShell script parity with Bash                                             |
-| **Structural evals**   | pytest + DeepEval       | 15    | ID format/hierarchy, template conformance, BDD scenario completeness           |
-| **LLM-as-judge evals** | pytest + DeepEval GEval | 6     | Requirements quality (IEEE 29148), BDD quality, traceability completeness      |
+| Layer | Framework | Tests | What it validates |
+|-------|-----------|-------|-------------------|
+| **BATS** | bats-core | 27 | Bash script logic: setup, coverage validation, matrix building, diff detection |
+| **Pester** | Pester 5 | 27 | PowerShell script parity with Bash |
+| **Structural evals** | pytest + DeepEval | 15 | ID format/hierarchy, template conformance, BDD scenario completeness |
+| **LLM-as-judge evals** | pytest + DeepEval GEval | 6 | Requirements quality (IEEE 29148), BDD quality, traceability completeness |
 
 ### Test Fixtures
 

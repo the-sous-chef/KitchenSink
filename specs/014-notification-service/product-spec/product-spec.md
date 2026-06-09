@@ -50,7 +50,7 @@ External webhook consumers are **not** modeled as personas in this revision. Web
 | Producer feature         | Example `messageType` keywords                      | Notes                                                            |
 | ------------------------ | --------------------------------------------------- | ---------------------------------------------------------------- |
 | 003 — USDA Food Data     | `food.backfill.completed`, `food.fetch.failed`      | First confirmed consumer (US-005).                               |
-| 001 — Sous Chef          | recipe lifecycle events owned by 001                | Listed in 001 product-spec; specific events still to be specced. |
+| 001 — Commise          | recipe lifecycle events owned by 001                | Listed in 001 product-spec; specific events still to be specced. |
 | 005 — AI Integration     | AI-generated content disclosure events owned by 005 | Per cross-feature report.                                        |
 | 008 — Cooking Mode       | timer alert events owned by 008                     | Per cross-feature report.                                        |
 | 009 — Nutrition Planning | compliance-gap events owned by 009                  | Per cross-feature report.                                        |

@@ -4,11 +4,6 @@ const DatabaseConfigSchema = z.object({
     DATABASE_URL: z.string().url(),
 });
 
-const Auth0ConfigSchema = z.object({
-    AUTH0_DOMAIN: z.string().min(1),
-    AUTH0_AUDIENCE: z.string().min(1),
-});
-
 const QueueConfigSchema = z.object({
     DELETION_QUEUE_URL: z.string().url(),
 });
@@ -22,7 +17,6 @@ const AppConfigSchema = z.object({
 export const EnvironmentSchema = z.object({
     ...AppConfigSchema.shape,
     ...DatabaseConfigSchema.shape,
-    ...Auth0ConfigSchema.shape,
     ...QueueConfigSchema.shape,
 });
 

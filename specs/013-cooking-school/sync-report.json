@@ -1,0 +1,211 @@
+{
+  "scan": {
+    "feature_slug": "013-cooking-school",
+    "worktree": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth",
+    "feature_absolute": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/013-cooking-school",
+    "scan_date": "2026-06-02",
+    "layers": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L6_INFO",
+      "L7"
+    ],
+    "skipped_layers": [
+      "L5"
+    ],
+    "source_command": "7-layer sync-verify scan (pre-implement)"
+  },
+  "artifacts": {
+    "L1_research": {
+      "present": true,
+      "file": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/013-cooking-school/research.md"
+    },
+    "L2_product_spec": {
+      "present": true,
+      "file": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/013-cooking-school/product-spec/product-spec.md"
+    },
+    "L3_spec": {
+      "present": true,
+      "file": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/013-cooking-school/spec.md"
+    },
+    "L4_plan": {
+      "present": true,
+      "file": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/013-cooking-school/plan.md"
+    },
+    "L4_tasks": {
+      "present": true,
+      "file": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/013-cooking-school/tasks.md",
+      "task_count": 85,
+      "checked": 0,
+      "unchecked": 85
+    },
+    "L6_code": {
+      "present": false,
+      "files_found": 0
+    },
+    "L7_verify": {
+      "present": true,
+      "file": "/home/brandon/Development/KitchenSink/.worktrees/002-user-auth/specs/013-cooking-school/verify-report.md"
+    }
+  },
+  "results": {
+    "overall_status": "CRITICAL",
+    "critical_count": 3,
+    "warning_count": 3,
+    "info_count": 3,
+    "passed_count": 4,
+    "skipped_count": 1
+  },
+  "layer_results": {
+    "L1": {
+      "name": "Research → Product Spec",
+      "status": "PASSED",
+      "findings": [
+        "L1.1 research.md present and readable",
+        "L1.2 product-spec/product-spec.md present and readable",
+        "L1.3 Key research recommendations (async video v1, live classes Phase 2) consistently reflected in product-spec, spec.md, and plan.md"
+      ]
+    },
+    "L2": {
+      "name": "Product Spec → Spec",
+      "status": "PASSED",
+      "findings": [
+        "L2.1 Personas aligned (P12 Jamie, P13 Reese, P1 Casey, P2 Taylor, P9 Drew) in both artifacts",
+        "L2.2 Must Have story set (US-001..US-005) present in spec.md; FR-001..FR-010 in product-spec.md",
+        "L2.3 No missing Must Have requirements in spec.md vs product-spec (10/10 accounted for)"
+      ],
+      "caveats": [
+        "spec.md expresses Must Have as user stories; product-spec uses FR IDs. Explicit crosswalk not present."
+      ]
+    },
+    "L3": {
+      "name": "Spec → Plan",
+      "status": "PASSED",
+      "findings": [
+        "L3.1 All 5 Must Have user stories from spec.md (US-001..US-005) are decomposed into plan.md acceptance criteria and task chains",
+        "L3.2 plan.md references M7 milestone and governance rules (GR-002, GR-007, GR-012, GR-014)",
+        "L3.3 Dependency contracts with 002/005/010/012 are explicitly mapped in plan.md §Dependencies"
+      ]
+    },
+    "L4": {
+      "name": "Plan → Tasks",
+      "status": "CRITICAL",
+      "findings": [
+        "L4.1 All 10 Must Have FRs and 5 Must Have USs have task coverage (verified T024-T052 decomposition)",
+        "L4.2 NO tasks are checked (0/85); no execution evidence exists",
+        "L4.3 CRITICAL: No implementation files found for planned workspaces (packages/api/cooking-school-*, packages/shared/cooking-school-*, packages/apps/commise/{web,mobile} feature files)",
+        "L4.4 CRITICAL: This is a pre-implement state; task-to-code traceability cannot yet be closed"
+      ]
+    },
+    "L5": {
+      "name": "Tasks → Code",
+      "status": "SKIPPED",
+      "reason": "Skipped per instruction"
+    },
+    "L6": {
+      "name": "Code → Verify",
+      "status": "INFO",
+      "findings": [
+        "L6.1 INFO: No implementation code exists (0 feature files in monorepo)",
+        "L6.2 INFO: verify-report.md exists but reports 5 CRITICAL, 5 WARNING, 7 PASSED, 3 SKIPPED",
+        "L6.3 INFO: v-model/release-audit-report.md blocked (102 scenarios untested); expected at pre-implement",
+        "L6.4 INFO: Missing-impl status is expected INFO per instruction"
+      ]
+    },
+    "L7": {
+      "name": "Cross-Feature Dependency Evidence",
+      "status": "CRITICAL",
+      "findings": [
+        "L7.1 CRITICAL: 002-user-auth dependency is Required in spec.md but no integration execution evidence exists",
+        "L7.2 CRITICAL: 010-subscriptions dependency (billing/payout/revenue-share) is referenced but no contract execution evidence exists",
+        "L7.3 CRITICAL: 012-creator-profile dependency (educator identity via CreatorProfile) is referenced but no integration execution evidence exists",
+        "L7.4 WARNING: 005-ai-integration dependency (AI script drafting) is referenced but no integration execution evidence exists",
+        "L7.5 WARNING: 001-commise-recipe-app dependency (recipe-linked lessons) is referenced but no integration execution evidence exists",
+        "L7.6 No monorepo workspace refs found outside packages/apps/commise/{web,mobile}; no apps/X flagged"
+      ]
+    }
+  },
+  "critical_findings": [
+    {
+      "id": "CR-001",
+      "layer": "L4",
+      "severity": "CRITICAL",
+      "artifact": "tasks.md",
+      "finding": "All 85 tasks remain unchecked; no execution evidence exists.",
+      "target": "T001-T085",
+      "evidence": "0 checked tasks out of 85 total; no implementation workspaces found.",
+      "monorepo_impact": false
+    },
+    {
+      "id": "CR-002",
+      "layer": "L4",
+      "severity": "CRITICAL",
+      "artifact": "plan.md / tasks.md",
+      "finding": "No implementation code found for planned API, shared contracts, web, or mobile packages.",
+      "target": "packages/api/cooking-school-*, packages/shared/cooking-school-*, packages/apps/commise/{web,mobile}",
+      "evidence": "Glob searches returned 0 files for planned workspaces.",
+      "monorepo_impact": true
+    },
+    {
+      "id": "CR-003",
+      "layer": "L7",
+      "severity": "CRITICAL",
+      "artifact": "spec.md §Dependencies",
+      "finding": "Required dependency 002-user-auth and referenced dependencies 010/012 have no integration execution evidence.",
+      "target": "002-user-auth, 010-subscriptions, 012-creator-profile",
+      "evidence": "No test artifacts, contract snapshots, or integration runs found in 013 directory or monorepo.",
+      "monorepo_impact": false
+    }
+  ],
+  "warning_findings": [
+    {
+      "id": "WR-001",
+      "layer": "L2",
+      "severity": "WARNING",
+      "artifact": "spec.md",
+      "finding": "spec.md uses user stories (US-NNN) but does not enumerate FR IDs (FR-001..FR-020).",
+      "target": "spec.md §Feature Requirements",
+      "evidence": "product-spec.md lists FR-001..FR-020; spec.md has no FR-ID table."
+    },
+    {
+      "id": "WR-002",
+      "layer": "L7",
+      "severity": "WARNING",
+      "artifact": "spec.md §Dependencies",
+      "finding": "Referenced dependencies 005 and 001 lack integration execution evidence.",
+      "target": "005-ai-integration, 001-commise-recipe-app",
+      "evidence": "No contract test snapshots or integration evidence found."
+    },
+    {
+      "id": "WR-003",
+      "layer": "L7",
+      "severity": "WARNING",
+      "artifact": ".forge-status.yml",
+      "finding": "Forge lifecycle state for plan/tasks shows completed but implement/verify are not-started/failed.",
+      "target": ".forge-status.yml",
+      "evidence": "plan state=completed, tasks state=completed, implement state=not-started, verify state=failed."
+    }
+  ],
+  "info_findings": [
+    {
+      "id": "IF-001",
+      "layer": "L6",
+      "severity": "INFO",
+      "finding": "v-model/release-audit-report.md is blocked (102 untested scenarios). This is expected pre-implement."
+    },
+    {
+      "id": "IF-002",
+      "layer": "L6",
+      "severity": "INFO",
+      "finding": "verify-report.md already exists and contains valid verification layer analysis."
+    },
+    {
+      "id": "IF-003",
+      "layer": "L7",
+      "severity": "INFO",
+      "finding": "No monorepo workspace refs outside packages/apps/commise/{web,mobile} found. No apps/X refs flagged."
+    }
+  ]
+}

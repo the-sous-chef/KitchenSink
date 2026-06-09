@@ -1,4 +1,4 @@
-# Product Specification: Sous Chef - Meal Planning
+# Product Specification: Commise - Meal Planning
 
 **Branch**: `006-meal-planning`
 **Date**: 2026-05-09
@@ -9,7 +9,7 @@
 
 ## Vision
 
-Meal Planning turns Sous Chef from a recipe repository into a repeatable planning system for real households. Users should be able to build plans quickly, adapt them easily, and carry them through to shopping with clear nutritional context.
+Meal Planning turns Commise from a recipe repository into a repeatable planning system for real households. Users should be able to build plans quickly, adapt them easily, and carry them through to shopping with clear nutritional context.
 
 **Tagline**: "Plan fast, eat well, waste less."
 

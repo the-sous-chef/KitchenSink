@@ -15,7 +15,6 @@
 **Rationale**: Consistent with the v0.1.0 approach where ATP IDs embed their parent REQ number. Keeps all traceability data in the Markdown file itself, satisfying Constitution Principle IV (Git as QMS).
 
 **Alternatives considered**:
-
 - Separate mapping table in the same file: Rejected — duplicates information and creates sync risk.
 - JSON sidecar file: Rejected — violates Constitution Principle IV (all compliance-critical artifacts in plaintext Markdown).
 - Parent field in each view: Rejected — redundant. Decomposition View is the single source; other views reference SYS-NNN IDs.
@@ -40,8 +39,8 @@
 **Finding**: ISO 29119-4 (Test Techniques) defines a catalog of test design techniques. For system-level testing derived from a design document, three technique families are most applicable:
 
 1. **Interface Contract Testing** — Verifies that components honor their published API contracts. Must distinguish between:
-   - _External interfaces_ (user-facing APIs): Focus on protocol compliance, authentication, error responses.
-   - _Internal interfaces_ (inter-module): Focus on contract adherence, data format correctness, failure propagation.
+   - *External interfaces* (user-facing APIs): Focus on protocol compliance, authentication, error responses.
+   - *Internal interfaces* (inter-module): Focus on contract adherence, data format correctness, failure propagation.
 2. **Boundary Value Analysis / Equivalence Partitioning** — Tests data limits, thresholds, and ranges documented in the Data Design View.
 3. **Fault Injection / Negative Testing** — Tests failure propagation paths documented in the Dependency View. Verifies error handling, graceful degradation, and isolation between components.
 
@@ -56,7 +55,6 @@
 **Finding**: Safety-critical analysis sections are mandatory under ISO 26262 and DO-178C but irrelevant for non-regulated projects. Including them by default would create noise for general-purpose users.
 
 **Decision**: Gate via `v-model-config.yml` at the project root. When `domain` is set to a regulated standard identifier (`iso_26262`, `do_178c`, `iec_62304`), the commands generate additional sections:
-
 - System design: Freedom from Interference (FFI) analysis, Restricted Complexity assessment
 - System test: MC/DC test obligations, WCET verification scenarios
 
@@ -65,7 +63,6 @@ When the config is absent or the domain field is empty, these sections are omitt
 **Rationale**: Opt-in activation prevents cognitive overload for non-regulated teams while ensuring regulated teams get the full analysis required by their standards. The config file is Git-tracked, making the decision auditable.
 
 **Alternatives considered**:
-
 - Command-line flag: Rejected — not persistent; would need to be specified on every invocation.
 - Always generate, let users delete: Rejected — creates noise and violates the "minimal necessary output" principle.
 - Separate commands for safety-critical mode: Rejected — doubles the command surface area without added value.
@@ -77,7 +74,6 @@ When the config is absent or the domain field is empty, these sections are omitt
 **Finding**: During system design, the AI may identify a technical capability that is necessary for the architecture but was not explicitly stated in `requirements.md`. In safety-critical standards (DO-178C §5.1.1, ISO 26262-6 §7.4.1), these are called "derived requirements" and must be formally traced and approved.
 
 **Decision**: The system design command flags derived requirements with `[DERIVED REQUIREMENT: description]` in the output instead of silently creating a `SYS-NNN` component. The human must decide whether to:
-
 1. Add the capability to `requirements.md` (creating a new REQ-NNN)
 2. Reject it as unnecessary
 3. Merge it into an existing requirement
@@ -91,7 +87,6 @@ When the config is absent or the domain field is empty, these sections are omitt
 **Finding**: With two V-levels (Requirements ↔ Acceptance and System Design ↔ System Testing), a single traceability matrix becomes visually complex. Enterprise ALM tools (IBM DOORS, Jama Connect) present validation and verification traceability as separate views.
 
 **Decision**: The extended `/speckit.v-model.trace` command produces two separate tables:
-
 - **Matrix A (Validation)**: REQ → ATP → SCN — proves the system does what the user needs.
 - **Matrix B (Verification)**: REQ → SYS → STP → STS — proves the architecture works as designed.
 
@@ -100,21 +95,18 @@ Each matrix includes an independently calculated coverage percentage verified by
 **Rationale**: Separate tables prevent a single wide matrix with 7+ columns from becoming unreadable in Markdown. Coverage percentages are independently verifiable by different scripts, maintaining audit independence.
 
 **Alternatives considered**:
-
 - Single merged matrix (REQ → ATP → SCN → SYS → STP → STS): Rejected — too wide for Markdown, mixes validation and verification concerns.
 - Three separate matrices (one per V-level pair): Premature — only two levels exist now. Easy to add Matrix C when Phase 5b ships.
 
 ### RQ-7: How should validate-system-coverage.sh handle the many-to-many REQ↔SYS relationship?
 
 **Finding**: Unlike v0.1.0's validate-requirement-coverage.sh (which validates 1:N REQ→ATP mapping), the system-level script must handle many-to-many:
-
 - A single REQ may map to multiple SYS components
 - A single SYS may satisfy multiple REQs
 - Forward coverage: every REQ must appear as a parent in at least one SYS
 - Backward coverage: every SYS must have at least one STP test case
 
 **Decision**: The script builds two associative arrays:
-
 1. Parse `system-design.md` Decomposition View: extract each SYS-NNN and its "Parent Requirements" list → populate `req_to_sys` map (REQ→SYS[]) and `sys_exists` set.
 2. Parse `system-test.md`: extract each STP-NNN-X → populate `sys_to_stp` map (SYS→STP[]).
 3. Forward check: iterate all REQ-NNN from `requirements.md`; verify each appears in `req_to_sys`.
@@ -128,7 +120,6 @@ Each matrix includes an independently calculated coverage percentage verified by
 ### RQ-8: What STS scenario language style distinguishes system tests from acceptance tests?
 
 **Finding**: Both acceptance scenarios (SCN) and system test scenarios (STS) use Given/When/Then BDD format, but their language register must differ:
-
 - **SCN (acceptance)**: User-centric language. "Given a logged-in user, When they submit a form, Then they see a confirmation."
 - **STS (system test)**: Technical, component-oriented language. "Given the database connection pool is exhausted, When a new query is submitted, Then the system returns error code 503 within 200ms."
 

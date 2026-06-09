@@ -21,7 +21,7 @@ Each journey covers one end-to-end flow per persona. Steps reference FR IDs in b
 ```mermaid
 sequenceDiagram
     participant U as Riley (Web)
-    participant API as Sous Chef API
+    participant API as Commise API
     participant MP as Meal Planning (006)
     participant AGG as Aggregator Service
     participant DB as Grocery Tables
@@ -47,7 +47,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant U as Sam (Mobile)
-    participant API as Sous Chef API
+    participant API as Commise API
     participant PAN as Pantry Service
     participant DB as Grocery Tables
 
@@ -80,7 +80,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant U as Jordan (Web)
-    participant API as Sous Chef API
+    participant API as Commise API
     participant MAP as Product Mapping Service
     participant STORE as Store API Adapter
     participant SUB as Subscription (010)
@@ -122,14 +122,14 @@ This preserves flow continuity without silently dropping unknown items.
 
 ## Journey D: Dedicated Shopping Lists Page — Create List Without a Meal Plan
 
-**Persona**: P8 Alex — Sous Chef Power User
+**Persona**: P8 Alex — Commise Power User
 **Scenario**: Alex wants to add a few items for a weekend shop without building a full meal plan. They navigate directly to the Shopping Lists page and create a standalone list.
 
 ```mermaid
 sequenceDiagram
     participant U as Alex (Web or Mobile)
     participant NAV as Main Navigation
-    participant API as Sous Chef API
+    participant API as Commise API
     participant DB as Grocery Tables
 
     U->>NAV: Tap "Shopping Lists" in main nav

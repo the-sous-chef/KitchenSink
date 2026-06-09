@@ -385,7 +385,7 @@ This System Test Plan verifies that every system component (`SYS-NNN`) defined i
 
 ## SYS-007 — Cross-Cutting: Auth Guard
 
-> Enforces authentication on all AI and agent endpoints. Delegates to `002-auth0-user-auth`. Rejects unauthenticated requests before they reach any AI subsystem.
+> Enforces authentication on all AI and agent endpoints. Delegates to `002-user-auth`. Rejects unauthenticated requests before they reach any AI subsystem.
 
 ### STP-023 — Auth Guard Blocks Unauthenticated Access (SC, FI)
 

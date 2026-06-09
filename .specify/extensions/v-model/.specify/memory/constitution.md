@@ -122,11 +122,11 @@ auditors expect, reducing the burden of manual documentation.
 
 ### ID Schema and Artifact Naming
 
-| Artifact             | Pattern                        | Example        |
-| -------------------- | ------------------------------ | -------------- |
-| Requirement          | `REQ-{NNN}`                    | `REQ-001`      |
-| Test Case            | `ATP-{NNN}-{X}`                | `ATP-001-A`    |
-| BDD Scenario         | `SCN-{NNN}-{X#}`               | `SCN-001-A1`   |
+| Artifact | Pattern | Example |
+|---|---|---|
+| Requirement | `REQ-{NNN}` | `REQ-001` |
+| Test Case | `ATP-{NNN}-{X}` | `ATP-001-A` |
+| BDD Scenario | `SCN-{NNN}-{X#}` | `SCN-001-A1` |
 | Requirement Category | `[FN]`, `[NF]`, `[IF]`, `[CN]` | `[FN] REQ-001` |
 
 ### Quality Gates

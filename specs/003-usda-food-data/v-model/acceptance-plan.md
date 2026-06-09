@@ -9,7 +9,7 @@
 
 ## Overview
 
-This plan maps BDD acceptance scenarios to every REQ-\* requirement in the USDA Food Data Integration feature. Each scenario is written from the perspective of an authenticated Sous Chef client interacting with the public API surface, not from the perspective of internal components. Internal component behavior is covered by the System Test Plan (`system-test.md`).
+This plan maps BDD acceptance scenarios to every REQ-\* requirement in the USDA Food Data Integration feature. Each scenario is written from the perspective of an authenticated Commise client interacting with the public API surface, not from the perspective of internal components. Internal component behavior is covered by the System Test Plan (`system-test.md`).
 
 Acceptance tests verify that the system satisfies user-observable contracts: correct HTTP status codes, correct response bodies, correct async backfill behavior, correct search results, and correct authentication enforcement. Non-functional acceptance criteria (latency, rate-limit compliance, data fidelity) are verified through targeted load probes and metric assertions.
 
@@ -37,7 +37,7 @@ Examples:
 
 ### Tier 1 — Feature/Epic: Food Lookup (Local-Store Serving)
 
-**User Goal**: As a Sous Chef client, I want to look up a food by its USDA FDC ID and receive either complete nutrition data or a clear async-pending response, so that I can display accurate nutritional information in recipes.
+**User Goal**: As a Commise client, I want to look up a food by its USDA FDC ID and receive either complete nutrition data or a clear async-pending response, so that I can display accurate nutritional information in recipes.
 
 ---
 
@@ -163,7 +163,7 @@ Examples:
 
 ### Tier 1 — Feature/Epic: Food Status Polling
 
-**User Goal**: As a Sous Chef client, I want to poll the status of a pending food fetch so that I know when nutrition data becomes available without holding an open connection.
+**User Goal**: As a Commise client, I want to poll the status of a pending food fetch so that I know when nutrition data becomes available without holding an open connection.
 
 ---
 
@@ -197,7 +197,7 @@ Examples:
 
 ### Tier 1 — Feature/Epic: Food Search
 
-**User Goal**: As a Sous Chef client, I want to search for foods by name so that I can discover ingredients without knowing their exact FDC IDs.
+**User Goal**: As a Commise client, I want to search for foods by name so that I can discover ingredients without knowing their exact FDC IDs.
 
 ---
 
@@ -257,7 +257,7 @@ Examples:
 
 ### Tier 1 — Feature/Epic: Async Backfill Pipeline
 
-**User Goal**: As a Sous Chef operator, I want unknown foods to be fetched from USDA automatically and made available within a predictable time window, so that users don't have to wait indefinitely.
+**User Goal**: As a Commise operator, I want unknown foods to be fetched from USDA automatically and made available within a predictable time window, so that users don't have to wait indefinitely.
 
 ---
 
@@ -499,7 +499,7 @@ Examples:
 
 ### Tier 1 — Feature/Epic: Authentication Enforcement
 
-**User Goal**: As a Sous Chef operator, I want all food data endpoints to require authentication so that unauthenticated clients cannot access or trigger food fetches.
+**User Goal**: As a Commise operator, I want all food data endpoints to require authentication so that unauthenticated clients cannot access or trigger food fetches.
 
 ---
 
@@ -533,7 +533,7 @@ Examples:
 
 ### Tier 1 — Feature/Epic: Non-Functional Acceptance
 
-**User Goal**: As a Sous Chef operator, I want the food data system to meet its latency, rate-limit, data fidelity, and reliability targets so that the feature is safe to ship.
+**User Goal**: As a Commise operator, I want the food data system to meet its latency, rate-limit, data fidelity, and reliability targets so that the feature is safe to ship.
 
 ---
 

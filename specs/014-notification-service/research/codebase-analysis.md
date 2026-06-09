@@ -14,7 +14,7 @@ There is no existing notification module. References are scattered across featur
 
 | Feature                  | Reference                                                                                                                                                                                                 |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 001 — Sous Chef          | `product-spec/product-spec.md` mentions notifications in vision/principles. No transport defined.                                                                                                         |
+| 001 — Commise          | `product-spec/product-spec.md` mentions notifications in vision/principles. No transport defined.                                                                                                         |
 | 003 — USDA Food Data     | `plan.md` mentions "email/webhook notifications" for fetch failures. `product-spec/product-spec.md` US-005 (Rev 1) explicitly depends on an in-app notification when a backfilled food becomes available. |
 | 005 — AI Integration     | `plan.md` mentions transparency disclosures on AI-generated content. No transport defined.                                                                                                                |
 | 008 — Cooking Mode       | `plan.md` mentions timer alerts. No transport defined.                                                                                                                                                    |

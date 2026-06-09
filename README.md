@@ -1,6 +1,6 @@
 # KitchenSink
 
-A TypeScript monorepo for the Sous Chef platform — recipe management, meal planning, and kitchen organization across web and mobile.
+A TypeScript monorepo for the Commise platform — recipe management, meal planning, and kitchen organization across web and mobile.
 
 ## Prerequisites
 
@@ -33,8 +33,8 @@ npm run format
 
 | Workspace                        | Package                                                              | Description                  |
 | -------------------------------- | -------------------------------------------------------------------- | ---------------------------- |
-| `packages/apps/sous-chef/web`    | `@kitchensink/web`                                                   | Next.js web app              |
-| `packages/apps/sous-chef/mobile` | `@kitchensink/mobile`                                                | Expo/React Native mobile app |
+| `packages/apps/commise/web`    | `@kitchensink/web`                                                   | Next.js web app              |
+| `packages/apps/commise/mobile` | `@kitchensink/mobile`                                                | Expo/React Native mobile app |
 | `packages/ui`                    | `@kitchensink/ui`                                                    | Shared UI component library  |
 | `packages/tools/*`               | `@kitchensink/eslint`, `typescript`, `vitest`, `prettier`, `esbuild` | Shared tooling configs       |
 

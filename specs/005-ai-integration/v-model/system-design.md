@@ -7,7 +7,7 @@
 
 ## Overview
 
-The AI Integration feature decomposes into two primary subsystems: (1) **BYOK In-App AI** — a credential management and provider-dispatch pipeline that stores encrypted user API keys and calls external AI providers to generate and optimize recipes; (2) **External Agent Platform** — an OAuth 2.0 authorization server and scoped API layer that allows third-party agents (ChatGPT GPT Actions, Gemini Extensions) to read and write recipes on behalf of authorized users. Both subsystems produce private, user-owned Recipe entities that integrate with the existing `001-sous-chef-recipe-app` data model and require authentication from `002-auth0-user-auth`.
+The AI Integration feature decomposes into two primary subsystems: (1) **BYOK In-App AI** — a credential management and provider-dispatch pipeline that stores encrypted user API keys and calls external AI providers to generate and optimize recipes; (2) **External Agent Platform** — an OAuth 2.0 authorization server and scoped API layer that allows third-party agents (ChatGPT GPT Actions, Gemini Extensions) to read and write recipes on behalf of authorized users. Both subsystems produce private, user-owned Recipe entities that integrate with the existing `001-commise-recipe-app` data model and require authentication from `002-user-auth`.
 
 ## ID Schema
 
@@ -25,7 +25,7 @@ The AI Integration feature decomposes into two primary subsystems: (1) **BYOK In
 | SYS-004 | OAuth 2.0 Authorization Server             | Implements the OAuth 2.0 authorization code flow for external agent platforms. Issues access tokens scoped to `recipes:read` and/or `recipes:create`. Manages user consent grants and revocations.            | REQ-010, REQ-013, REQ-IF-001, REQ-IF-002       | Service   |
 | SYS-005 | External Agent API                         | Exposes OAuth 2.0-protected REST endpoints for authorized external agents to read the user's recipe collection and create recipes on their behalf. Rejects unauthorized requests with an authorization error. | REQ-008, REQ-009, REQ-011, REQ-012, REQ-IF-003 | Service   |
 | SYS-006 | AI Instruction Optimizer                   | Accepts a recipe owned by the user and an optimization mode (simplify language / streamline steps). Calls the user's configured AI provider and returns optimized instructions for user review.               | REQ-014, REQ-015, REQ-CN-003                   | Module    |
-| SYS-007 | Cross-Cutting: Auth Guard                  | Enforces authentication on all AI and agent endpoints. Delegates to `002-auth0-user-auth`. Rejects unauthenticated requests before they reach any AI subsystem.                                               | REQ-CN-002, REQ-NF-001, REQ-NF-002             | Utility   |
+| SYS-007 | Cross-Cutting: Auth Guard                  | Enforces authentication on all AI and agent endpoints. Delegates to `002-user-auth`. Rejects unauthenticated requests before they reach any AI subsystem.                                               | REQ-CN-002, REQ-NF-001, REQ-NF-002             | Utility   |
 | SYS-008 | Cross-Cutting: Type Safety & Accessibility | Enforces TypeScript strict mode, JSDoc coverage, accessible UI component contracts, and color-independent state indicators across all AI feature UI components.                                               | REQ-NF-001, REQ-NF-002, REQ-NF-003, REQ-NF-004 | Utility   |
 
 ## Dependency View (IEEE 1016 §5.2)

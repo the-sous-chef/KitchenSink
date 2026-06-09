@@ -7,7 +7,6 @@ The V-Model traceability matrix shows test plans — every scenario has `⬜ Unt
 Additionally, in safety-critical domains like DO-178C and ISO 26262, proving that tests passed is not enough — auditors must also see that the tests achieved sufficient **structural code coverage** (statement, branch, MC/DC). A JUnit XML file proves the test executed; it does not prove the test covered the code.
 
 There is currently no automated way to:
-
 1. Parse CI test results (JUnit XML) and update the traceability matrix with pass/fail/skip status
 2. Parse code coverage reports (Cobertura XML) and link coverage metrics to specific module designs (MOD-NNN)
 3. Maintain an audit trail of when each test was executed and at which commit
@@ -63,7 +62,6 @@ ingest-test-results.sh --input junit.xml [--coverage cobertura.xml] [--matrix tr
 ### Output Example
 
 **JUnit XML input** (from any CI runner):
-
 ```xml
 <testsuite name="acceptance" tests="5" failures="1" time="12.3">
   <testcase name="SCN-001-A1 Given valid sensor data" time="0.5"/>
@@ -77,19 +75,16 @@ ingest-test-results.sh --input junit.xml [--coverage cobertura.xml] [--matrix tr
 ```
 
 **Matrix before**:
-
 ```
 | REQ-001 | SYS-001 | STP-001-A | STS-001-A1 | ⬜ Untested |
 ```
 
 **Matrix after**:
-
 ```
 | REQ-001 | SYS-001 | STP-001-A | STS-001-A1 | ✅ Passed | 2026-03-31 | abc1234 |
 ```
 
 **Matrix D with coverage**:
-
 ```
 | ARCH-001 | SYS-001 | MOD-001 | read_artifact | UTP-001-A | Statement | UTS-001-A1 | ✅ Passed | 2026-03-31 | abc1234 | 98.2% stmt / 94.1% branch |
 ```

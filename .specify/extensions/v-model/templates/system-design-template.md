@@ -32,13 +32,22 @@
   - Non-functional requirements (REQ-NF-NNN) map to cross-cutting components
   - Do NOT create SYS-NNN for capabilities not in requirements.md
   - Flag derived requirements with [DERIVED REQUIREMENT: description] instead
+
+  LIFECYCLE TAGS (inline in Name or Description column when evolving):
+  - [DEPRECATED — Superseded by SYS-NNN]: Component replaced
+  - [DEPRECATED — Withdrawn: <reason>]: Component removed entirely
+  - [SUSPECT — Parent REQ-NNN {deprecated|modified}]: Parent requirement changed;
+    resolve by re-parenting, deprecating, or confirming active.
+  - Deprecated components stay in the table; they are never deleted.
+  - Coverage checks (REQ→SYS) exclude deprecated REQs and deprecated SYS items.
 -->
 
-| SYS ID  | Name             | Description    | Parent Requirements | Type      |
-| ------- | ---------------- | -------------- | ------------------- | --------- |
-| SYS-001 | [Component Name] | [What it does] | REQ-001, REQ-002    | Subsystem |
-| SYS-002 | [Component Name] | [What it does] | REQ-003             | Module    |
-| SYS-003 | [Component Name] | [What it does] | REQ-NF-001          | Service   |
+| SYS ID | Name | Description | Parent Requirements | Type |
+|--------|------|-------------|---------------------|------|
+| SYS-001 | [Component Name] | [What it does] | REQ-001, REQ-002 | Subsystem |
+| SYS-002 | [Component Name] | [What it does] | REQ-003 | Module |
+| SYS-003 | [Component Name] | [What it does] | REQ-NF-001 | Service |
+| SYS-004 | [DEPRECATED — Superseded by SYS-001] [Component Name] | [Original description] | REQ-002 | Subsystem |
 
 ## Dependency View (IEEE 1016 §5.2)
 
@@ -51,10 +60,10 @@
   - Failure Impact: What happens to Source if Target fails
 -->
 
-| Source  | Target  | Relationship | Failure Impact       |
-| ------- | ------- | ------------ | -------------------- |
-| SYS-001 | SYS-002 | Calls        | [Impact description] |
-| SYS-003 | SYS-001 | Reads        | [Impact description] |
+| Source | Target | Relationship | Failure Impact |
+|--------|--------|-------------|----------------|
+| SYS-001 | SYS-002 | Calls | [Impact description] |
+| SYS-003 | SYS-001 | Reads | [Impact description] |
 
 ### Dependency Diagram
 
@@ -81,15 +90,15 @@
 
 ### External Interfaces
 
-| Component | Interface Name | Protocol   | Input    | Output   | Error Handling   |
-| --------- | -------------- | ---------- | -------- | -------- | ---------------- |
-| SYS-001   | [Name]         | [Protocol] | [Format] | [Format] | [Error strategy] |
+| Component | Interface Name | Protocol | Input | Output | Error Handling |
+|-----------|---------------|----------|-------|--------|----------------|
+| SYS-001 | [Name] | [Protocol] | [Format] | [Format] | [Error strategy] |
 
 ### Internal Interfaces
 
-| Source  | Target  | Interface Name | Protocol   | Data Format | Error Handling   |
-| ------- | ------- | -------------- | ---------- | ----------- | ---------------- |
-| SYS-001 | SYS-002 | [Name]         | [Protocol] | [Format]    | [Error strategy] |
+| Source | Target | Interface Name | Protocol | Data Format | Error Handling |
+|--------|--------|---------------|----------|-------------|----------------|
+| SYS-001 | SYS-002 | [Name] | [Protocol] | [Format] | [Error strategy] |
 
 ## Data Design View (IEEE 1016 §5.4)
 
@@ -105,19 +114,22 @@
 -->
 
 | Entity | Component | Storage | Protection at Rest | Protection in Transit | Retention |
-| ------ | --------- | ------- | ------------------ | --------------------- | --------- |
-| [Name] | SYS-001   | [Type]  | [Method]           | [Method]              | [Policy]  |
+|--------|-----------|---------|-------------------|-----------------------|-----------|
+| [Name] | SYS-001 | [Type] | [Method] | [Method] | [Policy] |
 
-<!-- SAFETY-CRITICAL SECTION: Only include when v-model-config.yml domain is set -->
+<!-- SAFETY-CRITICAL SECTION: Only include when a domain overlay is loaded (Step 2a) -->
 
 <!--
-## Freedom from Interference (ISO 26262-6 §7.4.8)
+> **Note:** If a domain overlay is loaded, use the overlay's version of this section.
+> The tables below show the generic structure; domain overlays provide domain-specific column headers and content.
 
-| Component | ASIL Rating | Isolation Mechanism | Verification Method |
-|-----------|-------------|--------------------|--------------------|
-| SYS-NNN | ASIL [A-D] | [Memory partition / Time-slice / etc.] | [How verified] |
+## Freedom from Interference
 
-## Restricted Complexity (ISO 26262-6 §7.4.9)
+| Component | Safety Integrity Level | Isolation Mechanism | Verification Method |
+|-----------|----------------------|--------------------|--------------------|
+| SYS-NNN | [Level] | [Memory partition / Time-slice / etc.] | [How verified] |
+
+## Restricted Complexity
 
 | Component | Complexity Metric | Value | Threshold | Status |
 |-----------|------------------|-------|-----------|--------|
@@ -128,12 +140,12 @@
 
 ## Coverage Summary
 
-| Metric                            | Count                                                         |
-| --------------------------------- | ------------------------------------------------------------- |
-| Total System Components (SYS)     | [N]                                                           |
-| Total Parent Requirements Covered | [N] / [N] ([%])                                               |
-| Components per Type               | Subsystem: [N] \| Module: [N] \| Service: [N] \| Library: [N] |
-| **Forward Coverage (REQ→SYS)**    | **[%]**                                                       |
+| Metric | Count |
+|--------|-------|
+| Total System Components (SYS) | [N] ([N] active, [N] deprecated, [N] suspect) |
+| Total Parent Requirements Covered | [N] / [N] ([%]) (active items only) |
+| Components per Type | Subsystem: [N] \| Module: [N] \| Service: [N] \| Library: [N] |
+| **Forward Coverage (REQ→SYS)** | **[%]** |
 
 ## Derived Requirements
 
@@ -147,6 +159,6 @@
 
 ## Glossary
 
-| Term   | Definition   |
-| ------ | ------------ |
+| Term | Definition |
+|------|-----------|
 | [Term] | [Definition] |

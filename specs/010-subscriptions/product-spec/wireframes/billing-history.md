@@ -9,7 +9,7 @@
 
 ```
 +----------------------------------------------------------------------------+
-| Sous Chef > Billing History                                                |
+| Commise > Billing History                                                |
 +----------------------------------------------------------------------------+
 |                                                                            |
 |  [Status banner if needed: Payment failed — update method to avoid lapse] |

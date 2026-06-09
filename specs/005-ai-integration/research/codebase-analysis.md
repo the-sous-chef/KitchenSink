@@ -12,8 +12,8 @@ KitchenSink is a Turborepo + npm workspaces monorepo. Root `package.json` curren
 ```json
 "workspaces": [
   "packages/tools/*",
-  "packages/apps/sous-chef/web",
-  "packages/apps/sous-chef/mobile",
+  "packages/apps/commise/web",
+  "packages/apps/commise/mobile",
   "packages/ui"
 ]
 ```
@@ -24,12 +24,12 @@ KitchenSink is a Turborepo + npm workspaces monorepo. Root `package.json` curren
 
 ## Existing Workspaces Relevant to 005
 
-### `packages/apps/sous-chef/web`
+### `packages/apps/commise/web`
 
 - Hosts AI entry UI, suggestion cards, and generation UX.
 - Needs SSE-friendly client handling for streaming generation output.
 
-### `packages/apps/sous-chef/mobile`
+### `packages/apps/commise/mobile`
 
 - Needs feature parity for AI generation and preview/save flow (`FR-016`, `FR-017`).
 - OAuth external-agent management may remain web-first initially, but revocation visibility must still be user-accessible (`FR-021`).

@@ -482,7 +482,7 @@ FUNCTION saveRecipe(userId: string, recipeDraft: RecipeDraft, source: 'ai' | 'ag
         createdAt: NOW()
     }
 
-    // Step 2: Delegate to 001-sous-chef-recipe-app Recipe repository
+    // Step 2: Delegate to 001-commise-recipe-app Recipe repository
     savedRecipe = RecipeRepository.create(recipe)
 
     // Step 3: Return persisted entity with generated ID
@@ -570,7 +570,7 @@ FUNCTION exchangeCodeForToken(code: string, clientId: string, clientSecret: stri
 
     // Step 4: Issue RS256 JWT access token
     token = jwt.sign(
-        { sub: grant.userId, scopes: grant.scopes, iss: 'sous-chef', aud: clientId },
+        { sub: grant.userId, scopes: grant.scopes, iss: 'commise', aud: clientId },
         RS256_PRIVATE_KEY,
         { algorithm: 'RS256', expiresIn: '1h' }
     )
@@ -698,7 +698,7 @@ FUNCTION validateToken(bearerToken: string) -> { userId: string, scopes: string[
     TRY:
         payload = jwt.verify(token, RS256_PUBLIC_KEY, {
             algorithms: ['RS256'],
-            issuer: 'sous-chef'
+            issuer: 'commise'
         })
     CATCH JsonWebTokenError:
         THROW UnauthorizedError('Invalid token signature')
@@ -1006,7 +1006,7 @@ FUNCTION enforce(request: HttpRequest, next: NextFunction) -> void | HTTP 401:
 
     token = authHeader.slice(7)
 
-    // Step 2: Verify Auth0 JWT (using 002-auth0-user-auth integration)
+    // Step 2: Verify Auth0 JWT (using 002-user-auth integration)
     TRY:
         payload = Auth0JWTVerifier.verify(token)
     CATCH TokenExpiredError:
@@ -1029,7 +1029,7 @@ N/A — Stateless
 
 | Name             | Type                 | Size/Constraints | Initialization             | Description                         |
 | ---------------- | -------------------- | ---------------- | -------------------------- | ----------------------------------- |
-| Auth0JWTVerifier | External module ref  | —                | From `002-auth0-user-auth` | Verifies Auth0-issued JWTs          |
+| Auth0JWTVerifier | External module ref  | —                | From `002-user-auth` | Verifies Auth0-issued JWTs          |
 | request.context  | `{ userId: string }` | —                | Attached per request       | Carries authenticated user identity |
 
 #### Error Handling & Return Codes

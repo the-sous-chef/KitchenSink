@@ -21,20 +21,20 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name          | Type                                                    | Description                                 |
-| ------------- | ------------------------------------------------------- | ------------------------------------------- |
-| bus_addr      | uint8                                                   | I2C peripheral address (0x00–0x7F)          |
-| register      | uint8                                                   | Target register offset                      |
-| raw           | bytes[2]                                                | Two-byte big-endian I2C register payload    |
-| value         | float                                                   | Converted sensor value in engineering units |
+| Name | Type | Description |
+|------|------|-------------|
+| bus_addr | uint8 | I2C peripheral address (0x00–0x7F) |
+| register | uint8 | Target register offset |
+| raw | bytes[2] | Two-byte big-endian I2C register payload |
+| value | float | Converted sensor value in engineering units |
 | SensorReading | struct{value: float, timestamp: datetime, unit: string} | Typed sensor measurement returned to caller |
 
 #### Error Handling & Return Codes
 
-| Code                | Condition                          | Recovery                            |
-| ------------------- | ---------------------------------- | ----------------------------------- |
-| I2CTimeoutError     | Bus read exceeds 100 ms            | Retry up to 3 times, then propagate |
-| InvalidReadingError | Converted value outside [−40, 125] | Discard and log warning             |
+| Code | Condition | Recovery |
+|------|-----------|----------|
+| I2CTimeoutError | Bus read exceeds 100 ms | Retry up to 3 times, then propagate |
+| InvalidReadingError | Converted value outside [−40, 125] | Discard and log warning |
 
 ---
 
@@ -69,17 +69,17 @@ stateDiagram-v2
 
 #### Internal Data Structures
 
-| Name            | Type                                                 | Description                                          |
-| --------------- | ---------------------------------------------------- | ---------------------------------------------------- |
-| state           | enum{Idle,Alerting,Cooldown}                         | Current evaluator state                              |
-| timer           | float                                                | Remaining cooldown seconds                           |
+| Name | Type | Description |
+|------|------|-------------|
+| state | enum{Idle,Alerting,Cooldown} | Current evaluator state |
+| timer | float | Remaining cooldown seconds |
 | ThresholdConfig | struct{warn: float, clear: float, cooldown_s: float} | Alert threshold parameters; constraint: warn > clear |
-| AlertEvent      | struct{level: enum{WARN,CRITICAL}, message: string}  | Emitted when threshold is crossed                    |
+| AlertEvent | struct{level: enum{WARN,CRITICAL}, message: string} | Emitted when threshold is crossed |
 
 #### Error Handling & Return Codes
 
-| Code                 | Condition    | Recovery                   |
-| -------------------- | ------------ | -------------------------- |
+| Code | Condition | Recovery |
+|------|-----------|----------|
 | ThresholdConfigError | warn ≤ clear | Reject config at load time |
 
 ---
@@ -106,17 +106,17 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name          | Type                                         | Description                              |
-| ------------- | -------------------------------------------- | ---------------------------------------- |
-| frame         | byte_matrix                                  | Pixel buffer (WIDTH × HEIGHT)            |
+| Name | Type | Description |
+|------|------|-------------|
+| frame | byte_matrix | Pixel buffer (WIDTH × HEIGHT) |
 | DisplayStatus | struct{timestamp: datetime, connected: bool} | Current display state passed from caller |
-| WIDTH         | const uint16 = 128                           | Display width in pixels                  |
-| HEIGHT        | const uint16 = 64                            | Display height in pixels                 |
+| WIDTH | const uint16 = 128 | Display width in pixels |
+| HEIGHT | const uint16 = 64 | Display height in pixels |
 
 #### Error Handling & Return Codes
 
-| Code                 | Condition                | Recovery                     |
-| -------------------- | ------------------------ | ---------------------------- |
+| Code | Condition | Recovery |
+|------|-----------|----------|
 | DisplayHardwareError | Frame write to LCD fails | Return last-known-good frame |
 
 ---
@@ -143,28 +143,28 @@ N/A — Stateless
 
 #### Internal Data Structures
 
-| Name       | Type                                                                          | Description                                    |
-| ---------- | ----------------------------------------------------------------------------- | ---------------------------------------------- |
-| LogLevel   | enum{DEBUG,INFO,WARN,ERROR}                                                   | Severity classification                        |
-| LogEntry   | struct{timestamp: datetime, level: LogLevel, source: string, message: string} | Structured log record                          |
-| MAX_BUFFER | const uint16 = 64                                                             | Maximum buffered entries when sink unavailable |
+| Name | Type | Description |
+|------|------|-------------|
+| LogLevel | enum{DEBUG,INFO,WARN,ERROR} | Severity classification |
+| LogEntry | struct{timestamp: datetime, level: LogLevel, source: string, message: string} | Structured log record |
+| MAX_BUFFER | const uint16 = 64 | Maximum buffered entries when sink unavailable |
 
 #### Error Handling & Return Codes
 
-| Code            | Condition            | Recovery                                  |
-| --------------- | -------------------- | ----------------------------------------- |
-| LogWriteError   | Sink unavailable     | Buffer up to 64 entries, then drop oldest |
-| InvalidLogLevel | Unknown level string | Reject call, return error                 |
+| Code | Condition | Recovery |
+|------|-----------|----------|
+| LogWriteError | Sink unavailable | Buffer up to 64 entries, then drop oldest |
+| InvalidLogLevel | Unknown level string | Reject call, return error |
 
 ---
 
 ## Coverage Summary
 
-| Metric             | Value |
-| ------------------ | ----- |
-| Total MODs         | 4     |
-| External MODs      | 0     |
-| Cross-Cutting MODs | 1     |
-| Stateful MODs      | 1     |
-| Stateless MODs     | 3     |
-| ARCH coverage      | 4 / 4 |
+| Metric | Value |
+|--------|-------|
+| Total MODs | 4 |
+| External MODs | 0 |
+| Cross-Cutting MODs | 1 |
+| Stateful MODs | 1 |
+| Stateless MODs | 3 |
+| ARCH coverage | 4 / 4 |

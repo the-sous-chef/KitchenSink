@@ -27,7 +27,7 @@
 
 **What competitors gate behind premium:**
 
-| Feature Category         | Mealime Pro | AnyList Complete | Sabor Premium  | Sous Chef (proposed)                        |
+| Feature Category         | Mealime Pro | AnyList Complete | Sabor Premium  | Commise (proposed)                        |
 | ------------------------ | ----------- | ---------------- | -------------- | ------------------------------------------- |
 | Private/unlisted content | —           | —                | —              | ✅ Private recipes                          |
 | AI features              | —           | —                | ✅ AI planning | ✅ AI generation, optimization              |
@@ -37,7 +37,7 @@
 | Meal plan automation     | ✅          | ✅               | ✅             | ✅ Auto-generated plans, waste optimization |
 | Household sharing        | —           | ✅               | ✅             | Future consideration                        |
 
-**Key insight**: The market consensus is that **AI features, grocery delivery integration, and advanced planning automation** are the strongest premium differentiators. Basic recipe CRUD and manual meal planning are universally free. Sous Chef's proposed gating (spec FR-040/FR-041) aligns well with this pattern.
+**Key insight**: The market consensus is that **AI features, grocery delivery integration, and advanced planning automation** are the strongest premium differentiators. Basic recipe CRUD and manual meal planning are universally free. Commise's proposed gating (spec FR-040/FR-041) aligns well with this pattern.
 
 ### 1.3 Pricing Benchmarks
 
@@ -46,7 +46,7 @@
 - **Annual discount**: Typically 30–40% off monthly (e.g., AnyList $9.99/yr vs ~$1.67/mo effective)
 - **Sweet spot for recipe SaaS**: **$4.99–$7.99/mo** or **$39.99–$59.99/yr**
 
-**Recommendation for Sous Chef**: Two tiers — Free and Premium at **$6.99/mo or $59.99/yr** (~28% annual discount). This positions above Mealime (less AI) and below Sabor (less enterprise), matching the feature depth.
+**Recommendation for Commise**: Two tiers — Free and Premium at **$6.99/mo or $59.99/yr** (~28% annual discount). This positions above Mealime (less AI) and below Sabor (less enterprise), matching the feature depth.
 
 ---
 
@@ -214,10 +214,10 @@ async handleSubscriptionUpdated(event: Stripe.Event): Promise<void> {
 
 ### 3.1 Subscription State on the User Record
 
-From `002-auth0-user-auth`, the `Account` entity in our PostgreSQL database is the source of truth for subscription state. The following fields must be added (or confirmed present):
+From `002-user-auth`, the `Account` entity in our PostgreSQL database is the source of truth for subscription state. The following fields must be added (or confirmed present):
 
 ```typescript
-// Additions to Account entity (002-auth0-user-auth)
+// Additions to Account entity (002-user-auth)
 @Column({ type: 'varchar', default: 'free' })
 plan: 'free' | 'premium';
 

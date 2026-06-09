@@ -5,6 +5,64 @@ All notable changes to the V-Model Extension Pack are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-04-25
+
+### Added — Domain Overlay Architecture
+
+- **Domain overlay system** — all 11 V-Model commands are now domain-agnostic; a `domain:` field in `config-template.yml` activates the correct domain overlay (automotive, medical, aerospace, general)
+- **9 domain overlay manifests** — one per command (`requirements`, `acceptance`, `system-design`, `system-test`, `architecture-design`, `integration-test`, `module-design`, `unit-test`, `hazard-analysis`), each declaring domain-specific standards, terminology substitutions, and output conventions
+- **`domain-overlay/` directory structure** — `automotive/`, `medical/`, `aerospace/`, `general/` with per-command YAML manifests; enables brownfield adoption without changing core command logic
+- **Feature specs dogfooded** — `specs/006a-domain-overlay/` full V-Model cycle (33 REQs, 42 ATPs, 9 SYS, 18 ARCH, 30 MODs, 62 UTPs, 207 UTSs, 4-matrix traceability)
+
+### Added — ID Lifecycle Model
+
+- **Explicit state machine** for all V-Model IDs: `Proposed → Active → Deprecated → Removed` with mandatory `## Lifecycle History` section in every artifact
+- **Lifecycle history templates** added to all 9 V-Model command output templates and all agent prompts — append-only history preserves regulatory audit trail
+- **Feature spec dogfooded** — `specs/006b-id-lifecycle/` full V-Model cycle (25 REQs, 9 SYS, 17 ARCH, 21 MODs, 33 UTPs, 107 UTSs, 4-matrix traceability)
+
+### Added — Standards Enrichment
+
+- **Governing Standards sections** added to all 11 commands — each command now declares the standards it applies and maps them to specific execution steps (e.g., `### Step 3. Quality Criteria (IEEE 1012:2016 / ISO 25010:2023)`)
+- **Standards applied per command**: IEEE 1012:2016 (V&V), ISO 25010:2023 (quality attributes), ISO 42030:2019 (architecture evaluation), ISO 12207:2017 (software lifecycle), INCOSE SE Handbook, IEEE 1016, IEEE 29148, ISO 29119-4, ISO 14971, DO-178C, ARP4761A
+- **`docs/standards-reference.md`** reconciled — §1.2 (Commands) and §2.3 (Standards) now in full agreement; missing domain overlays (automotive, medical, aerospace) added
+- **All 11 agent definition files** synced with enriched command content in `.github/agents/`
+- **V&V Coverage Gate** added to system-test, integration-test, unit-test, and audit-report commands (IEEE 1012:2016 §7 completeness criteria)
+- **Architecture Evaluation step** added to architecture-design command (ISO 42030:2019 / ISO 25010:2023 quality attributes)
+- **Quality attribute cross-check** added to system-design command (ISO 25010:2023 — Reliability, Safety, Maintainability, Portability)
+
+### Added — Aerospace (DO-178C) Support
+
+- **Flight Warning Computer (FWC) golden fixture** — DO-178C DAL-A avionics benchmark: 10 artifact files covering a 5-function FWC system (overspeed, stall, altitude alerting, GPWS, attitude limit) with ARP4761A hazard analysis, 9 SYS components, 9 ARCH modules
+- **11 new LLM-as-judge eval tests** for the FWC domain (BDD quality, architecture completeness, FMEA completeness, operational state coverage, traceability, requirements quality, system design, system test, integration quality, module completeness, unit test quality)
+- **`docs/brownfield-evolution-guide.md`** — step-by-step guide for adopting V-Model on existing projects
+
+### Added — Test Infrastructure
+
+- **`tests/fixtures/commands/`** namespace — `audit-report/` and `test-results/` command fixtures now live under `commands/` alongside `input/` and `expected/` sub-directories for clean separation from scenario fixtures
+- **Audit-report expected outputs** — `expected/clean.md`, `expected/waived.md`, `expected/blocking.md` golden outputs for deterministic output comparison
+- **DO-178C/DAL-A LLM eval benchmark** — `tests/fixtures/golden/flight-warning-computer/` with 10 expected artifact files; 11 `@pytest.mark.eval` tests across all eval files
+- **Traceability eval timeout fix** — `_strip_non_traceability_sections()` helper strips `## Governing Standards` and `## Coverage Summary` from acceptance plan before LLM-judge payload, reducing medical device combined payload from 13.5 KB to 12.2 KB (within `gemini-2.5-flash` latency budget)
+- **Minimal interface contract fixture** enriched — explicit types (`uint8`, `uint32`, `float32`, `uint16`, `enum`) and `Protocol:` fields added to all 3 ARCH modules; fixes `test_minimal_interface_contract_quality`
+
+### Changed
+
+- Extension version bumped from 0.5.0 to 0.6.0
+- All 11 commands genericized — domain-specific terminology (ISO 26262 ASIL, IEC 62304 Class, DO-178C DAL) replaced with overlay-injected terminology controlled by the `domain:` config field
+- `extension.yml` command descriptions rewritten to be domain-agnostic
+- `specs/002` through `specs/005e` evolved with Standards Enrichment content (lifecycle history, governing standards, V&V coverage gates, quality attribute cross-checks)
+- `specs/001-v-model-mvp` fully dogfooded — all 9 V-Model artifacts generated for the MVP spec
+- `.gitignore` updated with `.env` and `.env.local` to prevent accidental credential commits
+
+### Stats
+
+- Commands: 14 (unchanged)
+- Domain overlays: 0 → 9
+- BATS tests: 364 (unchanged)
+- Pester tests: 347 (unchanged)
+- Structural evals: 89 (unchanged)
+- LLM-as-judge evals: 42 → 53 (+11 DO-178C/DAL-A aerospace golden benchmark)
+- Dogfooded feature specs: 5 → 7 (+006a domain overlay, +006b ID lifecycle)
+
 ## [0.5.0] — 2026-04-06
 
 ### Added — New Commands
@@ -69,10 +127,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Stats
 
 - Commands: 9 → 14
-- Bash scripts: 12 → 16 (+ validate-level)
-- PowerShell scripts: 12 → 16 (+ Validate-Level)
+- Bash scripts: 7 → 13 (+ validate-hazard-coverage, validate-level, impact-analysis, peer-review-check, ingest-test-results, build-audit-report)
+- PowerShell scripts: 7 → 13 (+ Validate-Hazard-Coverage, Validate-Level, Impact-Analysis, Peer-Review-Check, Ingest-Test-Results, Build-Audit-Report)
 - BATS tests: 91 → 364
-- Pester tests: 91 → 322
+- Pester tests: 91 → 347
 - Structural evals: 51 → 89
 - LLM-as-judge evals: 36 → 42
 - Agent definitions: 3 → 14
@@ -80,7 +138,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] — 2026-02-22
 
 ### Added
-
 - `module-design` command — DO-178C/ISO 26262-compliant low-level module designs with four mandatory views (Algorithmic/Logic, State Machine, Internal Data Structures, Error Handling & Return Codes)
 - `unit-test` command — ISO 29119-4 white-box unit test plans with five named techniques (Statement & Branch Coverage, Boundary Value Analysis, Equivalence Partitioning, State Transition Testing, Strict Isolation) and Dependency & Mock Registries
 - `validate-module-coverage.sh` / `validate-module-coverage.ps1` — Deterministic ARCH→MOD→UTP→UTS bidirectional coverage validation with EXTERNAL and CROSS-CUTTING module support
@@ -96,7 +153,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/id-schema-guide.md` — Comprehensive guide to the four-tier ID schema, intra-level vs inter-level linking, lifecycle, and end-to-end traceability examples
 
 ### Changed
-
 - Extension version bumped from 0.3.0 to 0.4.0
 - setup-v-model.sh/ps1 now detects module-design.md and unit-test.md in AVAILABLE_DOCS; 8 symmetric require flags
 - build-matrix.sh/ps1 extended with Matrix D generation
@@ -107,7 +163,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Total commands: 7 → 9; BATS tests: 67 → 91; Pester tests: 67 → 91; Structural evals: 37 → 51; LLM-as-judge evals: 26 → 36; E2E evals: 24 → 32
 
 ### Fixed
-
 - BATS test for validate-system-coverage partial mode now correctly expects exit 0 (script was updated in v0.2.0 but test was not)
 - PowerShell `validate-system-coverage.ps1` now supports partial mode when `system-test.md` is absent (parity with bash script)
 - PowerShell `validate-system-coverage.ps1` handles empty files via null-coalescing (`Get-Content -Raw` returns `$null` for 0-byte files)
@@ -116,7 +171,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] — 2026-02-21
 
 ### Added
-
 - `architecture-design` command — IEEE 42010/Kruchten 4+1 architecture decomposition with Logical, Process, Interface, and Data Flow views
 - `integration-test` command — ISO 29119-4 integration testing with Interface Contract, Data Flow, Fault Injection, and Concurrency techniques
 - `validate-architecture-coverage.sh` / `validate-architecture-coverage.ps1` — Deterministic ARCH→ITP→ITS bidirectional coverage validation with CROSS-CUTTING module support
@@ -130,7 +184,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Architecture and integration LLM-as-judge quality metrics
 
 ### Changed
-
 - Extension version bumped from 0.2.0 to 0.3.0
 - setup-v-model.sh/ps1 now detects architecture-design.md and integration-test.md in AVAILABLE_DOCS; 6 symmetric require flags
 - build-matrix.sh/ps1 extended with Matrix C generation

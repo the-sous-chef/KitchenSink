@@ -6,7 +6,7 @@
 
 ## Business model
 
-SousChef should use a layered model:
+Commise should use a layered model:
 
 1. **Free household utility**: recipe management, import, manual planning, grocery lists, and cooking mode enough to build trust and retention.
 2. **Consumer subscription**: premium AI acceleration, private recipes, advanced nutrition, automation, online-order conveniences, household collaboration, and advanced planning.
@@ -33,7 +33,7 @@ product before users trust the system.
 | Food creator               | Monetize useful cooking content.                                     | Creator profiles, shoppable recipes, courses, and attribution.                       | Post-core expansion supply segment.     |
 | Cooking educator / learner | Teach or learn skills through recipe-linked lessons.                 | Cooking school tied to the recipe graph.                                             | Post-1.0 marketplace expansion.         |
 
-Do not position SousChef as a generic consumer app for everyone who cooks.
+Do not position Commise as a generic consumer app for everyone who cooks.
 Lead with high-frequency, high-pain segments: busy household planners, families,
 recipe collectors, nutrition-conscious cooks, budget/waste reducers, and
 AI-curious power users. Creator and education segments become expansion loops
@@ -135,7 +135,7 @@ Use ranges until validation data exists:
 | 1.0       | Will users pay?                             | Pricing tests, conversion, churn, premium usage, support burden.               |
 | Expansion | Can the ecosystem compound?                 | Creator supply, content engagement, shoppable/affiliate performance.           |
 
-| AI gate | Can SousChef define trusted AI cooking behavior? | AI activation, generated recipe save/cook/reuse, disclosure comprehension, low unsafe-output reports, consent/revocation success. |
+| AI gate | Can Commise define trusted AI cooking behavior? | AI activation, generated recipe save/cook/reuse, disclosure comprehension, low unsafe-output reports, consent/revocation success. |
 
 ## Executive recommendation
 

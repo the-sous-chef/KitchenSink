@@ -5,7 +5,7 @@
 **Status**: Implemented (retroactive documentation)
 **Input**: User description: "V-Model Extension Pack MVP: Three AI-powered slash commands for paired dev-spec and test-spec generation with regulatory-grade traceability"
 
-## User Scenarios & Testing _(mandatory)_
+## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Generate Traceable Requirements (Priority: P1)
 
@@ -84,8 +84,8 @@ with 100% coverage validated by the deterministic coverage script.
 
 A compliance officer needs to demonstrate to an external auditor that
 every requirement has been tested and every test traces back to a
-requirement. The officer invokes `/speckit.v-model.trace` and receives a
-regulatory-grade, bidirectional Requirements Traceability Matrix (RTM)
+requirement. The officer invokes `/speckit.v-model.trace` and receives an
+auditable, bidirectional Requirements Traceability Matrix (RTM)
 with coverage metrics, gap analysis, and orphan detection.
 
 **Why this priority**: The traceability matrix is the audit-facing artifact.
@@ -189,7 +189,7 @@ modified, and removed requirement IDs.
   tables)? Scripts MUST fail gracefully with a descriptive error rather
   than producing corrupt output.
 
-## Requirements _(mandatory)_
+## Requirements *(mandatory)*
 
 ### Functional Requirements
 
@@ -219,12 +219,39 @@ modified, and removed requirement IDs.
   be performed by deterministic scripts, not by AI self-assessment.
 - **FR-010**: The system MUST support incremental updates: existing IDs
   are never renumbered; added requirements receive new IDs; removed
-  requirements are flagged `[DEPRECATED]`.
+  requirements are flagged `[DEPRECATED]`. Modified requirements retain
+  their ID and downstream artifacts are marked `[SUSPECT]` pending
+  review. The system MUST support the full ID lifecycle: Active,
+  `[DEPRECATED — Superseded by ...]`, `[DEPRECATED — Withdrawn: ...]`,
+  `[MODIFIED]`, and `[SUSPECT — Parent ... modified/deprecated]`.
 - **FR-011**: The system MUST detect requirement changes (added, modified,
   removed) by comparing the working copy against the last committed
   version.
 - **FR-012**: All generated artifacts MUST be plaintext Markdown stored
   in a Git-tracked directory.
+- **FR-013**: All generative commands (requirements, acceptance, trace)
+  MUST support domain overlay loading via the assembly protocol: if a
+  domain is configured in `v-model-config.yml`, domain-specific guidance
+  is loaded from `commands/overlays/{domain}/{command}.md` and applied
+  alongside the base command. Commands that use templates also load
+  `templates/overlays/{domain}/{template}.md`.
+- **FR-014**: The acceptance command MUST validate test plan completeness
+  against IEEE 1012:2016 V&V principles: entry/exit criteria, validation
+  vs. verification distinction, and V&V traceability.
+
+### Quality Attributes
+
+- **QA-001 (Maintainability)**: Commands MUST be domain-agnostic in their
+  base form, with domain-specific content loaded from overlay files.
+  Adding a new regulated domain (e.g., railway EN 50128) requires only
+  adding overlay files — no base command modification.
+- **QA-002 (Reliability)**: The coverage validation scripts MUST produce
+  deterministic results — the same inputs always produce the same outputs,
+  regardless of AI model or invocation context.
+- **QA-003 (Safety)**: When operating in a safety-critical domain, the
+  system MUST NOT silently accept requirements with unresolved `[SUSPECT]`
+  tags in downstream artifacts. The traceability matrix MUST flag
+  non-compliant status when suspect items exist.
 
 ### Key Entities
 
@@ -244,7 +271,7 @@ modified, and removed requirement IDs.
   `requirements.md`, `acceptance-plan.md`, and `traceability-matrix.md`
   as the canonical artifact set.
 
-## Success Criteria _(mandatory)_
+## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 

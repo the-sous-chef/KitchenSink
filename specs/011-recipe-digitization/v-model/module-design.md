@@ -4674,7 +4674,7 @@ export function init(opts: { serviceName: string; exporterUrl?: string }): void 
 ```ts
 import { trace, SpanStatusCode, context } from '@opentelemetry/api';
 
-const tracer = trace.getTracer('sous-chef');
+const tracer = trace.getTracer('commise');
 
 export async function withSpan<T>(
     name: string,
@@ -4704,7 +4704,7 @@ export async function withSpan<T>(
 
 **Internal Data Structures**
 
-- Module-scope `tracer` — single tracer instance per process keyed by service name (`sous-chef`).
+- Module-scope `tracer` — single tracer instance per process keyed by service name (`commise`).
 - Span attributes set from `attrs` map before `fn` runs so they appear on the span even if `fn` throws synchronously.
 
 **Error Handling**

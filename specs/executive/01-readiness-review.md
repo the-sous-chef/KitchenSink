@@ -3,7 +3,7 @@
 **Owner**: Director of Product
 **Status**: Adversarial review complete — conditional readiness
 **Last updated**: 2026-05-13
-**Scope**: All `specs/` documents for SousChef features `001`–`014`
+**Scope**: All `specs/` documents for Commise features `001`–`014`
 
 ## Verdict
 
@@ -61,7 +61,7 @@ Use NN/g-style design-spec discipline: every UX assignment must include goal, us
 
 ## Executive presentation stance
 
-Do not present SousChef as launch-ready. Present it as:
+Do not present Commise as launch-ready. Present it as:
 
 1. A coherent, differentiated ecosystem strategy.
 2. A strong UX discovery package.

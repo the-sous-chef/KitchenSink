@@ -22,24 +22,24 @@
   - Verification Method: How this will be validated (Test, Inspection, Analysis, Demonstration)
 -->
 
-| ID      | Description                    | Priority | Rationale    | Verification Method |
-| ------- | ------------------------------ | -------- | ------------ | ------------------- |
-| REQ-001 | The system SHALL [capability]  | P1       | [Why needed] | Test                |
-| REQ-002 | The system MUST [capability]   | P1       | [Why needed] | Test                |
-| REQ-003 | The system SHOULD [capability] | P2       | [Why needed] | Demonstration       |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-001 | The system SHALL [capability] | P1 | [Why needed] | Test |
+| REQ-002 | The system MUST [capability] | P1 | [Why needed] | Test |
+| REQ-003 | The system SHOULD [capability] | P2 | [Why needed] | Demonstration |
 
 ### Non-Functional Requirements
 
-| ID         | Description                          | Priority | Rationale    | Verification Method |
-| ---------- | ------------------------------------ | -------- | ------------ | ------------------- |
-| REQ-NF-001 | The system SHALL [quality attribute] | P1       | [Why needed] | Analysis            |
-| REQ-NF-002 | The system MUST [performance target] | P1       | [Why needed] | Test                |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-NF-001 | The system SHALL [quality attribute] | P1 | [Why needed] | Analysis |
+| REQ-NF-002 | The system MUST [performance target] | P1 | [Why needed] | Test |
 
 ### Interface Requirements
 
-| ID         | Description                       | Priority | Rationale    | Verification Method |
-| ---------- | --------------------------------- | -------- | ------------ | ------------------- |
-| REQ-IF-001 | The system SHALL [interface spec] | P1       | [Why needed] | Test                |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-IF-001 | The system SHALL [interface spec] | P1 | [Why needed] | Test |
 
 ### Constraint Requirements
 
@@ -47,9 +47,9 @@
      "only when"), verify a corresponding functional requirement (REQ-NNN) exists that generates
      that capability. See Anti-Pattern Guards §4.5 in commands/requirements.md. -->
 
-| ID         | Description                  | Priority | Rationale    | Verification Method |
-| ---------- | ---------------------------- | -------- | ------------ | ------------------- |
-| REQ-CN-001 | The system MUST [constraint] | P1       | [Why needed] | Inspection          |
+| ID | Description | Priority | Rationale | Verification Method |
+|----|-------------|----------|-----------|---------------------|
+| REQ-CN-001 | The system MUST [constraint] | P1 | [Why needed] | Inspection |
 
 ## Assumptions
 
@@ -62,8 +62,8 @@
 
 ## Glossary
 
-| Term   | Definition   |
-| ------ | ------------ |
+| Term | Definition |
+|------|-----------|
 | [Term] | [Definition] |
 
 ---

@@ -1125,7 +1125,7 @@ FUNCTION canActivate(context: ExecutionContext) -> boolean:
 
     // Extract claims
     userId = payload.sub
-    tier   = payload["https://souschef.app/tier"] ?? "free"
+    tier   = payload["https://commise.app/tier"] ?? "free"
 
     // Attach AuthContext to request
     request.authContext = { userId, tier }

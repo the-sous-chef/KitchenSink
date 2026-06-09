@@ -1,7 +1,7 @@
 # Cross-Feature Consistency Report — Product Forge Features 001–010
 
 **Generated**: 2026-05-09
-**Scope**: `specs/001-sous-chef-recipe-app` through `specs/010-subscriptions`
+**Scope**: `specs/001-commise-recipe-app` through `specs/010-subscriptions`
 **Status**: Bootstrap-state — no implementation code exists; analysis covers spec-layer artifacts only (`spec.md`, `product-spec/product-spec.md`, `plan.md`, `research/codebase-analysis.md`)
 
 ---
@@ -51,7 +51,7 @@ Each feature's spec defines its own FR number sequence starting from FR-001. The
 
 **Severity**: ⚠️ **WARNING** — Ambiguous in cross-feature references. When features reference "FR-045" from another spec they must qualify it as `<feature>-FR-045`. All existing cross-references do this correctly (`001 FR-045`, `003 FR-035`, etc.). However, no canonical cross-reference index exists to validate these references.
 
-**Files**: `specs/002-auth0-user-auth/spec.md:12` (`001 FR-045`), `specs/002-auth0-user-auth/spec.md:13` (`003 FR-035`), `specs/005-ai-integration/spec.md:14` (external agent OAuth builds on auth layer)
+**Files**: `specs/002-user-auth/spec.md:12` (`001 FR-045`), `specs/002-user-auth/spec.md:13` (`003 FR-035`), `specs/005-ai-integration/spec.md:14` (external agent OAuth builds on auth layer)
 
 ---
 
@@ -74,7 +74,7 @@ Each feature's spec defines its own FR number sequence starting from FR-001. The
 
 **Files**:
 
-- `specs/001-sous-chef-recipe-app/contracts/api.openapi.yaml:25` — uses `/api/recipes`
+- `specs/001-commise-recipe-app/contracts/api.openapi.yaml:25` — uses `/api/recipes`
 - `specs/003-usda-food-data/spec.md:23` — explicitly opts for `/v1/foods/*`
 - `specs/006-meal-planning/plan.md:85-95` — uses `/v1/meal-plans/*`
 
@@ -99,8 +99,8 @@ Each feature's spec defines its own FR number sequence starting from FR-001. The
 
 **Files**:
 
-- `specs/001-sous-chef-recipe-app/plan.md:21`
-- `specs/002-auth0-user-auth/plan.md:22`
+- `specs/001-commise-recipe-app/plan.md:21`
+- `specs/002-user-auth/plan.md:22`
 
 ---
 
@@ -283,8 +283,8 @@ The following gaps are not owned by any single feature spec and require a cross-
 **Files**:
 
 - `specs/008-cooking-mode/plan.md:39-47` (CookingSession device storage)
-- `specs/001-sous-chef-recipe-app/spec.md` (soft delete tombstone)
-- `specs/001-sous-chef-recipe-app/plan.md:15-16` (S3 version archive with SQS+DLQ)
+- `specs/001-commise-recipe-app/spec.md` (soft delete tombstone)
+- `specs/001-commise-recipe-app/plan.md:15-16` (S3 version archive with SQS+DLQ)
 
 ---
 
@@ -316,7 +316,7 @@ The following gaps are not owned by any single feature spec and require a cross-
 
 - **Severity**: CRITICAL
 - **Files**:
-    - `specs/001-sous-chef-recipe-app/contracts/api.openapi.yaml:25` — `/api/recipes`
+    - `specs/001-commise-recipe-app/contracts/api.openapi.yaml:25` — `/api/recipes`
     - `specs/003-usda-food-data/spec.md:23` — `/v1/foods/*`
     - `specs/006-meal-planning/plan.md:85-95` — `/v1/meal-plans/*`
     - `specs/007-grocery-lists/plan.md` — `/v1/grocery-lists/*`
@@ -329,8 +329,8 @@ The following gaps are not owned by any single feature spec and require a cross-
 
 - **Severity**: CRITICAL
 - **Files**:
-    - `specs/001-sous-chef-recipe-app/plan.md:126-129` — defines `shared/recipe-core` with `Recipe`, `Ingredient`, `Step`, `Collection` types but no task creates it
-    - `specs/002-auth0-user-auth/research/codebase-analysis.md:71-74` — defines its own `User` and `Account` types independent of any shared library
+    - `specs/001-commise-recipe-app/plan.md:126-129` — defines `shared/recipe-core` with `Recipe`, `Ingredient`, `Step`, `Collection` types but no task creates it
+    - `specs/002-user-auth/research/codebase-analysis.md:71-74` — defines its own `User` and `Account` types independent of any shared library
     - `specs/006-meal-planning/plan.md:40-77` — defines `meal_plans`, `meal_plan_entries`, `meal_plan_nutrition` without referencing a shared type
     - `specs/010-subscriptions/plan.md:58-78` — adds `plan`, `subscriptionStatus` to `Account` entity with no shared type reference
 - **Finding**: Eight features define or reference entity types in isolation. 001's plan.md promises a `shared/recipe-core` package but no feature has a task to create or publish it. This is the primary enabler of contract drift.
@@ -348,9 +348,9 @@ The following gaps are not owned by any single feature spec and require a cross-
 
 - **Severity**: WARNING
 - **Files**:
-    - `specs/002-auth0-user-auth/plan.md:22` — "Node.js 22.x (Lambda runtime)"
-    - `specs/001-sous-chef-recipe-app/plan.md:21` — "Node.js 24.x (per `.nvmrc` + `package.json` engines)"
-    - `specs/002-auth0-user-auth/research/codebase-analysis.md:28` — "`>=24.0.0` at monorepo root"
+    - `specs/002-user-auth/plan.md:22` — "Node.js 22.x (Lambda runtime)"
+    - `specs/001-commise-recipe-app/plan.md:21` — "Node.js 24.x (per `.nvmrc` + `package.json` engines)"
+    - `specs/002-user-auth/research/codebase-analysis.md:28` — "`>=24.0.0` at monorepo root"
 - **Finding**: 002's plan says Node 22.x but the monorepo root `package.json` enforces `>=24.0.0`. This is potentially intentional (Lambda runtime may lag), but 002's plan does not explain or justify the divergence. Lambda Node.js 22 runtime was announced in late 2024 and is available in all commercial regions.
 - **Recommendation**: Align 002 to Node.js 24.x or explicitly document why 22.x is required. If Lambda确实是22-only at launch, document a migration plan to 24.x.
 
@@ -372,9 +372,9 @@ The following gaps are not owned by any single feature spec and require a cross-
 
 - **Severity**: WARNING
 - **Files**:
-    - `specs/002-auth0-user-auth/spec.md:12` — "001 FR-045 requires authentication"
-    - `specs/002-auth0-user-auth/spec.md:13` — "003 FR-035 uses the shared API Gateway authorizer"
-    - `specs/001-sous-chef-recipe-app/spec.md:14` — "Provides the food/nutrition database backing FR-007 (ingredient data)"
+    - `specs/002-user-auth/spec.md:12` — "001 FR-045 requires authentication"
+    - `specs/002-user-auth/spec.md:13` — "003 FR-035 uses the shared API Gateway authorizer"
+    - `specs/001-commise-recipe-app/spec.md:14` — "Provides the food/nutrition database backing FR-007 (ingredient data)"
 - **Finding**: All cross-feature FR references correctly qualify with the source feature prefix (`001 FR-045`). However, no validation mechanism exists to detect a missing or renamed FR in a source spec. A future refactor of 001 that renames FR-045 would break 002's spec with no automated detection.
 - **Recommendation**: Create a cross-feature FR reference index artifact (`specs/cross-feature-FR-index.md`) that lists all cross-feature FR citations. This can be verified manually or via a CI check that `rg "FR-\d+" specs/NNN-spec.md` references are validated against a central registry.
 
@@ -384,7 +384,7 @@ The following gaps are not owned by any single feature spec and require a cross-
 
 - **Severity**: WARNING
 - **Files**:
-    - `specs/001-sous-chef-recipe-app/product-spec/product-spec.md` — notifications mentioned in vision/principles
+    - `specs/001-commise-recipe-app/product-spec/product-spec.md` — notifications mentioned in vision/principles
     - `specs/003-usda-food-data/plan.md` — "email/webhook notifications" for fetch failures
     - `specs/005-ai-integration/plan.md:18` — "EU AI Act transparency disclosures"
     - `specs/008-cooking-mode/plan.md` — timer alerts
@@ -399,7 +399,7 @@ The following gaps are not owned by any single feature spec and require a cross-
 - **Severity**: WARNING
 - **Files**:
     - `specs/008-cooking-mode/plan.md:39-47` — `CookingSession` persisted to device storage (IndexedDB/AsyncStorage)
-    - `specs/001-sous-chef-recipe-app/plan.md:15-16` — S3 version archive with SQS+DLQ for async retry
+    - `specs/001-commise-recipe-app/plan.md:15-16` — S3 version archive with SQS+DLQ for async retry
     - `specs/007-grocery-lists/plan.md` — no offline strategy mentioned
     - `specs/006-meal-planning/plan.md` — no offline strategy mentioned
 - **Finding**: Only 008 has a concrete offline architecture (device-side session persistence). 007 grocery lists and 006 meal plans have no specified offline behavior, yet a mobile user standing in a grocery store with spotty connectivity would expect their list to work offline. 001's async S3 archive is not the same as client-side offline-first.
@@ -441,7 +441,7 @@ The following gaps are not owned by any single feature spec and require a cross-
 - **Severity**: INFO
 - **Files**:
     - `specs/006-meal-planning/plan.md:67` — `meal_plan_nutrition` table (aggregated nutritional totals per meal plan day)
-    - `specs/001-sous-chef-recipe-app/data-model.md` — may define related nutrition fields
+    - `specs/001-commise-recipe-app/data-model.md` — may define related nutrition fields
 - **Finding**: 006 defines `meal_plan_nutrition` as an aggregated per-day table. 001 defines per-recipe nutrition override fields. No collision currently (different tables), but the naming similarity could cause confusion during implementation.
 - **Recommendation**: Consider renaming 006's `meal_plan_nutrition` to `meal_plan_daily_nutrition` for clarity.
 
@@ -464,7 +464,7 @@ The following gaps are not owned by any single feature spec and require a cross-
 - **Severity**: INFO
 - **Files**:
     - `specs/008-cooking-mode/plan.md:39-47` — `CookingSession` interface (persisted to device storage)
-    - `specs/001-sous-chef-recipe-app/plan.md` — no mention of cooking session state
+    - `specs/001-commise-recipe-app/plan.md` — no mention of cooking session state
 - **Finding**: 008 plans device-side session storage for cooking mode resume. No other feature references this pattern or uses it for cross-feature state. If another feature (e.g., 007 grocery lists) needed device-side persistence, it would have no shared pattern to follow.
 - **Recommendation**: Consider promoting 008's device storage adapters (`packages/shared/src/cooking/`) to a general `packages/shared/src/persistence/` module with web (IndexedDB) and mobile (AsyncStorage) adapters, if other features are likely to need offline device state.
 
@@ -492,7 +492,7 @@ The following gaps are not owned by any single feature spec and require a cross-
 
 ## 8. Portfolio-Wide Standards (Resolved 2026-05-09)
 
-Announced by user during sequential revalidation of feature `002-auth0-user-auth`. **These are mandatory for all features (001–010) and any future feature.**
+Announced by user during sequential revalidation of feature `002-user-auth`. **These are mandatory for all features (001–010) and any future feature.**
 
 ### S-001: API URL Pattern (REQUIRED)
 
@@ -550,10 +550,10 @@ User-approved canonical personas for the entire portfolio. **All product-specs M
 | **P5**  | **Morgan** | Discovery Seeker         | New cuisines, inspiration, expanding repertoire                                           |
 | **P6**  | **Avery**  | Waste Optimizer          | Use-the-fridge, ingredient chaining, cost reduction                                       |
 | **P7**  | **Quinn**  | AI Companion User        | Conversational kitchen brain, hands-free assistance                                       |
-| **P8**  | **Alex**   | Sous Chef Power User     | Multi-feature daily power use, integrations, automation                                   |
+| **P8**  | **Alex**   | Commise Power User     | Multi-feature daily power use, integrations, automation                                   |
 | **P9**  | **Drew**   | Professional Chef        | Restaurant prep, scaled batches, brand presence                                           |
 | **P10** | **Sage**   | Heritage Archivist       | Digitize hard-copy recipes (cards, cookbooks); share with family circle                   |
-| **P11** | **Robin**  | Recipe Creator           | Public creator profile (`souschef.com/@robin`); food-blogger brand; audience monetization |
+| **P11** | **Robin**  | Recipe Creator           | Public creator profile (`commise.com/@robin`); food-blogger brand; audience monetization |
 | **P12** | **Jamie**  | Cooking Student          | Learn technique from videos (knife skills, food science)                                  |
 | **P13** | **Reese**  | Cooking Educator         | Teach via video; build a "school" of subscribers                                          |
 
@@ -619,7 +619,7 @@ Mandatory remap from current per-feature personas to the canonical library (§9)
 
 | Feature                               | Primary                   | Secondary | Tertiary  | Internal Stakeholders                              |
 | ------------------------------------- | ------------------------- | --------- | --------- | -------------------------------------------------- |
-| 001 Sous Chef Recipe App              | P8 Alex                   | P3 Riley  | P5 Morgan | Support Operator                                   |
+| 001 Commise Recipe App              | P8 Alex                   | P3 Riley  | P5 Morgan | Support Operator                                   |
 | 002 Auth0 User Auth                   | P1 Casey                  | P8 Alex   | P9 Drew   | Support/Admin Operator                             |
 | 003 USDA Food Data                    | P4 Sam                    | P6 Avery  | P3 Riley  | Operations Engineer                                |
 | 004 Recipe Importing (web/structured) | P5 Morgan                 | P3 Riley  | P11 Robin | —                                                  |

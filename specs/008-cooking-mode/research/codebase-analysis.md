@@ -12,16 +12,16 @@ KitchenSink is an npm workspaces + Turborepo monorepo. Root `package.json` curre
 ```json
 "workspaces": [
     "packages/tools/*",
-    "packages/apps/sous-chef/web",
-    "packages/apps/sous-chef/mobile",
+    "packages/apps/commise/web",
+    "packages/apps/commise/mobile",
     "packages/ui"
 ]
 ```
 
 For feature 008, planned implementation spans existing workspaces only:
 
-- `packages/apps/sous-chef/web`
-- `packages/apps/sous-chef/mobile`
+- `packages/apps/commise/web`
+- `packages/apps/commise/mobile`
 - `packages/shared/src/cooking/` (as referenced in plan/tasks)
 
 ---
@@ -44,8 +44,8 @@ These commands already cover all affected workspaces once cooking-mode files are
 From `tasks.md`, expected file families include:
 
 - Shared logic: `packages/shared/src/cooking/` (types, session store, timer service, wake lock adapters)
-- Web UI: `packages/apps/sous-chef/web/src/features/cooking-mode/`
-- Mobile UI: `packages/apps/sous-chef/mobile/src/features/cooking-mode/`
+- Web UI: `packages/apps/commise/web/src/features/cooking-mode/`
+- Mobile UI: `packages/apps/commise/mobile/src/features/cooking-mode/`
 
 Current status in this bootstrap pass: these implementation paths are design targets only; no feature code is required/added.
 

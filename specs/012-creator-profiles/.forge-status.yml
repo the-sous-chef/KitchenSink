@@ -121,9 +121,9 @@ cross_feature_references:
       relationship: tip jars, premium recipes, paid follows extend 010 billing model
     - feature: 013-cooking-school
       relationship: educator profiles reference CreatorProfile entity
-    - feature: 002-auth0-user-auth
+    - feature: 002-user-auth
       relationship: required — @handle tied to authenticated identity
-    - feature: 001-sous-chef-recipe-app
+    - feature: 001-commise-recipe-app
       relationship: recipe entity is the primary content surface on profiles
     - feature: 011-recipe-digitization
       relationship: peer audience scope — Circle (S-003) owned by 011, not here

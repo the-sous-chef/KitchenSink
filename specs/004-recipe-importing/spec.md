@@ -3,14 +3,14 @@
 **Feature Branch**: `004-recipe-importing`
 **Created**: 2026-04-14
 **Status**: Draft
-**Input**: Split from `001-sous-chef-recipe-app` — recipe importing from external sources (URLs, Instagram, physical copies) with attribution and deduplication.
+**Input**: Split from `001-commise-recipe-app` — recipe importing from external sources (URLs, Instagram, physical copies) with attribution and deduplication.
 
 ## Dependencies
 
 | Spec                                                            | Relationship                                                       |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — imports create Recipe entities defined in 001       |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all import actions require authentication           |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Required** — imports create Recipe entities defined in 001       |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — all import actions require authentication           |
 | [010-subscriptions](../010-subscriptions/spec.md)               | **Referenced** — visibility rules differ for free vs premium users |
 
 ## User Scenarios & Testing _(mandatory)_

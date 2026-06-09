@@ -1,0 +1,1608 @@
+openapi: 3.0.3
+info:
+    title: Commise Recipe Management API
+    version: 1.0.0
+    description: |
+        OpenAPI contract for the Commise Recipe Management API.
+        This specification defines the authenticated application API surface
+        for recipes, ingredients, versions, photos, collections, and search.
+servers:
+    - url: http://localhost:3000
+      description: Development
+    - url: https://api.commise.app
+      description: Production (placeholder)
+security:
+    - bearerAuth: []
+tags:
+    - name: Recipes
+    - name: Ingredients
+    - name: Versions
+    - name: Photos
+    - name: Collections
+    - name: Search
+    - name: Account
+paths:
+    /api/v1/recipes:
+        post:
+            tags: [Recipes]
+            summary: Create recipe
+            operationId: createRecipe
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateRecipeRequest'
+            responses:
+                '201':
+                    description: Recipe created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Recipe'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+        get:
+            tags: [Recipes]
+            summary: List user's recipes with pagination
+            operationId: listRecipes
+            parameters:
+                - $ref: '#/components/parameters/Page'
+                - $ref: '#/components/parameters/PageSize'
+                - name: sortBy
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      enum: [updatedAt, createdAt, title]
+                      default: updatedAt
+            responses:
+                '200':
+                    description: Paginated recipes
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/PaginatedResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/Recipe'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+
+    /api/v1/recipes/{id}:
+        get:
+            tags: [Recipes]
+            summary: Get recipe by ID
+            operationId: getRecipeById
+            parameters:
+                - $ref: '#/components/parameters/RecipeId'
+            responses:
+                '200':
+                    description: Recipe
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Recipe'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+        patch:
+            tags: [Recipes]
+            summary: Update recipe (optimistic concurrency)
+            operationId: updateRecipe
+            parameters:
+                - $ref: '#/components/parameters/RecipeId'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateRecipeRequest'
+            responses:
+                '200':
+                    description: Updated recipe
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Recipe'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '409':
+                    $ref: '#/components/responses/VersionConflict'
+        delete:
+            tags: [Recipes]
+            summary: Soft-delete recipe (tombstone)
+            description: |
+                Marks the recipe as deleted by setting `deletedAt`. The row is retained
+                for audit and version-restore purposes and is excluded from all list,
+                search, and detail responses. Hard purge of recipe rows only happens
+                via the GDPR account erasure flow (`POST /api/v1/account/erasure`).
+            operationId: deleteRecipe
+            parameters:
+                - $ref: '#/components/parameters/RecipeId'
+            responses:
+                '204':
+                    description: Recipe soft-deleted
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{id}/clone:
+        post:
+            tags: [Recipes]
+            summary: Clone a public recipe
+            operationId: cloneRecipe
+            parameters:
+                - $ref: '#/components/parameters/RecipeId'
+            responses:
+                '201':
+                    description: Recipe cloned
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Recipe'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{id}/visibility:
+        patch:
+            tags: [Recipes]
+            summary: Set recipe visibility
+            operationId: setRecipeVisibility
+            parameters:
+                - $ref: '#/components/parameters/RecipeId'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetRecipeVisibilityRequest'
+            responses:
+                '200':
+                    description: Visibility updated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Recipe'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/ingredients/search:
+        get:
+            tags: [Ingredients]
+            summary: Search ingredients by name (autocomplete, fuzzy)
+            operationId: searchIngredients
+            parameters:
+                - name: q
+                  in: query
+                  required: true
+                  description: Ingredient name query
+                  schema:
+                      type: string
+                      minLength: 1
+                - name: limit
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      minimum: 1
+                      maximum: 50
+                      default: 10
+            responses:
+                '200':
+                    description: Ingredient search results
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Ingredient'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+
+    /api/v1/ingredients:
+        post:
+            tags: [Ingredients]
+            summary: Create freeform ingredient
+            operationId: createIngredient
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateIngredientRequest'
+            responses:
+                '201':
+                    description: Ingredient created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Ingredient'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+
+    /api/v1/recipes/{recipeId}/versions:
+        get:
+            tags: [Versions]
+            summary: List recipe versions
+            description: Returns the most recent versions stored in the primary database (up to 10).
+            operationId: listRecipeVersions
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForVersions'
+            responses:
+                '200':
+                    description: Version list
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/RecipeVersion'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{recipeId}/versions/{versionNumber}:
+        get:
+            tags: [Versions]
+            summary: Get specific version snapshot
+            operationId: getRecipeVersion
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForVersions'
+                - $ref: '#/components/parameters/VersionNumber'
+            responses:
+                '200':
+                    description: Version snapshot
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecipeVersion'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{recipeId}/versions/{versionNumber}/restore:
+        post:
+            tags: [Versions]
+            summary: Restore recipe to a prior version
+            operationId: restoreRecipeVersion
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForVersions'
+                - $ref: '#/components/parameters/VersionNumber'
+            responses:
+                '200':
+                    description: Recipe restored from specified version
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RestoreVersionResponse'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '409':
+                    $ref: '#/components/responses/VersionConflict'
+
+    /api/v1/recipes/{recipeId}/photos/upload-url:
+        post:
+            tags: [Photos]
+            summary: Get presigned S3 upload URL
+            description: Request a temporary upload URL for direct client upload. Max file size is 5MB.
+            operationId: createPhotoUploadUrl
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForPhotos'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PhotoUploadUrlRequest'
+            responses:
+                '200':
+                    description: Upload URL created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UploadUrlResponse'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{recipeId}/photos/confirm:
+        post:
+            tags: [Photos]
+            summary: Confirm photo upload completed
+            description: Associates an uploaded object key with the recipe. Maximum of 10 photos per recipe.
+            operationId: confirmPhotoUpload
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForPhotos'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PhotoConfirmRequest'
+            responses:
+                '201':
+                    description: Photo confirmed and created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecipePhoto'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{recipeId}/photos:
+        get:
+            tags: [Photos]
+            summary: List photos for recipe
+            operationId: listRecipePhotos
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForPhotos'
+            responses:
+                '200':
+                    description: Photos for recipe
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/RecipePhoto'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{recipeId}/photos/{photoId}:
+        delete:
+            tags: [Photos]
+            summary: Delete photo
+            operationId: deleteRecipePhoto
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForPhotos'
+                - $ref: '#/components/parameters/PhotoId'
+            responses:
+                '204':
+                    description: Photo deleted
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/recipes/{recipeId}/photos/reorder:
+        patch:
+            tags: [Photos]
+            summary: Reorder photos
+            operationId: reorderRecipePhotos
+            parameters:
+                - $ref: '#/components/parameters/RecipeIdForPhotos'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReorderPhotosRequest'
+            responses:
+                '200':
+                    description: Reordered photos
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/RecipePhoto'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/collections:
+        post:
+            tags: [Collections]
+            summary: Create collection
+            operationId: createCollection
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateCollectionRequest'
+            responses:
+                '201':
+                    description: Collection created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Collection'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+        get:
+            tags: [Collections]
+            summary: List user's collections
+            operationId: listCollections
+            parameters:
+                - $ref: '#/components/parameters/Page'
+                - $ref: '#/components/parameters/PageSize'
+            responses:
+                '200':
+                    description: Paginated collections
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/PaginatedResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/Collection'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+
+    /api/v1/collections/{id}:
+        get:
+            tags: [Collections]
+            summary: Get collection with recipes
+            operationId: getCollectionById
+            parameters:
+                - $ref: '#/components/parameters/CollectionId'
+            responses:
+                '200':
+                    description: Collection with recipes
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CollectionWithRecipes'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+        patch:
+            tags: [Collections]
+            summary: Update collection
+            operationId: updateCollection
+            parameters:
+                - $ref: '#/components/parameters/CollectionId'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateCollectionRequest'
+            responses:
+                '200':
+                    description: Updated collection
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Collection'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+        delete:
+            tags: [Collections]
+            summary: Delete collection
+            operationId: deleteCollection
+            parameters:
+                - $ref: '#/components/parameters/CollectionId'
+            responses:
+                '204':
+                    description: Collection deleted
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/collections/{id}/recipes:
+        post:
+            tags: [Collections]
+            summary: Add recipe to collection
+            operationId: addRecipeToCollection
+            parameters:
+                - $ref: '#/components/parameters/CollectionId'
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AddRecipeToCollectionRequest'
+            responses:
+                '201':
+                    description: Recipe added to collection
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CollectionRecipeMembership'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/collections/{id}/recipes/{recipeId}:
+        delete:
+            tags: [Collections]
+            summary: Remove recipe from collection
+            operationId: removeRecipeFromCollection
+            parameters:
+                - $ref: '#/components/parameters/CollectionId'
+                - $ref: '#/components/parameters/RecipeIdForCollectionMembership'
+            responses:
+                '204':
+                    description: Recipe removed from collection
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/collections/{id}/clone:
+        post:
+            tags: [Collections]
+            summary: Clone a collection
+            description: |
+                Creates a new collection owned by the caller whose `sourceCollectionId`
+                points back to the original. Each membership row in the new collection
+                records `addedVia=clone`. The clone is independent — subsequent
+                additions to the source collection are not propagated automatically;
+                the owner must call `POST /api/v1/collections/{id}/pull-from-source`.
+            operationId: cloneCollection
+            parameters:
+                - $ref: '#/components/parameters/CollectionId'
+            requestBody:
+                required: false
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CloneCollectionRequest'
+            responses:
+                '201':
+                    description: Collection cloned
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Collection'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/collections/{id}/pull-from-source:
+        post:
+            tags: [Collections]
+            summary: Pull new recipes from source collection
+            description: |
+                For a cloned collection (`sourceCollectionId` set), adds any recipes
+                present in the source collection that are not yet present in this
+                collection. New membership rows are recorded with `addedVia=pull`.
+                Existing memberships are not modified; recipes removed from the
+                source are NOT removed here. Returns the resulting collection.
+            operationId: pullCollectionFromSource
+            parameters:
+                - $ref: '#/components/parameters/CollectionId'
+            responses:
+                '200':
+                    description: Pull completed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PullFromSourceResponse'
+                '400':
+                    description: Collection has no source to pull from
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                code: COLLECTION_NOT_CLONED
+                                message: Collection has no source to pull from
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '403':
+                    $ref: '#/components/responses/Forbidden'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+
+    /api/v1/search/recipes:
+        get:
+            tags: [Search]
+            summary: Full-text recipe search with facets
+            operationId: searchRecipes
+            parameters:
+                - name: query
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                - name: cuisine
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                - name: dietaryFlags
+                  in: query
+                  required: false
+                  description: Repeated query parameter for dietary flags
+                  style: form
+                  explode: true
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                - name: tags
+                  in: query
+                  required: false
+                  description: Repeated query parameter for recipe tags
+                  style: form
+                  explode: true
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                - name: maxPrepTime
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      minimum: 0
+                - name: maxTotalTime
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      minimum: 0
+                - name: ingredientIds
+                  in: query
+                  required: false
+                  description: Repeated query parameter for ingredient IDs
+                  style: form
+                  explode: true
+                  schema:
+                      type: array
+                      items:
+                          type: string
+                          format: uuid
+                - $ref: '#/components/parameters/Page'
+                - $ref: '#/components/parameters/PageSize'
+                - name: sortBy
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      enum: [relevance, newest, updatedAt, prepTimeAsc, totalTimeAsc]
+                      default: relevance
+            responses:
+                '200':
+                    description: Search results
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecipeSearchResponse'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+
+    /api/v1/account/erasure:
+        post:
+            tags: [Account]
+            summary: Request GDPR account erasure
+            description: |
+                Initiates the asynchronous GDPR "Erase my data" workflow for the
+                authenticated account. This is the ONLY path that hard-deletes
+                recipe rows, version snapshots, photos, collections, and S3-archived
+                version blobs owned by the user. Soft-deleted (tombstoned) recipes
+                are also purged. Returns 202 Accepted with a job identifier the
+                client can use to poll status.
+            operationId: requestAccountErasure
+            requestBody:
+                required: false
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ErasureRequest'
+            responses:
+                '202':
+                    description: Erasure request accepted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErasureRequestAcceptedResponse'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '409':
+                    description: Erasure already in progress for this account
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                code: ERASURE_ALREADY_IN_PROGRESS
+                                message: Erasure already in progress
+
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+
+    parameters:
+        Page:
+            name: page
+            in: query
+            required: false
+            schema:
+                type: integer
+                minimum: 1
+                default: 1
+        PageSize:
+            name: pageSize
+            in: query
+            required: false
+            schema:
+                type: integer
+                minimum: 1
+                maximum: 100
+                default: 20
+        RecipeId:
+            name: id
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        RecipeIdForVersions:
+            name: recipeId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        RecipeIdForPhotos:
+            name: recipeId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        RecipeIdForCollectionMembership:
+            name: recipeId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        VersionNumber:
+            name: versionNumber
+            in: path
+            required: true
+            schema:
+                type: integer
+                minimum: 1
+        PhotoId:
+            name: photoId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        CollectionId:
+            name: id
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+
+    responses:
+        BadRequest:
+            description: Bad Request
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        Unauthorized:
+            description: Unauthorized
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+                    example:
+                        code: UNAUTHORIZED
+                        message: Unauthorized
+        Forbidden:
+            description: Forbidden (not owner)
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+                    example:
+                        code: FORBIDDEN
+                        message: Forbidden
+        NotFound:
+            description: Not Found
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+                    example:
+                        code: NOT_FOUND
+                        message: Resource not found
+        VersionConflict:
+            description: Version conflict
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/VersionConflictErrorResponse'
+
+    schemas:
+        ErrorResponse:
+            type: object
+            required: [code, message]
+            properties:
+                code:
+                    type: string
+                message:
+                    type: string
+                details:
+                    type: object
+                    additionalProperties: true
+
+        VersionConflictErrorResponse:
+            type: object
+            required: [code, message, details]
+            properties:
+                code:
+                    type: string
+                    example: VERSION_CONFLICT
+                message:
+                    type: string
+                    example: Recipe version conflict
+                details:
+                    type: object
+                    required: [currentVersion, conflictingVersion]
+                    properties:
+                        currentVersion:
+                            type: integer
+                            minimum: 1
+                        conflictingVersion:
+                            type: integer
+                            minimum: 1
+
+        PaginatedResponse:
+            type: object
+            required: [data, total, page, pageSize, hasMore]
+            properties:
+                data:
+                    type: array
+                    items:
+                        type: object
+                total:
+                    type: integer
+                    minimum: 0
+                page:
+                    type: integer
+                    minimum: 1
+                pageSize:
+                    type: integer
+                    minimum: 1
+                hasMore:
+                    type: boolean
+
+        Ingredient:
+            type: object
+            required: [id, name, createdAt, updatedAt]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+                normalizedName:
+                    type: string
+                    description: Normalized value used for fuzzy/autocomplete matching
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+
+        RecipeStep:
+            type: object
+            required: [position, instruction]
+            properties:
+                position:
+                    type: integer
+                    minimum: 1
+                instruction:
+                    type: string
+                    minLength: 1
+                timerSeconds:
+                    type: integer
+                    minimum: 0
+
+        RecipeIngredient:
+            type: object
+            required: [ingredientId, name, quantity]
+            properties:
+                ingredientId:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                quantity:
+                    type: number
+                    minimum: 0
+                unit:
+                    type: string
+                notes:
+                    type: string
+
+        RecipePhoto:
+            type: object
+            required: [id, recipeId, key, url, order, createdAt]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                recipeId:
+                    type: string
+                    format: uuid
+                key:
+                    type: string
+                    description: Object key in S3
+                url:
+                    type: string
+                    format: uri
+                    description: CDN URL used by clients
+                contentType:
+                    type: string
+                    example: image/jpeg
+                order:
+                    type: integer
+                    minimum: 1
+                    maximum: 10
+                width:
+                    type: integer
+                    minimum: 1
+                height:
+                    type: integer
+                    minimum: 1
+                createdAt:
+                    type: string
+                    format: date-time
+
+        RecipeSnapshot:
+            type: object
+            required:
+                - title
+                - ingredients
+                - steps
+                - servings
+                - prepTimeMinutes
+                - cookTimeMinutes
+                - totalTimeMinutes
+                - tags
+                - dietaryFlags
+            properties:
+                title:
+                    type: string
+                description:
+                    type: string
+                cuisine:
+                    type: string
+                ingredients:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecipeIngredient'
+                steps:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecipeStep'
+                servings:
+                    type: integer
+                    minimum: 1
+                prepTimeMinutes:
+                    type: integer
+                    minimum: 0
+                cookTimeMinutes:
+                    type: integer
+                    minimum: 0
+                totalTimeMinutes:
+                    type: integer
+                    minimum: 0
+                tags:
+                    type: array
+                    items:
+                        type: string
+                dietaryFlags:
+                    type: array
+                    items:
+                        type: string
+
+        RecipeVersion:
+            type: object
+            required: [recipeId, versionNumber, snapshot, createdAt]
+            properties:
+                recipeId:
+                    type: string
+                    format: uuid
+                versionNumber:
+                    type: integer
+                    minimum: 1
+                snapshot:
+                    $ref: '#/components/schemas/RecipeSnapshot'
+                changedBy:
+                    type: string
+                    description: User ID that created the version
+                createdAt:
+                    type: string
+                    format: date-time
+                archivedToS3:
+                    type: boolean
+
+        Recipe:
+            type: object
+            required:
+                - id
+                - ownerId
+                - title
+                - visibility
+                - ingredients
+                - steps
+                - servings
+                - prepTimeMinutes
+                - cookTimeMinutes
+                - totalTimeMinutes
+                - tags
+                - dietaryFlags
+                - version
+                - createdAt
+                - updatedAt
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                ownerId:
+                    type: string
+                title:
+                    type: string
+                    minLength: 1
+                    maxLength: 200
+                description:
+                    type: string
+                    maxLength: 5000
+                cuisine:
+                    type: string
+                    maxLength: 100
+                visibility:
+                    type: string
+                    enum: [public, private]
+                ingredients:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecipeIngredient'
+                steps:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecipeStep'
+                photos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecipePhoto'
+                servings:
+                    type: integer
+                    minimum: 1
+                prepTimeMinutes:
+                    type: integer
+                    minimum: 0
+                cookTimeMinutes:
+                    type: integer
+                    minimum: 0
+                totalTimeMinutes:
+                    type: integer
+                    minimum: 0
+                tags:
+                    type: array
+                    items:
+                        type: string
+                dietaryFlags:
+                    type: array
+                    items:
+                        type: string
+                version:
+                    type: integer
+                    minimum: 1
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                deletedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
+                    description: |
+                        Soft-delete tombstone timestamp. When set, the recipe is excluded
+                        from list, search, and detail responses. Hard removal happens only
+                        via the GDPR account erasure flow.
+
+        CreateRecipeRequest:
+            type: object
+            required:
+                - title
+                - ingredients
+                - steps
+                - servings
+                - prepTimeMinutes
+                - cookTimeMinutes
+                - totalTimeMinutes
+            properties:
+                title:
+                    type: string
+                    minLength: 1
+                    maxLength: 200
+                description:
+                    type: string
+                    maxLength: 5000
+                cuisine:
+                    type: string
+                    maxLength: 100
+                visibility:
+                    type: string
+                    enum: [public, private]
+                    default: public
+                ingredients:
+                    type: array
+                    minItems: 1
+                    items:
+                        $ref: '#/components/schemas/RecipeIngredient'
+                steps:
+                    type: array
+                    minItems: 1
+                    items:
+                        $ref: '#/components/schemas/RecipeStep'
+                servings:
+                    type: integer
+                    minimum: 1
+                prepTimeMinutes:
+                    type: integer
+                    minimum: 0
+                cookTimeMinutes:
+                    type: integer
+                    minimum: 0
+                totalTimeMinutes:
+                    type: integer
+                    minimum: 0
+                tags:
+                    type: array
+                    items:
+                        type: string
+                dietaryFlags:
+                    type: array
+                    items:
+                        type: string
+
+        UpdateRecipeRequest:
+            type: object
+            required: [expectedVersion]
+            properties:
+                expectedVersion:
+                    type: integer
+                    minimum: 1
+                    description: Client's expected current recipe version for optimistic locking
+                title:
+                    type: string
+                    minLength: 1
+                    maxLength: 200
+                description:
+                    type: string
+                    maxLength: 5000
+                cuisine:
+                    type: string
+                    maxLength: 100
+                ingredients:
+                    type: array
+                    minItems: 1
+                    items:
+                        $ref: '#/components/schemas/RecipeIngredient'
+                steps:
+                    type: array
+                    minItems: 1
+                    items:
+                        $ref: '#/components/schemas/RecipeStep'
+                servings:
+                    type: integer
+                    minimum: 1
+                prepTimeMinutes:
+                    type: integer
+                    minimum: 0
+                cookTimeMinutes:
+                    type: integer
+                    minimum: 0
+                totalTimeMinutes:
+                    type: integer
+                    minimum: 0
+                tags:
+                    type: array
+                    items:
+                        type: string
+                dietaryFlags:
+                    type: array
+                    items:
+                        type: string
+
+        SetRecipeVisibilityRequest:
+            type: object
+            required: [visibility]
+            properties:
+                visibility:
+                    type: string
+                    enum: [public, private]
+
+        CreateIngredientRequest:
+            type: object
+            required: [name]
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+
+        RecipeSearchParams:
+            type: object
+            properties:
+                query:
+                    type: string
+                cuisine:
+                    type: string
+                dietaryFlags:
+                    type: array
+                    items:
+                        type: string
+                tags:
+                    type: array
+                    items:
+                        type: string
+                maxPrepTime:
+                    type: integer
+                    minimum: 0
+                maxTotalTime:
+                    type: integer
+                    minimum: 0
+                ingredientIds:
+                    type: array
+                    items:
+                        type: string
+                        format: uuid
+                page:
+                    type: integer
+                    minimum: 1
+                pageSize:
+                    type: integer
+                    minimum: 1
+                    maximum: 100
+                sortBy:
+                    type: string
+                    enum: [relevance, newest, updatedAt, prepTimeAsc, totalTimeAsc]
+
+        RecipeSearchFacetCounts:
+            type: object
+            additionalProperties:
+                type: integer
+                minimum: 0
+
+        RecipeSearchFacets:
+            type: object
+            properties:
+                cuisine:
+                    $ref: '#/components/schemas/RecipeSearchFacetCounts'
+                dietaryFlags:
+                    $ref: '#/components/schemas/RecipeSearchFacetCounts'
+                tags:
+                    $ref: '#/components/schemas/RecipeSearchFacetCounts'
+
+        RecipeSearchResponse:
+            type: object
+            required: [results, total, page, pageSize, hasMore, facets]
+            properties:
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Recipe'
+                total:
+                    type: integer
+                    minimum: 0
+                page:
+                    type: integer
+                    minimum: 1
+                pageSize:
+                    type: integer
+                    minimum: 1
+                hasMore:
+                    type: boolean
+                facets:
+                    $ref: '#/components/schemas/RecipeSearchFacets'
+                appliedFilters:
+                    $ref: '#/components/schemas/RecipeSearchParams'
+
+        UploadUrlResponse:
+            type: object
+            required: [uploadUrl, key, expiresIn]
+            properties:
+                uploadUrl:
+                    type: string
+                    format: uri
+                key:
+                    type: string
+                expiresIn:
+                    type: integer
+                    description: Expiry in seconds
+                    minimum: 1
+
+        PhotoUploadUrlRequest:
+            type: object
+            required: [fileName, contentType, fileSize]
+            properties:
+                fileName:
+                    type: string
+                    minLength: 1
+                contentType:
+                    type: string
+                    example: image/jpeg
+                fileSize:
+                    type: integer
+                    minimum: 1
+                    maximum: 5242880
+                    description: Maximum 5MB
+
+        PhotoConfirmRequest:
+            type: object
+            required: [key, contentType]
+            properties:
+                key:
+                    type: string
+                contentType:
+                    type: string
+                    example: image/jpeg
+
+        ReorderPhotosRequest:
+            type: object
+            required: [photoIds]
+            properties:
+                photoIds:
+                    type: array
+                    minItems: 1
+                    maxItems: 10
+                    items:
+                        type: string
+                        format: uuid
+                    description: Ordered list of photo IDs for final display order
+
+        Collection:
+            type: object
+            required: [id, ownerId, name, createdAt, updatedAt]
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                ownerId:
+                    type: string
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+                description:
+                    type: string
+                    maxLength: 1000
+                recipeCount:
+                    type: integer
+                    minimum: 0
+                sourceCollectionId:
+                    type: string
+                    format: uuid
+                    nullable: true
+                    description: |
+                        If set, this collection was cloned from the referenced collection.
+                        Used by `POST /api/v1/collections/{id}/pull-from-source` to add
+                        recipes that were added to the source after the clone.
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+
+        CollectionWithRecipes:
+            allOf:
+                - $ref: '#/components/schemas/Collection'
+                - type: object
+                  properties:
+                      recipes:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/Recipe'
+
+        CreateCollectionRequest:
+            type: object
+            required: [name]
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+                description:
+                    type: string
+                    maxLength: 1000
+
+        UpdateCollectionRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+                description:
+                    type: string
+                    maxLength: 1000
+            minProperties: 1
+
+        AddRecipeToCollectionRequest:
+            type: object
+            required: [recipeId]
+            properties:
+                recipeId:
+                    type: string
+                    format: uuid
+
+        CollectionRecipeMembership:
+            type: object
+            required: [collectionId, recipeId, addedVia, createdAt]
+            properties:
+                collectionId:
+                    type: string
+                    format: uuid
+                recipeId:
+                    type: string
+                    format: uuid
+                addedVia:
+                    type: string
+                    enum: [manual, clone, pull]
+                    description: |
+                        Provenance of the membership: `manual` for direct adds,
+                        `clone` for memberships copied during initial collection clone,
+                        `pull` for memberships added later via pull-from-source.
+                createdAt:
+                    type: string
+                    format: date-time
+
+        CloneCollectionRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+                    description: Optional override for the cloned collection's name
+                description:
+                    type: string
+                    maxLength: 1000
+                    description: Optional override for the cloned collection's description
+
+        PullFromSourceResponse:
+            type: object
+            required: [collection, addedRecipeIds]
+            properties:
+                collection:
+                    $ref: '#/components/schemas/Collection'
+                addedRecipeIds:
+                    type: array
+                    items:
+                        type: string
+                        format: uuid
+                    description: Recipe IDs added to the collection by this pull
+
+        ErasureRequest:
+            type: object
+            properties:
+                confirmationPhrase:
+                    type: string
+                    description: |
+                        Optional client-supplied confirmation phrase (e.g. "ERASE MY DATA").
+                        When provided the server validates it before queuing the job.
+
+        ErasureRequestAcceptedResponse:
+            type: object
+            required: [jobId, status]
+            properties:
+                jobId:
+                    type: string
+                    format: uuid
+                status:
+                    type: string
+                    enum: [queued]
+
+        RestoreVersionResponse:
+            type: object
+            required: [recipe, restoredFromVersion, currentVersion]
+            properties:
+                recipe:
+                    $ref: '#/components/schemas/Recipe'
+                restoredFromVersion:
+                    type: integer
+                    minimum: 1
+                currentVersion:
+                    type: integer
+                    minimum: 1

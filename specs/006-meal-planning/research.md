@@ -95,7 +95,7 @@ Source: [Eat This Much homepage](https://www.eatthismuch.com/), [Eat This Much P
 | **Reuse**              | Menus (reusable week templates)                | Saved plans (history, Pro only)         |
 | **Complexity**         | Higher — requires understanding of grid layout | Lower — linear browse-and-add flow      |
 
-**Recommendation for Sous Chef**: Use a **weekly calendar grid** as the primary view (aligns with 001's recipe-centric identity and Paprika's proven model), with a **list/agenda fallback** for mobile. The calendar grid enables drag-and-drop, per-day nutritional summaries, and the grocery list scoping that 007 needs.
+**Recommendation for Commise**: Use a **weekly calendar grid** as the primary view (aligns with 001's recipe-centric identity and Paprika's proven model), with a **list/agenda fallback** for mobile. The calendar grid enables drag-and-drop, per-day nutritional summaries, and the grocery list scoping that 007 needs.
 
 **shadcn/ui has a pre-built meal planner block** (updated March 17, 2026) with breakfast/lunch/dinner slots, calorie counts, and daily nutritional totals using TypeScript + shadcn/ui + Tailwind CSS. This is a strong starting point.
 
@@ -138,7 +138,7 @@ Source: [Building a Smart AI Meal Planner with LangChain](https://www.wellally.t
 
 Surface recipes that match dietary type + allergy restrictions + disliked ingredients. No LLM involved — pure database filtering with personalization weights. Fast, cheap, deterministic.
 
-### Recommendation for Sous Chef
+### Recommendation for Commise
 
 For the **AI meal suggestions** feature (spec User Story 1, acceptance scenario 2), use a **hybrid approach**:
 
@@ -164,7 +164,7 @@ Source: [nest-langchain npm](https://registry.npmjs.org/nest-langchain), [nestjs
 
 **`react-beautiful-dnd` is archived** as of 2025. Atlassian moved to Pragmatic DnD for their own products. The community standard in 2026 is `@dnd-kit`.
 
-### Why `@dnd-kit` for Sous Chef
+### Why `@dnd-kit` for Commise
 
 - **Multi-container drag**: Drag recipes between day columns and meal-type rows — exactly the meal planner grid pattern. Uses `closestCorners` collision detection for multi-container setups.
 - **Modular**: Install only `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities` (~15KB total).

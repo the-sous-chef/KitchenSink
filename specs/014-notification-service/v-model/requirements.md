@@ -93,7 +93,7 @@ Feature 014 defines a shared in-app notification routing service for KitchenSink
 
 ## Dependencies
 
-- `002-auth0-user-auth` for producer and subscriber authentication/identity binding.
+- `002-user-auth` for producer and subscriber authentication/identity binding.
 - Downstream producer features `001/003/005/008/009` for messageType namespaces and launch traffic.
 - `specs/cross-feature-consistency-report.md` WA-004 as ownership closure target.
 

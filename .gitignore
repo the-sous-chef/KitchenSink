@@ -54,8 +54,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .opencode/plans/
 .opencode/scratch/
 .sisyphus/
-.playwright-mcp/
-.specify/
+.playwright-mcp
+.specify
 
 # localstack CI artifacts
 localstack.log

@@ -62,9 +62,9 @@
 
 - [x] All 8 success criteria (SC-001 through SC-008) have quantitative thresholds
 - [x] Criteria are time-bound or condition-bound (not open-ended)
-- [x] Criteria align with Sous Chef integration (SC-008 references SC-010)
+- [x] Criteria align with Commise integration (SC-008 references SC-010)
 
-**Evidence**: SC-001: "50ms at p95". SC-002: "never exceed 1,000 requests/hour". SC-003: "60 seconds at p95". SC-004: "80% cache hit rate after 5,000 foods". SC-005: "5,000 foods/hour". SC-006: "Zero data loss, 3 retry cycles". SC-007: "200ms at p95 for 50,000 foods". SC-008: "match USDA source values exactly" with explicit reference to Sous Chef SC-010.
+**Evidence**: SC-001: "50ms at p95". SC-002: "never exceed 1,000 requests/hour". SC-003: "60 seconds at p95". SC-004: "80% cache hit rate after 5,000 foods". SC-005: "5,000 foods/hour". SC-006: "Zero data loss, 3 retry cycles". SC-007: "200ms at p95 for 50,000 foods". SC-008: "match USDA source values exactly" with explicit reference to Commise SC-010.
 
 **Result**: PASS
 
@@ -100,7 +100,7 @@
 - [x] No NFR paraphrases or weakens a Constitution requirement
 - [x] All workspace governance rules (Principle V) are addressed
 
-**Evidence**: NFR-001 uses "strict: true" and "no `any`" matching Principle I verbatim. NFR-002 uses "JSDoc block comments" matching Principle II. NFR-003 uses "@shared/_, @web/_, @armoury/<pkg>" and ".js/.jsx extensions" matching Principle III verbatim. NFR-006 explicitly names shared configs and Turbo declaration matching Principle V. NFR-007 names exact turbo commands matching Principle VI. NFR-004/NFR-005 match Principles IV/VII on accessible names and color requirements.
+**Evidence**: NFR-001 uses "strict: true" and "no `any`" matching Principle I verbatim. NFR-002 uses "JSDoc block comments" matching Principle II. NFR-003 uses "@kitchensink/_, @web/_, @kitchensink/<pkg>" and ".js/.jsx extensions" matching Principle III verbatim. NFR-006 explicitly names shared configs and Turbo declaration matching Principle V. NFR-007 names exact turbo commands matching Principle VI. NFR-004/NFR-005 match Principles IV/VII on accessible names and color requirements.
 
 **Result**: PASS
 
@@ -142,13 +142,13 @@
 
 ---
 
-### 12. Sous Chef Integration
+### 12. Commise Integration
 
-- [x] FR-007 from Sous Chef spec is explicitly satisfied (food/nutrition database backing)
+- [x] FR-007 from Commise spec is explicitly satisfied (food/nutrition database backing)
 - [x] Ingredient lookup flows are clearly defined (single and batch)
 - [x] Meal plan and grocery list integration points are identified or correctly scoped out
 
-**Evidence**: Food entity description explicitly states "This entity fulfills Sous Chef FR-007." FR-002 defines the data returned (calories, protein, carbs, fat, micronutrients). US-4 covers bulk ingredient lookup for recipe import. A-008 correctly scopes the boundary: "Integration with Sous Chef's `ingredients` entity... is a downstream concern handled by the Sous Chef recipe management feature."
+**Evidence**: Food entity description explicitly states "This entity fulfills Commise FR-007." FR-002 defines the data returned (calories, protein, carbs, fat, micronutrients). US-4 covers bulk ingredient lookup for recipe import. A-008 correctly scopes the boundary: "Integration with Commise's `ingredients` entity... is a downstream concern handled by the Commise recipe management feature."
 
 **Result**: PASS
 
@@ -219,7 +219,7 @@
 | 9   | [NEEDS CLARIFICATION] Markers  | PASS   |
 | 10  | Internal Consistency           | PASS   |
 | 11  | Prose Quality and Formatting   | PASS   |
-| 12  | Sous Chef Integration          | PASS   |
+| 12  | Commise Integration          | PASS   |
 | 13  | Architecture Alignment         | PASS   |
 | 14  | No Unresolved Ambiguities      | PASS   |
 | 15  | Traceability                   | PASS   |

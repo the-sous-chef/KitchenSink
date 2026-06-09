@@ -1,8 +1,8 @@
 # Feature Specification: Module Design ↔ Unit Testing
 
-**Feature Branch**: `004-module-unit-testing`
-**Created**: 2026-02-21
-**Status**: Approved
+**Feature Branch**: `004-module-unit-testing`  
+**Created**: 2026-02-21  
+**Status**: Approved  
 **Input**: Extend the V-Model Extension Pack down to the lowest implementation level — Module Design ↔ Unit Testing (v0.4.0). This is the bottom of the V-Model, where specification meets code. In DO-178C terms, Low-Level Requirements (Module Design) must be so detailed that writing the actual source code is merely a translation exercise requiring no further architectural or design decisions. The module design command translates architecture modules into highly detailed, implementable low-level designs using strict DO-178C and ISO 26262 Part 6 principles (Algorithmic pseudocode, State Machines, Data Structures, Error Handling) and introduces a Source File mapping to bridge specification to code. The unit test command generates ISO/IEC/IEEE 29119-4 white-box test plans employing Statement/Branch Coverage, Boundary Value Analysis, Strict Isolation (via a Dependency & Mock Registry), and State Transition Testing. Safety-critical toggles add MISRA C complexity constraints and MC/DC structural coverage. The commands handle `[CROSS-CUTTING]` modules (full decomposition required) and `[EXTERNAL]` modules (wrapper-only documentation, no deep pseudocode of 3rd-party internals) correctly.
 
 ## Governing Standards
@@ -15,7 +15,7 @@ This feature is guided by the following international standards:
 - **MISRA C:2012 / CERT-C** — Safe coding standards that constrain implementation complexity. Module Design must annotate which MISRA/CERT rules apply per module (e.g., cyclomatic complexity ≤ 10, no recursion, no pointer arithmetic).
 - **IEC 62304 (Medical device software lifecycle)** — Requires traceability from software unit design to unit test verification. Class C software demands the highest rigor in unit-level documentation.
 
-## User Scenarios & Testing _(mandatory)_
+## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Generate DO-178C-Compliant Module Design (Priority: P1)
 
@@ -141,7 +141,7 @@ A Windows-based automotive ADAS team runs `validate-module-coverage.ps1` to get 
 - **How does the system handle a large architecture (e.g., 50+ ARCH-NNN)?** The commands should handle large inputs without truncation or performance issues, processing in batches if necessary.
 - **What happens when safety-critical sections (MISRA constraints, MC/DC) are requested but the project is not configured for a regulated domain?** The sections should be omitted by default and only included when the domain configuration enables them.
 
-## Requirements _(mandatory)_
+## Requirements *(mandatory)*
 
 ### Functional Requirements
 
@@ -209,7 +209,7 @@ A Windows-based automotive ADAS team runs `validate-module-coverage.ps1` to get 
 - **Extended Traceability Matrix**: The audit artifact with four complementary matrices: Matrix A (Validation — REQ → ATP → SCN), Matrix B (System Verification — REQ → SYS → STP → STS), Matrix C (Integration Verification — SYS → ARCH → ITP → ITS), and Matrix D (Implementation Verification — ARCH → MOD → UTP → UTS). Key attributes per matrix: linked artifacts per layer, Coverage Status, Coverage Percentage. Progressive behavior: A alone after acceptance, A+B after system-test, A+B+C after integration-test, A+B+C+D after unit-test.
 - **Module Coverage Report**: The output of `validate-module-coverage.sh` — a summary of forward coverage (ARCH→MOD), backward coverage (MOD→UTP with `[EXTERNAL]` bypass), orphan detection, and overall pass/fail status with exit codes suitable for CI enforcement.
 
-## Success Criteria _(mandatory)_
+## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 

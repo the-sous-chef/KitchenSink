@@ -1,1 +1,1 @@
-export { handler } from "../authorizer/handler.js";
+export { handler } from '../authorizer/handler.js';

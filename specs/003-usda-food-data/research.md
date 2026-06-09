@@ -113,7 +113,7 @@ Source: [FDC API Guide](https://fdc.nal.usda.gov/api-guide)
 | **FNDDS**            | Every 2 years             | Moderate — NHANES dietary study data        | Survey/research use; not ideal for recipe apps                     |
 | **Experimental**     | 2×/year (if available)    | Varies                                      | Research; not for production use                                   |
 
-**Decision for Sous Chef**:
+**Decision for Commise**:
 
 - **Primary lookup path**: Foundation Foods → SR Legacy (fallback)
 - **Branded Foods**: Separate lookup path for packaged ingredient search (barcode or brand name)

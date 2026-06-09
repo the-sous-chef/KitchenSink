@@ -7,7 +7,6 @@ When it's time to submit software to the FDA, FAA, or an ISO assessor, they don'
 Additionally, regulated releases often have **known anomalies** — tests that were skipped because hardware wasn't available in CI, or minor peer-review findings accepted for a prototype phase. Auditors expect these anomalies to be documented with formal justification (engineering change orders, compensating controls, approvals). Without automated cross-referencing between anomalies and documented waivers, releases risk being flagged as non-compliant.
 
 There is currently no automated way to:
-
 1. Assemble all V-Model evidence into a single, audit-ready document
 2. Cross-reference failed/skipped tests against documented waivers in `waivers.md`
 3. Gate the release status based on unresolved anomalies (unwaived failures → NOT READY)

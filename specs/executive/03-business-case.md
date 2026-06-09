@@ -6,7 +6,7 @@
 
 ## Decision ask
 
-Approve continued investment in SousChef through Beta readiness, with funding gated by measurable artifact burn-down, user validation, and activation/retention evidence.
+Approve continued investment in Commise through Beta readiness, with funding gated by measurable artifact burn-down, user validation, and activation/retention evidence.
 
 ## Evidence boundary
 
@@ -14,13 +14,13 @@ This business case supports continued validation investment, not scale investmen
 
 ## Executive summary
 
-SousChef is a high-upside product hypothesis because it targets a persistent consumer job: deciding what to cook, turning that decision into groceries, cooking successfully, and improving over time. The current product corpus is broader than a recipe app and more defensible than a generic AI assistant if Apron proves repeated household use and trust. It can become Apron's consumer platform for cooking, grocery, nutrition, creators, and education, but that claim requires Beta evidence before it becomes an investment certainty.
+Commise is a high-upside product hypothesis because it targets a persistent consumer job: deciding what to cook, turning that decision into groceries, cooking successfully, and improving over time. The current product corpus is broader than a recipe app and more defensible than a generic AI assistant if Apron proves repeated household use and trust. It can become Apron's consumer platform for cooking, grocery, nutrition, creators, and education, but that claim requires Beta evidence before it becomes an investment certainty.
 
 The AI market signal raises both urgency and risk. Consumers are already using
 general AI systems to discover recipes, modify recipes, plan meals, and create
-grocery lists. If SousChef does not provide integrated AI assistance, users may
-skip the app for ideation and planning, leaving SousChef as a lower-frequency
-storage utility. If SousChef executes AI well, it can define what users should
+grocery lists. If Commise does not provide integrated AI assistance, users may
+skip the app for ideation and planning, leaving Commise as a lower-frequency
+storage utility. If Commise executes AI well, it can define what users should
 expect from AI-generated recipes: preview before save, default-private storage,
 source and confidence cues, clear nutrition limits, and connection to grocery
 and cooking execution.
@@ -45,7 +45,7 @@ Home cooks and households face repeated friction:
 
 ## Proposed solution
 
-SousChef provides one connected workflow:
+Commise provides one connected workflow:
 
 1. Capture or create recipes.
 2. Normalize ingredients and nutrition data.
@@ -63,7 +63,7 @@ they do not automatically own the user's household recipe graph, pantry
 assumptions, grocery behavior, saved preferences, cooking history, creator
 relationships, or subscription context.
 
-SousChef's opportunity is to become the trusted persistence layer around AI
+Commise's opportunity is to become the trusted persistence layer around AI
 cooking intent:
 
 1. **Capture**: generate, import, or receive recipe ideas from in-app AI and
@@ -128,7 +128,7 @@ AI-specific validation should be added before 1.0 approval:
 | Product is too broad before PMF.                                 | High     | Stage launch by loops: core recipe loop, planning/grocery/cooking loop, then premium/AI.                                                          |
 | Verification blockers delay launch.                              | High     | Treat [`verify-snapshot.md`](../verify-snapshot.md) as a weekly executive metric.                                                                 |
 | AI features commoditize.                                         | High     | Anchor differentiation in workflow integration, persistence, consented external-agent access, and trust.                                          |
-| General AI captures recipe intent before SousChef does.          | High     | Make AI generation/import/save a first-class path into the recipe graph and support external-agent OAuth instead of fighting user behavior.       |
+| General AI captures recipe intent before Commise does.          | High     | Make AI generation/import/save a first-class path into the recipe graph and support external-agent OAuth instead of fighting user behavior.       |
 | AI output creates trust, nutrition, allergy, or safety failures. | High     | Enforce confidence indicators, hallucination guard copy, nutrition disclaimers, private default saves, human review, and non-medical positioning. |
 | Grocery integrations create partner dependency.                  | Medium   | Design provider-agnostic UX; start with list utility before deep ordering.                                                                        |
 | Nutrition creates compliance risk.                               | Medium   | Avoid medical-advice framing; add clear disclaimers and source confidence.                                                                        |

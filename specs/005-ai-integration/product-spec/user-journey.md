@@ -21,7 +21,7 @@ Each journey covers one end-to-end flow per persona. Steps reference FR IDs in b
 sequenceDiagram
     participant U as Riley
     participant Web as Web/Mobile App
-    participant API as Sous Chef API
+    participant API as Commise API
     participant BYOK as BYOK Config
     participant Provider as AI Provider
 
@@ -58,7 +58,7 @@ sequenceDiagram
 sequenceDiagram
     participant U as Casey
     participant App as App
-    participant API as Sous Chef API
+    participant API as Commise API
     participant AI as AI Service
 
     U->>App: Open owned recipe
@@ -86,7 +86,7 @@ sequenceDiagram
     participant U as Jordan
     participant Agent as External Agent
     participant Auth as Auth0 OAuth
-    participant MCP as Sous Chef MCP API
+    participant MCP as Commise MCP API
     participant Data as Recipe Service
 
     Agent->>Auth: OAuth authorization request (scoped)

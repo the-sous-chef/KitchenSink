@@ -27,15 +27,15 @@ and directory setup. All artifacts are plaintext Markdown stored in Git.
 
 ## Constitution Check
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle                             | Status  | Evidence                                                                                                                                                     |
-| ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| I. V-Model Discipline                 | ✅ PASS | Three commands enforce paired generation: requirements → acceptance → trace. ID schema (REQ → ATP → SCN) encodes lineage.                                    |
-| II. Deterministic Verification        | ✅ PASS | `validate-requirement-coverage.sh` and `build-matrix.sh` use regex parsing for coverage and matrix generation. AI is never trusted to verify its own output. |
-| III. Specification as Source of Truth | ✅ PASS | `requirements.md` is the authoritative source; acceptance plan and matrix derive from it. IDs reference source requirements.                                 |
-| IV. Git as QMS                        | ✅ PASS | All artifacts are plaintext Markdown in Git. `diff-requirements.sh` uses `git show` for change detection.                                                    |
-| V. Human-in-the-Loop                  | ✅ PASS | Commands generate drafts. Human reviews and commits. `[NEEDS CLARIFICATION]` markers halt dependent generation.                                              |
+| Principle | Status | Evidence |
+|-----------|--------|----------|
+| I. V-Model Discipline | ✅ PASS | Three commands enforce paired generation: requirements → acceptance → trace. ID schema (REQ → ATP → SCN) encodes lineage. |
+| II. Deterministic Verification | ✅ PASS | `validate-requirement-coverage.sh` and `build-matrix.sh` use regex parsing for coverage and matrix generation. AI is never trusted to verify its own output. |
+| III. Specification as Source of Truth | ✅ PASS | `requirements.md` is the authoritative source; acceptance plan and matrix derive from it. IDs reference source requirements. |
+| IV. Git as QMS | ✅ PASS | All artifacts are plaintext Markdown in Git. `diff-requirements.sh` uses `git show` for change detection. |
+| V. Human-in-the-Loop | ✅ PASS | Commands generate drafts. Human reviews and commits. `[NEEDS CLARIFICATION]` markers halt dependent generation. |
 
 No violations. No complexity tracking required.
 
@@ -111,7 +111,6 @@ instructions, and produces output. This aligns with Spec Kit's architecture
 where AI handles creative translation and scripts handle verification.
 
 **Alternatives considered**:
-
 - Executable CLI commands (Python/Node): Rejected — would duplicate Spec Kit's
   own execution model and require a separate runtime.
 - Pure templates without commands: Rejected — no enforcement of quality
@@ -128,7 +127,6 @@ from any child ID (e.g., `SCN-001-A1` → parent ATP is `ATP-001-A` → parent
 REQ is `REQ-001`). This makes deterministic scripts simple and reliable.
 
 **Alternatives considered**:
-
 - Flat sequential IDs (TC-001, TC-002): Rejected — no inherent traceability;
   requires a separate mapping table.
 - UUID-based IDs: Rejected — not human-readable; makes manual review and
@@ -148,7 +146,6 @@ mathematically correct results. This separation ensures auditors can trust
 the coverage numbers independently of the AI that generated the artifacts.
 
 **Alternatives considered**:
-
 - AI self-assessment ("check your own work"): Rejected — violates Principle II;
   prone to hallucination.
 - External validation service: Rejected — adds a runtime dependency and
@@ -163,7 +160,6 @@ environments. Regulated-industry teams often have mixed environments. Both
 implementations produce identical output for the same input.
 
 **Alternatives considered**:
-
 - Bash only with WSL requirement on Windows: Rejected — too high a barrier
   for enterprise Windows environments.
 - Python scripts: Rejected — adds a Python runtime dependency for the
@@ -181,7 +177,6 @@ output against golden examples using LLM-as-judge metrics. This ensures
 both the scripts and the prompts are validated.
 
 **Alternatives considered**:
-
 - Manual review only: Rejected — not repeatable or CI-enforceable.
 - OpenAI for LLM evaluation: Rejected — cost and API key management;
   Google Gemini selected for availability and pricing.

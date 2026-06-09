@@ -37,8 +37,8 @@ The Nutrition Planning architecture decomposes 14 system components (SYS-001–S
 | ARCH-014 | AIRecipeSwapService       | Domain service generating recipe swap suggestions by reading compliance gaps and querying the Recipe App adapter for alternative recipes.                                                                                                               | SYS-007                  | Service   |
 | ARCH-015 | MealPlanningAdapter       | HTTP adapter wrapping the 006-meal-planning internal API. Fetches meal plan nutritional totals for compliance analysis and link validation.                                                                                                             | SYS-008                  | Adapter   |
 | ARCH-016 | USDAFoodDataAdapter       | HTTP adapter wrapping the 003-usda-food-data internal API. Fetches per-food nutritional values for compliance calculations.                                                                                                                             | SYS-009                  | Adapter   |
-| ARCH-017 | RecipeAppAdapter          | HTTP adapter wrapping the 001-sous-chef-recipe-app internal API. Fetches recipe-level nutritional data and alternative recipes for swap suggestions.                                                                                                    | SYS-010                  | Adapter   |
-| ARCH-018 | AuthAdapter               | Wraps the 002-auth0-user-auth JWT verification and user-relationship resolution. Used by all controllers and services requiring identity or role information.                                                                                           | SYS-011                  | Adapter   |
+| ARCH-017 | RecipeAppAdapter          | HTTP adapter wrapping the 001-commise-recipe-app internal API. Fetches recipe-level nutritional data and alternative recipes for swap suggestions.                                                                                                    | SYS-010                  | Adapter   |
+| ARCH-018 | AuthAdapter               | Wraps the 002-user-auth JWT verification and user-relationship resolution. Used by all controllers and services requiring identity or role information.                                                                                           | SYS-011                  | Adapter   |
 | ARCH-019 | SubscriptionGate          | Module checking active premium subscription status via the 010-subscriptions API. Used by TrainerClientService and AIRecipeSwapService to gate premium operations.                                                                                      | SYS-012                  | Component |
 | ARCH-020 | TypeSafetyAndDocsEnforcer | [CROSS-CUTTING; rationale: shared infrastructure supports multiple SYS components] — ESLint + TypeScript compiler configuration enforcing `strict: true`, no `any`, and JSDoc on all exports. Also enforces accessible UI component naming conventions. | SYS-013, SYS-014         | Utility   |
 
@@ -364,7 +364,7 @@ sequenceDiagram
 | 2     | ARCH-008 ComplianceAnalyserService | `nutritionPlanId`, `userId`         | Parallel fetch from adapters             | Raw nutrition totals (3 sources) |
 | 3     | ARCH-015 MealPlanningAdapter       | `mealPlanId`                        | HTTP call to 006-meal-planning           | `MealPlanNutritionTotals`        |
 | 4     | ARCH-016 USDAFoodDataAdapter       | `foodIds[]`                         | HTTP call to 003-usda-food-data          | `FoodNutritionMap`               |
-| 5     | ARCH-017 RecipeAppAdapter          | `recipeIds[]`                       | HTTP call to 001-sous-chef-recipe-app    | `RecipeNutritionMap`             |
+| 5     | ARCH-017 RecipeAppAdapter          | `recipeIds[]`                       | HTTP call to 001-commise-recipe-app    | `RecipeNutritionMap`             |
 | 6     | ARCH-008 ComplianceAnalyserService | Aggregated nutrition data           | Gap/excess calculation (target − actual) | `ComplianceResult`               |
 | 7     | ARCH-009 ComplianceController      | `ComplianceResult`                  | JSON serialisation                       | HTTP 200 response                |
 
@@ -376,7 +376,7 @@ sequenceDiagram
 | ----- | ------------------------------- | ----------------------------------- | -------------------------------------------------- | --------------------------- |
 | 1     | ARCH-013 AIRecipeSwapController | HTTP request (nutritionPlanId, JWT) | Auth + premium subscription check                  | `nutritionPlanId`, `userId` |
 | 2     | ARCH-014 AIRecipeSwapService    | `nutritionPlanId`, `userId`         | Compliance gap retrieval                           | `ComplianceResult { gaps }` |
-| 3     | ARCH-017 RecipeAppAdapter       | Gap nutrient profile                | HTTP call to 001-sous-chef-recipe-app alternatives | `RecipeAlternative[]`       |
+| 3     | ARCH-017 RecipeAppAdapter       | Gap nutrient profile                | HTTP call to 001-commise-recipe-app alternatives | `RecipeAlternative[]`       |
 | 4     | ARCH-014 AIRecipeSwapService    | `RecipeAlternative[]` + gap data    | Swap suggestion ranking and formatting             | `SwapSuggestion[]`          |
 | 5     | ARCH-013 AIRecipeSwapController | `SwapSuggestion[]`                  | JSON serialisation                                 | HTTP 200 response           |
 
@@ -417,7 +417,7 @@ None — all modules trace to existing system components.
 
 ## Physical View — Deployment Topology
 
-The feature deploys within the Sous Chef AWS/serverless topology. Client-facing web/mobile modules run in their respective application packages. Backend API, worker, queue, database, cache, storage, observability, and infrastructure modules deploy to the configured AWS account and region. Each ARCH module maps to the runtime described in the Logical View and the package/source paths listed in the Development View.
+The feature deploys within the Commise AWS/serverless topology. Client-facing web/mobile modules run in their respective application packages. Backend API, worker, queue, database, cache, storage, observability, and infrastructure modules deploy to the configured AWS account and region. Each ARCH module maps to the runtime described in the Logical View and the package/source paths listed in the Development View.
 
 ## Development View — Source Organization
 

@@ -12,13 +12,13 @@ This velocity comes at a cost that most teams don't notice until it's too late.
 
 The result is a chasm:
 
-|                          | AI-Native Teams   | Regulated Teams         |
-| ------------------------ | ----------------- | ----------------------- |
-| **Speed**                | Hours per feature | Weeks per feature       |
-| **Traceability**         | None              | Manual, error-prone     |
-| **Audit readiness**      | Not applicable    | Months of prep          |
-| **Requirement coverage** | Unknown           | Manually verified       |
-| **Cost of change**       | Low (code)        | Extreme (documentation) |
+| | AI-Native Teams | Regulated Teams |
+|---|---|---|
+| **Speed** | Hours per feature | Weeks per feature |
+| **Traceability** | None | Manual, error-prone |
+| **Audit readiness** | Not applicable | Months of prep |
+| **Requirement coverage** | Unknown | Manually verified |
+| **Cost of change** | Low (code) | Extreme (documentation) |
 
 Both sides lose. Fast teams ship without proof of correctness. Compliant teams move too slowly to compete. Neither has a workflow where rigor and velocity coexist.
 
@@ -68,7 +68,7 @@ DO-178C (Software Considerations in Airborne Systems and Equipment Certification
 
 ### From Test Plans to Test Execution
 
-The V-Model Extension Pack currently covers the planning side of the V — from requirements through acceptance test plans and traceability verification. But an auditor doesn't just want to see the test _plan_; they want to see test _results_ executed against actual code.
+The V-Model Extension Pack currently covers the planning side of the V — from requirements through acceptance test plans and traceability verification. But an auditor doesn't just want to see the test *plan*; they want to see test *results* executed against actual code.
 
 This is where the BDD scenario format pays off. Because every scenario (`SCN-NNN-X#`) is generated in standard Given/When/Then structure, these scenarios are directly ingestible by automated test frameworks — Cucumber, Behave, Jest, PyTest-BDD, or SpecFlow. The generated scenarios become the bridge between the planning artifacts (which prove completeness) and the execution logs (which prove correctness).
 
@@ -90,14 +90,14 @@ A compliance tool that uses AI for everything cannot be trusted for compliance. 
 
 The V-Model Extension Pack enforces a strict separation of concerns:
 
-| Responsibility                                                                                           | Handled By                                      | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Creative translation** — turning specifications into structured requirements and test scenarios        | AI (LLM agent) + **Human review**               | Requires understanding of domain context and natural language interpretation. The human expert must verify the fidelity of derived `REQ-NNN` items against the original intent — the tool ensures structural completeness; the human ensures semantic correctness. This step is the most critical review gate: a hallucinated threshold (e.g., 250ms instead of 150ms) would propagate structurally perfect but functionally dangerous artifacts downstream. |
-| **Coverage calculation** — determining whether every requirement has a test case                         | Deterministic scripts (regex + Bash/PowerShell) | Must be mathematically correct; AI "hallucinations" are unacceptable for compliance metrics                                                                                                                                                                                                                                                                                                                                                                  |
-| **Matrix generation** — building the traceability table with forward/backward links                      | Deterministic scripts                           | Structural correctness is verifiable by inspection; no probabilistic reasoning needed                                                                                                                                                                                                                                                                                                                                                                        |
-| **Gap detection** — identifying orphaned tests, uncovered requirements, missing scenarios                | Deterministic scripts                           | Binary yes/no decisions that must be reproducible across runs                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Quality evaluation** — assessing whether requirements are well-written and scenarios are comprehensive | LLM-as-judge (DeepEval + Gemini)                | Qualitative assessment where human-like judgment adds value; clearly labeled as advisory, not deterministic                                                                                                                                                                                                                                                                                                                                                  |
-| **Audit trail** — proving who changed what and when                                                      | Git (cryptographic commit hashes)               | Immutable, mathematically verifiable history; no separate ALM database required                                                                                                                                                                                                                                                                                                                                                                              |
+| Responsibility | Handled By | Why |
+|---|---|---|
+| **Creative translation** — turning specifications into structured requirements and test scenarios | AI (LLM agent) + **Human review** | Requires understanding of domain context and natural language interpretation. The human expert must verify the fidelity of derived `REQ-NNN` items against the original intent — the tool ensures structural completeness; the human ensures semantic correctness. This step is the most critical review gate: a hallucinated threshold (e.g., 250ms instead of 150ms) would propagate structurally perfect but functionally dangerous artifacts downstream. |
+| **Coverage calculation** — determining whether every requirement has a test case | Deterministic scripts (regex + Bash/PowerShell) | Must be mathematically correct; AI "hallucinations" are unacceptable for compliance metrics |
+| **Matrix generation** — building the traceability table with forward/backward links | Deterministic scripts | Structural correctness is verifiable by inspection; no probabilistic reasoning needed |
+| **Gap detection** — identifying orphaned tests, uncovered requirements, missing scenarios | Deterministic scripts | Binary yes/no decisions that must be reproducible across runs |
+| **Quality evaluation** — assessing whether requirements are well-written and scenarios are comprehensive | LLM-as-judge (DeepEval + Gemini) | Qualitative assessment where human-like judgment adds value; clearly labeled as advisory, not deterministic |
+| **Audit trail** — proving who changed what and when | Git (cryptographic commit hashes) | Immutable, mathematically verifiable history; no separate ALM database required |
 
 This architecture means that when you present a traceability matrix to an auditor, the coverage numbers were computed by a script that can be inspected, tested (27 BATS tests, 27 Pester tests), and verified — not by an AI that might produce a different answer on the next run.
 
@@ -108,7 +108,6 @@ The AI does what AI is good at: understanding context and generating structured 
 The V-Model Extension Pack's MVP covers the top of the V-Model (Requirements ↔ Acceptance Testing). The roadmap extends coverage down the V and adds capabilities that regulated teams have asked for:
 
 ### Deeper V-Model Coverage
-
 - **System Design ↔ System Testing** — Generate system design documents from requirements and paired system test plans.
 - **Architecture ↔ Integration Testing** — Produce component architecture specs with interface contracts and integration test plans.
 - **Module Design ↔ Unit Testing** — Create detailed module designs with paired unit test specifications.
@@ -124,7 +123,6 @@ The MVP provides universal structural traceability — traceable IDs, bidirectio
 - **Bidirectional ALM Synchronization** — Two-way sync with enterprise ALM platforms (Jama Connect, IBM DOORS, Siemens Polarion), eliminating the risk of fragmented sources of truth between Git and the enterprise system of record.
 
 ### Quality Intelligence
-
 - **Compliance Report Generator** — Produce a single audit-ready report aggregating requirements coverage, test results, traceability completeness, and gap analysis into the format that assessors expect.
 - **Trend Tracking** — Monitor requirement quality scores, coverage percentages, and traceability completeness over time to catch degradation before it becomes a finding.
 

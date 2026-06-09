@@ -72,8 +72,8 @@
 
 | REQ-ID     | Requirement (Summary)                                                               | Priority | ATP-ID                         | Acceptance Test (Summary)                                                  | Verification Method | Status |
 | ---------- | ----------------------------------------------------------------------------------- | -------- | ------------------------------ | -------------------------------------------------------------------------- | ------------------- | ------ |
-| REQ-CN-001 | AI Integration depends on Recipe entities from spec 001-sous-chef-recipe-app        | P1       | _(Inspection — no AT defined)_ | —                                                                          | Inspection          | ⬜     |
-| REQ-CN-002 | All AI features require user authentication from spec 002-auth0-user-auth           | P1       | AT-005-D (ATS-005-D5)          | Unauthenticated user calling /ai/recipes/generate → 401                    | Test                | ⬜     |
+| REQ-CN-001 | AI Integration depends on Recipe entities from spec 001-commise-recipe-app        | P1       | _(Inspection — no AT defined)_ | —                                                                          | Inspection          | ⬜     |
+| REQ-CN-002 | All AI features require user authentication from spec 002-user-auth           | P1       | AT-005-D (ATS-005-D5)          | Unauthenticated user calling /ai/recipes/generate → 401                    | Test                | ⬜     |
 | REQ-CN-003 | AI recipe generation and instruction optimization restricted to premium subscribers | P2       | AT-005-B (ATS-005-B7)          | Free-tier user requests generation → 402 Upgrade required; no AI call made | Test                | ⬜     |
 
 ---

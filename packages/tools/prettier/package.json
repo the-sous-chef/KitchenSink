@@ -1,16 +1,19 @@
 {
-    "name": "@kitchensink/prettier",
-    "version": "0.0.0",
-    "private": true,
-    "type": "module",
-    "exports": {
-        ".": "./index.json",
-        "./*": "./*.json"
-    },
-    "peerDependencies": {
-        "prettier": "^3.0.0"
-    },
-    "lint-staged": {
-        "*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,html,yaml,yml}": "prettier --write"
-    }
+  "name": "@kitchensink/prettier",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.json",
+    "./*": "./*.json"
+  },
+  "peerDependencies": {
+    "prettier": "^3.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,html,yaml,yml}": "prettier --write"
+  },
+  "engines": {
+    "node": ">=24.16.0"
+  }
 }

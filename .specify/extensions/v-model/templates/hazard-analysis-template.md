@@ -4,7 +4,7 @@
 **Created**: [DATE]
 **Status**: Draft
 **Source**: `specs/[###-feature-name]/v-model/system-design.md`
-**Standard**: ISO 14971 (Medical) / ISO 26262 (Automotive) / General-Purpose FMEA
+**Standard**: General-Purpose FMEA (domain overlay may apply)
 
 ## Overview
 
@@ -30,59 +30,38 @@ enabling the traceability chain: Hazard → Mitigation → Requirement → Test 
 
 ### Severity Scale
 
-| Level        | Definition                                                            |
-| ------------ | --------------------------------------------------------------------- |
-| Catastrophic | Death or permanent injury; complete system destruction                |
-| Critical     | Severe injury or major system damage; immediate intervention required |
-| Serious      | Moderate injury or significant degradation; medical attention needed  |
-| Minor        | Slight injury or minor degradation; first aid sufficient              |
-| Negligible   | No injury; cosmetic or inconvenience-level impact                     |
-
-<!-- DOMAIN-SPECIFIC SCALES: Replace the above with domain scale when configured -->
-
 <!--
-### ISO 26262 ASIL Classification
-
-| Severity | ASIL | Definition |
-|----------|------|-----------|
-| S3 | ASIL D | Life-threatening (survival uncertain) |
-| S3 | ASIL C | Life-threatening (survival probable) |
-| S2 | ASIL B | Severe injuries |
-| S1 | ASIL A | Light injuries |
-| S0 | QM | No injuries |
+  Use the general-purpose severity scale below as the default.
+  If a domain overlay is loaded, use the overlay's severity scale instead.
 -->
 
-<!--
-### DO-178C Failure Conditions
-
-| Failure Condition | DAL | Definition |
-|-------------------|-----|-----------|
-| Catastrophic | A | Prevents continued safe flight and landing |
-| Hazardous | B | Large reduction in safety margins |
-| Major | C | Significant reduction in safety margins |
-| Minor | D | Slight reduction in safety margins |
-| No Effect | E | No effect on operational capability |
--->
+| Level | Definition |
+|-------|-----------|
+| Catastrophic | Death or permanent injury; complete system destruction |
+| Critical | Severe injury or major system damage; immediate intervention required |
+| Serious | Moderate injury or significant degradation; medical attention needed |
+| Minor | Slight injury or minor degradation; first aid sufficient |
+| Negligible | No injury; cosmetic or inconvenience-level impact |
 
 ### Likelihood Scale
 
-| Level      | Definition                                                   |
-| ---------- | ------------------------------------------------------------ |
-| Frequent   | Likely to occur often; continuously experienced              |
-| Probable   | Will occur several times; expected to occur                  |
-| Occasional | Likely to occur sometime; can reasonably be expected         |
-| Remote     | Unlikely but possible; could occur in the life of the system |
-| Improbable | So unlikely it can be assumed it will not occur              |
+| Level | Definition |
+|-------|-----------|
+| Frequent | Likely to occur often; continuously experienced |
+| Probable | Will occur several times; expected to occur |
+| Occasional | Likely to occur sometime; can reasonably be expected |
+| Remote | Unlikely but possible; could occur in the life of the system |
+| Improbable | So unlikely it can be assumed it will not occur |
 
 ### Risk Matrix (Severity × Likelihood)
 
-|                  | Frequent     | Probable     | Occasional   | Remote      | Improbable  |
-| ---------------- | ------------ | ------------ | ------------ | ----------- | ----------- |
+| | Frequent | Probable | Occasional | Remote | Improbable |
+|---|---|---|---|---|---|
 | **Catastrophic** | Unacceptable | Unacceptable | Unacceptable | Undesirable | Undesirable |
-| **Critical**     | Unacceptable | Unacceptable | Undesirable  | Undesirable | Tolerable   |
-| **Serious**      | Unacceptable | Undesirable  | Undesirable  | Tolerable   | Tolerable   |
-| **Minor**        | Undesirable  | Tolerable    | Tolerable    | Acceptable  | Acceptable  |
-| **Negligible**   | Tolerable    | Acceptable   | Acceptable   | Acceptable  | Acceptable  |
+| **Critical** | Unacceptable | Unacceptable | Undesirable | Undesirable | Tolerable |
+| **Serious** | Unacceptable | Undesirable | Undesirable | Tolerable | Tolerable |
+| **Minor** | Undesirable | Tolerable | Tolerable | Acceptable | Acceptable |
+| **Negligible** | Tolerable | Acceptable | Acceptable | Acceptable | Acceptable |
 
 ## Operational States Reference
 
@@ -92,8 +71,8 @@ enabling the traceability chain: Hazard → Mitigation → Requirement → Test 
   and note the warning.
 -->
 
-| State     | Description                         | Source                      |
-| --------- | ----------------------------------- | --------------------------- |
+| State | Description | Source |
+|-------|------------|--------|
 | [STATE_1] | [Description from system-design.md] | system-design.md §[section] |
 | [STATE_2] | [Description from system-design.md] | system-design.md §[section] |
 
@@ -118,12 +97,22 @@ enabling the traceability chain: Hazard → Mitigation → Requirement → Test 
   - If no realistic failure mode exists: use "No identified failure mode" with
     Severity: Negligible and flag [HUMAN REVIEW REQUIRED]
   - When updating (progressive deepening): append only, never modify existing entries
+
+  LIFECYCLE TAGS (inline in Failure Mode or Component column when evolving):
+  - [DEPRECATED — Superseded by HAZ-NNN]: Hazard superseded (parent SYS replaced)
+  - [DEPRECATED — Withdrawn: <reason>]: Hazard removed (parent SYS withdrawn)
+  - [SUSPECT — Parent SYS-NNN {deprecated|modified}]: Parent system component changed;
+    re-evaluate hazard severity, mitigations, and residual risk.
+  - Mitigations referencing [DEPRECATED] REQ-NNN must be updated to reference
+    the superseding requirement or flagged as unmitigated.
+  - Deprecated HAZs stay in the table; they are never deleted.
+  - Coverage checks (SYS→HAZ) exclude deprecated SYS items.
 -->
 
-| HAZ ID  | Component | Failure Mode                    | Operational State | Effect                           | Severity             | Likelihood   | Risk Level   | Mitigation               | Residual Risk                    |
-| ------- | --------- | ------------------------------- | ----------------- | -------------------------------- | -------------------- | ------------ | ------------ | ------------------------ | -------------------------------- |
-| HAZ-001 | SYS-001   | [Failure description]           | [STATE]           | [System-level effect]            | [Severity]           | [Likelihood] | [Risk Level] | [REQ-NNN / SYS-NNN refs] | [Residual risk after mitigation] |
-| HAZ-002 | SYS-001   | [Same failure, different state] | [STATE_2]         | [Different effect at this state] | [Different severity] | [Likelihood] | [Risk Level] | [REQ-NNN / SYS-NNN refs] | [Residual risk]                  |
+| HAZ ID | Component | Failure Mode | Operational State | Effect | Severity | Likelihood | Risk Level | Mitigation | Residual Risk |
+|--------|-----------|-------------|-------------------|--------|----------|-----------|------------|------------|---------------|
+| HAZ-001 | SYS-001 | [Failure description] | [STATE] | [System-level effect] | [Severity] | [Likelihood] | [Risk Level] | [REQ-NNN / SYS-NNN refs] | [Residual risk after mitigation] |
+| HAZ-002 | SYS-001 | [Same failure, different state] | [STATE_2] | [Different effect at this state] | [Different severity] | [Likelihood] | [Risk Level] | [REQ-NNN / SYS-NNN refs] | [Residual risk] |
 
 <!--
   Continue for ALL SYS-NNN components...
@@ -152,40 +141,40 @@ enabling the traceability chain: Hazard → Mitigation → Requirement → Test 
 
 ## Coverage Summary
 
-| Metric                        | Count                       |
-| ----------------------------- | --------------------------- |
-| Total System Components (SYS) | [N]                         |
-| Components with ≥1 HAZ        | [N] / [N] ([%])             |
-| Total Hazards (HAZ)           | [N]                         |
-| System-level hazards          | [N]                         |
-| Architecture-level hazards    | [N] (progressive deepening) |
+| Metric | Count |
+|--------|-------|
+| Total System Components (SYS) | [N] ([N] active, [N] deprecated) |
+| Components with ≥1 HAZ | [N] / [N] ([%]) (active items only) |
+| Total Hazards (HAZ) | [N] |
+| System-level hazards | [N] |
+| Architecture-level hazards | [N] (progressive deepening) |
 
 ### Severity Distribution
 
-| Severity     | Count | Percentage |
-| ------------ | ----- | ---------- |
-| Catastrophic | [N]   | [%]        |
-| Critical     | [N]   | [%]        |
-| Serious      | [N]   | [%]        |
-| Minor        | [N]   | [%]        |
-| Negligible   | [N]   | [%]        |
+| Severity | Count | Percentage |
+|----------|-------|------------|
+| Catastrophic | [N] | [%] |
+| Critical | [N] | [%] |
+| Serious | [N] | [%] |
+| Minor | [N] | [%] |
+| Negligible | [N] | [%] |
 
 ### Risk Level Distribution
 
-| Risk Level   | Count | Percentage |
-| ------------ | ----- | ---------- |
-| Unacceptable | [N]   | [%]        |
-| Undesirable  | [N]   | [%]        |
-| Tolerable    | [N]   | [%]        |
-| Acceptable   | [N]   | [%]        |
+| Risk Level | Count | Percentage |
+|------------|-------|------------|
+| Unacceptable | [N] | [%] |
+| Undesirable | [N] | [%] |
+| Tolerable | [N] | [%] |
+| Acceptable | [N] | [%] |
 
 ### Operational State Distribution
 
-| State     | Hazard Count |
-| --------- | ------------ |
-| [STATE_1] | [N]          |
-| [STATE_2] | [N]          |
-| ALL       | [N]          |
+| State | Hazard Count |
+|-------|-------------|
+| [STATE_1] | [N] |
+| [STATE_2] | [N] |
+| ALL | [N] |
 
 ## Uncovered Components
 

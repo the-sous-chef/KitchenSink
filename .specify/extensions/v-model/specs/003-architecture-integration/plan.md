@@ -21,15 +21,15 @@ Extend the V-Model Extension Pack from System Design ↔ System Testing (v0.2.0)
 
 ## Constitution Check
 
-_GATE: Must pass before implementation. Re-check after Phase 2 design._
+*GATE: Must pass before implementation. Re-check after Phase 2 design.*
 
-| Principle                             | Status  | Evidence                                                                                                                                                                                                                                                                                                 |
-| ------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| I. V-Model Discipline                 | ✅ PASS | Two new commands enforce paired generation: architecture-design (left side) ↔ integration-test (right side). ID schema extended: `ARCH-NNN` → `ITP-NNN-X` → `ITS-NNN-X#` mirrors `SYS → STP → STS`. 100% bidirectional coverage enforced by `validate-architecture-coverage.sh`.                         |
-| II. Deterministic Verification        | ✅ PASS | New `validate-architecture-coverage.sh` uses regex-based parsing for SYS→ARCH and ARCH→ITP coverage. Matrix C built by extending `build-matrix.sh`. AI handles creative decomposition; scripts handle all verification.                                                                                  |
+| Principle | Status | Evidence |
+|-----------|--------|----------|
+| I. V-Model Discipline | ✅ PASS | Two new commands enforce paired generation: architecture-design (left side) ↔ integration-test (right side). ID schema extended: `ARCH-NNN` → `ITP-NNN-X` → `ITS-NNN-X#` mirrors `SYS → STP → STS`. 100% bidirectional coverage enforced by `validate-architecture-coverage.sh`. |
+| II. Deterministic Verification | ✅ PASS | New `validate-architecture-coverage.sh` uses regex-based parsing for SYS→ARCH and ARCH→ITP coverage. Matrix C built by extending `build-matrix.sh`. AI handles creative decomposition; scripts handle all verification. |
 | III. Specification as Source of Truth | ✅ PASS | `system-design.md` is the input to architecture-design; `architecture-design.md` is the input to integration-test. Strict translator constraint prevents AI from inventing capabilities. Derived modules flagged with `[DERIVED MODULE]`, cross-cutting modules tagged `[CROSS-CUTTING]` with rationale. |
-| IV. Git as QMS                        | ✅ PASS | All new artifacts are plaintext Markdown in Git. Feature branch `003-architecture-integration` with PR-based merge. CI gates enforce structural validators on every push.                                                                                                                                |
-| V. Human-in-the-Loop                  | ✅ PASS | Commands generate drafts. Human reviews via PR. Derived Module flags require human resolution. Anti-Pattern Guards reject black-box descriptions without interface contracts.                                                                                                                            |
+| IV. Git as QMS | ✅ PASS | All new artifacts are plaintext Markdown in Git. Feature branch `003-architecture-integration` with PR-based merge. CI gates enforce structural validators on every push. |
+| V. Human-in-the-Loop | ✅ PASS | Commands generate drafts. Human reviews via PR. Derived Module flags require human resolution. Anti-Pattern Guards reject black-box descriptions without interface contracts. |
 
 No violations. No complexity tracking required.
 

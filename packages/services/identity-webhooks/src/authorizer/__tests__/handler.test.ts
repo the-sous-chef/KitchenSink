@@ -1,15 +1,42 @@
 import type { APIGatewayRequestAuthorizerEvent, Context } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { handler } from '../handler.js';
-
-vi.mock('../jwt.js', () => ({
-    verifyToken: vi.fn(),
+vi.mock('../../common/jwt.js', () => ({
+    verifyClerkJwt: vi.fn(),
 }));
 
-import { verifyToken } from '../jwt.js';
+vi.mock('../../common/identityClient.js', () => ({
+    getUser: vi.fn(),
+    setExternalId: vi.fn(),
+}));
 
-const mockVerifyToken = vi.mocked(verifyToken);
+vi.mock('../../common/db.js', () => ({
+    getDb: vi.fn(),
+}));
+
+vi.mock('@kitchensink/identity-service/database/dao', () => ({
+    UserDAO: vi.fn(function (this: any) {
+        this.upsertByIdentityId = vi.fn().mockResolvedValue({
+            id: '01HJIT0123456789ABCDEFGHIJ',
+            identityId: 'user_identityId_new',
+            email: 'new@example.com',
+            name: 'New User',
+            picture: null,
+        });
+    }),
+}));
+
+import { handler } from '../handler.js';
+import { verifyClerkJwt } from '../../common/jwt.js';
+import { getUser, setExternalId } from '../../common/identityClient.js';
+import { getDb } from '../../common/db.js';
+// eslint-disable-next-line no-restricted-imports
+import { UserDAO } from '@kitchensink/identity-service/database/dao';
+
+const mockVerifyClerkJwt = vi.mocked(verifyClerkJwt);
+const mockGetUser = vi.mocked(getUser);
+const mockSetExternalId = vi.mocked(setExternalId);
+const mockGetDb = vi.mocked(getDb);
 
 const makeEvent = (authorization?: string): APIGatewayRequestAuthorizerEvent =>
     ({
@@ -21,90 +48,81 @@ const makeEvent = (authorization?: string): APIGatewayRequestAuthorizerEvent =>
 
 const makeContext = (): Context => ({}) as unknown as Context;
 
+const TEST_USER_ID = '01HXYZ1234567890ABCDEFGHIJ' as import('@kitchensink/identity-service').UserId;
+const JIT_USER_ID = '01HJIT0123456789ABCDEFGHIJ' as import('@kitchensink/identity-service').UserId;
+
 beforeEach(() => {
     vi.clearAllMocks();
-    process.env.AUTH0_DOMAIN = 'test.auth0.com';
-    process.env.AUTH0_AUDIENCE = 'https://api.test.com';
+    process.env.IDP_ISSUER = 'https://idp.test.example.com';
+    process.env.IDP_JWKS_URL = 'https://idp.test.example.com/.well-known/jwks.json';
+    process.env.DB_SECRET_ARN = 'arn:aws:secretsmanager:us-east-1:123:secret:db';
 });
 
 describe('handler', () => {
-    it('valid user token → Allow policy with correct context', async () => {
-        mockVerifyToken.mockResolvedValueOnce({
-            sub: 'auth0|user123',
+    it('valid user token with app_user_id → Allow policy with correct context', async () => {
+        mockVerifyClerkJwt.mockResolvedValueOnce({
+            sub: 'user_identityId123',
+            app_user_id: TEST_USER_ID,
             email: 'user@example.com',
-            scope: 'openid profile',
-            permissions: ['read:data'],
-            iss: 'https://test.auth0.com/',
-            aud: 'https://api.test.com',
+            iss: 'https://idp.test.example.com',
             iat: Math.floor(Date.now() / 1000),
             exp: Math.floor(Date.now() / 1000) + 3600,
-        });
+        } as any);
 
         const result = await handler(makeEvent('Bearer valid.user.token'), makeContext());
 
         expect(result.policyDocument.Statement[0].Effect).toBe('Allow');
-        expect(result.principalId).toBe('auth0|user123');
-        expect(result.context?.sub).toBe('auth0|user123');
+        expect(result.principalId).toBe('user_identityId123');
+        expect(result.context?.clerkUserId).toBe('user_identityId123');
+        expect(result.context?.userId).toBe(TEST_USER_ID);
         expect(result.context?.email).toBe('user@example.com');
-        expect(result.context?.isM2M).toBe(false);
         expect(result.context?.tokenType).toBe('user');
-        expect(result.context?.scopes).toBe(JSON.stringify(['openid', 'profile']));
-        expect(result.context?.permissions).toBe(JSON.stringify(['read:data']));
+        expect(result.context?.scopes).toBe(JSON.stringify([]));
+        expect(result.context?.permissions).toBe(JSON.stringify([]));
     });
 
-    it('valid M2M token (gty=client-credentials) → Allow policy with isM2M=true', async () => {
-        mockVerifyToken.mockResolvedValueOnce({
-            sub: 'client123@clients',
-            gty: 'client-credentials',
-            scope: 'read:all write:all',
-            permissions: [],
-            iss: 'https://test.auth0.com/',
-            aud: 'https://api.test.com',
+    it('token missing app_user_id → JIT path → Allow policy with new userId', async () => {
+        mockVerifyClerkJwt.mockResolvedValueOnce({
+            sub: 'user_identityId_new',
+            email: 'new@example.com',
+            iss: 'https://idp.test.example.com',
             iat: Math.floor(Date.now() / 1000),
             exp: Math.floor(Date.now() / 1000) + 3600,
-        });
+        } as any);
 
-        const result = await handler(makeEvent('Bearer valid.m2m.token'), makeContext());
+        mockGetUser.mockResolvedValueOnce({
+            id: 'user_identityId_new',
+            emailAddresses: [{ emailAddress: 'new@example.com' }],
+            firstName: 'New',
+            lastName: 'User',
+            imageUrl: 'https://img.example.com/pic.jpg',
+        } as any);
+
+        mockGetDb.mockResolvedValueOnce({} as any);
+
+        const result = await handler(makeEvent('Bearer valid.noappuser.token'), makeContext());
+
+        expect(mockGetUser).toHaveBeenCalledWith('user_identityId_new');
+        expect(mockGetDb).toHaveBeenCalledWith(process.env.DB_SECRET_ARN);
+        expect(UserDAO).toHaveBeenCalled();
+        expect(mockSetExternalId).toHaveBeenCalledWith('user_identityId_new', JIT_USER_ID);
 
         expect(result.policyDocument.Statement[0].Effect).toBe('Allow');
-        expect(result.context?.isM2M).toBe(true);
-        expect(result.context?.tokenType).toBe('m2m');
+        expect(result.principalId).toBe('user_identityId_new');
+        expect(result.context?.userId).toBe(JIT_USER_ID);
     });
 
     it('expired token → throws Unauthorized', async () => {
-        mockVerifyToken.mockRejectedValueOnce(new Error('JWT expired'));
+        mockVerifyClerkJwt.mockRejectedValueOnce(new Error('JWT expired'));
 
         await expect(handler(makeEvent('Bearer expired.token'), makeContext())).rejects.toThrow('Unauthorized');
-    });
-
-    it('wrong audience → throws Unauthorized', async () => {
-        mockVerifyToken.mockRejectedValueOnce(new Error('unexpected "aud" claim value'));
-
-        await expect(handler(makeEvent('Bearer wrong.audience.token'), makeContext())).rejects.toThrow('Unauthorized');
     });
 
     it('missing Authorization header → throws Unauthorized', async () => {
         await expect(handler(makeEvent(), makeContext())).rejects.toThrow('Unauthorized');
     });
 
-    it('M2M token detected via @clients sub suffix → isM2M=true', async () => {
-        mockVerifyToken.mockResolvedValueOnce({
-            sub: 'service-account@clients',
-            scope: 'read:metrics',
-            permissions: [],
-            iss: 'https://test.auth0.com/',
-            aud: 'https://api.test.com',
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 3600,
-        });
-
-        const result = await handler(makeEvent('Bearer m2m.sub.token'), makeContext());
-
-        expect(result.context?.isM2M).toBe(true);
-        expect(result.context?.tokenType).toBe('m2m');
-    });
-
-    it('malformed Authorization header (no Bearer scheme) → throws Unauthorized', async () => {
-        await expect(handler(makeEvent('Basic dXNlcjpwYXNz'), makeContext())).rejects.toThrow('Unauthorized');
+    it('malformed Authorization header → throws Unauthorized', async () => {
+        await expect(handler(makeEvent('NotBearer token'), makeContext())).rejects.toThrow('Unauthorized');
     });
 });

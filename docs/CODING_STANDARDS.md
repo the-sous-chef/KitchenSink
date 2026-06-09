@@ -4,7 +4,7 @@ Tactical conventions for the KitchenSink monorepo. This document is the authorit
 reference for day-to-day coding decisions. The [Constitution](../.specify/memory/constitution.md)
 defines immutable principles; this document translates them into enforceable rules.
 
-**Version**: 1.3.0 | **Created**: 2026-04-19 | **Last Updated**: 2026-05-15
+**Version**: 1.2.0 | **Created**: 2026-04-19 | **Last Updated**: 2026-05-10
 
 ---
 
@@ -156,7 +156,7 @@ function jsonResponse(statusCode: number, payload: unknown): ApiResponse { ... }
 ### Order
 
 1. External packages (`react`, `@nestjs/common`, `sharp`)
-2. Aliased internal imports (`@shared/*`, `@web/*`, `@kitchensink/<pkg>`)
+2. Aliased internal imports (`@kitchensink/*`, `@kitchensink/*`, `@kitchensink/<pkg>`)
 
 Blank line between groups. No other grouping required.
 
@@ -590,9 +590,9 @@ exports from value exports.
 
 ```typescript
 // src/recipes/index.ts
-export { RecipeService } from '@/RecipeService.js';
-export { parseIngredient } from '@/parseIngredient.js';
-export type { Recipe, Ingredient, CreateRecipeInput } from '@/types.js';
+export { RecipeService } from './RecipeService.js';
+export { parseIngredient } from './parseIngredient.js';
+export type { Recipe, Ingredient, CreateRecipeInput } from './types.js';
 ```
 
 Use `// === Section Name ===` separators for logical groupings in larger barrel files:
@@ -600,12 +600,12 @@ Use `// === Section Name ===` separators for logical groupings in larger barrel 
 ```typescript
 // === Core Exports ===
 
-export { RecipeService } from '@/RecipeService.js';
-export { IngredientParser } from '@/IngredientParser.js';
+export { RecipeService } from './RecipeService.js';
+export { IngredientParser } from './IngredientParser.js';
 
 // === Types ===
 
-export type { Recipe, Ingredient } from '@/types.js';
+export type { Recipe, Ingredient } from './types.js';
 ```
 
 ---
@@ -685,89 +685,15 @@ try {
 Never use empty catch blocks. Every `catch` must either handle the error meaningfully
 or re-throw it.
 
-### Custom Error Classes
-
-When creating custom error classes that extend `Error` (or another custom error), always call
-`Object.setPrototypeOf` in the constructor. This ensures `instanceof` checks work correctly
-when targeting ES5 or when errors cross module boundaries.
-
-```typescript
-export class DataStoreError extends AppError {
-    readonly operation: string;
-
-    constructor(message: string, operation: string) {
-        super(message, 'DATA_STORE_ERROR');
-        this.name = 'DataStoreError';
-        this.operation = operation;
-        Object.setPrototypeOf(this, DataStoreError.prototype);
-    }
-}
-```
-
-Provide a corresponding `is*` type guard for every custom error class:
-
-```typescript
-export function isDataStoreError(error: unknown): error is DataStoreError {
-    return error instanceof DataStoreError;
-}
-```
-
 ---
 
-## 15. Database Schema
-
-### Auto-Generated IDs
-
-Every SQL table must have an auto-generated primary key ID. Tables must not rely on application code to generate IDs — the database itself must handle ID generation.
-
-For PostgreSQL-compatible backends, use `uuid` with `defaultRandom()`:
-
-```typescript
-import { pgTable, uuid, text } from 'drizzle-orm/pg-core';
-
-// Good — auto-generated UUID primary key
-export const items = pgTable('items', {
-    id: uuid('id').defaultRandom().primaryKey(),
-    name: text('name').notNull(),
-});
-
-// Bad — no default, requires application to generate ID
-export const items = pgTable('items', {
-    id: text('id').primaryKey(),
-    name: text('name').notNull(),
-});
-```
-
-For SQLite backends, use `text` with a UUID default or `integer` with autoincrement as appropriate for the use case:
-
-```typescript
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
-
-// Good — auto-generated text UUID
-export const items = sqliteTable('items', {
-    id: text('id')
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    name: text('name').notNull(),
-});
-
-// Good — auto-increment integer primary key
-export const syncStatus = sqliteTable('sync_status', {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    fileKey: text('file_key').notNull(),
-});
-```
-
----
-
-## 16. Cross-Platform File Conventions
+## 14. Cross-Platform File Conventions
 
 Implements [Constitution Principle VIII](../.specify/memory/constitution.md#viii-cross-platform-parity-and-code-sharing).
 Web (Next.js) and mobile (Expo) are first-class peers — these rules are mandatory
 and enforced in code review.
 
-### 16.1 Lockstep Parity (Hard Rule)
+### 14.1 Lockstep Parity (Hard Rule)
 
 - Every user-facing feature MUST ship to **both** web and mobile in the same release.
 - A PR introducing a user-facing capability MUST include both web and mobile
@@ -777,7 +703,7 @@ and enforced in code review.
 - Single-platform rollouts require an explicit waiver recorded in the feature's
   `plan.md` Complexity Tracking table and approved in the PR description.
 
-### 16.2 Shared-Code-First (Hard Rule)
+### 14.2 Shared-Code-First (Hard Rule)
 
 All reasonable attempts MUST be made to share code across platforms. The default
 location for new code is a shared workspace; per-platform code is the exception.
@@ -796,7 +722,7 @@ location for new code is a shared workspace; per-platform code is the exception.
 Duplicating logic across platforms requires a code-review-visible justification
 comment (`// PLATFORM-FORK: <reason>`).
 
-### 16.3 The `.native.ts(x)` Suffix (Hard Rule)
+### 14.3 The `.native.ts(x)` Suffix (Hard Rule)
 
 When a module genuinely requires a platform-specific implementation, the mobile
 variant MUST be colocated with the shared/web file using the `.native.` suffix.
@@ -815,7 +741,7 @@ src/recipes/
 └── RecipeCard.test.tsx         # One test file covers both via shared logic
 ```
 
-### 16.4 Resolution & Bundler Rules
+### 14.4 Resolution & Bundler Rules
 
 - Metro / Expo automatically resolves `Foo.native.tsx` over `Foo.tsx` on mobile.
   Imports MUST use the bare name (`import { RecipeCard } from './RecipeCard'`),
@@ -826,7 +752,7 @@ src/recipes/
 - Both files MUST export the **same public API** (identical exported names and
   type signatures). Type checking MUST pass for both with the same consumer code.
 
-### 16.5 Review Checklist
+### 14.5 Review Checklist
 
 PR reviewers MUST verify:
 

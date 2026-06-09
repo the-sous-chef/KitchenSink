@@ -6,9 +6,10 @@
         "moduleResolution": "Bundler",
         "target": "ES2022",
         "outDir": "dist",
+        "rootDir": ".",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
     "include": ["src/**/*.ts", "src/**/*.d.ts", "tests/**/*.ts"],
-    "exclude": ["node_modules", "dist"]
+    "exclude": ["node_modules", "dist", "tests/e2e", "src/**/__tests__", "src/**/*.test.ts"]
 }

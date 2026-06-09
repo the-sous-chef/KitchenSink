@@ -23,7 +23,7 @@ These briefs translate the portfolio requirements into concrete design assignmen
 
 **States to mock**: new user empty, returning active user, no meal plan, active cooking session, customized module order, premium prompt, degraded/offline summary.
 
-**Source**: [01-information-architecture.md](./01-information-architecture.md), [001 product spec](../001-sous-chef-recipe-app/product-spec/product-spec.md).
+**Source**: [01-information-architecture.md](./01-information-architecture.md), [001 product spec](../001-commise-recipe-app/product-spec/product-spec.md).
 
 ## Brief 2 — Recipe Library and Recipe Card
 
@@ -38,7 +38,7 @@ These briefs translate the portfolio requirements into concrete design assignmen
 
 **States to mock**: empty library, search no results, recipe with pending nutrition, imported attributed recipe, free-user public-only recipe, premium private recipe.
 
-**Source**: [001 product spec](../001-sous-chef-recipe-app/product-spec/product-spec.md), [003 product spec](../003-usda-food-data/product-spec/product-spec.md), [004 product spec](../004-recipe-importing/product-spec/product-spec.md).
+**Source**: [001 product spec](../001-commise-recipe-app/product-spec/product-spec.md), [003 product spec](../003-usda-food-data/product-spec/product-spec.md), [004 product spec](../004-recipe-importing/product-spec/product-spec.md).
 
 ## Brief 3 — Create/Edit Recipe and Import
 
@@ -54,7 +54,7 @@ These briefs translate the portfolio requirements into concrete design assignmen
 
 **States to mock**: validation errors, photo upload failure but metadata saved, ambiguous ingredient, import failed, paywalled/paid-source warning, edit conflict.
 
-**Source**: [001 product spec](../001-sous-chef-recipe-app/product-spec/product-spec.md), [004 product spec](../004-recipe-importing/product-spec/product-spec.md).
+**Source**: [001 product spec](../001-commise-recipe-app/product-spec/product-spec.md), [004 product spec](../004-recipe-importing/product-spec/product-spec.md).
 
 ## Brief 4 — Meal Planner
 
@@ -166,4 +166,4 @@ These briefs translate the portfolio requirements into concrete design assignmen
 
 **States to mock**: login error, callback failure, expired session, revoked session, duplicate provider/linking conflict, destructive confirmation.
 
-**Source**: [002 product spec](../002-auth0-user-auth/product-spec/product-spec.md).
+**Source**: [002 product spec](../002-user-auth/product-spec/product-spec.md).

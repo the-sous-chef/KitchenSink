@@ -461,7 +461,7 @@ POST /import/url { url }
 ### HTTP Fetch Considerations
 
 - **Timeout**: 10 seconds (configurable)
-- **User-Agent**: Set a descriptive UA string (e.g., `SousChef-Importer/1.0`)
+- **User-Agent**: Set a descriptive UA string (e.g., `Commise-Importer/1.0`)
 - **Redirects**: Follow up to 5 redirects
 - **Error handling**: 4xx → "recipe not found at URL"; 5xx → "source site unavailable"; timeout → "request timed out"
 - **JS-rendered pages**: Return "could not extract recipe" if extraction yields no title/ingredients

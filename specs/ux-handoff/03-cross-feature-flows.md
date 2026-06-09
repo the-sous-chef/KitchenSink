@@ -2,7 +2,7 @@
 
 **Status**: Ready for UX flow mapping and low-/mid-fidelity mockups.
 
-These flows are where users experience Sous Chef as one product rather than a set of features. UX should prioritize these before polishing individual screens.
+These flows are where users experience Commise as one product rather than a set of features. UX should prioritize these before polishing individual screens.
 
 ## Flow 1 — New user to useful Home
 

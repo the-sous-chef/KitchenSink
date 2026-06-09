@@ -7,13 +7,13 @@
 
 ## Summary
 
-| Severity           | Count               |
-| ------------------ | ------------------- |
-| Critical           | {CRITICAL_COUNT}    |
-| Major              | {MAJOR_COUNT}       |
-| Minor              | {MINOR_COUNT}       |
-| Observation        | {OBSERVATION_COUNT} |
-| **Total Findings** | **{TOTAL_COUNT}**   |
+| Severity | Count |
+|----------|-------|
+| Critical | {CRITICAL_COUNT} |
+| Major | {MAJOR_COUNT} |
+| Minor | {MINOR_COUNT} |
+| Observation | {OBSERVATION_COUNT} |
+| **Total Findings** | **{TOTAL_COUNT}** |
 
 ## Findings
 
@@ -34,18 +34,18 @@
 
 ### PRF-{ARTIFACT}-001 — {FINDING_TITLE}
 
-| Field              | Value                                    |
-| ------------------ | ---------------------------------------- |
-| **Severity**       | {Critical / Major / Minor / Observation} |
-| **Location**       | {ARTIFACT_ID or section}                 |
-| **Description**    | {What the quality issue is}              |
-| **Recommendation** | {Actionable guidance to resolve}         |
+| Field | Value |
+|-------|-------|
+| **Severity** | {Critical / Major / Minor / Observation} |
+| **Location** | {ARTIFACT_ID or section} |
+| **Description** | {What the quality issue is} |
+| **Recommendation** | {Actionable guidance to resolve} |
 
 ### PRF-{ARTIFACT}-002 — {FINDING_TITLE}
 
-| Field              | Value                                    |
-| ------------------ | ---------------------------------------- |
-| **Severity**       | {Critical / Major / Minor / Observation} |
-| **Location**       | {ARTIFACT_ID or section}                 |
-| **Description**    | {What the quality issue is}              |
-| **Recommendation** | {Actionable guidance to resolve}         |
+| Field | Value |
+|-------|-------|
+| **Severity** | {Critical / Major / Minor / Observation} |
+| **Location** | {ARTIFACT_ID or section} |
+| **Description** | {What the quality issue is} |
+| **Recommendation** | {Actionable guidance to resolve} |

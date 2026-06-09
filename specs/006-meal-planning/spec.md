@@ -3,15 +3,15 @@
 **Feature Branch**: `006-meal-planning`
 **Created**: 2026-04-14
 **Status**: Draft
-**Input**: Split from `001-sous-chef-recipe-app` — meal plan creation, recipe assignment, nutritional summaries, and AI-powered meal suggestions.
+**Input**: Split from `001-commise-recipe-app` — meal plan creation, recipe assignment, nutritional summaries, and AI-powered meal suggestions.
 
 ## Dependencies
 
 | Spec                                                            | Relationship                                                                         |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md) | **Required** — meal plans assign Recipe entities from the user's collection          |
+| [001-commise-recipe-app](../001-commise-recipe-app/spec.md) | **Required** — meal plans assign Recipe entities from the user's collection          |
 | [003-usda-food-data](../003-usda-food-data/spec.md)             | **Required** — nutritional summaries depend on food data                             |
-| [002-auth0-user-auth](../002-auth0-user-auth/spec.md)           | **Required** — all meal planning requires authentication                             |
+| [002-user-auth](../002-user-auth/spec.md)           | **Required** — all meal planning requires authentication                             |
 | [005-ai-integration](../005-ai-integration/spec.md)             | **Referenced** — AI meal suggestions and auto-generation use AI provider config      |
 | [007-grocery-lists](../007-grocery-lists/spec.md)               | **Downstream** — grocery lists are generated from meal plans                         |
 | [009-nutrition-planning](../009-nutrition-planning/spec.md)     | **Downstream** — nutrition plans link to meal plans for compliance                   |
@@ -73,4 +73,4 @@ A user creates a meal plan for a configurable time period (e.g., 1 week, 2 weeks
 
 ## Assumptions
 
-- None specific to this spec beyond those in [001-sous-chef-recipe-app](../001-sous-chef-recipe-app/spec.md).
+- None specific to this spec beyond those in [001-commise-recipe-app](../001-commise-recipe-app/spec.md).

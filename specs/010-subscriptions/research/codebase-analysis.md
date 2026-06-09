@@ -14,8 +14,8 @@ Root `package.json` workspaces:
 ```json
 "workspaces": [
   "packages/tools/*",
-  "packages/apps/sous-chef/web",
-  "packages/apps/sous-chef/mobile",
+  "packages/apps/commise/web",
+  "packages/apps/commise/mobile",
   "packages/ui"
 ]
 ```

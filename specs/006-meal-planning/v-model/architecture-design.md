@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Meal Planning architecture decomposes eight system components into twenty-two architecture modules organized across four Kruchten 4+1 views. The decomposition follows a NestJS layered pattern consistent with the existing Sous Chef backend: REST controllers handle HTTP concerns, domain services enforce business rules, repository modules abstract persistence, and adapter modules encapsulate external service boundaries. Cross-cutting modules address authentication middleware, caching, error handling, and TypeScript/accessibility compliance. Every SYS-NNN from system-design.md maps to at least one ARCH-NNN; infrastructure modules are tagged `[CROSS-CUTTING; rationale: shared infrastructure supports multiple SYS components]`.
+The Meal Planning architecture decomposes eight system components into twenty-two architecture modules organized across four Kruchten 4+1 views. The decomposition follows a NestJS layered pattern consistent with the existing Commise backend: REST controllers handle HTTP concerns, domain services enforce business rules, repository modules abstract persistence, and adapter modules encapsulate external service boundaries. Cross-cutting modules address authentication middleware, caching, error handling, and TypeScript/accessibility compliance. Every SYS-NNN from system-design.md maps to at least one ARCH-NNN; infrastructure modules are tagged `[CROSS-CUTTING; rationale: shared infrastructure supports multiple SYS components]`.
 
 ## ID Schema
 
@@ -457,7 +457,7 @@ None — all architecture modules trace to system components from system-design.
 
 ## Physical View — Deployment Topology
 
-The feature deploys within the Sous Chef AWS/serverless topology. Client-facing web/mobile modules run in their respective application packages. Backend API, worker, queue, database, cache, storage, observability, and infrastructure modules deploy to the configured AWS account and region. Each ARCH module maps to the runtime described in the Logical View and the package/source paths listed in the Development View.
+The feature deploys within the Commise AWS/serverless topology. Client-facing web/mobile modules run in their respective application packages. Backend API, worker, queue, database, cache, storage, observability, and infrastructure modules deploy to the configured AWS account and region. Each ARCH module maps to the runtime described in the Logical View and the package/source paths listed in the Development View.
 
 ## Development View — Source Organization
 

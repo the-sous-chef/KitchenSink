@@ -1,9 +1,9 @@
-# Apron / SousChef Executive Product Packet
+# Apron / Commise Executive Product Packet
 
 **Owner**: Director of Product
 **Status**: Executive draft — ready for leadership review after verification blockers are accepted as risks or remediated
 **Last updated**: 2026-05-13
-**Scope**: SousChef app and SousChef ecosystem, features `001`–`014`
+**Scope**: Commise app and Commise ecosystem, features `001`–`014`
 
 This directory is the portfolio-level business and product narrative for Apron. It sits above the detailed feature corpus in `specs/001-*` through `specs/014-*` and turns those artifacts into an executive decision packet.
 
@@ -27,4 +27,4 @@ This directory is the portfolio-level business and product narrative for Apron. 
 
 ## Executive stance
 
-SousChef is strategically promising because the market rewards integrated cooking utility, not isolated recipe features. The current corpus is strong enough for UX discovery and leadership strategy review, but it is **not** yet release-ready. Verification blockers, missing executed evidence, and unresolved pricing/market validation assumptions must be handled before a launch approval decision.
+Commise is strategically promising because the market rewards integrated cooking utility, not isolated recipe features. The current corpus is strong enough for UX discovery and leadership strategy review, but it is **not** yet release-ready. Verification blockers, missing executed evidence, and unresolved pricing/market validation assumptions must be handled before a launch approval decision.

@@ -512,30 +512,30 @@ Each test case identifies its technique by name and anchors to a specific archit
 
 **Parent System Components**: SYS-010
 
-#### Test Case: ITP-017-A (RecipeAppAdapter → 001-sous-chef-recipe-app API contract)
+#### Test Case: ITP-017-A (RecipeAppAdapter → 001-commise-recipe-app API contract)
 
 **Technique**: Interface Contract Testing
 **Target View**: Interface View
-**Description**: Verifies that ARCH-017 sends a non-empty `recipeIds[]` UUID array to the 001-sous-chef-recipe-app internal API and returns a `RecipeNutritionMap` with all requested IDs present to ARCH-008 or ARCH-014.
+**Description**: Verifies that ARCH-017 sends a non-empty `recipeIds[]` UUID array to the 001-commise-recipe-app internal API and returns a `RecipeNutritionMap` with all requested IDs present to ARCH-008 or ARCH-014.
 
 - **Integration Scenario: ITS-017-A1**
-    - **Given** the 001-sous-chef-recipe-app service is available and all `recipeIds` exist
+    - **Given** the 001-commise-recipe-app service is available and all `recipeIds` exist
     - **When** ARCH-017 receives `recipeIds[]` from ARCH-008 and issues the HTTP call
     - **Then** ARCH-017 returns `RecipeNutritionMap` with an entry for every requested `recipeId` to ARCH-008
 
 - **Integration Scenario: ITS-017-A2**
-    - **Given** the 001-sous-chef-recipe-app service is available and ARCH-014 provides a gap nutrient profile
+    - **Given** the 001-commise-recipe-app service is available and ARCH-014 provides a gap nutrient profile
     - **When** ARCH-017 receives the gap profile from ARCH-014 and issues the `fetchAlternativeRecipes` call
     - **Then** ARCH-017 returns `RecipeAlternative[]` to ARCH-014
 
-#### Test Case: ITP-017-B (RecipeAppAdapter → 001-sous-chef-recipe-app fault injection)
+#### Test Case: ITP-017-B (RecipeAppAdapter → 001-commise-recipe-app fault injection)
 
 **Technique**: Interface Fault Injection
 **Target View**: Interface View + Process View
-**Description**: Verifies that ARCH-017 propagates `RecipeDataUnavailableError` when the 001-sous-chef-recipe-app service is unreachable.
+**Description**: Verifies that ARCH-017 propagates `RecipeDataUnavailableError` when the 001-commise-recipe-app service is unreachable.
 
 - **Integration Scenario: ITS-017-B1**
-    - **Given** the 001-sous-chef-recipe-app service returns a connection timeout
+    - **Given** the 001-commise-recipe-app service returns a connection timeout
     - **When** ARCH-017 attempts the HTTP call
     - **Then** ARCH-017 propagates a typed `RecipeDataUnavailableError` to the calling module (ARCH-008 or ARCH-014)
 

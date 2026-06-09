@@ -32,7 +32,6 @@ Decompose a V-Model Requirements Specification (`requirements.md`) into an IEEE 
 Run `{SCRIPT}` from the repository root and parse the JSON output.
 
 The script returns JSON with these keys:
-
 - `VMODEL_DIR`: Path to `specs/{feature}/v-model/` directory
 - `FEATURE_DIR`: Path to `specs/{feature}/` directory
 - `BRANCH`: Current branch name
@@ -92,10 +91,9 @@ For each system component identified during decomposition:
 The primary view. Fill the Decomposition View table from the template with all SYS components:
 
 | SYS ID | Name | Description | Parent Requirements | Type |
-| ------ | ---- | ----------- | ------------------- | ---- |
+|--------|------|-------------|---------------------|------|
 
 **Rules**:
-
 - Every `REQ-NNN` from `requirements.md` must appear in at least one row's "Parent Requirements" column
 - Use comma-separated `REQ-NNN` list for many-to-many (e.g., `REQ-001, REQ-NF-002, REQ-IF-001`)
 - No SYS component may have an empty Parent Requirements field
@@ -105,10 +103,9 @@ The primary view. Fill the Decomposition View table from the template with all S
 Document inter-component relationships:
 
 | Source | Target | Relationship | Failure Impact |
-| ------ | ------ | ------------ | -------------- |
+|--------|--------|-------------|----------------|
 
 **Rules**:
-
 - Identify every pair of components that interact (calls, reads, subscribes, etc.)
 - Document the failure propagation path: if Target fails, what happens to Source?
 - Include a simple dependency diagram (ASCII or Mermaid format)
@@ -125,7 +122,6 @@ Document API contracts with explicit external/internal distinction:
 | Source | Target | Interface Name | Protocol | Data Format | Error Handling |
 
 **Rules**:
-
 - MUST distinguish between external and internal interfaces — separate tables
 - External interfaces focus on protocol compliance, authentication, input validation
 - Internal interfaces focus on contract adherence, data format correctness, failure propagation
@@ -138,7 +134,6 @@ Document data structures and protection:
 | Entity | Component | Storage | Protection at Rest | Protection in Transit | Retention |
 
 **Rules**:
-
 - Cover data-at-rest and data-in-transit security measures
 - This view directly feeds **Boundary Value Analysis** in the system test phase
 - Include data lifecycle (creation, update, deletion, retention)
@@ -165,7 +160,6 @@ Document data structures and protection:
 During decomposition, the AI may identify a technical capability necessary for the architecture but not explicitly stated in `requirements.md`. These are **derived requirements**.
 
 **Rules**:
-
 - Do NOT silently create a `SYS-NNN` component for an undocumented capability
 - Instead, flag it with: `[DERIVED REQUIREMENT: description of the needed capability and why it is architecturally necessary]`
 - List all derived requirements in the "Derived Requirements" section of the output
@@ -193,7 +187,6 @@ Write the complete system design document to `{VMODEL_DIR}/system-design.md` usi
 ### 7. Report Completion
 
 Display a summary:
-
 - Total system components generated (by type: Subsystem/Module/Service/Library/Utility)
 - Forward coverage: X/Y REQs covered (must be 100% or flagged)
 - Dependency relationships identified
@@ -208,7 +201,6 @@ Display a summary:
 ### Strict Translation Rules
 
 When decomposing from `requirements.md`:
-
 - **DO NOT** invent capabilities, services, or components not traceable to a REQ-NNN
 - **DO NOT** add architectural components based on "common sense" or "best practices"
 - **DO** flag genuinely necessary but undocumented capabilities as `[DERIVED REQUIREMENT]`

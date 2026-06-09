@@ -7,7 +7,7 @@
 
 ## Overview
 
-This document defines the Integration Test Plan for AI Integration (Sous Chef). Every architecture module in `architecture-design.md` has one or more Test Cases (ITP), and every Test Case has one or more executable Integration Scenarios (ITS) in module-boundary BDD format (Given/When/Then).
+This document defines the Integration Test Plan for AI Integration (Commise). Every architecture module in `architecture-design.md` has one or more Test Cases (ITP), and every Test Case has one or more executable Integration Scenarios (ITS) in module-boundary BDD format (Given/When/Then).
 
 Integration tests verify **seams and handshakes between modules**, not internal logic or user journeys. Language is module-boundary-oriented throughout. The feature covers two runtime paths: (1) BYOK in-app recipe generation and (2) external agent OAuth 2.0 API access.
 

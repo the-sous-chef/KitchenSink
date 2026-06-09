@@ -46,7 +46,7 @@ AnyList's approach is **user-driven aggregation** rather than automatic:
 
 Source: [AnyList meal planning page](https://www.anylistapp.com/meal-planning); [App Store listing](https://apps.apple.com/us/app/anylist-grocery-shopping-list/id522167641) (v7.0, Apr 2026)
 
-**Key insight**: AnyList prioritizes simplicity and sharing over smart aggregation. The lack of auto-combining is a deliberate UX choice — users retain control. This is a **differentiation opportunity** for Sous Chef.
+**Key insight**: AnyList prioritizes simplicity and sharing over smart aggregation. The lack of auto-combining is a deliberate UX choice — users retain control. This is a **differentiation opportunity** for Commise.
 
 ### Mealime
 
@@ -167,7 +167,7 @@ GroceryListService
   → return link to client (redirect or deep link)
 ```
 
-**Critical constraint**: IDP is a **redirect model** — Sous Chef generates a link, user completes checkout on Instacart. Sous Chef does not handle payment or fulfillment. This is the correct model for a B2C developer partner.
+**Critical constraint**: IDP is a **redirect model** — Commise generates a link, user completes checkout on Instacart. Commise does not handle payment or fulfillment. This is the correct model for a B2C developer partner.
 
 ### Rate Limiting
 

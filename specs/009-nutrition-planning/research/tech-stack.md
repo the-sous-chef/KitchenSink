@@ -20,7 +20,7 @@ Use existing TypeScript backend stack (NestJS + strict TS conventions) for nutri
 ### Rationale
 
 - `plan.md` defines REST contracts and domain entities already aligned with NestJS-style API boundaries.
-- Existing auth and premium dependencies (`002-auth0-user-auth`, `010-subscriptions`) are already in ecosystem.
+- Existing auth and premium dependencies (`002-user-auth`, `010-subscriptions`) are already in ecosystem.
 - Keeping the domain in the existing API reduces cross-service latency and consistency risk.
 
 ### Trade-offs

@@ -26,7 +26,7 @@
 | ----------------------- | :----------: | :-------: | :--------------: | :-----------: | :------------------: | ------------------------------------------ |
 | Drizzlelemons           |      ✅      |    ✅     |  ✅ auto-detect  |  🔜 planned   |          ✅          | Swipe L/R + tap buttons; 56 px tap targets |
 | Vule (One4Studio)       |      ✅      |    ✅     |        ✅        |   ✅ simple   |          —           | "Next / Previous / Timer" voice commands   |
-| CookEase                |      ✅      |    ✅     |        —         |     ✅ AI     |          —           | Context-aware AI sous-chef                 |
+| CookEase                |      ✅      |    ✅     |        —         |     ✅ AI     |          —           | Context-aware AI commise                 |
 | Flavorish               |      ✅      |    ✅     |        —         |       —       |          —           | Step check-off; multi-recipe switching     |
 | Cookie                  |      ✅      |    ✅     |    ✅ audible    |  ✅ natural   |          —           | Accessibility-first; VoiceOver from day 1  |
 | The Kitchn (Cook Mode+) |      ✅      |    ✅     |        —         |       —       |          —           | Ingredient checklist; step collapse        |
@@ -271,7 +271,7 @@ The recipe data (instructions, ingredients) is fetched before entering Cooking M
 
 ### Relevant 001 Fields
 
-From `001-sous-chef-recipe-app/spec.md`, the `Recipe` entity includes:
+From `001-commise-recipe-app/spec.md`, the `Recipe` entity includes:
 
 | Field          | Cooking Mode use                                      |
 | -------------- | ----------------------------------------------------- |

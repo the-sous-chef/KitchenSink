@@ -32,7 +32,6 @@ Transform a feature description or existing `spec.md` into a structured V-Model 
 Run `{SCRIPT}` from the repository root and parse the JSON output.
 
 The script returns JSON with these keys:
-
 - `VMODEL_DIR`: Path to `specs/{feature}/v-model/` directory
 - `FEATURE_DIR`: Path to `specs/{feature}/` directory
 - `BRANCH`: Current branch name
@@ -83,7 +82,7 @@ Every requirement MUST satisfy **all 8 criteria** before it is included in the o
 
 #### Criterion 1: Unambiguous (Clear)
 
-The requirement has exactly **one possible interpretation**. It avoids subjective words: _fast, user-friendly, robust, seamless, approximately, intuitive, efficient, reasonable, significant, adequate, minimal_.
+The requirement has exactly **one possible interpretation**. It avoids subjective words: *fast, user-friendly, robust, seamless, approximately, intuitive, efficient, reasonable, significant, adequate, minimal*.
 
 - ❌ "The system shall load the dashboard quickly."
 - ✅ "The system shall fully render the user dashboard within 2.0 seconds of a successful authentication."
@@ -131,7 +130,6 @@ The requirement does **not contradict** any other requirement in the specificati
 #### Criterion 6: Traceable
 
 The requirement has a **unique, persistent identifier** (`REQ-NNN`) so it can be tracked:
-
 - **Forward** → to test cases (`ATP-NNN-X`) and code
 - **Backward** → to the specific business need, user scenario, or regulatory rule in the source
 
@@ -159,16 +157,14 @@ After generating all requirements and before writing the output, run these three
 #### Guard 1: Constraint Absorption Check
 
 For every `REQ-CN-NNN` requirement:
-
 1. If the description contains suppression language ("omitted", "disabled", "excluded", "not included", "only when", "unless"), identify the **capability being suppressed**.
 2. Search the Functional Requirements table for a `REQ-NNN` that describes **generating, producing, or enabling** that same capability.
-3. If NO matching functional requirement exists, this is a **Constraint Absorption** error — the constraint describes when to _hide_ a feature, but no requirement describes when to _build_ it.
+3. If NO matching functional requirement exists, this is a **Constraint Absorption** error — the constraint describes when to *hide* a feature, but no requirement describes when to *build* it.
 4. **Action**: Add the missing `REQ-NNN` before proceeding. Flag it in the output with `[ADDED BY GUARD 1: Constraint Absorption — REQ-CN-NNN suppresses this capability but no functional requirement generates it]`.
 
 #### Guard 2: Success Criteria Coverage Check
 
 If the source `spec.md` contains numbered Success Criteria (`SC-NNN`):
-
 1. List all `SC-NNN` entries from the spec.
 2. For each `SC-NNN`, verify at least one requirement (any category) references it in its Rationale column.
 3. If ANY `SC-NNN` has zero corresponding requirements, this is a **Success Criteria Dropout**.
@@ -177,7 +173,6 @@ If the source `spec.md` contains numbered Success Criteria (`SC-NNN`):
 #### Guard 3: Untestable Universal Check
 
 For every requirement with Verification Method "Test":
-
 1. Scan the description for universal quantifiers: "never", "always", "forever", "all cases", "under no circumstances", "at all times".
 2. If found, evaluate whether a finite test can definitively prove the universal claim.
 3. If NOT testable at runtime, this is an **Untestable Universal**.
@@ -198,7 +193,6 @@ Write the complete requirements document to `{VMODEL_DIR}/requirements.md` using
 ### 6. Report Completion
 
 Display a summary:
-
 - Total requirements generated (broken down by category)
 - Source used (spec.md, user input, or both)
 - Any assumptions made
@@ -213,7 +207,6 @@ Display a summary:
 ### Strict Translation Rules
 
 When deriving from `spec.md`:
-
 - **DO NOT** invent new features or capabilities not in the source
 - **DO NOT** add requirements based on "common sense" or "best practices" unless explicitly stated
 - **DO** atomize compound statements into separate requirements (Criterion 3: Atomic)
@@ -231,20 +224,20 @@ When deriving from `spec.md`:
 
 The following words are **banned** from requirement descriptions. If the source uses them, you must translate them into measurable, testable language:
 
-| Banned Word   | Replace With                                                 |
-| ------------- | ------------------------------------------------------------ |
-| fast          | specific time threshold (e.g., "within 2 seconds")           |
+| Banned Word | Replace With |
+|-------------|-------------|
+| fast | specific time threshold (e.g., "within 2 seconds") |
 | user-friendly | specific usability criteria (e.g., "completable in 3 steps") |
-| robust        | specific failure-handling behavior                           |
-| seamless      | specific integration behavior                                |
-| intuitive     | specific learnability criteria                               |
-| efficient     | specific resource or time metrics                            |
-| reasonable    | specific threshold or range                                  |
-| significant   | specific percentage or quantity                              |
-| adequate      | specific minimum criteria                                    |
-| minimal       | specific maximum value                                       |
-| approximately | specific range or tolerance                                  |
-| scalable      | specific load targets (e.g., "10,000 concurrent users")      |
-| secure        | specific security measures (e.g., "TLS 1.2+ encryption")     |
-| reliable      | specific availability or MTBF targets                        |
-| flexible      | specific extensibility or configuration points               |
+| robust | specific failure-handling behavior |
+| seamless | specific integration behavior |
+| intuitive | specific learnability criteria |
+| efficient | specific resource or time metrics |
+| reasonable | specific threshold or range |
+| significant | specific percentage or quantity |
+| adequate | specific minimum criteria |
+| minimal | specific maximum value |
+| approximately | specific range or tolerance |
+| scalable | specific load targets (e.g., "10,000 concurrent users") |
+| secure | specific security measures (e.g., "TLS 1.2+ encryption") |
+| reliable | specific availability or MTBF targets |
+| flexible | specific extensibility or configuration points |

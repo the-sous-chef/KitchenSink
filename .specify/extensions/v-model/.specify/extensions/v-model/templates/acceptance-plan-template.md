@@ -38,19 +38,19 @@ more executable User Scenarios (SCN) in BDD format (Given/When/Then).
 
 **Description:** [What this test validates]
 
-- **User Scenario: SCN-001-A1**
-  - **Given** [initial state/precondition]
-  - **When** [action performed]
-  - **Then** [expected outcome]
+* **User Scenario: SCN-001-A1**
+  * **Given** [initial state/precondition]
+  * **When** [action performed]
+  * **Then** [expected outcome]
 
 #### Test Case: ATP-001-B ([Condition Name])
 
 **Description:** [What this test validates — e.g., error/edge case for REQ-001]
 
-- **User Scenario: SCN-001-B1**
-  - **Given** [initial state/precondition]
-  - **When** [action performed]
-  - **Then** [expected outcome]
+* **User Scenario: SCN-001-B1**
+  * **Given** [initial state/precondition]
+  * **When** [action performed]
+  * **Then** [expected outcome]
 
 ---
 
@@ -60,10 +60,10 @@ more executable User Scenarios (SCN) in BDD format (Given/When/Then).
 
 **Description:** [What this test validates]
 
-- **User Scenario: SCN-002-A1**
-  - **Given** [initial state/precondition]
-  - **When** [action performed]
-  - **Then** [expected outcome]
+* **User Scenario: SCN-002-A1**
+  * **Given** [initial state/precondition]
+  * **When** [action performed]
+  * **Then** [expected outcome]
 
 ---
 
@@ -73,14 +73,14 @@ more executable User Scenarios (SCN) in BDD format (Given/When/Then).
 
 ## Coverage Summary
 
-| Metric                   | Count           |
-| ------------------------ | --------------- |
-| Total Requirements (REQ) | [N]             |
-| Total Test Cases (ATP)   | [N]             |
-| Total Scenarios (SCN)    | [N]             |
+| Metric | Count |
+|--------|-------|
+| Total Requirements (REQ) | [N] |
+| Total Test Cases (ATP) | [N] |
+| Total Scenarios (SCN) | [N] |
 | Requirements with ≥1 ATP | [N] / [N] ([%]) |
-| Test Cases with ≥1 SCN   | [N] / [N] ([%]) |
-| **Overall Coverage**     | **[%]**         |
+| Test Cases with ≥1 SCN | [N] / [N] ([%]) |
+| **Overall Coverage** | **[%]** |
 
 ## Uncovered Requirements
 

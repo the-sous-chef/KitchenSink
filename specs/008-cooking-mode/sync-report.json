@@ -1,0 +1,232 @@
+{
+    "version": "1.0.0",
+    "feature_slug": "008-cooking-mode",
+    "scan_date": "2026-06-02",
+    "mode": "pre-implementation",
+    "read_only": true,
+    "scanned_layers": ["L1", "L2", "L3", "L4", "L7"],
+    "skipped_layers": ["L5"],
+    "monorepo": {
+        "web_root": "/home/brandon/Development/KitchenSink/packages/apps/commise/web",
+        "mobile_root": "/home/brandon/Development/KitchenSink/packages/apps/commise/mobile",
+        "shared_src_exists": false
+    },
+    "overall_status": "PASS",
+    "critical_count": 0,
+    "warning_count": 1,
+    "info_count": 3,
+    "layers": [
+        {
+            "layer": "L1",
+            "name": "Research ↔ Product-Spec ↔ Codebase",
+            "status": "PASS",
+            "findings": [
+                {
+                    "id": "L1-001",
+                    "severity": "PASSED",
+                    "message": "research.md RQ-1..RQ-8 flow into product-spec.md with consistent constraints."
+                },
+                {
+                    "id": "L1-002",
+                    "severity": "PASSED",
+                    "message": "research/codebase-analysis.md correctly describes Turborepo workspace layout."
+                },
+                {
+                    "id": "L1-003",
+                    "severity": "PASSED",
+                    "message": "product-spec/metrics.md and research/metrics-roi.md are cross-referenced and story-mapped."
+                },
+                {
+                    "id": "L1-004",
+                    "severity": "PASSED",
+                    "message": "Personas map to Must Have / Should Have decomposition in product-spec.md."
+                }
+            ]
+        },
+        {
+            "layer": "L2",
+            "name": "Spec.md ↔ Plan.md ↔ Tasks.md (Must Have Coverage)",
+            "status": "PASS",
+            "findings": [
+                {
+                    "id": "L2-001",
+                    "severity": "PASSED",
+                    "message": "FR-032 covered by tasks T-008..T-011."
+                },
+                {
+                    "id": "L2-002",
+                    "severity": "PASSED",
+                    "message": "FR-033 covered by tasks T-012..T-015."
+                },
+                {
+                    "id": "L2-003",
+                    "severity": "PASSED",
+                    "message": "FR-034 covered by tasks T-003, T-016..T-021."
+                },
+                {
+                    "id": "L2-004",
+                    "severity": "PASSED",
+                    "message": "FR-035 covered by tasks T-004, T-005, T-022, T-023."
+                },
+                {
+                    "id": "L2-005",
+                    "severity": "WARNING",
+                    "message": "product-spec.md claims 5 Must Have stories mapped to canonical FRs, but spec.md defines FR-032..FR-035 (4 FRs). Counting mismatch, not a scope gap.",
+                    "evidence": "product-spec.md line 129: '5 Must Have stories / 5 mapped to canonical FRs'; spec.md lists FR-032..FR-035 only."
+                }
+            ]
+        },
+        {
+            "layer": "L3",
+            "name": "V-Model ↔ Spec.md ↔ Plan.md",
+            "status": "PASS",
+            "findings": [
+                {
+                    "id": "L3-001",
+                    "severity": "PASSED",
+                    "message": "All 14 ARCH modules from architecture-design.md map to MODs in module-design.md (18 MODs total)."
+                },
+                {
+                    "id": "L3-002",
+                    "severity": "PASSED",
+                    "message": "Every REQ in requirements.md traces to one or more SYS components; SYS components trace to ARCH; ARCH trace to MODs.",
+                    "coverage_summary": {
+                        "reqs_total": 21,
+                        "reqs_with_sys": 21,
+                        "reqs_with_arch": 21,
+                        "reqs_with_mod": 21
+                    }
+                },
+                {
+                    "id": "L3-003",
+                    "severity": "PASSED",
+                    "message": "traceability-matrix.md Matrix A maps every REQ to AT/AC test cases; all are Untested (pre-impl expectation)."
+                }
+            ]
+        },
+        {
+            "layer": "L4",
+            "name": "Wireframes ↔ User-Journey ↔ Acceptance-Plan ↔ Plan.md",
+            "status": "PASS",
+            "findings": [
+                {
+                    "id": "L4-001",
+                    "severity": "PASSED",
+                    "message": "cook-step.md wireframe aligns with plan.md navigation UX diagram (tap zones, step dots)."
+                },
+                {
+                    "id": "L4-002",
+                    "severity": "PASSED",
+                    "message": "cook-timer.md wireframe aligns with AT-008-D acceptance scenarios."
+                },
+                {
+                    "id": "L4-003",
+                    "severity": "PASSED",
+                    "message": "Journey A sequence in user-journey.md covers step display, navigation, timers, wake lock, and offline edge flow."
+                }
+            ]
+        },
+        {
+            "layer": "L5",
+            "name": "Code ↔ Tests",
+            "status": "SKIPPED",
+            "findings": [
+                {
+                    "id": "L5-000",
+                    "severity": "INFO",
+                    "message": "Skipped per directive. Pre-implementation; no code or tests exist."
+                }
+            ]
+        },
+        {
+            "layer": "L6",
+            "name": "Missing Implementation Coverage",
+            "status": "INFO",
+            "findings": [
+                {
+                    "id": "L6-001",
+                    "severity": "INFO",
+                    "message": "packages/shared/src/ does not exist; no shared cooking types/session/timer/wake-lock code present.",
+                    "expected_target": "packages/shared/src/cooking/"
+                },
+                {
+                    "id": "L6-002",
+                    "severity": "INFO",
+                    "message": "0/32 tasks have implementation files. No CookingModeScreen, StepDisplay, StepNavigation, TimerBadge, ActiveTimers, TimerCard, or TimerAlert source files found in web or mobile packages.",
+                    "expected_web_targets": [
+                        "packages/apps/commise/web/src/features/cooking-mode/CookingModeScreen.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/StepDisplay.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/StepNavigation.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/TimerBadge.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/ActiveTimers.tsx",
+                        "packages/apps/commise/web/src/features/cooking-mode/TimerCard.tsx"
+                    ],
+                    "expected_mobile_targets": [
+                        "packages/apps/commise/mobile/src/features/cooking-mode/CookingModeScreen.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/StepDisplay.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/StepNavigation.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/TimerBadge.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/ActiveTimers.tsx",
+                        "packages/apps/commise/mobile/src/features/cooking-mode/TimerCard.tsx"
+                    ]
+                },
+                {
+                    "id": "L6-003",
+                    "severity": "INFO",
+                    "message": "Dependency 'expo-keep-awake' referenced in T-005 but not present in mobile/package.json.",
+                    "evidence": "mobile/package.json dependencies list"
+                }
+            ]
+        },
+        {
+            "layer": "L7",
+            "name": "Cross-File Consistency & Drift",
+            "status": "PASS",
+            "findings": [
+                {
+                    "id": "L7-001",
+                    "severity": "INFO",
+                    "message": "tasks.md uses 'apps/web/…' and 'apps/mobile/…' shorthand instead of full monorepo paths 'packages/apps/commise/web/src/…' and 'packages/apps/commise/mobile/src/…'.",
+                    "note": "Unambiguous in Turborepo context; root package.json workspaces confirm correct resolution."
+                },
+                {
+                    "id": "L7-002",
+                    "severity": "WARNING",
+                    "message": "FR-count mismatch between product-spec.md (claims 5 Must Have stories) and spec.md (defines 4 FRs).",
+                    "evidence": "product-spec.md line 129; spec.md lines 45-48"
+                }
+            ]
+        }
+    ],
+    "must_have_requirements": [
+        {
+            "fr_id": "FR-032",
+            "description": "System MUST provide a Cooking Mode that displays recipe instructions one step at a time in large, readable formatting.",
+            "covered_by_tasks": ["T-008", "T-009", "T-010", "T-011"],
+            "status": "PLANNED"
+        },
+        {
+            "fr_id": "FR-033",
+            "description": "System MUST allow users to navigate forward and backward through recipe steps in Cooking Mode.",
+            "covered_by_tasks": ["T-012", "T-013", "T-014", "T-015"],
+            "status": "PLANNED"
+        },
+        {
+            "fr_id": "FR-034",
+            "description": "System MUST provide integrated countdown timers for recipe steps that include time durations.",
+            "covered_by_tasks": ["T-003", "T-016", "T-017", "T-018", "T-019", "T-020", "T-021"],
+            "status": "PLANNED"
+        },
+        {
+            "fr_id": "FR-035",
+            "description": "System MUST keep the device screen active while Cooking Mode is engaged.",
+            "covered_by_tasks": ["T-004", "T-005", "T-022", "T-023"],
+            "status": "PLANNED"
+        }
+    ],
+    "recommendations": [
+        "Resolve FR-count mismatch in product-spec.md vs spec.md for clarity.",
+        "Update tasks.md target paths to use full monorepo paths (packages/apps/commise/...) to avoid ambiguity.",
+        "Add 'expo-keep-awake' to mobile/package.json dependencies before T-005 implementation."
+    ]
+}

@@ -9,6 +9,39 @@
 
 This document defines the detailed module designs (MOD-NNN) that implement each architecture module. Each MOD specifies function-level pseudocode, input/output contracts, and error handling. These are implemented 1:1 in both Bash and PowerShell.
 
+## §4.0 ISO/IEC/IEEE 12207:2017 Software Design Process Preamble
+
+This module design follows ISO/IEC/IEEE 12207:2017 §8.4.4 (Software Detailed Design process). The process is applied to produce the `MOD-NNN` specifications in this document.
+
+### Process Inputs (§8.4.4 Inputs)
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Functional requirements | `specs/005e-audit-report/v-model/requirements.md` | REQ-001–REQ-020, REQ-NF-001–REQ-NF-003, REQ-IF-001–REQ-IF-002, REQ-CN-001–REQ-CN-003 |
+| System design | `specs/005e-audit-report/v-model/system-design.md` | SYS-001–SYS-008 component decomposition defining scope and data flow |
+| Architecture design | `specs/005e-audit-report/v-model/architecture-design.md` | ARCH-001–ARCH-010 module decomposition with interface contracts and logical views |
+
+### Process Outputs (§8.4.4 Outputs)
+
+| Output | Description |
+|--------|-------------|
+| Module specifications (MOD-NNN) | Each module is specified with: function signature (typed inputs/outputs), pseudocode (algorithm), and error handling |
+| Interface definitions | Input/output contracts per module, specifying types, valid ranges, and error paths |
+| Implementation target mapping | Each MOD maps to source files: `scripts/bash/build-audit-report.sh` and `scripts/powershell/Build-Audit-Report.ps1` |
+
+### Process Activities (§8.4.4 Activities)
+
+| Activity | ISO 12207 §8.4.4 Ref | Implementation in This Document |
+|----------|---------------------|--------------------------------|
+| Decompose each architecture module into implementable function units | §8.4.4.1 | Each ARCH-NNN is decomposed into one MOD-NNN with a named function and typed parameters |
+| Define module interface (inputs, outputs, types, ranges) | §8.4.4.1 | **Inputs** and **Outputs** fields in each MOD-NNN specification |
+| Define algorithm or processing logic | §8.4.4.3 | **Pseudocode** block (fenced ```` ```pseudocode ``` ```` or ```` ``` ```` ) in each MOD-NNN |
+| Identify error conditions and response | §8.4.4.4 | **Error Handling** field in each MOD-NNN |
+
+> **Note**: This feature uses a pragmatic V-Model level for module-design detail. Full §8.4.4 compliance with typed internal data structures (§8.4.4.2) is deferred to the implementation phase; the pseudocode blocks define local variables implicitly. All 11 MOD-NNN modules satisfy §8.4.4.1 (typed interface), §8.4.4.3 (algorithm), and §8.4.4.4 (error conditions) requirements.
+
+---
+
 ## Module Designs
 
 ### Module: MOD-001 (parse_cli_args)
@@ -20,7 +53,6 @@ This document defines the detailed module designs (MOD-NNN) that implement each 
 **Outputs**: Validated variables — `vmodel_dir`, `system_name`, `version`, `git_tag`, `regulatory_context`, `output_path`, `json_flag`
 
 **Pseudocode**:
-
 ```
 FUNCTION parse_cli_args(args):
     IF args[0] == "--help" OR no args:
@@ -44,7 +76,6 @@ FUNCTION parse_cli_args(args):
 **Outputs**: Array of `{name, file, sha, date, exists}` records
 
 **Expected files** (ordered):
-
 ```
 requirements.md, acceptance-plan.md, system-design.md, system-test.md,
 architecture-design.md, integration-test.md, module-design.md, unit-test.md,
@@ -52,7 +83,6 @@ hazard-analysis.md, traceability-matrix.md, waivers.md
 ```
 
 **Pseudocode**:
-
 ```
 FUNCTION discover_artifacts(vmodel_dir):
     artifacts = []
@@ -77,7 +107,6 @@ FUNCTION discover_artifacts(vmodel_dir):
 **Outputs**: Array of matrix objects `{id, title, header_row, data_rows[], coverage}`
 
 **Pseudocode**:
-
 ```
 FUNCTION parse_matrix_file(path):
     IF NOT file_exists(path):
@@ -113,7 +142,6 @@ FUNCTION parse_matrix_file(path):
 **Outputs**: `{forward_count, forward_total, backward_count, backward_total, gaps[], orphans[]}`
 
 **Pseudocode**:
-
 ```
 FUNCTION compute_coverage(matrix):
     source_ids = unique values from column 0  # e.g., REQ-NNN
@@ -134,7 +162,6 @@ FUNCTION compute_coverage(matrix):
 **Outputs**: Array of hazard records or null
 
 **Pseudocode**:
-
 ```
 FUNCTION parse_hazards(path):
     IF path == null OR NOT file_exists(path):
@@ -161,7 +188,6 @@ FUNCTION parse_hazards(path):
 **Outputs**: Array of `{artifact_id, type, matrix_id, detail}`
 
 **Pseudocode**:
-
 ```
 FUNCTION scan_anomalies(matrices):
     anomalies = []
@@ -186,7 +212,6 @@ FUNCTION scan_anomalies(matrices):
 **Outputs**: Map `{artifact_id → {wav_id, type, justification, approved_by}}`
 
 **Pseudocode**:
-
 ```
 FUNCTION parse_waivers(path):
     IF path == null OR NOT file_exists(path):
@@ -213,7 +238,6 @@ FUNCTION parse_waivers(path):
 **Outputs**: `{classified[], orphaned_waivers[], status, exit_code}`
 
 **Pseudocode**:
-
 ```
 FUNCTION cross_reference(anomalies, waiver_map):
     classified = []
@@ -249,7 +273,6 @@ FUNCTION cross_reference(anomalies, waiver_map):
 **Outputs**: Markdown file at output_path + summary on stderr
 
 **Sections rendered** (in order):
-
 1. Executive Summary — template-fill with metrics
 2. Artifact Inventory — table from discover_artifacts output
 3. Traceability Matrices — embed matrix tables from parse_matrix_file
@@ -267,30 +290,86 @@ FUNCTION cross_reference(anomalies, waiver_map):
 **Outputs**: JSON string to stdout
 
 **JSON structure**:
-
 ```json
 {
-  "metadata": {
-    "system_name": "",
-    "version": "",
-    "git_tag": "",
-    "date": "",
-    "regulatory_context": ""
-  },
+  "metadata": {"system_name": "", "version": "", "git_tag": "", "date": "", "regulatory_context": ""},
   "compliance_status": "",
   "exit_code": 0,
   "artifact_inventory": [],
   "matrices": [],
   "coverage_analysis": [],
   "hazard_summary": [],
-  "anomalies": { "classified": [], "orphaned_waivers": [] },
-  "summary": {
-    "total_requirements": 0,
-    "total_tests": 0,
-    "passed": 0,
-    "failed": 0,
-    "skipped": 0,
-    "total_hazards": 0
-  }
+  "anomalies": {"classified": [], "orphaned_waivers": []},
+  "summary": {"total_requirements": 0, "total_tests": 0, "passed": 0, "failed": 0, "skipped": 0, "total_hazards": 0}
 }
 ```
+
+### Module: MOD-011 (dispatch_pipeline)
+
+**Parent Architecture Modules**: ARCH-010
+
+**Target Source File(s)**: `scripts/bash/build-audit-report.sh`, `scripts/powershell/Build-Audit-Report.ps1`
+
+**Inputs**: Raw process arguments (`$@` in Bash; `$args` in PowerShell)
+
+**Outputs**: Exit code — 0 (RELEASE READY / RELEASE CANDIDATE), 1 (NOT READY), 2 (argument or artifact error)
+
+**Pseudocode**:
+```pseudocode
+FUNCTION dispatch_pipeline(raw_args):
+    // Step 1: Parse and validate arguments (delegates to MOD-001 / ARCH-001)
+    config = parse_cli_args(raw_args)
+    IF config == null OR config.exit_code == 2:
+        EXIT 2
+
+    // Step 2: Discover V-Model artifacts and Git metadata (ARCH-002)
+    artifacts = discover_artifacts(config.vmodel_dir)
+
+    // Step 3: Parse traceability matrices (ARCH-003)
+    matrices = parse_matrix_file(config.vmodel_dir + "/traceability-matrix.md")
+    coverage = compute_coverage_metrics(matrices)
+
+    // Step 4: Parse hazard analysis if present (ARCH-004)
+    hazards = parse_hazards(config.vmodel_dir + "/hazard-analysis.md")
+
+    // Step 5: Scan for anomalies in matrix rows (ARCH-005)
+    anomalies = scan_anomalies(matrices)
+
+    // Step 6: Parse waivers if present (ARCH-006)
+    waiver_map = parse_waivers(config.vmodel_dir + "/waivers.md")
+
+    // Step 7: Cross-reference anomalies with waivers (ARCH-007)
+    result = cross_reference(anomalies, waiver_map)
+    // result.exit_code = 0 (no blocking) or 1 (blocking anomalies present)
+
+    // Step 8: Render Markdown report (ARCH-008)
+    render_report(artifacts, matrices, coverage, hazards, result, config)
+
+    // Step 9: Serialize JSON output if --json flag active (ARCH-009)
+    IF config.json_flag == true:
+        render_json(artifacts, matrices, coverage, hazards, result, config)
+
+    // Step 10: Propagate compliance exit code to caller
+    EXIT result.exit_code
+```
+
+**Error Handling**: Propagates exit code 2 from `parse_cli_args` on argument validation failure. Propagates exit code 2 from `render_report` on output file write failure. All other sub-components signal errors via their return values, which are forwarded to the renderer; the dispatch function itself does not swallow errors.
+
+---
+
+## Coverage Summary
+
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | 11 (11 active, 0 deprecated, 0 suspect) |
+| External Modules (`[EXTERNAL]`) | 0 |
+| Cross-Cutting Modules (`[CROSS-CUTTING]`) | 0 |
+| Stateful Modules | 0 |
+| Stateless Modules | 11 |
+| Total Parent Architecture Modules Covered | 10 / 10 (100%) |
+| Modules with Pseudocode | 11 / 11 (100%) |
+| **Forward Coverage (ARCH→MOD)** | **100%** |
+
+## Derived Modules
+
+None — all modules trace to existing architecture modules.

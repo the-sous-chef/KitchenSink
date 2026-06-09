@@ -41,7 +41,7 @@
 
 ## Journey C — Alex runs a bulk import queue
 
-**Persona**: P8 Alex, Sous Chef Power User
+**Persona**: P8 Alex, Commise Power User
 **Goal**: Digitize many cookbook pages without babysitting each job.
 
 1. Alex selects multiple images for bulk import.

@@ -15,7 +15,6 @@
 **Rationale**: Consistent with v0.2.0's "Parent Requirements" pattern (RQ-1). Keeps traceability data in the Markdown file. The `[CROSS-CUTTING]` tag addresses the "Derived Module Friction" identified in the spec Red Team review — utility modules (Logger, Thread Pool, Secrets Manager) are legitimate architecture components that don't trace to a single SYS.
 
 **Alternatives considered**:
-
 - Force all ARCH modules to have a SYS parent: Rejected — would artificially inflate SYS count with "utility subsystem" wrappers.
 - Separate cross-cutting module section: Rejected — fragments the Logical View; cross-cutting modules should appear inline with business-logic modules for complete architecture picture.
 
@@ -52,7 +51,6 @@
 ### RQ-4: How should ASIL decomposition and other safety-critical architecture sections be gated?
 
 **Finding**: At the architecture level, safety-critical standards introduce additional analysis requirements:
-
 - **ASIL Decomposition** (ISO 26262): A parent SYS-NNN at ASIL-D can decompose into ARCH modules with lower ASIL ratings if independence is proven (e.g., SYS ASIL-D → ARCH-001 ASIL-D + ARCH-002 ASIL-A).
 - **Defensive Programming** (ISO 26262 + DO-178C): Invalid inputs from one module caught before corrupting the next.
 - **Temporal & Execution Constraints** (DO-178C): Watchdog timers, execution order, deadlock prevention.
@@ -66,7 +64,6 @@
 ### RQ-5: How should the validate-architecture-coverage.sh script structure differ from validate-system-coverage.sh?
 
 **Finding**: The architecture-level validation has unique requirements:
-
 1. **Three-file input** instead of v0.2.0's implicit directory scan: `system-design.md`, `architecture-design.md`, `integration-test.md` as positional arguments.
 2. **Partial execution**: The script must validate forward-only (SYS→ARCH) when `integration-test.md` doesn't exist yet — the architecture-design command runs before integration-test.
 3. **Cross-cutting handling**: `[CROSS-CUTTING]` modules have no SYS parent but must still appear in coverage validation for the backward direction (ARCH→ITP).
@@ -79,7 +76,6 @@
 ### RQ-6: How should Matrix C extend the traceability matrix?
 
 **Finding**: Matrix C (Integration Verification) adds the architecture layer: `SYS → ARCH → ITP → ITS`. Key design decisions:
-
 1. Each SYS cell includes parent REQ references in parentheses for end-to-end traceability (Red Team Critique 3 — prevents auditors from needing to cross-reference Matrix B).
 2. Cross-cutting ARCH modules appear as pseudo-rows with `N/A (Cross-Cutting)` in the SYS column.
 3. Matrix C is produced independently alongside A and B, not merged into a single wide table.
@@ -106,6 +102,5 @@
 **Rationale**: A broken Mermaid diagram renders as raw text in GitHub/VSCode, making the architecture document useless for visual review. Treating broken syntax as a structural failure catches this before PR review.
 
 **Alternatives considered**:
-
 - Runtime Mermaid CLI validation: Rejected — adds a heavy dependency (Mermaid CLI is a Node.js tool). Regex-based syntax checks are sufficient for catching common errors.
 - Manual review only: Rejected — human reviewers may miss subtle syntax errors; automated checks catch them deterministically.

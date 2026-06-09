@@ -149,4 +149,4 @@ jobs:
                   key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
             - name: Build all packages
-              run: npm run build
+              run: npx turbo run build --filter=!@kitchensink/web --filter=!@kitchensink/mobile

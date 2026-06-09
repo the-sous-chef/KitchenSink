@@ -20,7 +20,7 @@ Riley is Sage's daughter. She receives Circle invitations and browses the family
 
 **Key needs**: easy Circle join flow; browsable family recipe collection; integration with her existing meal planning (006).
 
-### Tertiary — P8 Alex (Sous Chef Power User)
+### Tertiary — P8 Alex (Commise Power User)
 
 Alex uses the app daily across multiple features. He might digitize a few recipes from a professional cookbook, but his primary interest is the Circle primitive as a team-sharing mechanism (kitchen brigade, catering crew). He'll push the bulk import queue and expect it to handle 20+ photos without breaking.
 

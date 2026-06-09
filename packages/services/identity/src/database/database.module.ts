@@ -1,5 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import { users, accounts, profiles } from '@kitchensink/auth-types/schema';
+import { users, accounts, profiles } from './schema/index.js';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 

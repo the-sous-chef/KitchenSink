@@ -22,7 +22,7 @@ This module design decomposes the 10 architecture modules into 15 low-level modu
 **Parent Architecture Modules**: ARCH-001
 **Target Source File(s)**: `scripts/bash/impact-analysis.sh`
 
-Bash function that accepts a directory path and returns a newline-separated list of markdown file paths. Uses `find "$dir" -name '*.md' -type f` to recursively discover files. Sorts output for deterministic ordering. Precondition: directory exists. Postcondition: list of absolute paths to \*.md files. Returns empty string if no files found.
+Bash function that accepts a directory path and returns a newline-separated list of markdown file paths. Uses `find "$dir" -name '*.md' -type f` to recursively discover files. Sorts output for deterministic ordering. Precondition: directory exists. Postcondition: list of absolute paths to *.md files. Returns empty string if no files found.
 
 ---
 
@@ -103,7 +103,7 @@ Bash function that accepts traversal results and constructs JSON output using pr
 **Parent Architecture Modules**: ARCH-008
 **Target Source File(s)**: `scripts/bash/impact-analysis.sh`
 
-Bash function that processes `$@` arguments. Iterates through args: `--downward`, `--upward`, `--full` set direction (mutually exclusive — second flag triggers error). `--json` sets JSON mode. `--output` consumes the next arg as output path. Remaining positional args are split: last one is V-Model directory, all others are changed IDs. Validates: at least one ID provided, directory exists, directory contains \*.md files. Exports: `DIRECTION`, `JSON_MODE`, `OUTPUT_PATH`, `CHANGED_IDS[]`, `VMODEL_DIR`. Exits 1 with usage on error.
+Bash function that processes `$@` arguments. Iterates through args: `--downward`, `--upward`, `--full` set direction (mutually exclusive — second flag triggers error). `--json` sets JSON mode. `--output` consumes the next arg as output path. Remaining positional args are split: last one is V-Model directory, all others are changed IDs. Validates: at least one ID provided, directory exists, directory contains *.md files. Exports: `DIRECTION`, `JSON_MODE`, `OUTPUT_PATH`, `CHANGED_IDS[]`, `VMODEL_DIR`. Exits 1 with usage on error.
 
 ---
 
@@ -190,12 +190,12 @@ Format-ImpactReport -Results <hashtable> -Direction <string> [-Json] [-Output <p
 
 ## Coverage Summary
 
-| Metric                                    | Count          |
-| ----------------------------------------- | -------------- |
-| Total Module Designs (MOD)                | 16             |
+| Metric | Count |
+|--------|-------|
+| Total Module Designs (MOD) | 16 |
 | Total Parent Architecture Modules Covered | 10 / 10 (100%) |
-| Components per Type                       | Function: 16   |
-| **Forward Coverage (ARCH→MOD)**           | **100%**       |
+| Components per Type | Function: 16 |
+| **Forward Coverage (ARCH→MOD)** | **100%** |
 
 ## Derived Requirements
 

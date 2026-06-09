@@ -11,7 +11,7 @@ This directory contains the Product Forge Phase 1 research artifacts for feature
 
 ### [competitors.md](./competitors.md)
 
-Competitive landscape for cooking-mode experiences with direct focus on **Paprika cook mode**, **SideChef**, **Yummly**, and **Kitchen Stories**, plus secondary references from existing `research.md` market survey. Includes a parity matrix (step flow, timers, wake lock, voice, ingredient checkoff, scaling) and positioning guidance for Sous Chef.
+Competitive landscape for cooking-mode experiences with direct focus on **Paprika cook mode**, **SideChef**, **Yummly**, and **Kitchen Stories**, plus secondary references from existing `research.md` market survey. Includes a parity matrix (step flow, timers, wake lock, voice, ingredient checkoff, scaling) and positioning guidance for Commise.
 
 ### [ux-patterns.md](./ux-patterns.md)
 
