@@ -58,13 +58,19 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Build webhooks package
-              run: npm run build --workspace=packages/services/identity-webhooks
-
             - name: Build identity service package
               run: npm run build --workspace=packages/services/identity
 
-            - name: Prune dev dependencies
+            - name: Build webhooks package
+              run: npm run build --workspace=packages/services/identity-webhooks
+
+            - name: Build identity service infra
+              run: npm run infra:build --workspace=packages/services/identity
+
+            - name: Build identity-webhooks infra
+              run: npm run infra:build --workspace=packages/services/identity-webhooks
+
+            - name: Prune dev dependencies (before Docker)
               run: npm prune --omit=dev
 
             - name: Configure AWS credentials
@@ -131,13 +137,19 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Build webhooks package
-              run: npm run build --workspace=packages/services/identity-webhooks
-
             - name: Build identity service package
               run: npm run build --workspace=packages/services/identity
 
-            - name: Prune dev dependencies
+            - name: Build webhooks package
+              run: npm run build --workspace=packages/services/identity-webhooks
+
+            - name: Build identity service infra
+              run: npm run infra:build --workspace=packages/services/identity
+
+            - name: Build identity-webhooks infra
+              run: npm run infra:build --workspace=packages/services/identity-webhooks
+
+            - name: Prune dev dependencies (before Docker)
               run: npm prune --omit=dev
 
             - name: Configure AWS credentials
