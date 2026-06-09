@@ -23,6 +23,7 @@ env:
     NODE_VERSION: 24
     AWS_REGION: us-east-1
     CDK_DEFAULT_REGION: us-east-1
+    CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
     STAGE: prod
     DOMAIN_NAME: armoury-app.com
 
@@ -77,7 +78,9 @@ jobs:
                   docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
 
             - name: CDK Bootstrap (if needed)
-              run: npx cdk bootstrap aws://${{ env.CDK_DEFAULT_ACCOUNT }}/${{ env.AWS_REGION }}
+              env:
+                  CDK_DEFAULT_ACCOUNT: '040663841500'
+              run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${AWS_REGION}
 
             - name: Build identity service infra
               run: npm run infra:build --workspace=packages/services/identity
@@ -86,13 +89,21 @@ jobs:
               run: npm run infra:build --workspace=packages/services/identity-webhooks
 
             - name: CDK Synth (identity service)
+              env:
+                  CDK_DEFAULT_ACCOUNT: '040663841500'
               run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk synth --app "node packages/services/identity/infra/dist/bin/app.js" --all
 
             - name: CDK Synth (identity-webhooks)
+              env:
+                  CDK_DEFAULT_ACCOUNT: '040663841500'
               run: STAGE=${{ env.STAGE }} npx cdk synth --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all
 
             - name: CDK Deploy (identity service)
+              env:
+                  CDK_DEFAULT_ACCOUNT: '040663841500'
               run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
 
             - name: CDK Deploy (identity-webhooks)
+              env:
+                  CDK_DEFAULT_ACCOUNT: '040663841500'
               run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never

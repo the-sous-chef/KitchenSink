@@ -34,6 +34,7 @@ env:
     NODE_VERSION: 24
     AWS_REGION: us-east-1
     CDK_DEFAULT_REGION: us-east-1
+    CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
     DOMAIN_NAME: armoury-app.com
 
 jobs:
