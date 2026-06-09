@@ -4,12 +4,13 @@ on:
     push:
         branches: [main]
         paths:
-            - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity/**'
+            - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity-webhooks/infra/**'
             - 'packages/services/identity/infra/**'
             - 'Dockerfile'
             - '.github/workflows/prod-deploy.yml'
+    workflow_dispatch:
 
 permissions:
     id-token: write
