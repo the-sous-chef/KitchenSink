@@ -103,8 +103,8 @@ jobs:
                 include:
                     - workspace: '@kitchensink/identity-service'
                     - workspace: '@kitchensink/identity-webhooks'
-                    - workspace: '@kitchensink/web'
-                    - workspace: '@kitchensink/mobile'
+                    - workspace: '@commise/web'
+                    - workspace: '@commise/mobile'
 
         steps:
             - name: Checkout
@@ -144,7 +144,7 @@ jobs:
               run: npm run test --workspace=${{ matrix.workspace }}
 
             - name: Configure AWS credentials
-              if: matrix.workspace == '@kitchensink/web'
+              if: matrix.workspace == '@commise/web'
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -154,7 +154,7 @@ jobs:
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
-              if: matrix.workspace == '@kitchensink/web' && steps.aws-creds.outcome == 'success'
+              if: matrix.workspace == '@commise/web' && steps.aws-creds.outcome == 'success'
               run: |
                   SECRET=$(aws secretsmanager get-secret-value --secret-id kitchensink/sandbox/auth/keys --query SecretString --output text)
                   PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.publishableKey')
@@ -164,7 +164,7 @@ jobs:
                   echo "CLERK_SECRET_KEY=$SECRET_KEY" >> "$GITHUB_ENV"
 
             - name: Build
-              if: matrix.workspace != '@kitchensink/mobile' && (matrix.workspace != '@kitchensink/web' || steps.aws-creds.outcome == 'success')
+              if: matrix.workspace != '@commise/mobile' && (matrix.workspace != '@commise/web' || steps.aws-creds.outcome == 'success')
               run: npm run build --workspace=${{ matrix.workspace }}
 
     e2e-backend:
@@ -265,7 +265,7 @@ jobs:
 
             - name: Run web e2e tests
               if: steps.aws-creds.outcome == 'success'
-              run: npm run test:e2e --workspace=@kitchensink/web
+              run: npm run test:e2e --workspace=@commise/web
 
     e2e-mobile:
         name: E2E (mobile — Vitest)
@@ -310,7 +310,7 @@ jobs:
 
             - name: Run mobile e2e tests
               if: steps.aws-creds.outcome == 'success'
-              run: npm run test:e2e --workspace=@kitchensink/mobile
+              run: npm run test:e2e --workspace=@commise/mobile
 
     e2e-mobile-android:
         name: E2E (mobile Android — Maestro)

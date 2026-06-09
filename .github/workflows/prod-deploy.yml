@@ -1,33 +1,22 @@
-name: Sandbox Deploy
+name: Production Deploy
 
 on:
-    workflow_dispatch:
-        inputs:
-            stage:
-                description: 'Sandbox stage name (e.g. pr-7, sandbox-mr-42)'
-                required: true
-                type: string
-            destroy:
-                description: 'Destroy sandbox after deploy (test only)'
-                required: false
-                default: false
-                type: boolean
-    pull_request:
-        types: [opened, synchronize, reopened, closed]
+    push:
+        branches: [main]
         paths:
             - 'packages/services/identity/**'
             - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity-webhooks/infra/**'
             - 'packages/services/identity/infra/**'
             - 'Dockerfile'
-            - '.github/workflows/sandbox-deploy.yml'
+            - '.github/workflows/prod-deploy.yml'
 
 permissions:
     id-token: write
     contents: read
 
 concurrency:
-    group: sandbox-deploy-pr-${{ github.event.number || github.event.pull_request.number }}
+    group: prod-deploy
     cancel-in-progress: false
 
 env:
@@ -35,15 +24,13 @@ env:
     AWS_REGION: us-east-1
     CDK_DEFAULT_REGION: us-east-1
     CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
+    STAGE: prod
     DOMAIN_NAME: armoury-app.com
 
 jobs:
-    deploy-sandbox:
-        name: Deploy sandbox (${{ github.event.inputs.stage || format('pr-{0}', github.event.pull_request.number) }})
+    deploy:
+        name: Deploy Production
         runs-on: ubuntu-latest
-        if: github.event_name != 'pull_request' || github.event.action != 'closed'
-        env:
-            STAGE: ${{ github.event.inputs.stage || format('pr-{0}', github.event.pull_request.number) }}
 
         steps:
             - name: Checkout
@@ -73,6 +60,10 @@ jobs:
             - name: Prune dev dependencies
               run: npm prune --omit=dev
 
+            - name: Verify runtime dependencies present
+              run: |
+                  node -e "require('@nestjs/core')" || (echo 'FATAL: nestjs missing after prune' && exit 1)
+
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -100,56 +91,7 @@ jobs:
               run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${AWS_REGION}
 
             - name: CDK Deploy (identity service)
-              if: ${{ !github.event.inputs.destroy }}
               run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
 
             - name: CDK Deploy (identity-webhooks)
-              if: ${{ !github.event.inputs.destroy }}
               run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never
-
-            - name: CDK Destroy (test cleanup)
-              if: ${{ github.event.inputs.destroy == true }}
-              run: |
-                  STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity/infra/dist/bin/app.js" --all --force
-                  STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
-
-    cleanup-sandbox:
-        name: Cleanup sandbox (pr-${{ github.event.pull_request.number }})
-        runs-on: ubuntu-latest
-        if: github.event_name == 'pull_request' && github.event.action == 'closed'
-        env:
-            STAGE: ${{ format('pr-{0}', github.event.pull_request.number) }}
-
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: ${{ env.NODE_VERSION }}
-                  cache: npm
-
-            - name: Install dependencies
-              run: npm ci
-
-            - name: Build identity service infra
-              run: npm run infra:build --workspace=packages/services/identity
-
-            - name: Build identity-webhooks infra
-              run: npm run infra:build --workspace=packages/services/identity-webhooks
-
-            - name: Configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
-                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
-
-            - name: CDK Destroy (identity service)
-              run: STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity/infra/dist/bin/app.js" --all --force
-              continue-on-error: true
-
-            - name: CDK Destroy (identity-webhooks)
-              run: STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
-              continue-on-error: true
