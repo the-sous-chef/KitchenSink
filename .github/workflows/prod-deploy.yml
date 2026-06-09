@@ -46,14 +46,24 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Build webhooks package
-              run: npm run build --workspace=packages/services/identity-webhooks
-
             - name: Build identity service package
               run: npm run build --workspace=packages/services/identity
 
+            - name: Build webhooks package
+              run: npm run build --workspace=packages/services/identity-webhooks
+
+            - name: Build identity service infra
+              run: npm run infra:build --workspace=packages/services/identity
+
+            - name: Build identity-webhooks infra
+              run: npm run infra:build --workspace=packages/services/identity-webhooks
+
             - name: Prune dev dependencies
               run: npm prune --omit=dev
+
+            - name: Verify runtime dependencies
+              run: |
+                  node -e "require('@nestjs/core')" || (echo 'FATAL: nestjs missing' && exit 1)
 
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
@@ -74,37 +84,15 @@ jobs:
                   ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                   IMAGE_TAG: ${{ github.sha }}
               run: |
-                  docker build -f packages/services/identity/Dockerfile -t kitchensink-identity .
+                  docker build --platform linux/arm64 -f packages/services/identity/Dockerfile -t kitchensink-identity .
                   docker tag kitchensink-identity:latest ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
                   docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
 
-            - name: CDK Bootstrap (if needed)
-              env:
-                  CDK_DEFAULT_ACCOUNT: '040663841500'
+            - name: CDK Bootstrap
               run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${AWS_REGION}
 
-            - name: Build identity service infra
-              run: npm run infra:build --workspace=packages/services/identity
-
-            - name: Build identity-webhooks infra
-              run: npm run infra:build --workspace=packages/services/identity-webhooks
-
-            - name: CDK Synth (identity service)
-              env:
-                  CDK_DEFAULT_ACCOUNT: '040663841500'
-              run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk synth --app "node packages/services/identity/infra/dist/bin/app.js" --all
-
-            - name: CDK Synth (identity-webhooks)
-              env:
-                  CDK_DEFAULT_ACCOUNT: '040663841500'
-              run: STAGE=${{ env.STAGE }} npx cdk synth --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all
-
             - name: CDK Deploy (identity service)
-              env:
-                  CDK_DEFAULT_ACCOUNT: '040663841500'
               run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
 
             - name: CDK Deploy (identity-webhooks)
-              env:
-                  CDK_DEFAULT_ACCOUNT: '040663841500'
               run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never

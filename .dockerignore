@@ -1,3 +1,4 @@
 *
 !node_modules
+!packages/services/identity/node_modules
 !packages/services/identity/dist
