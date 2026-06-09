@@ -74,6 +74,9 @@ jobs:
               id: login-ecr
               uses: aws-actions/amazon-ecr-login@v2
 
+            - name: Ensure ECR repository exists
+              run: aws ecr describe-repositories --repository-names kitchensink-identity || aws ecr create-repository --repository-name kitchensink-identity
+
             - name: Build, tag, and push identity service Docker image
               env:
                   ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -140,6 +143,9 @@ jobs:
             - name: Login to Amazon ECR
               id: login-ecr
               uses: aws-actions/amazon-ecr-login@v2
+
+            - name: Ensure ECR repository exists
+              run: aws ecr describe-repositories --repository-names kitchensink-identity || aws ecr create-repository --repository-name kitchensink-identity
 
             - name: Build, tag, and push identity service Docker image
               env:
