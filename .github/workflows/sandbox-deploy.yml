@@ -3,24 +3,18 @@ name: Sandbox Deploy
 on:
     workflow_dispatch:
         inputs:
-            stage:
-                description: 'Sandbox stage name (e.g. sandbox-pr-123, pr-7)'
+            service:
+                description: 'Service to sandbox deploy (e.g. payments, notifications)'
                 required: true
                 type: string
-            destroy:
-                description: 'Destroy sandbox after deploy (test only)'
-                required: false
-                default: false
-                type: boolean
+            stage:
+                description: 'Sandbox stage name (e.g. pr-15, team-feature-x)'
+                required: true
+                type: string
     pull_request:
         types: [opened, synchronize, reopened, closed]
-        paths:
-            - 'packages/services/identity/**'
-            - 'packages/services/identity-webhooks/**'
-            - 'packages/services/identity-webhooks/infra/**'
-            - 'packages/services/identity/infra/**'
-            - 'Dockerfile'
-            - '.github/workflows/sandbox-deploy.yml'
+        # Runs for ALL PRs. Per-service path filters are on each job.
+        # Identity services are global and NEVER sandboxed — skip them here.
 
 permissions:
     id-token: write
@@ -34,91 +28,17 @@ env:
     NODE_VERSION: 24
     DEFAULT_AWS_REGION: ${{ vars.DEFAULT_AWS_REGION }}
     CDK_DEFAULT_REGION: ${{ vars.DEFAULT_AWS_REGION }}
-    CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
+    CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
     DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
 
 jobs:
-    deploy-sandbox:
-        name: Deploy sandbox (${{ github.event.inputs.stage || format('pr-{0}', github.event.pull_request.number) }})
-        runs-on: ubuntu-latest
-        if: github.event_name != 'pull_request' || github.event.action != 'closed'
-        env:
-            STAGE: ${{ github.event.inputs.stage || format('pr-{0}', github.event.pull_request.number) }}
-
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: ${{ env.NODE_VERSION }}
-                  cache: npm
-
-            - name: Install dependencies
-              run: npm ci
-
-            - name: Build identity service package
-              run: npm run build --workspace=packages/services/identity
-
-            - name: Build webhooks package
-              run: npm run build --workspace=packages/services/identity-webhooks
-
-            - name: Build identity service infra
-              run: npm run infra:build --workspace=packages/services/identity
-
-            - name: Build identity-webhooks infra
-              run: npm run infra:build --workspace=packages/services/identity-webhooks
-
-            - name: Prune dev dependencies
-              run: npm prune --omit=dev
-
-            - name: Configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
-
-            - name: Login to Amazon ECR
-              id: login-ecr
-              uses: aws-actions/amazon-ecr-login@v2
-
-            - name: Ensure ECR repository exists
-              run: aws ecr describe-repositories --repository-names kitchensink-identity || aws ecr create-repository --repository-name kitchensink-identity
-
-            - name: Build, tag, and push identity service Docker image
-              env:
-                  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-                  IMAGE_TAG: ${{ github.sha }}
-              run: |
-                  docker build --platform linux/arm64 -f packages/services/identity/Dockerfile -t kitchensink-identity .
-                  docker tag kitchensink-identity:latest ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
-                  docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
-
-            - name: CDK Bootstrap
-              run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${DEFAULT_AWS_REGION}
-
-            - name: CDK Deploy (identity service)
-              if: ${{ !github.event.inputs.destroy }}
-              run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
-
-            - name: CDK Deploy (identity-webhooks)
-              if: ${{ !github.event.inputs.destroy }}
-              run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never
-
-            - name: CDK Destroy (test cleanup)
-              if: ${{ github.event.inputs.destroy == true }}
-              run: |
-                  STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity/infra/dist/bin/app.js" --all --force
-                  STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
-
-    cleanup-sandbox:
-        name: Cleanup sandbox (pr-${{ github.event.pull_request.number }})
+    # ── Cleanup: PR closed → destroy all sandbox stacks for this PR ──
+    cleanup:
+        name: Destroy sandbox (pr-${{ github.event.pull_request.number }})
         runs-on: ubuntu-latest
         if: github.event_name == 'pull_request' && github.event.action == 'closed'
         env:
-            STAGE: ${{ format('pr-{0}', github.event.pull_request.number) }}
+            STAGE: pr-${{ github.event.pull_request.number }}
 
         steps:
             - name: Checkout
@@ -133,12 +53,6 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Build identity service infra
-              run: npm run infra:build --workspace=packages/services/identity
-
-            - name: Build identity-webhooks infra
-              run: npm run infra:build --workspace=packages/services/identity-webhooks
-
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -146,10 +60,79 @@ jobs:
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   aws-region: ${{ env.DEFAULT_AWS_REGION }}
 
-            - name: CDK Destroy (identity service)
-              run: STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity/infra/dist/bin/app.js" --all --force
-              continue-on-error: true
+            - name: Destroy all PR sandbox stacks
+              run: |
+                  echo "Cleaning up all sandbox stacks for stage=$STAGE"
+                  STACKS=$(aws cloudformation describe-stacks \
+                    --query "Stacks[?contains(StackName, '-$STAGE')].StackName" \
+                    --output text 2>/dev/null || true)
 
-            - name: CDK Destroy (identity-webhooks)
-              run: STAGE=${{ env.STAGE }} npx cdk destroy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --force
-              continue-on-error: true
+                  if [ -z "$STACKS" ]; then
+                    echo "No sandbox stacks found for $STAGE"
+                    exit 0
+                  fi
+
+                  for stack in $STACKS; do
+                    echo "Destroying stack: $stack"
+                    aws cloudformation delete-stack --stack-name "$stack"
+                  done
+
+                  echo "Waiting for stack deletion to complete..."
+                  for stack in $STACKS; do
+                    aws cloudformation wait stack-delete-complete --stack-name "$stack" || \
+                      echo "Warning: $stack may still be deleting (timeout or in progress)"
+                  done
+                  echo "Sandbox cleanup complete"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Per-service sandbox deploy jobs.
+    #
+    # Copy the template below for each new service. For each job:
+    #   1. paths: filter ensures it only runs when that service changed
+    #   2. Deploys with stage=pr-{N} to kitchensink-{service}-*-pr-{N} stacks
+    #   3. Uses domain: {service}-pr-{N}.commise.app (fits *.commise.app wildcard cert)
+    #
+    # ⚠️  Never add identity services here — they are global.
+    #     Identity deploys via prod-deploy.yml → identity.commise.app only.
+    # ═══════════════════════════════════════════════════════════════════
+    #
+    # TEMPLATE:
+    # ---
+    # deploy-{service}:
+    #     name: Deploy {service} sandbox (pr-${{ github.event.pull_request.number }})
+    #     runs-on: ubuntu-latest
+    #     if: |
+    #         (github.event_name == 'pull_request' && github.event.action != 'closed') ||
+    #         (github.event_name == 'workflow_dispatch' && github.event.inputs.service == '{service}')
+    #     env:
+    #         STAGE: ${{ github.event.inputs.stage || format('pr-{0}', github.event.pull_request.number) }}
+    #         SERVICE_DOMAIN: ${{ format('{service}-pr-{0}', github.event.pull_request.number) }}.${{ vars.DOMAIN_NAME }}
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v6
+    #         - name: Setup Node.js
+    #           uses: actions/setup-node@v6
+    #           with: { node-version: ${{ env.NODE_VERSION }}, cache: npm }
+    #         - name: Install dependencies
+    #           run: npm ci
+    #         - name: Build service package
+    #           run: npm run build --workspace=packages/services/{service}
+    #         - name: Build service infra
+    #           run: npm run infra:build --workspace=packages/services/{service}
+    #         - name: Prune dev dependencies
+    #           run: npm prune --omit=dev
+    #         - name: Configure AWS credentials
+    #           uses: aws-actions/configure-aws-credentials@v4
+    #           with:
+    #               aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #               aws-region: ${{ env.DEFAULT_AWS_REGION }}
+    #         - name: CDK Bootstrap
+    #           run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${DEFAULT_AWS_REGION}
+    #         - name: CDK Deploy
+    #           run: |
+    #               STAGE=${{ env.STAGE }} \
+    #               SERVICE_DOMAIN=${{ env.SERVICE_DOMAIN }} \
+    #               npx cdk deploy \
+    #                 --app "node packages/services/{service}/infra/dist/bin/app.js" \
+    #                 --all --require-approval never
