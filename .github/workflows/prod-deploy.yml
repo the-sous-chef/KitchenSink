@@ -73,8 +73,9 @@ jobs:
                   aws-region: ${{ env.DEFAULT_AWS_REGION }}
 
             - name: Resolve AWS Account ID
+              id: account
               run: |
-                  echo "CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)" >> "$GITHUB_ENV"
+                  echo "id=$(aws sts get-caller-identity --query Account --output text)" >> "$GITHUB_OUTPUT"
 
             - name: Login to Amazon ECR
               id: login-ecr
@@ -93,7 +94,7 @@ jobs:
                   docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
 
             - name: CDK Bootstrap
-              run: npx cdk bootstrap aws://${{ vars.AWS_ACCOUNT_ID }}/${DEFAULT_AWS_REGION}
+              run: npx cdk bootstrap aws://${{ steps.account.outputs.id }}/${DEFAULT_AWS_REGION}
 
             - name: CDK Deploy (identity service)
               run: |
