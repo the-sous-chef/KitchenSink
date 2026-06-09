@@ -63,7 +63,7 @@ jobs:
 
             - name: Verify runtime dependencies
               run: |
-                  node -e "require('@nestjs/core')" || (echo 'FATAL: nestjs missing' && exit 1)
+                  node -e "require('aws-cdk-lib')" || (echo 'FATAL: aws-cdk-lib missing after prune' && exit 1)
 
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4

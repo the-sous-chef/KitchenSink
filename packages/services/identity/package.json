@@ -43,6 +43,8 @@
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1",
         "ulidx": "^2.4.1",
+        "aws-cdk-lib": "*",
+        "constructs": "*",
         "zod": "^3.24.0"
     },
     "devDependencies": {
@@ -54,16 +56,14 @@
         "@types/express": "^5.0.6",
         "@types/node": "^24.0.0",
         "@types/pg": "^8.11.0",
+        "aws-cdk": "*",
         "drizzle-kit": "^0.30.0",
+        "dotenv": "*",
         "eslint": "^10.0.3",
         "prettier": "^3.0.0",
+        "tsx": "*",
         "typescript": "^5.9.3",
-        "vitest": "^4.0.0",
-        "aws-cdk": "*",
-        "aws-cdk-lib": "*",
-        "constructs": "*",
-        "dotenv": "*",
-        "tsx": "*"
+        "vitest": "^4.0.0"
     },
     "engines": {
         "node": "24.x"
