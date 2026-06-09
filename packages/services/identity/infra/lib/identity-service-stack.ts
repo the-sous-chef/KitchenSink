@@ -101,7 +101,7 @@ export class IdentityServiceStack extends Stack {
             secrets: {
                 DB_USERNAME: ecs.Secret.fromSecretsManager(props.data.dbCredentialsSecret, 'username'),
                 DB_PASSWORD: ecs.Secret.fromSecretsManager(props.data.dbCredentialsSecret, 'password'),
-                AUTH_PUBLISHABLE_KEY: ecs.Secret.fromSecretsManager(props.data.authSecretKey, 'publishableKey'),
+                AUTH_PUBLISHABLE_KEY: ecs.Secret.fromSecretsManager(props.data.authSecretKey, 'PUBLISHABLE_KEY'),
             },
             portMappings: [
                 {
