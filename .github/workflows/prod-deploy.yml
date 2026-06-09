@@ -22,8 +22,8 @@ concurrency:
 
 env:
     NODE_VERSION: 24
-    AWS_REGION: ${{ vars.AWS_REGION }}
-    CDK_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+    DEFAULT_AWS_REGION: ${{ vars.DEFAULT_AWS_REGION }}
+    CDK_DEFAULT_REGION: ${{ vars.DEFAULT_AWS_REGION }}
     CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
     STAGE: prod
     DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
@@ -68,9 +68,9 @@ jobs:
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
 
             - name: Login to Amazon ECR
               id: login-ecr
@@ -89,7 +89,7 @@ jobs:
                   docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
 
             - name: CDK Bootstrap
-              run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${AWS_REGION}
+              run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${DEFAULT_AWS_REGION}
 
             - name: CDK Deploy (identity service)
               run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never

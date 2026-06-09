@@ -29,7 +29,7 @@ permissions:
     contents: read
 
 env:
-    AWS_REGION: ${{ vars.AWS_REGION }}
+    DEFAULT_AWS_REGION: ${{ vars.DEFAULT_AWS_REGION }}
 
 concurrency:
     group: 002-user-auth-ci-${{ github.workflow }}-${{ github.ref }}
@@ -148,9 +148,9 @@ jobs:
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
@@ -200,9 +200,9 @@ jobs:
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
@@ -245,9 +245,9 @@ jobs:
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
@@ -294,9 +294,9 @@ jobs:
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
@@ -339,9 +339,9 @@ jobs:
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
@@ -413,9 +413,9 @@ jobs:
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
@@ -486,9 +486,9 @@ jobs:
               id: aws-creds
               uses: aws-actions/configure-aws-credentials@v4
               with:
-                  aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ env.AWS_REGION }}
+                  aws-region: ${{ env.DEFAULT_AWS_REGION }}
               continue-on-error: true
 
             - name: Fetch Clerk keys from AWS Secrets Manager
