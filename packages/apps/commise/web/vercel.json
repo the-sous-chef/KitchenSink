@@ -1,6 +1,5 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "framework": "nextjs",
-    "nodeVersion": "24.x",
     "buildCommand": "NODE_OPTIONS=--max-old-space-size=7168 npx turbo run build --filter=@commise/web"
 }
