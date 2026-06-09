@@ -43,9 +43,12 @@ export class WebhooksStack extends Stack {
         const isValidStage =
             ['dev', 'staging', 'prod', 'test'].includes(deployStage) ||
             deployStage.startsWith('sandbox-') ||
-            deployStage.startsWith('mr-');
+            deployStage.startsWith('mr-') ||
+            deployStage.startsWith('pr-');
         if (!isValidStage) {
-            throw new Error(`Invalid STAGE="${deployStage}". Must be dev, staging, prod, test, or sandbox-* / mr-*.`);
+            throw new Error(
+                `Invalid STAGE="${deployStage}". Must be dev, staging, prod, test, or sandbox-* / mr-* / pr-*.`,
+            );
         }
 
         const currentFile = fileURLToPath(import.meta.url);
