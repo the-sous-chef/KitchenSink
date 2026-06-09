@@ -12,7 +12,7 @@
     },
     "packageManager": "npm@11.11.0",
     "engines": {
-        "node": ">=24.16.0"
+        "node": "24.x"
     },
     "workspaces": [
         "packages/tools/*",
