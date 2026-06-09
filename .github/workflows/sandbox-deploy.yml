@@ -28,7 +28,7 @@ env:
     NODE_VERSION: 24
     DEFAULT_AWS_REGION: ${{ vars.DEFAULT_AWS_REGION }}
     CDK_DEFAULT_REGION: ${{ vars.DEFAULT_AWS_REGION }}
-    CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT }}
+    CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
     DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
 
 jobs:
@@ -128,7 +128,7 @@ jobs:
     #               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     #               aws-region: ${{ env.DEFAULT_AWS_REGION }}
     #         - name: CDK Bootstrap
-    #           run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${DEFAULT_AWS_REGION}
+    #                         run: npx cdk bootstrap aws://${{ vars.AWS_ACCOUNT_ID }}/${DEFAULT_AWS_REGION}
     #         - name: CDK Deploy
     #           run: |
     #               STAGE=${{ env.STAGE }} \

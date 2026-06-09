@@ -89,10 +89,11 @@ jobs:
                   docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
 
             - name: CDK Bootstrap
-              run: npx cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${DEFAULT_AWS_REGION}
+              run: npx cdk bootstrap aws://${{ vars.AWS_ACCOUNT_ID }}/${DEFAULT_AWS_REGION}
 
             - name: CDK Deploy (identity service)
-              run: STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
+              run: |
+                  STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
 
             - name: CDK Deploy (identity-webhooks)
               run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never
