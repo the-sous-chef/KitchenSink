@@ -1,0 +1,34 @@
+{
+    "name": "@kitchensink/infra-global",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "lint": "eslint 'lib/**/*.ts'",
+        "typecheck": "tsc --noEmit",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "synth": "cdk synth --app 'npx tsx bin/app.ts'",
+        "deploy": "cdk deploy --app 'npx tsx bin/app.ts'"
+    },
+    "devDependencies": {
+        "@kitchensink/eslint": "*",
+        "@kitchensink/prettier": "*",
+        "@kitchensink/typescript": "*",
+        "@types/node": "^24.0.0",
+        "aws-cdk": "*",
+        "dotenv": "*",
+        "eslint": "^10.0.3",
+        "prettier": "^3.0.0",
+        "tsx": "*",
+        "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "aws-cdk-lib": "*",
+        "constructs": "*"
+    },
+    "engines": {
+        "node": "24.x"
+    }
+}

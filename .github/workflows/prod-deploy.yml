@@ -4,6 +4,7 @@ on:
     push:
         branches: [main]
         paths:
+            - 'packages/infra/global/**'
             - 'packages/services/identity/**'
             - 'packages/services/identity-webhooks/**'
             - 'packages/services/identity-webhooks/infra/**'
@@ -49,8 +50,14 @@ jobs:
             - name: Build identity service package
               run: npm run build --workspace=packages/services/identity
 
+            - name: Prepare identity service Docker image
+              run: npm run docker:prepare --workspace=packages/services/identity
+
             - name: Build webhooks package
               run: npm run build --workspace=packages/services/identity-webhooks
+
+            - name: Build global infra
+              run: npm run build --workspace=packages/infra/global
 
             - name: Build identity service infra
               run: npm run infra:build --workspace=packages/services/identity
@@ -89,16 +96,23 @@ jobs:
                   ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                   IMAGE_TAG: ${{ github.sha }}
               run: |
-                  docker build --platform linux/arm64 -f packages/services/identity/Dockerfile -t kitchensink-identity .
-                  docker tag kitchensink-identity:latest ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
-                  docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}
+                  docker buildx build --platform linux/arm64 -f packages/services/identity/Dockerfile -t ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG} --push .
 
             - name: CDK Bootstrap
               run: npx cdk bootstrap aws://${{ steps.account.outputs.id }}/${DEFAULT_AWS_REGION}
 
+            - name: CDK Deploy (global infra)
+              run: |
+                  STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/infra/global/dist/bin/app.js" --all --require-approval never
+
+            - name: Resolve Identity VPC ID
+              id: identity-vpc
+              run: |
+                  echo "vpc_id=$(aws cloudformation list-exports --query "Exports[?Name=='kitchensink-identity-network-prod:IdentityVpcId'].Value" --output text)" >> "$GITHUB_OUTPUT"
+
             - name: CDK Deploy (identity service)
               run: |
-                  STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
+                  STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} IDENTITY_VPC_ID=${{ steps.identity-vpc.outputs.vpc_id }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
 
             - name: CDK Deploy (identity-webhooks)
               run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never

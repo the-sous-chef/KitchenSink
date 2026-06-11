@@ -10,8 +10,12 @@ import {
     aws_lambda as lambda,
     aws_lambda_event_sources as lambda_event_sources,
     aws_logs as logs,
+    aws_rds as rds,
     aws_route53 as route53,
     aws_route53_targets as route53_targets,
+    aws_s3 as s3,
+    aws_secretsmanager as secretsmanager,
+    aws_sqs as sqs,
     aws_ssm as ssm,
 } from 'aws-cdk-lib';
 import { existsSync } from 'node:fs';
@@ -20,16 +24,24 @@ import { fileURLToPath } from 'node:url';
 import type { Construct } from 'constructs';
 
 import { SSM_BASE_PATHS } from './config.js';
-import type { DataStack } from './data-stack.js';
-import type { NetworkStack } from './network-stack.js';
 
 export interface WebhooksStackProps extends StackProps {
-    readonly network: NetworkStack;
-    readonly data: DataStack;
-    readonly certificate: acm.ICertificate;
-    readonly hostedZone: route53.IHostedZone;
-    readonly domainName: string;
     readonly stage: string;
+    readonly domainName: string;
+    readonly vpcId: string;
+    readonly lambdaSecurityGroupId: string;
+    readonly databaseSecurityGroupId: string;
+    readonly dbSecretArn: string;
+    readonly authSecretArn: string;
+    readonly migrationPlanSecretArn: string;
+    readonly dbInstanceIdentifier: string;
+    readonly dbEndpoint: string;
+    readonly dbPort: number;
+    readonly deletionQueueArn: string;
+    readonly mediaBucketName: string;
+    readonly archiveBucketName: string;
+    readonly hostedZoneId: string;
+    readonly zoneName: string;
 }
 
 export class WebhooksStack extends Stack {
@@ -40,6 +52,36 @@ export class WebhooksStack extends Stack {
         super(scope, id, props);
 
         const deployStage = props.stage;
+        const vpc = ec2.Vpc.fromLookup(this, 'ImportedVpc', { vpcId: props.vpcId });
+        const lambdaSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, 'ImportedLambdaSg', props.lambdaSecurityGroupId);
+        const dbCredentialsSecret = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedDbSecret', { secretCompleteArn: props.dbSecretArn });
+        const authSecretKey = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedAuthSecret', { secretCompleteArn: props.authSecretArn });
+        secretsmanager.Secret.fromSecretAttributes(this, 'ImportedMigrationSecret', { secretCompleteArn: props.migrationPlanSecretArn });
+        rds.DatabaseInstance.fromDatabaseInstanceAttributes(this, 'ImportedDatabase', {
+            instanceIdentifier: props.dbInstanceIdentifier,
+            instanceEndpointAddress: props.dbEndpoint,
+            port: props.dbPort,
+            securityGroups: [ec2.SecurityGroup.fromSecurityGroupId(this, 'ImportedDbSg', props.databaseSecurityGroupId)],
+        });
+        const deletionQueue = sqs.Queue.fromQueueArn(this, 'ImportedDeletionQueue', props.deletionQueueArn);
+        const mediaBucket = s3.Bucket.fromBucketName(this, 'ImportedMediaBucket', props.mediaBucketName);
+        const archiveBucket = s3.Bucket.fromBucketName(this, 'ImportedArchiveBucket', props.archiveBucketName);
+        const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'ImportedHostedZone', {
+            hostedZoneId: props.hostedZoneId,
+            zoneName: props.zoneName,
+        });
+        const certificate = new acm.Certificate(this, 'WebhooksCertificate', {
+            domainName: props.domainName,
+            validation: acm.CertificateValidation.fromDns(hostedZone),
+        });
+
+        const customDomain = new apigw.DomainName(this, 'IdentityApiDomain', {
+            domainName: props.domainName,
+            certificate,
+            endpointType: apigw.EndpointType.REGIONAL,
+            securityPolicy: apigw.SecurityPolicy.TLS_1_2,
+        });
+
         const isValidStage =
             ['dev', 'staging', 'prod', 'test'].includes(deployStage) ||
             deployStage.startsWith('sandbox-') ||
@@ -56,6 +98,7 @@ export class WebhooksStack extends Stack {
         const possiblePaths = [
             path.resolve(infraDir, '../../../../services/identity-webhooks/dist'),
             path.resolve(infraDir, '../../../../packages/services/identity-webhooks/dist'),
+            path.resolve(infraDir, '../../../dist'),
         ];
         const distPath = possiblePaths.find((p) => existsSync(p)) ?? possiblePaths[0];
         const runtime = lambda.Runtime.NODEJS_22_X;
@@ -66,15 +109,15 @@ export class WebhooksStack extends Stack {
 
         const commonEnv: Record<string, string> = {
             NODE_ENV: 'production',
-            DB_SECRET_ARN: props.data.dbCredentialsSecret.secretArn,
-            AUTH_SECRET_ARN: props.data.authSecretKey.secretArn,
+            DB_SECRET_ARN: dbCredentialsSecret.secretArn,
+            AUTH_SECRET_ARN: authSecretKey.secretArn,
             IDP_JWKS_URL: derived(SSM_BASE_PATHS.jwksUrl),
             IDP_ISSUER: derived(SSM_BASE_PATHS.issuer),
             IDP_AUDIENCE: derived(SSM_BASE_PATHS.audience),
-            DELETION_QUEUE_URL: props.data.deletionQueue.queueUrl,
-            DELETION_QUEUE_ARN: props.data.deletionQueue.queueArn,
-            MEDIA_BUCKET_NAME: props.data.mediaBucket.bucketName,
-            ARCHIVE_BUCKET_NAME: props.data.archiveBucket.bucketName,
+            DELETION_QUEUE_URL: deletionQueue.queueUrl,
+            DELETION_QUEUE_ARN: deletionQueue.queueArn,
+            MEDIA_BUCKET_NAME: mediaBucket.bucketName,
+            ARCHIVE_BUCKET_NAME: archiveBucket.bucketName,
         };
 
         const authorizerLogGroup = new logs.LogGroup(this, 'AuthorizerLogGroup', {
@@ -89,24 +132,28 @@ export class WebhooksStack extends Stack {
             ],
         });
         authorizerLogGroup.grantWrite(authorizerRole);
-        props.data.authSecretKey.grantRead(authorizerRole);
-        props.data.dbCredentialsSecret.grantRead(authorizerRole);
+        authSecretKey.grantRead(authorizerRole);
+        dbCredentialsSecret.grantRead(authorizerRole);
 
-        const authorizerFn = new lambda.Function(this, 'AuthorizerFunction', {
+        this.authorizerFn = new lambda.Function(this, 'AuthorizerFunction', {
             runtime,
             architecture,
             handler: 'authorizer/handler.handler',
             code: lambda.Code.fromAsset(distPath),
             role: authorizerRole,
-            vpc: props.network.vpc,
+            vpc,
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-            securityGroups: [props.network.lambdaSecurityGroup],
+            securityGroups: [lambdaSecurityGroup],
             timeout: Duration.seconds(10),
             memorySize: 256,
             environment: {
                 NODE_ENV: 'production',
-                AUTH_SECRET_ARN: props.data.authSecretKey.secretArn,
-                DB_SECRET_ARN: props.data.dbCredentialsSecret.secretArn,
+                AUTH_SECRET_ARN: authSecretKey.secretArn,
+                DB_SECRET_ARN: dbCredentialsSecret.secretArn,
+                IDP_JWKS_URL: derived(SSM_BASE_PATHS.jwksUrl),
+                IDP_ISSUER: derived(SSM_BASE_PATHS.issuer),
+                IDP_AUDIENCE: derived(SSM_BASE_PATHS.audience),
+                WEBHOOK_SECRET_ARN: authSecretKey.secretArn,
             },
             logGroup: authorizerLogGroup,
         });
@@ -123,12 +170,12 @@ export class WebhooksStack extends Stack {
             ],
         });
         webhooksLogGroup.grantWrite(webhooksRole);
-        props.data.dbCredentialsSecret.grantRead(webhooksRole);
-        props.data.authSecretKey.grantRead(webhooksRole);
-        props.data.deletionQueue.grantSendMessages(webhooksRole);
-        props.data.deletionQueue.grantConsumeMessages(webhooksRole);
-        props.data.mediaBucket.grantReadWrite(webhooksRole);
-        props.data.archiveBucket.grantReadWrite(webhooksRole);
+        dbCredentialsSecret.grantRead(webhooksRole);
+        authSecretKey.grantRead(webhooksRole);
+        deletionQueue.grantSendMessages(webhooksRole);
+        deletionQueue.grantConsumeMessages(webhooksRole);
+        mediaBucket.grantReadWrite(webhooksRole);
+        archiveBucket.grantReadWrite(webhooksRole);
 
         const webhookFn = new lambda.Function(this, 'WebhookFunction', {
             runtime,
@@ -136,32 +183,30 @@ export class WebhooksStack extends Stack {
             handler: 'handlers/identityWebhook.handler',
             code: lambda.Code.fromAsset(distPath),
             role: webhooksRole,
-            vpc: props.network.vpc,
+            vpc,
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-            securityGroups: [props.network.lambdaSecurityGroup],
+            securityGroups: [lambdaSecurityGroup],
             timeout: Duration.seconds(30),
             memorySize: 512,
             environment: {
                 ...commonEnv,
-                WEBHOOK_SECRET_ARN: props.data.authSecretKey.secretArn,
+                WEBHOOK_SECRET_ARN: authSecretKey.secretArn,
             },
             logGroup: webhooksLogGroup,
         });
 
-        const deletionWorkerFn = new lambda.Function(this, 'DeletionWorkerFunction', {
+        new lambda.Function(this, 'DeletionWorkerFunction', {
             runtime,
             architecture,
             handler: 'handlers/deletion-worker.handler',
             code: lambda.Code.fromAsset(distPath),
             role: webhooksRole,
-            vpc: props.network.vpc,
+            vpc,
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-            securityGroups: [props.network.lambdaSecurityGroup],
+            securityGroups: [lambdaSecurityGroup],
             timeout: Duration.seconds(30),
             memorySize: 512,
-            environment: {
-                ...commonEnv,
-            },
+            environment: commonEnv,
             logGroup: webhooksLogGroup,
         });
 
@@ -171,31 +216,28 @@ export class WebhooksStack extends Stack {
             handler: 'handlers/reconciliation.handler',
             code: lambda.Code.fromAsset(distPath),
             role: webhooksRole,
-            vpc: props.network.vpc,
+            vpc,
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-            securityGroups: [props.network.lambdaSecurityGroup],
-            timeout: Duration.seconds(60),
+            securityGroups: [lambdaSecurityGroup],
+            timeout: Duration.seconds(30),
             memorySize: 512,
-            environment: {
-                ...commonEnv,
-            },
+            environment: commonEnv,
             logGroup: webhooksLogGroup,
         });
 
-        deletionWorkerFn.addEventSource(
-            new lambda_event_sources.SqsEventSource(props.data.deletionQueue, {
-                batchSize: 10,
-                reportBatchItemFailures: true,
+        reconciliationFn.addEventSource(
+            new lambda_event_sources.SqsEventSource(deletionQueue, {
+                batchSize: 1,
             }),
         );
 
-        const apiLogGroup = new logs.LogGroup(this, 'ApiGatewayAccessLogGroup', {
+        const apiLogGroup = new logs.LogGroup(this, 'IdentityWebhooksApiLogGroup', {
             retention: logs.RetentionDays.ONE_MONTH,
         });
 
         const api = new apigw.RestApi(this, 'IdentityWebhooksApi', {
-            restApiName: `kitchensink-identity-webhooks-${props.stage}`,
-            description: 'Identity webhooks and user management API',
+            restApiName: `kitchensink-identity-webhooks-${deployStage}`,
+            description: 'Identity webhooks API for Clerk user events',
             deployOptions: {
                 stageName: 'v1',
                 accessLogDestination: new apigw.LogGroupLogDestination(apiLogGroup),
@@ -211,22 +253,16 @@ export class WebhooksStack extends Stack {
             },
         });
 
-        const customDomain = new apigw.DomainName(this, 'IdentityApiDomain', {
-            domainName: props.domainName,
-            certificate: props.certificate,
-            endpointType: apigw.EndpointType.REGIONAL,
-            securityPolicy: apigw.SecurityPolicy.TLS_1_2,
-        });
-        customDomain.addBasePathMapping(api, { stage: api.deploymentStage });
+        customDomain.addBasePathMapping(api, { basePath: 'v1', stage: api.deploymentStage });
 
         new route53.ARecord(this, 'IdentityApiAliasRecord', {
-            zone: props.hostedZone,
+            zone: hostedZone,
             recordName: props.domainName,
             target: route53.RecordTarget.fromAlias(new route53_targets.ApiGatewayDomain(customDomain)),
         });
 
         const requestAuthorizer = new apigw.RequestAuthorizer(this, 'IdentityRequestAuthorizer', {
-            handler: authorizerFn,
+            handler: this.authorizerFn,
             identitySources: [apigw.IdentitySource.header('Authorization')],
             resultsCacheTtl: Duration.seconds(300),
         });
@@ -240,8 +276,7 @@ export class WebhooksStack extends Stack {
             authorizationType: apigw.AuthorizationType.NONE,
         });
 
-        const v1Resource = api.root.addResource('v1');
-        const usersResource = v1Resource.addResource('users');
+        const usersResource = api.root.addResource('users');
 
         const upsertResource = usersResource.addResource('upsert');
         upsertResource.addMethod('POST', webhookIntegration, {
@@ -249,14 +284,14 @@ export class WebhooksStack extends Stack {
             authorizationType: apigw.AuthorizationType.CUSTOM,
         });
 
-        const reconcileResource = usersResource.addResource('reconcile');
-        reconcileResource.addMethod('GET', new apigw.LambdaIntegration(reconciliationFn), {
+        const deletionResource = usersResource.addResource('deletion');
+        deletionResource.addMethod('POST', webhookIntegration, {
             authorizer: requestAuthorizer,
             authorizationType: apigw.AuthorizationType.CUSTOM,
         });
 
-        const subResource = usersResource.addResource('{sub}');
-        subResource.addMethod('DELETE', new apigw.LambdaIntegration(deletionWorkerFn), {
+        const reconciliationResource = usersResource.addResource('reconciliation');
+        reconciliationResource.addMethod('POST', webhookIntegration, {
             authorizer: requestAuthorizer,
             authorizationType: apigw.AuthorizationType.CUSTOM,
         });
@@ -278,47 +313,16 @@ export class WebhooksStack extends Stack {
 
         this.apiUrl = api.url;
 
-        const stage = props.stage;
-        const ssmStage = stage === 'prod' ? 'prod' : 'sandbox';
-        const derivedApiUrl = `https://${props.domainName}/v1/webhooks/users`;
-
-        new ssm.StringParameter(this, 'SsmApiUrl', {
-            parameterName: `/kitchensink/identity/${ssmStage}/webhooks/api-url`,
-            stringValue: derivedApiUrl,
+        new ssm.StringParameter(this, 'SsmWebhooksApiUrl', {
+            parameterName: `/kitchensink/identity/${deployStage}/webhooks/api/url`,
+            stringValue: this.apiUrl,
         });
 
-        new ssm.StringParameter(this, 'SsmWebhookUrl', {
-            parameterName: `/kitchensink/identity/${stage}/webhooks/webhook-url`,
-            stringValue: derivedApiUrl,
+        new CfnOutput(this, 'WebhooksApiUrl', {
+            value: this.apiUrl,
         });
-
-        new ssm.StringParameter(this, 'SsmAuthorizerFunctionArn', {
-            parameterName: `/kitchensink/identity/${ssmStage}/webhooks/authorizer-function-arn`,
-            stringValue: authorizerFn.functionArn,
+        new CfnOutput(this, 'AuthorizerFnArn', {
+            value: this.authorizerFn.functionArn,
         });
-
-        new ssm.StringParameter(this, 'SsmWebhooksFunctionArn', {
-            parameterName: `/kitchensink/identity/${ssmStage}/webhooks/webhooks-function-arn`,
-            stringValue: webhookFn.functionArn,
-        });
-
-        new CfnOutput(this, 'IdentityWebhooksApiUrl', {
-            value: api.url,
-            exportName: `${this.stackName}:IdentityWebhooksApiUrl`,
-        });
-        new CfnOutput(this, 'IdentityWebhooksApiId', {
-            value: api.restApiId,
-            exportName: `${this.stackName}:IdentityWebhooksApiId`,
-        });
-        new CfnOutput(this, 'IdentityAuthorizerFunctionArn', {
-            value: authorizerFn.functionArn,
-            exportName: `${this.stackName}:IdentityAuthorizerFunctionArn`,
-        });
-        new CfnOutput(this, 'IdentityWebhooksFunctionArn', {
-            value: webhookFn.functionArn,
-            exportName: `${this.stackName}:IdentityWebhooksFunctionArn`,
-        });
-
-        this.authorizerFn = authorizerFn;
     }
 }

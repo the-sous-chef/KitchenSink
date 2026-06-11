@@ -1,8 +1,17 @@
 import { z } from 'zod';
 
-const DatabaseConfigSchema = z.object({
-    DATABASE_URL: z.string().url(),
-});
+const DatabaseConfigSchema = z.union([
+    z.object({
+        DATABASE_URL: z.string().url(),
+    }),
+    z.object({
+        DB_HOST: z.string(),
+        DB_PORT: z.string().transform(Number).pipe(z.number().int().positive()),
+        DB_NAME: z.string(),
+        DB_USERNAME: z.string(),
+        DB_PASSWORD: z.string(),
+    }),
+]);
 
 const QueueConfigSchema = z.object({
     DELETION_QUEUE_URL: z.string().url(),
@@ -16,9 +25,8 @@ const AppConfigSchema = z.object({
 
 export const EnvironmentSchema = z.object({
     ...AppConfigSchema.shape,
-    ...DatabaseConfigSchema.shape,
     ...QueueConfigSchema.shape,
-});
+}).and(DatabaseConfigSchema);
 
 export type Environment = z.infer<typeof EnvironmentSchema>;
 

@@ -56,12 +56,14 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .sisyphus/
 .playwright-mcp
 .specify
+.omo
 
 # localstack CI artifacts
 localstack.log
 
 # CDK build output
 infra/cdk/cdk.out
+cdk.out/
 
 # serverless framework cache
 .serverless/

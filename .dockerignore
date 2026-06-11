@@ -2,3 +2,4 @@
 !node_modules
 !packages/services/identity/node_modules
 !packages/services/identity/dist
+!packages/services/identity/prod.package.json

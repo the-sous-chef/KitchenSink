@@ -5,12 +5,16 @@ import type { AuthorizerContext } from '../../types/index.js';
 
 const PUBLIC_PATHS = new Set(['/health']);
 
+function getPath(req: Request): string {
+    return req.originalUrl?.split('?')[0]?.replace(/\/$/, '') || '/';
+}
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
     public use(req: Request & { user?: AuthorizerContext }, _res: Response, next: NextFunction): void {
-        if (PUBLIC_PATHS.has(req.path)) {
+        const path = getPath(req);
+        if (PUBLIC_PATHS.has(path) || PUBLIC_PATHS.has(req.path)) {
             next();
-
             return;
         }
 

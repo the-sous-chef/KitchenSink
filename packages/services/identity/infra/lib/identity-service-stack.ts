@@ -1,8 +1,10 @@
 import {
     CfnOutput,
     Duration,
+    Fn,
     Stack,
     type StackProps,
+    aws_certificatemanager as acm,
     aws_cloudwatch as cloudwatch,
     aws_ec2 as ec2,
     aws_ecr as ecr,
@@ -10,40 +12,101 @@ import {
     aws_elasticloadbalancingv2 as elbv2,
     aws_iam as iam,
     aws_logs as logs,
+    aws_rds as rds,
+    aws_route53 as route53,
+    aws_route53_targets as route53_targets,
+    aws_s3 as s3,
+    aws_secretsmanager as secretsmanager,
+    aws_sqs as sqs,
 } from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
 
-import type { DataStack } from './data-stack.js';
-import type { NetworkStack } from './network-stack.js';
-
 export interface IdentityServiceStackProps extends StackProps {
-    readonly network: NetworkStack;
-    readonly data: DataStack;
+    readonly stage: string;
+    readonly domainName: string;
     readonly imageTag: string;
     readonly desiredCount: number;
+    readonly vpcId: string;
 }
 
 /**
- * @implements REQ-018 REQ-019 REQ-020 REQ-021 REQ-022 REQ-023 REQ-024 REQ-035 REQ-036 REQ-037 REQ-038 REQ-050 FR-018 FR-019 FR-020 FR-021 FR-022 FR-023 FR-024 FR-035 FR-036 FR-037 FR-038 ARCH-015 ARCH-016 ARCH-026 ARCH-031 MOD-015 MOD-016 MOD-026 MOD-031
+ * @implements REQ-018..REQ-026 REQ-032..REQ-038 REQ-050 FR-018..FR-026 FR-032..FR-038 FR-041..FR-044 ARCH-014..ARCH-019 ARCH-032 MOD-014..MOD-019 MOD-032
  */
 export class IdentityServiceStack extends Stack {
+    public readonly serviceUrl: string;
+
     public constructor(scope: Construct, id: string, props: IdentityServiceStackProps) {
         super(scope, id, props);
 
-        const imageTag = props.imageTag;
-        const desiredCount = props.desiredCount;
-        const repository = new ecr.Repository(this, 'IdentityServiceRepository', {
-            imageScanOnPush: true,
-            imageTagMutability: ecr.TagMutability.MUTABLE,
-            lifecycleRules: [
-                {
-                    maxImageCount: 25,
-                },
-            ],
+        const { stage, imageTag, desiredCount, vpcId, domainName } = props;
+
+        const vpc = ec2.Vpc.fromLookup(this, 'ImportedVpc', {
+            vpcId,
         });
 
+        const albSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(
+            this,
+            'ImportedAlbSg',
+            Fn.importValue(`kitchensink-identity-network-${stage}:IdentityAlbSecurityGroupId`),
+        );
+
+        const serviceSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(
+            this,
+            'ImportedServiceSg',
+            Fn.importValue(`kitchensink-identity-network-${stage}:IdentityServiceSecurityGroupId`),
+        );
+
+        const dbCredentialsSecret = secretsmanager.Secret.fromSecretAttributes(
+            this,
+            'ImportedDbSecret',
+            { secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseSecretArn`) },
+        );
+
+        const authSecretKey = secretsmanager.Secret.fromSecretAttributes(
+            this,
+            'ImportedAuthSecret',
+            { secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentitySecretArn`) },
+        );
+
+        const migrationPlanSecret = secretsmanager.Secret.fromSecretAttributes(
+            this,
+            'ImportedMigrationSecret',
+            { secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityMigrationPlanSecretArn`) },
+        );
+
+        const database = rds.DatabaseInstance.fromDatabaseInstanceAttributes(this, 'ImportedDatabase', {
+            instanceIdentifier: `kitchensink-identity-${stage}`,
+            instanceEndpointAddress: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseEndpoint`),
+            port: Number(Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabasePort`)),
+            securityGroups: [ec2.SecurityGroup.fromSecurityGroupId(
+                this,
+                'ImportedDbSg',
+                Fn.importValue(`kitchensink-identity-network-${stage}:IdentityDatabaseSecurityGroupId`),
+            )],
+        });
+
+        const deletionQueue = sqs.Queue.fromQueueArn(
+            this,
+            'ImportedDeletionQueue',
+            Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDeletionQueueArn`),
+        );
+
+        const mediaBucket = s3.Bucket.fromBucketName(
+            this,
+            'ImportedMediaBucket',
+            Fn.importValue(`kitchensink-identity-data-${stage}:IdentityMediaBucketName`),
+        );
+
+        const archiveBucket = s3.Bucket.fromBucketName(
+            this,
+            'ImportedArchiveBucket',
+            Fn.importValue(`kitchensink-identity-data-${stage}:IdentityArchiveBucketName`),
+        );
+
+        const repository = ecr.Repository.fromRepositoryName(this, 'IdentityServiceRepository', 'kitchensink-identity');
+
         const cluster = new ecs.Cluster(this, 'IdentityServiceCluster', {
-            vpc: props.network.vpc,
+            vpc,
             containerInsightsV2: ecs.ContainerInsights.ENHANCED,
         });
 
@@ -54,17 +117,22 @@ export class IdentityServiceStack extends Stack {
             ],
         });
 
+        taskExecutionRole.addToPolicy(new iam.PolicyStatement({
+            actions: ['secretsmanager:GetSecretValue'],
+            resources: ['*'],
+        }));
+
         const taskRole = new iam.Role(this, 'IdentityTaskRole', {
             assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
             description: 'Least-privilege runtime role for identity service',
         });
 
-        props.data.dbCredentialsSecret.grantRead(taskRole);
-        props.data.authSecretKey.grantRead(taskRole);
-        props.data.migrationPlanSecret.grantRead(taskRole);
-        props.data.deletionQueue.grantConsumeMessages(taskRole);
-        props.data.mediaBucket.grantReadWrite(taskRole);
-        props.data.archiveBucket.grantReadWrite(taskRole);
+        dbCredentialsSecret.grantRead(taskRole);
+        authSecretKey.grantRead(taskRole);
+        migrationPlanSecret.grantRead(taskRole);
+        deletionQueue.grantConsumeMessages(taskRole);
+        mediaBucket.grantReadWrite(taskRole);
+        archiveBucket.grantReadWrite(taskRole);
 
         const taskDefinition = new ecs.FargateTaskDefinition(this, 'IdentityTaskDefinition', {
             cpu: 512,
@@ -90,18 +158,18 @@ export class IdentityServiceStack extends Stack {
             environment: {
                 NODE_ENV: 'production',
                 PORT: '3000',
-                DB_HOST: props.data.database.dbInstanceEndpointAddress,
-                DB_PORT: props.data.database.dbInstanceEndpointPort,
-                DB_NAME: props.data.databaseName,
-                DELETION_QUEUE_URL: props.data.deletionQueue.queueUrl,
-                MEDIA_BUCKET_NAME: props.data.mediaBucket.bucketName,
-                ARCHIVE_BUCKET_NAME: props.data.archiveBucket.bucketName,
-                AUTH_SECRET_ARN: props.data.authSecretKey.secretArn,
+                DB_HOST: database.dbInstanceEndpointAddress,
+                DB_PORT: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabasePort`),
+                DB_NAME: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseName`),
+                DELETION_QUEUE_URL: deletionQueue.queueUrl,
+                MEDIA_BUCKET_NAME: mediaBucket.bucketName,
+                ARCHIVE_BUCKET_NAME: archiveBucket.bucketName,
+                AUTH_SECRET_ARN: authSecretKey.secretArn,
             },
             secrets: {
-                DB_USERNAME: ecs.Secret.fromSecretsManager(props.data.dbCredentialsSecret, 'username'),
-                DB_PASSWORD: ecs.Secret.fromSecretsManager(props.data.dbCredentialsSecret, 'password'),
-                AUTH_PUBLISHABLE_KEY: ecs.Secret.fromSecretsManager(props.data.authSecretKey, 'PUBLISHABLE_KEY'),
+                DB_USERNAME: ecs.Secret.fromSecretsManager(dbCredentialsSecret, 'username'),
+                DB_PASSWORD: ecs.Secret.fromSecretsManager(dbCredentialsSecret, 'password'),
+                AUTH_PUBLISHABLE_KEY: ecs.Secret.fromSecretsManager(authSecretKey, 'PUBLISHABLE_KEY'),
             },
             portMappings: [
                 {
@@ -111,9 +179,9 @@ export class IdentityServiceStack extends Stack {
             healthCheck: {
                 command: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1'],
                 interval: Duration.seconds(30),
-                timeout: Duration.seconds(5),
+                timeout: Duration.seconds(10),
                 retries: 3,
-                startPeriod: Duration.seconds(30),
+                startPeriod: Duration.seconds(60),
             },
         });
 
@@ -125,10 +193,10 @@ export class IdentityServiceStack extends Stack {
             vpcSubnets: {
                 subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
             },
-            securityGroups: [props.network.serviceSecurityGroup],
+            securityGroups: [serviceSecurityGroup],
             minHealthyPercent: 50,
             maxHealthyPercent: 200,
-            healthCheckGracePeriod: Duration.seconds(60),
+            healthCheckGracePeriod: Duration.seconds(120),
             circuitBreaker: {
                 rollback: true,
             },
@@ -144,34 +212,75 @@ export class IdentityServiceStack extends Stack {
             scaleOutCooldown: Duration.minutes(1),
         });
 
+        const isProd = stage === 'prod';
+        const subdomain = isProd ? 'identity' : `identity.${stage}`;
+        const serviceDomain = `${subdomain}.${domainName}`;
+
+        const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'ImportedHostedZone', {
+            hostedZoneId: Fn.importValue(`kitchensink-identity-domain-${stage}:HostedZoneId`),
+            zoneName: domainName,
+        });
+
+        const certificate = acm.Certificate.fromCertificateArn(
+            this,
+            'ImportedCertificate',
+            Fn.importValue(`kitchensink-identity-domain-${stage}:CertificateArn`),
+        );
+
         const loadBalancer = new elbv2.ApplicationLoadBalancer(this, 'IdentityServiceAlb', {
-            vpc: props.network.vpc,
+            vpc,
             internetFacing: true,
-            securityGroup: props.network.albSecurityGroup,
+            securityGroup: albSecurityGroup,
             vpcSubnets: {
                 subnetType: ec2.SubnetType.PUBLIC,
             },
         });
 
-        const listener = loadBalancer.addListener('IdentityServiceListener', {
-            port: 80,
-            open: true,
-        });
-
-        const targetGroup = listener.addTargets('IdentityServiceTargets', {
+        const targetGroup = new elbv2.ApplicationTargetGroup(this, 'IdentityServiceTargets', {
+            vpc,
             port: 3000,
             protocol: elbv2.ApplicationProtocol.HTTP,
+            targetType: elbv2.TargetType.IP,
             targets: [service.loadBalancerTarget({ containerName: 'IdentityServiceContainer', containerPort: 3000 })],
             healthCheck: {
                 enabled: true,
                 path: '/health',
                 healthyHttpCodes: '200',
                 interval: Duration.seconds(30),
-                timeout: Duration.seconds(5),
+                timeout: Duration.seconds(10),
                 healthyThresholdCount: 2,
-                unhealthyThresholdCount: 3,
+                unhealthyThresholdCount: 10,
             },
         });
+
+        const httpsListener = loadBalancer.addListener('IdentityServiceHttpsListener', {
+            port: 443,
+            certificates: [certificate],
+            open: true,
+        });
+        httpsListener.addTargetGroups('IdentityServiceHttpsTargetGroup', {
+            targetGroups: [targetGroup],
+        });
+
+        const httpListener = loadBalancer.addListener('IdentityServiceListener', {
+            port: 80,
+            open: true,
+        });
+        httpListener.addAction('HttpRedirect', {
+            action: elbv2.ListenerAction.redirect({
+                protocol: 'HTTPS',
+                port: '443',
+                permanent: true,
+            }),
+        });
+
+        new route53.ARecord(this, 'IdentityServiceAliasRecord', {
+            zone: hostedZone,
+            recordName: subdomain,
+            target: route53.RecordTarget.fromAlias(new route53_targets.LoadBalancerTarget(loadBalancer)),
+        });
+
+        this.serviceUrl = `https://${serviceDomain}`;
 
         new cloudwatch.Alarm(this, 'IdentityAlb5xxAlarm', {
             metric: loadBalancer.metrics.httpCodeTarget(elbv2.HttpCodeTarget.TARGET_5XX_COUNT, {
@@ -224,7 +333,7 @@ export class IdentityServiceStack extends Stack {
             exportName: `${this.stackName}:IdentityAlbDnsName`,
         });
         new CfnOutput(this, 'IdentityAlbListenerArn', {
-            value: listener.listenerArn,
+            value: httpsListener.listenerArn,
             exportName: `${this.stackName}:IdentityAlbListenerArn`,
         });
         new CfnOutput(this, 'IdentityAlbTargetGroupArn', {
@@ -234,6 +343,10 @@ export class IdentityServiceStack extends Stack {
         new CfnOutput(this, 'IdentityServiceLogGroupName', {
             value: logGroup.logGroupName,
             exportName: `${this.stackName}:IdentityServiceLogGroupName`,
+        });
+        new CfnOutput(this, 'IdentityServiceUrl', {
+            value: this.serviceUrl,
+            exportName: `${this.stackName}:IdentityServiceUrl`,
         });
     }
 }

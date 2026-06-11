@@ -20,10 +20,11 @@
         "start": "node dist/main.js",
         "test": "vitest run",
         "test:e2e": "vitest run --config vitest.e2e.config.ts",
-        "lint": "eslint .",
+        "lint": "eslint 'src/**/*.ts'",
         "typecheck": "tsc --noEmit",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
+        "docker:prepare": "node docker-prepare.js",
         "docker:build": "docker build -t kitchensink-identity .",
         "docker:push": "aws ecr get-login-password | docker login --username AWS --password-stdin ${ECR_REGISTRY} && docker push ${ECR_REGISTRY}/kitchensink-identity:${IMAGE_TAG}"
     },

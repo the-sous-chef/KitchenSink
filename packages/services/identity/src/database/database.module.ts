@@ -7,6 +7,19 @@ const { Pool } = pg;
 
 export const DrizzleProvider = 'DRIZZLE_CONNECTION';
 
+function buildConnectionString(): string {
+    if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+    const host = process.env.DB_HOST;
+    const port = process.env.DB_PORT;
+    const database = process.env.DB_NAME;
+    const user = process.env.DB_USERNAME;
+    const password = process.env.DB_PASSWORD;
+    if (!host || !port || !database || !user || !password) {
+        throw new Error('Missing required database configuration. Provide DATABASE_URL or DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD.');
+    }
+    return `postgresql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}?sslmode=require`;
+}
+
 @Global()
 @Module({
     providers: [
@@ -14,7 +27,7 @@ export const DrizzleProvider = 'DRIZZLE_CONNECTION';
             provide: DrizzleProvider,
             async useFactory() {
                 const pool = new Pool({
-                    connectionString: process.env.DATABASE_URL,
+                    connectionString: buildConnectionString(),
                     max: 20,
                     idleTimeoutMillis: 30_000,
                     connectionTimeoutMillis: 5_000,

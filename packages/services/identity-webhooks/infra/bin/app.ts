@@ -1,16 +1,11 @@
+import { Fn, App } from 'aws-cdk-lib';
 import { config as dotenvConfig } from 'dotenv';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { App } from 'aws-cdk-lib';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenvConfig({ path: join(__dirname, '../../.env') });
 
-import { ApiStack } from '../lib/api-stack.js';
-import { DataStack } from '../lib/data-stack.js';
-import { DomainStack } from '../lib/domain-stack.js';
-import { IdentityServiceStack } from '../lib/identity-service-stack.js';
-import { NetworkStack } from '../lib/network-stack.js';
 import { WebhooksStack } from '../lib/webhooks-stack.js';
 
 const app = new App();
@@ -27,51 +22,30 @@ const env = account ? { account, region } : { region };
 const isProd = stage === 'prod';
 const isSandbox = stage.startsWith('sandbox-') || stage.startsWith('mr-') || stage.startsWith('pr-');
 
-const networkStack = new NetworkStack(app, `IdentityNetwork-${stage}`, {
-    env,
-    stackName: `kitchensink-identity-network-${stage}`,
-});
+const vpcId = process.env.IDENTITY_VPC_ID;
+if (!vpcId) {
+    throw new Error('IDENTITY_VPC_ID env var is required');
+}
 
-const dataStack = new DataStack(app, `IdentityData-${stage}`, {
-    env,
-    stackName: `kitchensink-identity-data-${stage}`,
-    network: networkStack,
-    stage,
-});
-
-const domainStack = new DomainStack(app, `IdentityDomain-${stage}`, {
-    env,
-    stackName: `kitchensink-identity-domain-${stage}`,
-    domainName,
-});
-
-const webhooksStack = new WebhooksStack(app, `IdentityWebhooks-${stage}`, {
+new WebhooksStack(app, `IdentityWebhooks-${stage}`, {
     env,
     stackName: `kitchensink-identity-webhooks-${stage}`,
-    network: networkStack,
-    data: dataStack,
-    certificate: domainStack.certificate,
-    hostedZone: domainStack.hostedZone,
-    domainName: (isProd ? 'identity' : isSandbox ? 'identity.sandbox' : 'identity.dev') + `.${domainName}`,
     stage,
-});
-
-const serviceStack = new IdentityServiceStack(app, `IdentityService-${stage}`, {
-    env,
-    stackName: `kitchensink-identity-service-${stage}`,
-    network: networkStack,
-    data: dataStack,
-    stage,
-});
-
-new ApiStack(app, `IdentityApi-${stage}`, {
-    env,
-    stackName: `kitchensink-identity-api-${stage}`,
-    network: networkStack,
-    data: dataStack,
-    serviceUrl: serviceStack.serviceUrl,
-    stage,
-    authorizerFn: webhooksStack.authorizerFn,
+    vpcId,
+    domainName: (isProd ? 'registration.identity' : isSandbox ? 'registration.identity.sandbox' : 'registration.identity.dev') + `.${domainName}`,
+    lambdaSecurityGroupId: Fn.importValue(`kitchensink-identity-network-${stage}:IdentityLambdaSecurityGroupId`),
+    databaseSecurityGroupId: Fn.importValue(`kitchensink-identity-network-${stage}:IdentityDatabaseSecurityGroupId`),
+    dbSecretArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseSecretArn`),
+    authSecretArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentitySecretArn`),
+    migrationPlanSecretArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityMigrationPlanSecretArn`),
+    dbInstanceIdentifier: `kitchensink-identity-${stage}`,
+    dbEndpoint: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseEndpoint`),
+    dbPort: Number(Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabasePort`)),
+    deletionQueueArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDeletionQueueArn`),
+    mediaBucketName: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityMediaBucketName`),
+    archiveBucketName: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityArchiveBucketName`),
+    hostedZoneId: Fn.importValue(`kitchensink-identity-domain-${stage}:HostedZoneId`),
+    zoneName: domainName,
 });
 
 app.synth();

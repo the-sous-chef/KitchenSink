@@ -10,20 +10,12 @@ import {
 } from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
 
-import type { DataStack } from './data-stack.js';
-import type { NetworkStack } from './network-stack.js';
-
 export interface ApiStackProps extends StackProps {
-    readonly network: NetworkStack;
-    readonly data: DataStack;
     readonly serviceUrl: string;
     readonly stage: string;
     readonly authorizerFn: lambda.IFunction;
 }
 
-/**
- * @implements REQ-039 REQ-040 REQ-042 REQ-050 FR-038..FR-043 ARCH-009 ARCH-032 MOD-009 MOD-032
- */
 export class ApiStack extends Stack {
     public readonly apiUrl: string;
 
