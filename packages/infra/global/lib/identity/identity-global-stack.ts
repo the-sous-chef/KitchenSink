@@ -1,7 +1,4 @@
-import {
-    Stack,
-    type StackProps,
-} from 'aws-cdk-lib';
+import { Stack, type StackProps } from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
 
 import { DataStack } from './data-stack.js';

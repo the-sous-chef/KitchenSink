@@ -10,9 +10,7 @@ const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 const rewrittenExports = {};
 for (const [key, value] of Object.entries(pkg.exports || {})) {
     if (typeof value === 'string' && value.startsWith('./src/')) {
-        rewrittenExports[key] = value
-            .replace(/^\.\/src\//, './dist/src/')
-            .replace(/\.ts$/, '.js');
+        rewrittenExports[key] = value.replace(/^\.\/src\//, './dist/src/').replace(/\.ts$/, '.js');
     } else {
         rewrittenExports[key] = value;
     }

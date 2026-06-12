@@ -77,10 +77,9 @@ export function createConfig(tsconfigPath = './tsconfig.json', tsconfigRootDir =
                 'no-restricted-syntax': [
                     'error',
                     {
-                        selector:
-                            'ImportDeclaration[source.value=/\\.tsx?$/]',
+                        selector: 'ImportDeclaration[source.value=/\\.tsx?$/]',
                         message:
-                            "Do not use .ts or .tsx extensions in import paths. Use .js or .jsx extensions instead.",
+                            'Do not use .ts or .tsx extensions in import paths. Use .js or .jsx extensions instead.',
                     },
                 ],
             },
