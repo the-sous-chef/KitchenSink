@@ -30,6 +30,13 @@ export const isDeniedKey = (key: string): boolean => DENYLIST.has(key.toLowerCas
 
 export const looksLikeBearerToken = (value: string): boolean => BEARER_PATTERN.test(value);
 
+const EMAIL_PATTERN = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+const BEARER_GLOBAL = /[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g;
+
+/** Redact email- and bearer-token-shaped substrings from free text (error messages, log bodies). */
+export const scrubText = (text: string): string =>
+    text.replace(BEARER_GLOBAL, REDACTED).replace(EMAIL_PATTERN, REDACTED);
+
 const scrubUnknown = (value: unknown): unknown => {
     if (typeof value === 'string') {
         return looksLikeBearerToken(value) ? REDACTED : value;
@@ -55,6 +62,8 @@ const scrubUnknown = (value: unknown): unknown => {
 export const scrubAttributes = <T>(value: T): T => scrubUnknown(value) as T;
 
 interface ScrubbableEvent {
+    message?: string;
+    exception?: { values?: Array<{ value?: string }> };
     extra?: Record<string, unknown>;
     contexts?: Record<string, unknown>;
     tags?: Record<string, unknown>;
@@ -63,6 +72,18 @@ interface ScrubbableEvent {
 }
 
 export const scrubEvent = <T extends ScrubbableEvent>(event: T): T => {
+    if (typeof event.message === 'string') {
+        event.message = scrubText(event.message);
+    }
+
+    if (event.exception?.values) {
+        for (const entry of event.exception.values) {
+            if (typeof entry.value === 'string') {
+                entry.value = scrubText(entry.value);
+            }
+        }
+    }
+
     if (event.extra) {
         event.extra = scrubAttributes(event.extra);
     }
@@ -89,12 +110,17 @@ export const scrubEvent = <T extends ScrubbableEvent>(event: T): T => {
 
 interface ScrubbableLog {
     level?: string;
+    message?: string;
     attributes?: Record<string, unknown>;
 }
 
 export const scrubLog = <T extends ScrubbableLog>(log: T): T | null => {
     if (log.level === 'debug') {
         return null;
+    }
+
+    if (typeof log.message === 'string') {
+        log.message = scrubText(log.message);
     }
 
     if (log.attributes) {

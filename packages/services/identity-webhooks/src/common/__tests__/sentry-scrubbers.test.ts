@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { isDeniedKey, looksLikeBearerToken, scrubAttributes, scrubEvent } from '../sentry-scrubbers.js';
+import {
+    isDeniedKey,
+    looksLikeBearerToken,
+    scrubEvent,
+    scrubLog,
+    scrubText,
+    scrubAttributes,
+} from '../sentry-scrubbers.js';
 
 describe('sentry-scrubbers', () => {
     describe('isDeniedKey', () => {
@@ -55,6 +62,38 @@ describe('sentry-scrubbers', () => {
             expect(out.user?.id).toBe('u1');
             expect(out.user?.['email']).toBe('[redacted]');
             expect(out.user?.['name']).toBe('[redacted]');
+        });
+    });
+
+    describe('scrubText', () => {
+        it('redacts email and bearer-shaped substrings inside free text', () => {
+            expect(scrubText('contact me at a@b.com please')).toBe('contact me at [redacted] please');
+            expect(scrubText('token aaaaaaaa.bbbbbbbb.cccccccc rejected')).toBe('token [redacted] rejected');
+            expect(scrubText('nothing sensitive here')).toBe('nothing sensitive here');
+        });
+    });
+
+    describe('scrubEvent message + exception', () => {
+        it('redacts PII in the event message and exception values', () => {
+            const event = {
+                message: 'failed for a@b.com',
+                exception: { values: [{ value: 'token aaaaaaaa.bbbbbbbb.cccccccc invalid' }] },
+            } as unknown as Parameters<typeof scrubEvent>[0];
+
+            const out = scrubEvent(event);
+
+            expect(out.message).toBe('failed for [redacted]');
+            expect(out.exception?.values?.[0]?.value).toBe('token [redacted] invalid');
+        });
+    });
+
+    describe('scrubLog', () => {
+        it('drops debug logs and redacts the message body + attributes', () => {
+            expect(scrubLog({ level: 'debug', message: 'x' })).toBeNull();
+
+            const out = scrubLog({ level: 'info', message: 'user a@b.com synced', attributes: { token: 'x' } });
+            expect(out?.message).toBe('user [redacted] synced');
+            expect(out?.attributes?.['token']).toBe('[redacted]');
         });
     });
 });

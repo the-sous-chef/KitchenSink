@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/aws-serverless';
 import type { Handler } from 'aws-lambda';
 
-import { scrubAttributes, scrubEvent } from './sentry-scrubbers.js';
+import { scrubEvent, scrubLog } from './sentry-scrubbers.js';
 
 /**
  * Observability for the identity-webhooks Lambdas.
@@ -37,17 +37,7 @@ if (sentryDsn) {
 
             return scrubbed;
         },
-        beforeSendLog: (log) => {
-            if (log.level === 'debug') {
-                return null;
-            }
-
-            if (log.attributes) {
-                log.attributes = scrubAttributes(log.attributes);
-            }
-
-            return log;
-        },
+        beforeSendLog: scrubLog,
     });
 }
 

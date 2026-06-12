@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/nestjs';
 
-import { scrubAttributes, scrubEvent } from './observability/sentry-scrubbers.js';
+import { scrubEvent, scrubLog } from './observability/sentry-scrubbers.js';
 
 /**
  * Sentry initialization for the identity service (KTD3).
@@ -22,16 +22,6 @@ if (sentryDsn) {
         enableLogs: true,
         sendDefaultPii: false,
         beforeSend: scrubEvent,
-        beforeSendLog: (log) => {
-            if (log.level === 'debug') {
-                return null;
-            }
-
-            if (log.attributes) {
-                log.attributes = scrubAttributes(log.attributes);
-            }
-
-            return log;
-        },
+        beforeSendLog: scrubLog,
     });
 }
