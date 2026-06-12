@@ -9,5 +9,10 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|public/).*)', '/(api|trpc)(.*)'],
+    // `sentry-tunnel` is excluded so Clerk middleware never intercepts Sentry's tunnel route — a
+    // known Clerk + @sentry/nextjs interaction that breaks middleware detection (U9 / KTD pitfall).
+    matcher: [
+        '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|public/|sentry-tunnel).*)',
+        '/(api|trpc)(.*)',
+    ],
 };
