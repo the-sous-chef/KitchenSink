@@ -7,6 +7,8 @@ export const SSM_BASE_PATHS = {
     jwksUrl: '/kitchensink/clerk/jwks-url',
     issuer: '/kitchensink/clerk/issuer',
     audience: '/kitchensink/clerk/audience',
+    sentryWebhookDsn: '/kitchensink/sentry/webhook-dsn',
+    logDrainDsn: '/kitchensink/sentry/log-drain-dsn',
 } as const;
 
 export function getAuthSecretName(stage: string): string {

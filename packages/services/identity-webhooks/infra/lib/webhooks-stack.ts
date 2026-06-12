@@ -1,6 +1,7 @@
 import {
     CfnOutput,
     Duration,
+    Fn,
     Stack,
     type StackProps,
     aws_apigateway as apigw,
@@ -10,6 +11,7 @@ import {
     aws_lambda as lambda,
     aws_lambda_event_sources as lambda_event_sources,
     aws_logs as logs,
+    aws_logs_destinations as logsDestinations,
     aws_rds as rds,
     aws_route53 as route53,
     aws_route53_targets as route53_targets,
@@ -53,15 +55,27 @@ export class WebhooksStack extends Stack {
 
         const deployStage = props.stage;
         const vpc = ec2.Vpc.fromLookup(this, 'ImportedVpc', { vpcId: props.vpcId });
-        const lambdaSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, 'ImportedLambdaSg', props.lambdaSecurityGroupId);
-        const dbCredentialsSecret = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedDbSecret', { secretCompleteArn: props.dbSecretArn });
-        const authSecretKey = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedAuthSecret', { secretCompleteArn: props.authSecretArn });
-        secretsmanager.Secret.fromSecretAttributes(this, 'ImportedMigrationSecret', { secretCompleteArn: props.migrationPlanSecretArn });
+        const lambdaSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(
+            this,
+            'ImportedLambdaSg',
+            props.lambdaSecurityGroupId,
+        );
+        const dbCredentialsSecret = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedDbSecret', {
+            secretCompleteArn: props.dbSecretArn,
+        });
+        const authSecretKey = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedAuthSecret', {
+            secretCompleteArn: props.authSecretArn,
+        });
+        secretsmanager.Secret.fromSecretAttributes(this, 'ImportedMigrationSecret', {
+            secretCompleteArn: props.migrationPlanSecretArn,
+        });
         rds.DatabaseInstance.fromDatabaseInstanceAttributes(this, 'ImportedDatabase', {
             instanceIdentifier: props.dbInstanceIdentifier,
             instanceEndpointAddress: props.dbEndpoint,
             port: props.dbPort,
-            securityGroups: [ec2.SecurityGroup.fromSecurityGroupId(this, 'ImportedDbSg', props.databaseSecurityGroupId)],
+            securityGroups: [
+                ec2.SecurityGroup.fromSecurityGroupId(this, 'ImportedDbSg', props.databaseSecurityGroupId),
+            ],
         });
         const deletionQueue = sqs.Queue.fromQueueArn(this, 'ImportedDeletionQueue', props.deletionQueueArn);
         const mediaBucket = s3.Bucket.fromBucketName(this, 'ImportedMediaBucket', props.mediaBucketName);
@@ -107,6 +121,18 @@ export class WebhooksStack extends Stack {
         const derived = (basePath: string): string =>
             ssm.StringParameter.valueForStringParameter(this, `${basePath}/${identityStage}`);
 
+        // Sentry config injected as plain Lambda env. Per-service DSN value comes from SSM at deploy
+        // (KTD6); STAGE drives the Sentry environment; SENTRY_RELEASE is the commit SHA passed by CI
+        // (U11) so source maps resolve, falling back to the stage when run outside CI.
+        const sentryTracesSampleRate = deployStage === 'prod' ? '0.1' : '1.0';
+        const sentryRelease = process.env['SENTRY_RELEASE'] ?? deployStage;
+        const sentryEnv: Record<string, string> = {
+            STAGE: deployStage,
+            SENTRY_DSN: derived(SSM_BASE_PATHS.sentryWebhookDsn),
+            SENTRY_TRACES_SAMPLE_RATE: sentryTracesSampleRate,
+            SENTRY_RELEASE: sentryRelease,
+        };
+
         const commonEnv: Record<string, string> = {
             NODE_ENV: 'production',
             DB_SECRET_ARN: dbCredentialsSecret.secretArn,
@@ -118,6 +144,7 @@ export class WebhooksStack extends Stack {
             DELETION_QUEUE_ARN: deletionQueue.queueArn,
             MEDIA_BUCKET_NAME: mediaBucket.bucketName,
             ARCHIVE_BUCKET_NAME: archiveBucket.bucketName,
+            ...sentryEnv,
         };
 
         const authorizerLogGroup = new logs.LogGroup(this, 'AuthorizerLogGroup', {
@@ -154,6 +181,7 @@ export class WebhooksStack extends Stack {
                 IDP_ISSUER: derived(SSM_BASE_PATHS.issuer),
                 IDP_AUDIENCE: derived(SSM_BASE_PATHS.audience),
                 WEBHOOK_SECRET_ARN: authSecretKey.secretArn,
+                ...sentryEnv,
             },
             logGroup: authorizerLogGroup,
         });
@@ -234,6 +262,64 @@ export class WebhooksStack extends Stack {
         const apiLogGroup = new logs.LogGroup(this, 'IdentityWebhooksApiLogGroup', {
             retention: logs.RetentionDays.ONE_MONTH,
         });
+
+        // CloudWatch -> Sentry log drain (U5). The forwarder runs outside the VPC (direct egress to
+        // Sentry's OTLP endpoint) and is intentionally NOT subscribed to its own log group.
+        const logForwarderLogGroup = new logs.LogGroup(this, 'LogForwarderLogGroup', {
+            retention: logs.RetentionDays.ONE_MONTH,
+        });
+        const logForwarderRole = new iam.Role(this, 'LogForwarderRole', {
+            assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+            description: 'Execution role for the CloudWatch->Sentry log forwarder',
+            managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')],
+        });
+        logForwarderLogGroup.grantWrite(logForwarderRole);
+
+        const logForwarderFn = new lambda.Function(this, 'LogForwarderFunction', {
+            runtime,
+            architecture,
+            handler: 'handlers/log-forwarder.handler',
+            code: lambda.Code.fromAsset(distPath),
+            role: logForwarderRole,
+            timeout: Duration.seconds(15),
+            memorySize: 256,
+            environment: {
+                NODE_ENV: 'production',
+                STAGE: deployStage,
+                LOG_DRAIN_DSN: derived(SSM_BASE_PATHS.logDrainDsn),
+                SENTRY_DSN: derived(SSM_BASE_PATHS.sentryWebhookDsn),
+                SENTRY_RELEASE: sentryRelease,
+            },
+            logGroup: logForwarderLogGroup,
+        });
+
+        // Exclude routine Lambda platform lines and EMF metric payloads at the filter level (KTD2);
+        // one filter per group (the non-adjustable quota is 2/group, and all targets have zero).
+        const drainDestination = new logsDestinations.LambdaDestination(logForwarderFn);
+        const drainPattern = logs.FilterPattern.literal('-START -END -REPORT -"_aws"');
+        const drainTargets: Array<{ id: string; logGroup: logs.ILogGroup }> = [
+            { id: 'AuthorizerLogDrain', logGroup: authorizerLogGroup },
+            { id: 'WebhooksLogDrain', logGroup: webhooksLogGroup },
+            { id: 'WebhooksApiLogDrain', logGroup: apiLogGroup },
+            // ECS container log group lives in the identity-service stack, which deploys before this
+            // one (prod-deploy order), so importing it by name here keeps producer-before-consumer.
+            {
+                id: 'EcsServiceLogDrain',
+                logGroup: logs.LogGroup.fromLogGroupName(
+                    this,
+                    'ImportedEcsServiceLogGroup',
+                    Fn.importValue(`kitchensink-identity-service-${deployStage}:IdentityServiceLogGroupName`),
+                ),
+            },
+        ];
+        for (const target of drainTargets) {
+            new logs.SubscriptionFilter(this, target.id, {
+                logGroup: target.logGroup,
+                destination: drainDestination,
+                filterPattern: drainPattern,
+                filterName: 'forward-app-logs',
+            });
+        }
 
         const api = new apigw.RestApi(this, 'IdentityWebhooksApi', {
             restApiName: `kitchensink-identity-webhooks-${deployStage}`,
