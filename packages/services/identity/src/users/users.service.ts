@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 
@@ -8,10 +8,11 @@ import { SqsService } from '../queue/sqs.service.js';
 import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
 import { ResolveUserService } from './resolveUser.js';
 import { newUserId } from '../types/index.js';
+import { createServiceLogger } from '../observability/sentry-logging.js';
 
 @Injectable()
 export class UsersService {
-    private readonly logger = new Logger(UsersService.name);
+    private readonly logger = createServiceLogger(UsersService.name);
 
     constructor(
         @Inject(DrizzleProvider) private readonly db: NodePgDatabase,

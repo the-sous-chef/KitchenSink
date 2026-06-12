@@ -1,11 +1,13 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+
+import { createServiceLogger } from '../observability/sentry-logging.js';
 
 export const SQS_CLIENT = 'SQS_CLIENT';
 
 @Injectable()
 export class SqsService {
-    private readonly logger = new Logger(SqsService.name);
+    private readonly logger = createServiceLogger(SqsService.name);
 
     constructor(@Inject(SQS_CLIENT) private readonly sqs: SQSClient) {}
 
