@@ -121,7 +121,9 @@ const innerHandler = async (
             });
         }
 
-        // Always deny with a clean, PII-free error (no `cause`).
+        // Always deny with a clean, PII-free error. Intentionally NO `cause`: the caught error can
+        // carry the bearer token / JWT claims / email, which Sentry would serialize (security P1).
+        // eslint-disable-next-line preserve-caught-error
         throw new Error('Unauthorized');
     }
 };

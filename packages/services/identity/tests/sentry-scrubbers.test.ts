@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { isDeniedKey, looksLikeBearerToken, scrubAttributes, scrubEvent } from '../sentry-scrubbers.js';
+import {
+    isDeniedKey,
+    looksLikeBearerToken,
+    scrubAttributes,
+    scrubEvent,
+} from '../src/observability/sentry-scrubbers.js';
 
 describe('sentry-scrubbers', () => {
     describe('isDeniedKey', () => {

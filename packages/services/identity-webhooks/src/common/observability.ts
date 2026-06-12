@@ -30,6 +30,7 @@ if (sentryDsn) {
             // create an Issue per rejected request (bots, expired/missing tokens). Drop them — the
             // authorizer captures genuine unexpected failures under a distinct message (U3).
             const firstException = scrubbed.exception?.values?.[0];
+
             if (firstException?.value === 'Unauthorized') {
                 return null;
             }

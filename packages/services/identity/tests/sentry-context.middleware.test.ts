@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { AuthorizerContext } from '../../types/index.js';
+import type { AuthorizerContext } from '../src/types/index.js';
 
 const { mockSetAttributes, mockSetUser } = vi.hoisted(() => ({
     mockSetAttributes: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('@sentry/nestjs', () => ({
     setUser: mockSetUser,
 }));
 
-import { SentryContextMiddleware } from '../sentry-context.middleware.js';
+import { SentryContextMiddleware } from '../src/observability/sentry-context.middleware.js';
 
 const makeReq = (overrides: Partial<Request & { user?: AuthorizerContext }>): Request & { user?: AuthorizerContext } =>
     ({ headers: {}, ...overrides }) as Request & { user?: AuthorizerContext };
@@ -31,7 +31,14 @@ describe('SentryContextMiddleware', () => {
     it('sets service context + request id and the user for an authenticated request', () => {
         const req = makeReq({
             headers: { 'x-request-id': 'req-42' },
-            user: { userId: 'u1', scopes: [], permissions: [], tokenType: 'user' } as AuthorizerContext,
+            user: {
+                userId: 'u1',
+                email: 'u1@example.com',
+                clerkUserId: 'idp_1',
+                scopes: [],
+                permissions: [],
+                tokenType: 'user',
+            } as unknown as AuthorizerContext,
         });
 
         middleware.use(req, {} as Response, next);

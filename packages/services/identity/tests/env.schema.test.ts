@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { EnvironmentSchema } from '../env.schema.js';
+import { EnvironmentSchema } from '../src/config/env.schema.js';
 
 const base = {
     DATABASE_URL: 'postgres://user:pass@host:5432/db',

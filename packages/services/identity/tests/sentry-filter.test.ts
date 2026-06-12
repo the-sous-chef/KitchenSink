@@ -1,7 +1,7 @@
 import { BadRequestException, HttpException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 
-import { shouldCaptureException } from '../sentry.filter.js';
+import { shouldCaptureException } from '../src/observability/sentry.filter.js';
 
 describe('shouldCaptureException', () => {
     it('captures unexpected (non-HTTP) exceptions (AE2)', () => {
