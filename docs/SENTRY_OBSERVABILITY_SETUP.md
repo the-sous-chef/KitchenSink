@@ -15,14 +15,15 @@ repo.
 
 ## 2. AWS SSM parameters (per stage — `prod` and `sandbox`)
 
-The CDK reads these at deploy; create them as `String` parameters (the drain credential as
-`SecureString`):
+The CDK reads these at deploy via `valueForStringParameter`, so create all of them as plain
+`String` parameters. DSNs/keys are send-only and low-sensitivity, so `SecureString` is unnecessary —
+and would not work here, since `valueForStringParameter` cannot resolve a `SecureString`.
 
-| Parameter                                                         | Used by                               |
-| ----------------------------------------------------------------- | ------------------------------------- |
-| `/kitchensink/sentry/webhook-dsn/{prod,sandbox}`                  | identity-webhooks Lambdas + forwarder |
-| `/kitchensink/sentry/identity-service-dsn/{prod,sandbox}`         | identity service (ECS)                |
-| `/kitchensink/sentry/log-drain-dsn/{prod,sandbox}` (SecureString) | log forwarder (`LOG_DRAIN_DSN`)       |
+| Parameter                                                 | Used by                               |
+| --------------------------------------------------------- | ------------------------------------- |
+| `/kitchensink/sentry/webhook-dsn/{prod,sandbox}`          | identity-webhooks Lambdas + forwarder |
+| `/kitchensink/sentry/identity-service-dsn/{prod,sandbox}` | identity service (ECS)                |
+| `/kitchensink/sentry/log-drain-dsn/{prod,sandbox}`        | log forwarder (`LOG_DRAIN_DSN`)       |
 
 ## 3. GitHub Actions (prod-deploy)
 

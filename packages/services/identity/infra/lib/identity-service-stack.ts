@@ -313,10 +313,6 @@ export class IdentityServiceStack extends Stack {
             alarmDescription: 'Identity ECS CPU high-water mark',
         });
 
-        new CfnOutput(this, 'IdentityServiceLogGroupName', {
-            value: logGroup.logGroupName,
-            exportName: `${this.stackName}:IdentityServiceLogGroupName`,
-        });
         new CfnOutput(this, 'IdentityEcrRepositoryUri', {
             value: repository.repositoryUri,
             exportName: `${this.stackName}:IdentityEcrRepositoryUri`,

@@ -58,6 +58,7 @@ interface ScrubbableEvent {
     extra?: Record<string, unknown>;
     contexts?: Record<string, unknown>;
     tags?: Record<string, unknown>;
+    request?: { data?: unknown };
     user?: { id?: string | number } & Record<string, unknown>;
 }
 
@@ -72,6 +73,10 @@ export const scrubEvent = <T extends ScrubbableEvent>(event: T): T => {
 
     if (event.tags) {
         event.tags = scrubAttributes(event.tags);
+    }
+
+    if (event.request?.data) {
+        event.request.data = scrubAttributes(event.request.data);
     }
 
     if (event.user) {

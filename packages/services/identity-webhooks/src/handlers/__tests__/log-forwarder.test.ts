@@ -34,7 +34,7 @@ let fetchMock: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
     vi.clearAllMocks();
-    process.env.LOG_DRAIN_DSN = 'https://abc@o1.ingest.us.sentry.io/42';
+    process.env['LOG_DRAIN_DSN'] = 'https://abc@o1.ingest.us.sentry.io/42';
     fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 200 });
     vi.stubGlobal('fetch', fetchMock);
 });
@@ -70,7 +70,7 @@ describe('log-forwarder', () => {
     });
 
     it('skips and flags when LOG_DRAIN_DSN is missing', async () => {
-        delete process.env.LOG_DRAIN_DSN;
+        delete process.env['LOG_DRAIN_DSN'];
 
         await handler(makeEvent(decodedFixture));
 

@@ -288,6 +288,7 @@ export class WebhooksStack extends Stack {
                 STAGE: deployStage,
                 LOG_DRAIN_DSN: derived(SSM_BASE_PATHS.logDrainDsn),
                 SENTRY_DSN: derived(SSM_BASE_PATHS.sentryWebhookDsn),
+                SENTRY_TRACES_SAMPLE_RATE: sentryTracesSampleRate,
                 SENTRY_RELEASE: sentryRelease,
             },
             logGroup: logForwarderLogGroup,

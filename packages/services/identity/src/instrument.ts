@@ -21,7 +21,7 @@ if (sentryDsn) {
         tracesSampleRate: Number(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? '0'),
         enableLogs: true,
         sendDefaultPii: false,
-        beforeSend: (event) => scrubEvent(event),
+        beforeSend: scrubEvent,
         beforeSendLog: (log) => {
             if (log.level === 'debug') {
                 return null;
