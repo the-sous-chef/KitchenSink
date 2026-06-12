@@ -1,6 +1,16 @@
 import type { APIGatewayRequestAuthorizerEvent, Context } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const { mockCaptureException } = vi.hoisted(() => ({ mockCaptureException: vi.fn() }));
+
+vi.mock('@sentry/aws-serverless', () => ({
+    captureException: mockCaptureException,
+}));
+
+vi.mock('../../common/observability.js', () => ({
+    withObservability: <T>(fn: T): T => fn,
+}));
+
 vi.mock('../../common/jwt.js', () => ({
     verifyClerkJwt: vi.fn(),
 }));
@@ -26,12 +36,18 @@ vi.mock('@kitchensink/identity-service/database/dao', () => ({
     }),
 }));
 
-import { handler } from '../handler.js';
+import { handler as rawHandler } from '../handler.js';
 import { verifyClerkJwt } from '../../common/jwt.js';
 import { getUser, setExternalId } from '../../common/identityClient.js';
 import { getDb } from '../../common/db.js';
 // eslint-disable-next-line no-restricted-imports
 import { UserDAO } from '@kitchensink/identity-service/database/dao';
+import type { APIGatewayAuthorizerResult } from 'aws-lambda';
+
+const handler = rawHandler as unknown as (
+    event: APIGatewayRequestAuthorizerEvent,
+    context: Context,
+) => Promise<APIGatewayAuthorizerResult>;
 
 const mockVerifyClerkJwt = vi.mocked(verifyClerkJwt);
 const mockGetUser = vi.mocked(getUser);
@@ -112,17 +128,26 @@ describe('handler', () => {
         expect(result.context?.userId).toBe(JIT_USER_ID);
     });
 
-    it('expired token → throws Unauthorized', async () => {
-        mockVerifyClerkJwt.mockRejectedValueOnce(new Error('JWT expired'));
+    it('JWT validation failure → captures a sanitized exception and denies (AE4)', async () => {
+        mockVerifyClerkJwt.mockRejectedValueOnce(new Error('invalid signature for token eyJ.aaa.bbb'));
 
         await expect(handler(makeEvent('Bearer expired.token'), makeContext())).rejects.toThrow('Unauthorized');
+
+        expect(mockCaptureException).toHaveBeenCalledTimes(1);
+        const captured = mockCaptureException.mock.calls[0]?.[0] as Error;
+        // PII guard: the captured error must not carry the raw cause / token / email.
+        expect(captured.message).toBe('authorizer unexpected failure');
+        expect((captured as Error & { cause?: unknown }).cause).toBeUndefined();
+        expect(JSON.stringify(captured)).not.toContain('eyJ.aaa.bbb');
     });
 
-    it('missing Authorization header → throws Unauthorized', async () => {
+    it('missing Authorization header → denies without capturing (routine)', async () => {
         await expect(handler(makeEvent(), makeContext())).rejects.toThrow('Unauthorized');
+        expect(mockCaptureException).not.toHaveBeenCalled();
     });
 
-    it('malformed Authorization header → throws Unauthorized', async () => {
+    it('malformed Authorization header → denies without capturing (routine)', async () => {
         await expect(handler(makeEvent('NotBearer token'), makeContext())).rejects.toThrow('Unauthorized');
+        expect(mockCaptureException).not.toHaveBeenCalled();
     });
 });

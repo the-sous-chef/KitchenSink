@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import type { APIGatewayRequestAuthorizerEvent, APIGatewayAuthorizerResult, Context } from 'aws-lambda';
 
 import type { AuthorizerContext, ClerkSessionClaims, UserId } from '@kitchensink/identity-service';
@@ -8,6 +9,7 @@ import { requireEnv } from '../common/config.js';
 import { verifyClerkJwt } from '../common/jwt.js';
 import { getUser as getClerkUser, setExternalId } from '../common/identityClient.js';
 import { getDb } from '../common/db.js';
+import { withObservability } from '../common/observability.js';
 
 const unauthorized = (): never => {
     throw new Error('Unauthorized');
@@ -82,7 +84,7 @@ const resolveUserId = async (claims: ClerkSessionClaims): Promise<UserId> => {
     return userId;
 };
 
-export const handler = async (
+const innerHandler = async (
     event: APIGatewayRequestAuthorizerEvent,
     _context: Context,
 ): Promise<APIGatewayAuthorizerResult> => {
@@ -107,10 +109,21 @@ export const handler = async (
 
         return buildPolicy(claims.sub, 'Allow', event.methodArn, serializeContext(authContext));
     } catch (err) {
-        if (err instanceof Error && err.message === 'Unauthorized') {
-            throw err;
+        const isRoutineDeny = err instanceof Error && err.message === 'Unauthorized';
+
+        if (!isRoutineDeny) {
+            // Unexpected failure (JWT verification, JWKS fetch, DB, Clerk API). Capture a sanitized
+            // error — never the raw `cause`, which can carry the bearer token, JWT claims, or email
+            // (security P1). Routine denials are filtered in the shared beforeSend.
+            Sentry.captureException(new Error('authorizer unexpected failure'), {
+                level: 'error',
+                tags: { authorizer_outcome: 'unexpected_failure' },
+            });
         }
 
-        throw new Error('Unauthorized', { cause: err });
+        // Always deny with a clean, PII-free error (no `cause`).
+        throw new Error('Unauthorized');
     }
 };
+
+export const handler = withObservability(innerHandler);

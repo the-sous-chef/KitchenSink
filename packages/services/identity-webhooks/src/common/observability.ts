@@ -23,7 +23,19 @@ if (sentryDsn) {
         tracesSampleRate: Number(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? '0'),
         enableLogs: true,
         sendDefaultPii: false,
-        beforeSend: (event) => scrubEvent(event),
+        beforeSend: (event) => {
+            const scrubbed = scrubEvent(event);
+
+            // Routine API Gateway authorizer denials throw a bare `Unauthorized` and would otherwise
+            // create an Issue per rejected request (bots, expired/missing tokens). Drop them — the
+            // authorizer captures genuine unexpected failures under a distinct message (U3).
+            const firstException = scrubbed.exception?.values?.[0];
+            if (firstException?.value === 'Unauthorized') {
+                return null;
+            }
+
+            return scrubbed;
+        },
         beforeSendLog: (log) => {
             if (log.level === 'debug') {
                 return null;
