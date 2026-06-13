@@ -2,7 +2,7 @@ name: CI (reusable)
 
 # Reusable CI pipeline, parameterized by `stage`. Called by ci-pr.yml (stage=sandbox) and
 # ci-main.yml (stage=prod). All AWS/Clerk secret loading goes through the load-secrets composite
-# action, which reads kitchensink/<stage>/auth/keys — so PR pipelines use sandbox secrets and the
+# action, which reads kitchensink/<stage>/identity/keys — so PR pipelines use sandbox secrets and the
 # main pipeline uses prod secrets, with no duplicated secret-fetch logic.
 #
 # Hardening path (requires repo/IAM setup, see docs/CI_ARCHITECTURE.md): move AWS auth to OIDC with

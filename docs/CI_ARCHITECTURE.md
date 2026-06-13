@@ -11,22 +11,22 @@ per run-type": the callers supply the only thing that differs — the `stage`.
     ci-main.yml    # push: main    → calls _ci.yml with stage=prod
     _ci.yml        # reusable (workflow_call, input: stage) — the whole pipeline
   actions/
-    load-secrets/  # composite: configure AWS creds + load kitchensink/<stage>/auth/keys
+    load-secrets/  # composite: configure AWS creds + load kitchensink/<stage>/identity/keys
 ```
 
 ## How the split works
 
 - **PRs** run `ci-pr.yml` → `_ci.yml` with `stage: sandbox` → the composite reads
-  `kitchensink/sandbox/auth/keys`.
+  `kitchensink/sandbox/identity/keys`.
 - **Pushes to `main`** run `ci-main.yml` → `_ci.yml` with `stage: prod` → the composite reads
-  `kitchensink/prod/auth/keys`.
+  `kitchensink/prod/identity/keys`.
 
 The pipeline jobs (install, build-ui, lint, format, typecheck, test, build matrix, e2e) are defined
 once in `_ci.yml`. There is no duplicated AWS/Clerk fetch logic — the composite is the single source
 of truth and exports every alias the apps/tests consume (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`,
 `EXPO_PUBLIC_IDP_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `IDP_*`, webhook secret) from one secret.
 
-Secrets live in AWS Secrets Manager scoped by stage (`kitchensink/{sandbox,prod}/auth/keys`, JSON
+Secrets live in AWS Secrets Manager scoped by stage (`kitchensink/{sandbox,prod}/identity/keys`, JSON
 keys `PUBLISHABLE_KEY` / `SECRET_KEY` / `WEBHOOK_SIGNING_SECRET`). The web build statically
 prerenders Clerk-wrapped pages, so it needs a real publishable key; the composite supplies the
 stage-correct one. If AWS creds are unavailable (e.g. a fork PR), secret-dependent steps skip rather

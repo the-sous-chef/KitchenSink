@@ -13,7 +13,7 @@ import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const STAGE = process.argv.find((a) => a.startsWith('--stage='))?.split('=')[1] ?? 'sandbox';
-const SECRET_ID = `kitchensink/${STAGE}/auth/keys`;
+const SECRET_ID = `kitchensink/${STAGE}/identity/keys`;
 const ENV_FILE = resolve(import.meta.dirname, '../.env.local');
 
 try {

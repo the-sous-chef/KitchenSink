@@ -169,7 +169,7 @@ export class IdentityServiceStack extends Stack {
                 // resolve against the same release the build uploaded (KTD7 / U11).
                 STAGE: stage,
                 // Stage-first SSM layout — `kitchensink/{stage}/{service}/{key}` — matching Secrets
-                // Manager (`kitchensink/{stage}/auth/keys`).
+                // Manager (`kitchensink/{stage}/identity/keys`).
                 SENTRY_DSN: ssm.StringParameter.valueForStringParameter(
                     this,
                     `/kitchensink/${stage === 'prod' ? 'prod' : 'sandbox'}/sentry/identity-service-dsn`,

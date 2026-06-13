@@ -51,7 +51,7 @@ AWS_REGION=us-east-1
 
 ### 3. Secrets Manager
 
-Populate the secret `kitchensink/{stage}/auth/keys`:
+Populate the secret `kitchensink/{stage}/identity/keys`:
 
 ```json
 {
@@ -63,7 +63,7 @@ Populate the secret `kitchensink/{stage}/auth/keys`:
 
 ```bash
 aws secretsmanager put-secret-value \
-  --secret-id kitchensink/dev/auth/keys \
+  --secret-id kitchensink/dev/identity/keys \
   --secret-string file://auth-secrets.json
 ```
 
@@ -345,7 +345,7 @@ npm run infra:deploy --workspace=@kitchensink/identity-webhooks -- --context env
 - `IDP_JWKS_URL` → SSM Parameter Store: `/kitchensink/auth/jwks-url/sandbox`
 - `IDP_ISSUER` → SSM Parameter Store: `/kitchensink/auth/issuer/sandbox`
 - `IDP_AUDIENCE` → SSM Parameter Store: `/kitchensink/auth/audience/sandbox`
-- `AUTH_SECRET_KEY` → SSM Parameter Store: `/kitchensink/sandbox/auth/keys`
+- `AUTH_SECRET_KEY` → SSM Parameter Store: `/kitchensink/sandbox/identity/keys`
 - `SENTRY_DSN` → Secrets Manager: `commise/dev/sentry/dsn`
 
 ---

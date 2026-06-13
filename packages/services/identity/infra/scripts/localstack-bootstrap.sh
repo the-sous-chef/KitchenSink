@@ -34,7 +34,7 @@ aws --endpoint-url="${ENDPOINT}" --region="${REGION}" s3 mb s3://kitchensink-ide
 
 echo "=== Creating Secrets Manager Secret ==="
 aws --endpoint-url="${ENDPOINT}" --region="${REGION}" secretsmanager create-secret \
-    --name kitchensink/local/auth/keys \
+    --name kitchensink/local/identity/keys \
     --secret-string '{"secretKey":"sk_test_local","publishableKey":"pk_test_local","webhookSigningSecret":"whsec_local"}'
 
 echo "=== Creating DB Credentials Secret ==="

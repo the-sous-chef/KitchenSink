@@ -52,7 +52,7 @@ export class DataStack extends Stack {
         this.authSecretKey = secretsmanager.Secret.fromSecretNameV2(
             this,
             'IdentitySecret',
-            `kitchensink/${stageTag}/auth/keys`,
+            `kitchensink/${stageTag}/identity/keys`,
         );
 
         this.migrationPlanSecret = new secretsmanager.Secret(this, 'IdentityMigrationPlanSecret', {
