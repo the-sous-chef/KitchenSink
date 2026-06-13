@@ -116,7 +116,7 @@ export class WebhooksStack extends Stack {
         ];
         const distPath = possiblePaths.find((p) => existsSync(p)) ?? possiblePaths[0];
         const runtime = lambda.Runtime.NODEJS_22_X;
-        const architecture = lambda.Architecture.ARM_64;
+        const architecture = lambda.Architecture.X86_64;
         const identityStage = deployStage === 'prod' ? 'prod' : 'sandbox';
         const ssmValue = (service: 'clerk' | 'sentry', key: string): string =>
             ssm.StringParameter.valueForStringParameter(this, ssmParamPath(identityStage, service, key));
