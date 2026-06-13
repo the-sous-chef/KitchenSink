@@ -25,7 +25,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Construct } from 'constructs';
 
-import { SSM_BASE_PATHS, sentryDsnPath } from './config.js';
+import { ssmParamPath } from './config.js';
 
 export interface WebhooksStackProps extends StackProps {
     readonly stage: string;
@@ -118,10 +118,8 @@ export class WebhooksStack extends Stack {
         const runtime = lambda.Runtime.NODEJS_22_X;
         const architecture = lambda.Architecture.ARM_64;
         const identityStage = deployStage === 'prod' ? 'prod' : 'sandbox';
-        const derived = (basePath: string): string =>
-            ssm.StringParameter.valueForStringParameter(this, `${basePath}/${identityStage}`);
-        const sentryDsn = (key: 'webhook-dsn' | 'log-drain-dsn'): string =>
-            ssm.StringParameter.valueForStringParameter(this, sentryDsnPath(identityStage, key));
+        const ssmValue = (service: 'clerk' | 'sentry', key: string): string =>
+            ssm.StringParameter.valueForStringParameter(this, ssmParamPath(identityStage, service, key));
 
         // Sentry config injected as plain Lambda env. Per-service DSN value comes from SSM at deploy
         // (KTD6); STAGE drives the Sentry environment; SENTRY_RELEASE is the commit SHA passed by CI
@@ -130,7 +128,7 @@ export class WebhooksStack extends Stack {
         const sentryRelease = process.env['SENTRY_RELEASE'] ?? deployStage;
         const sentryEnv: Record<string, string> = {
             STAGE: deployStage,
-            SENTRY_DSN: sentryDsn('webhook-dsn'),
+            SENTRY_DSN: ssmValue('sentry', 'webhook-dsn'),
             SENTRY_TRACES_SAMPLE_RATE: sentryTracesSampleRate,
             SENTRY_RELEASE: sentryRelease,
         };
@@ -139,9 +137,9 @@ export class WebhooksStack extends Stack {
             NODE_ENV: 'production',
             DB_SECRET_ARN: dbCredentialsSecret.secretArn,
             AUTH_SECRET_ARN: authSecretKey.secretArn,
-            IDP_JWKS_URL: derived(SSM_BASE_PATHS.jwksUrl),
-            IDP_ISSUER: derived(SSM_BASE_PATHS.issuer),
-            IDP_AUDIENCE: derived(SSM_BASE_PATHS.audience),
+            IDP_JWKS_URL: ssmValue('clerk', 'jwks-url'),
+            IDP_ISSUER: ssmValue('clerk', 'issuer'),
+            IDP_AUDIENCE: ssmValue('clerk', 'audience'),
             DELETION_QUEUE_URL: deletionQueue.queueUrl,
             DELETION_QUEUE_ARN: deletionQueue.queueArn,
             MEDIA_BUCKET_NAME: mediaBucket.bucketName,
@@ -179,9 +177,9 @@ export class WebhooksStack extends Stack {
                 NODE_ENV: 'production',
                 AUTH_SECRET_ARN: authSecretKey.secretArn,
                 DB_SECRET_ARN: dbCredentialsSecret.secretArn,
-                IDP_JWKS_URL: derived(SSM_BASE_PATHS.jwksUrl),
-                IDP_ISSUER: derived(SSM_BASE_PATHS.issuer),
-                IDP_AUDIENCE: derived(SSM_BASE_PATHS.audience),
+                IDP_JWKS_URL: ssmValue('clerk', 'jwks-url'),
+                IDP_ISSUER: ssmValue('clerk', 'issuer'),
+                IDP_AUDIENCE: ssmValue('clerk', 'audience'),
                 WEBHOOK_SECRET_ARN: authSecretKey.secretArn,
                 ...sentryEnv,
             },
@@ -288,8 +286,8 @@ export class WebhooksStack extends Stack {
             environment: {
                 NODE_ENV: 'production',
                 STAGE: deployStage,
-                LOG_DRAIN_DSN: sentryDsn('log-drain-dsn'),
-                SENTRY_DSN: sentryDsn('webhook-dsn'),
+                LOG_DRAIN_DSN: ssmValue('sentry', 'log-drain-dsn'),
+                SENTRY_DSN: ssmValue('sentry', 'webhook-dsn'),
                 SENTRY_TRACES_SAMPLE_RATE: sentryTracesSampleRate,
                 SENTRY_RELEASE: sentryRelease,
             },

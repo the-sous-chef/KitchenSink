@@ -19,14 +19,18 @@ The CDK reads these at deploy via `valueForStringParameter`, so create all of th
 `String` parameters. DSNs/keys are send-only and low-sensitivity, so `SecureString` is unnecessary —
 and would not work here, since `valueForStringParameter` cannot resolve a `SecureString`.
 
-The Sentry DSNs use the org-standard **stage-first** layout `/kitchensink/{stage}/sentry/{key}`,
-matching Secrets Manager (`kitchensink/{stage}/auth/keys`). The same DSN is used for both stages; the
-`STAGE`-driven Sentry `environment` tag separates sandbox from prod events. (The clerk JWKS/issuer/
-audience params predate this convention and keep their legacy `/kitchensink/clerk/{key}/{stage}`
-layout.) These are already populated for `sandbox` and `prod`.
+All params use the org-standard **stage-first** layout `/kitchensink/{stage}/{service}/{key}`,
+matching Secrets Manager (`kitchensink/{stage}/auth/keys`). For the Sentry DSNs the same DSN is used
+for both stages; the `STAGE`-driven Sentry `environment` tag separates sandbox from prod events. The
+clerk issuer/JWKS values are instance-specific (they must match each stage's live Clerk Frontend API,
+**not** a brand domain): prod is the custom domain `clerk.commise.app`, sandbox is the Clerk dev
+instance `nice-fowl-6.clerk.accounts.dev`. All of these are already populated for `sandbox` and `prod`.
 
 | Parameter                                                 | Used by                               |
 | --------------------------------------------------------- | ------------------------------------- |
+| `/kitchensink/{prod,sandbox}/clerk/jwks-url`              | authorizer JWT validation (`jose`)    |
+| `/kitchensink/{prod,sandbox}/clerk/issuer`                | authorizer JWT validation (`jose`)    |
+| `/kitchensink/{prod,sandbox}/clerk/audience`              | set as `IDP_AUDIENCE` (not validated) |
 | `/kitchensink/{prod,sandbox}/sentry/webhook-dsn`          | identity-webhooks Lambdas + forwarder |
 | `/kitchensink/{prod,sandbox}/sentry/identity-service-dsn` | identity service (ECS)                |
 | `/kitchensink/{prod,sandbox}/sentry/log-drain-dsn`        | log forwarder (`LOG_DRAIN_DSN`)       |
