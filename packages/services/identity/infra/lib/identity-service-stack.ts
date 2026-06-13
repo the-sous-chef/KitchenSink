@@ -214,7 +214,7 @@ export class IdentityServiceStack extends Stack {
         });
 
         const scalableTarget = service.autoScaleTaskCount({
-            minCapacity: 2,
+            minCapacity: 1,
             maxCapacity: 6,
         });
         scalableTarget.scaleOnCpuUtilization('IdentityServiceCpuScaling', {
