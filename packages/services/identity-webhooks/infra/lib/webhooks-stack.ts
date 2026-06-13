@@ -25,7 +25,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Construct } from 'constructs';
 
-import { SSM_BASE_PATHS } from './config.js';
+import { SSM_BASE_PATHS, sentryDsnPath } from './config.js';
 
 export interface WebhooksStackProps extends StackProps {
     readonly stage: string;
@@ -120,6 +120,8 @@ export class WebhooksStack extends Stack {
         const identityStage = deployStage === 'prod' ? 'prod' : 'sandbox';
         const derived = (basePath: string): string =>
             ssm.StringParameter.valueForStringParameter(this, `${basePath}/${identityStage}`);
+        const sentryDsn = (key: 'webhook-dsn' | 'log-drain-dsn'): string =>
+            ssm.StringParameter.valueForStringParameter(this, sentryDsnPath(identityStage, key));
 
         // Sentry config injected as plain Lambda env. Per-service DSN value comes from SSM at deploy
         // (KTD6); STAGE drives the Sentry environment; SENTRY_RELEASE is the commit SHA passed by CI
@@ -128,7 +130,7 @@ export class WebhooksStack extends Stack {
         const sentryRelease = process.env['SENTRY_RELEASE'] ?? deployStage;
         const sentryEnv: Record<string, string> = {
             STAGE: deployStage,
-            SENTRY_DSN: derived(SSM_BASE_PATHS.sentryWebhookDsn),
+            SENTRY_DSN: sentryDsn('webhook-dsn'),
             SENTRY_TRACES_SAMPLE_RATE: sentryTracesSampleRate,
             SENTRY_RELEASE: sentryRelease,
         };
@@ -286,8 +288,8 @@ export class WebhooksStack extends Stack {
             environment: {
                 NODE_ENV: 'production',
                 STAGE: deployStage,
-                LOG_DRAIN_DSN: derived(SSM_BASE_PATHS.logDrainDsn),
-                SENTRY_DSN: derived(SSM_BASE_PATHS.sentryWebhookDsn),
+                LOG_DRAIN_DSN: sentryDsn('log-drain-dsn'),
+                SENTRY_DSN: sentryDsn('webhook-dsn'),
                 SENTRY_TRACES_SAMPLE_RATE: sentryTracesSampleRate,
                 SENTRY_RELEASE: sentryRelease,
             },

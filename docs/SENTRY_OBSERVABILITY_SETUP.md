@@ -19,11 +19,17 @@ The CDK reads these at deploy via `valueForStringParameter`, so create all of th
 `String` parameters. DSNs/keys are send-only and low-sensitivity, so `SecureString` is unnecessary —
 and would not work here, since `valueForStringParameter` cannot resolve a `SecureString`.
 
+The Sentry DSNs use the org-standard **stage-first** layout `/kitchensink/{stage}/sentry/{key}`,
+matching Secrets Manager (`kitchensink/{stage}/auth/keys`). The same DSN is used for both stages; the
+`STAGE`-driven Sentry `environment` tag separates sandbox from prod events. (The clerk JWKS/issuer/
+audience params predate this convention and keep their legacy `/kitchensink/clerk/{key}/{stage}`
+layout.) These are already populated for `sandbox` and `prod`.
+
 | Parameter                                                 | Used by                               |
 | --------------------------------------------------------- | ------------------------------------- |
-| `/kitchensink/sentry/webhook-dsn/{prod,sandbox}`          | identity-webhooks Lambdas + forwarder |
-| `/kitchensink/sentry/identity-service-dsn/{prod,sandbox}` | identity service (ECS)                |
-| `/kitchensink/sentry/log-drain-dsn/{prod,sandbox}`        | log forwarder (`LOG_DRAIN_DSN`)       |
+| `/kitchensink/{prod,sandbox}/sentry/webhook-dsn`          | identity-webhooks Lambdas + forwarder |
+| `/kitchensink/{prod,sandbox}/sentry/identity-service-dsn` | identity service (ECS)                |
+| `/kitchensink/{prod,sandbox}/sentry/log-drain-dsn`        | log forwarder (`LOG_DRAIN_DSN`)       |
 
 ## 3. GitHub Actions (prod-deploy)
 

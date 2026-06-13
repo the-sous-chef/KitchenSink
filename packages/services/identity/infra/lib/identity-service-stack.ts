@@ -168,9 +168,11 @@ export class IdentityServiceStack extends Stack {
                 // Sentry environment; SENTRY_RELEASE = the image tag (commit SHA) so source maps
                 // resolve against the same release the build uploaded (KTD7 / U11).
                 STAGE: stage,
+                // Stage-first SSM layout — `kitchensink/{stage}/{service}/{key}` — matching Secrets
+                // Manager (`kitchensink/{stage}/auth/keys`).
                 SENTRY_DSN: ssm.StringParameter.valueForStringParameter(
                     this,
-                    `/kitchensink/sentry/identity-service-dsn/${stage === 'prod' ? 'prod' : 'sandbox'}`,
+                    `/kitchensink/${stage === 'prod' ? 'prod' : 'sandbox'}/sentry/identity-service-dsn`,
                 ),
                 SENTRY_TRACES_SAMPLE_RATE: stage === 'prod' ? '0.1' : '1.0',
                 SENTRY_RELEASE: imageTag,
