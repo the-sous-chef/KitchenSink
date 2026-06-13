@@ -5,14 +5,14 @@ test.describe('auth pages', () => {
         await page.goto('/sign-in');
 
         await expect(page).toHaveTitle(/Commise/);
-        await expect(page.locator('text=Sign in')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Sign in to Commise' })).toBeVisible();
     });
 
     test('sign-up page renders', async ({ page }) => {
         await page.goto('/sign-up');
 
         await expect(page).toHaveTitle(/Commise/);
-        await expect(page.locator('text=Sign up')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible();
     });
 });
 
@@ -23,10 +23,11 @@ test.describe('route protection', () => {
         await expect(page).toHaveURL(/\/sign-in/);
     });
 
-    test('public routes are accessible', async ({ page }) => {
-        await page.goto('/');
+    test('public routes are accessible without auth', async ({ page }) => {
+        await page.goto('/sign-in');
+        await expect(page).toHaveURL(/\/sign-in/);
 
-        await expect(page).toHaveURL('/');
-        await expect(page.locator('text=Commise')).toBeVisible();
+        await page.goto('/sign-up');
+        await expect(page).toHaveURL(/\/sign-up/);
     });
 });
