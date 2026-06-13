@@ -51,8 +51,8 @@ const makeToken = async (overrides: Record<string, unknown> = {}) => {
 
 describe('verifyClerkJwt', () => {
     beforeEach(() => {
-        process.env.CLERK_JWKS_URL = JWKS_URL;
-        process.env.CLERK_ISSUER = ISSUER;
+        process.env['IDP_JWKS_URL'] = JWKS_URL;
+        process.env['IDP_ISSUER'] = ISSUER;
     });
 
     it('returns claims for a valid token', async () => {
