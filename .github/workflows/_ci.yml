@@ -251,6 +251,13 @@ jobs:
                       packages/*/node_modules
                       packages/*/*/node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+            # The Playwright dev server imports @kitchensink/ui/theme.css, so the built UI dist must
+            # be present (mirrors the build job).
+            - name: Restore UI build artifacts
+              uses: actions/cache/restore@v5
+              with:
+                  path: packages/ui/dist
+                  key: ${{ runner.os }}-ui-dist-${{ github.sha }}
             - name: Load ${{ inputs.stage }} secrets
               id: secrets
               continue-on-error: true
