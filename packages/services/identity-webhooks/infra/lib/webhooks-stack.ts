@@ -286,7 +286,12 @@ export class WebhooksStack extends Stack {
             environment: {
                 NODE_ENV: 'production',
                 STAGE: deployStage,
-                LOG_DRAIN_DSN: ssmValue('sentry', 'log-drain-dsn'),
+                // Single, stage-agnostic log-drain DSN (one Sentry project for all stages); the
+                // forwarder tags each record's environment from the source log group name.
+                LOG_DRAIN_DSN: ssm.StringParameter.valueForStringParameter(
+                    this,
+                    ssmParamPath('global', 'sentry', 'log-drain-dsn'),
+                ),
                 SENTRY_DSN: ssmValue('sentry', 'webhook-dsn'),
                 SENTRY_TRACES_SAMPLE_RATE: sentryTracesSampleRate,
                 SENTRY_RELEASE: sentryRelease,

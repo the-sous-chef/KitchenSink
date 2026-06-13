@@ -19,12 +19,17 @@ The CDK reads these at deploy via `valueForStringParameter`, so create all of th
 `String` parameters. DSNs/keys are send-only and low-sensitivity, so `SecureString` is unnecessary —
 and would not work here, since `valueForStringParameter` cannot resolve a `SecureString`.
 
-All params use the org-standard **stage-first** layout `/kitchensink/{stage}/{service}/{key}`,
-matching Secrets Manager (`kitchensink/{stage}/auth/keys`). For the Sentry DSNs the same DSN is used
-for both stages; the `STAGE`-driven Sentry `environment` tag separates sandbox from prod events. The
-clerk issuer/JWKS values are instance-specific (they must match each stage's live Clerk Frontend API,
-**not** a brand domain): prod is the custom domain `clerk.commise.app`, sandbox is the Clerk dev
-instance `nice-fowl-6.clerk.accounts.dev`. All of these are already populated for `sandbox` and `prod`.
+Stage-scoped params use the org-standard **stage-first** layout `/kitchensink/{stage}/{service}/{key}`,
+matching Secrets Manager (`kitchensink/{stage}/auth/keys`). For the per-service Sentry DSNs the same
+DSN serves both stages; the `STAGE`-driven Sentry `environment` tag separates sandbox from prod events.
+The clerk issuer/JWKS values are instance-specific (they must match each stage's live Clerk Frontend
+API, **not** a brand domain): prod is the custom domain `clerk.commise.app`, sandbox is the Clerk dev
+instance `nice-fowl-6.clerk.accounts.dev`.
+
+The **log-drain** DSN is a single, stage-agnostic param under `global/` — there is one log-drain
+Sentry project for all stages, and the forwarder tags each record's `environment` from the source
+CloudWatch log group name (`kitchensink-identity-<component>-<stage>-…`). All of these are already
+populated.
 
 | Parameter                                                 | Used by                               |
 | --------------------------------------------------------- | ------------------------------------- |
@@ -33,7 +38,7 @@ instance `nice-fowl-6.clerk.accounts.dev`. All of these are already populated fo
 | `/kitchensink/{prod,sandbox}/clerk/audience`              | set as `IDP_AUDIENCE` (not validated) |
 | `/kitchensink/{prod,sandbox}/sentry/webhook-dsn`          | identity-webhooks Lambdas + forwarder |
 | `/kitchensink/{prod,sandbox}/sentry/identity-service-dsn` | identity service (ECS)                |
-| `/kitchensink/{prod,sandbox}/sentry/log-drain-dsn`        | log forwarder (`LOG_DRAIN_DSN`)       |
+| `/kitchensink/global/sentry/log-drain-dsn`                | log forwarder (`LOG_DRAIN_DSN`)       |
 
 ## 3. GitHub Actions (prod-deploy)
 

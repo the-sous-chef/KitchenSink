@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { cloudWatchToOtlp, parseLogDrainDsn, sanitizeAccessLogMessage } from '../otlp.js';
+import { cloudWatchToOtlp, parseLogDrainDsn, sanitizeAccessLogMessage, stageFromLogGroup } from '../otlp.js';
 
 describe('otlp', () => {
     describe('parseLogDrainDsn', () => {
@@ -35,6 +35,34 @@ describe('otlp', () => {
             expect(records[0]?.attributes.find((a) => a.key === 'log_group')?.value.stringValue).toBe('/aws/lambda/x');
             expect(records[0]?.attributes.find((a) => a.key === 'log_stream')?.value.stringValue).toBe('stream-1');
             expect(records[1]?.severityText).toBe('ERROR');
+        });
+
+        it('tags the resource and each record with the stage derived from the log group', () => {
+            const payload = cloudWatchToOtlp({
+                logGroup: 'kitchensink-identity-webhooks-prod-AuthorizerLogGroup2583BEC8-xNNeI2RNrxWO',
+                logStream: 'stream-1',
+                logEvents: [{ timestamp: 1000, message: 'hello' }],
+            });
+
+            const resourceAttrs = payload.resourceLogs[0]?.resource.attributes ?? [];
+            const record = payload.resourceLogs[0]?.scopeLogs[0]?.logRecords[0];
+
+            expect(resourceAttrs.find((a) => a.key === 'deployment.environment')?.value.stringValue).toBe('prod');
+            expect(record?.attributes.find((a) => a.key === 'sentry.environment')?.value.stringValue).toBe('prod');
+        });
+    });
+
+    describe('stageFromLogGroup', () => {
+        it('extracts the stage from identity log group names', () => {
+            expect(stageFromLogGroup('kitchensink-identity-service-prod-IdentityServiceLogGroup4DD93B61-0yC')).toBe(
+                'prod',
+            );
+            expect(stageFromLogGroup('kitchensink-identity-webhooks-dev-WebhooksLogGroupA05F4FC6-Rwj')).toBe('dev');
+            expect(stageFromLogGroup('kitchensink-identity-webhooks-pr-15-AuthorizerLogGroup2583BEC8-x')).toBe('pr-15');
+        });
+
+        it('falls back to unknown for unrecognized groups', () => {
+            expect(stageFromLogGroup('/aws/lambda/some-other-function')).toBe('unknown');
         });
     });
 

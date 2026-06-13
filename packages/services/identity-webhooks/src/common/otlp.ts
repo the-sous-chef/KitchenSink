@@ -102,6 +102,23 @@ export const sanitizeAccessLogMessage = (message: string): string => {
     return JSON.stringify(out);
 };
 
+/**
+ * Derive the deployment stage from a CloudWatch log group name. Identity log groups are named
+ * `kitchensink-identity-<component>-<stage>-<...>` (e.g.
+ * `kitchensink-identity-webhooks-prod-AuthorizerLogGroup...`), so the stage is recoverable from the
+ * source group without each service stamping it — which matters because the drain carries AWS infra
+ * logs, not the app's own JSON logs. One forwarder serves every stage; this keeps the single
+ * log-drain project queryable by `environment`. Falls back to `unknown` for unrecognized groups.
+ */
+export const stageFromLogGroup = (logGroup: string): string => {
+    const match =
+        /kitchensink-identity-(?:service|webhooks|data|network|domain|global)-(prod|staging|dev|test|sandbox-[a-z0-9]+|mr-[a-z0-9]+|pr-[a-z0-9]+)\b/i.exec(
+            logGroup,
+        );
+
+    return match ? match[1].toLowerCase() : 'unknown';
+};
+
 const detectSeverity = (message: string): string => {
     if (/\b(error|fatal|exception)\b/i.test(message)) {
         return 'ERROR';
@@ -116,17 +133,27 @@ const detectSeverity = (message: string): string => {
 
 /** Map a decoded CloudWatch Logs payload to an OTLP/JSON logs request, scrubbing each line. */
 export const cloudWatchToOtlp = (parsed: ParsedCloudWatchLogs): OtlpLogsPayload => {
+    // All events in one subscription payload come from a single log group, so the stage is constant
+    // across the batch — derive it once and tag both the resource and each record.
+    const environment = stageFromLogGroup(parsed.logGroup);
+
     const logRecords: OtlpLogRecord[] = parsed.logEvents.map((event) => ({
         timeUnixNano: String(event.timestamp * 1_000_000),
         severityText: detectSeverity(event.message),
         body: { stringValue: sanitizeAccessLogMessage(event.message) },
-        attributes: [attr('log_group', parsed.logGroup), attr('log_stream', parsed.logStream)],
+        attributes: [
+            attr('log_group', parsed.logGroup),
+            attr('log_stream', parsed.logStream),
+            attr('sentry.environment', environment),
+        ],
     }));
 
     return {
         resourceLogs: [
             {
-                resource: { attributes: [attr('service.name', 'cloudwatch-drain')] },
+                resource: {
+                    attributes: [attr('service.name', 'cloudwatch-drain'), attr('deployment.environment', environment)],
+                },
                 scopeLogs: [{ logRecords }],
             },
         ],
