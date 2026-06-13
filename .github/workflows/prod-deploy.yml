@@ -105,6 +105,17 @@ jobs:
             - name: Ensure ECR repository exists
               run: aws ecr describe-repositories --repository-names kitchensink-identity || aws ecr create-repository --repository-name kitchensink-identity
 
+            # The image targets linux/arm64 (Fargate is ARM64) but the runner is amd64, so register
+            # binfmt/QEMU + a buildx builder for cross-arch emulation. Without this the arm64 stage's
+            # RUN steps fail with `exec /bin/sh: exec format error`.
+            - name: Set up QEMU
+              uses: docker/setup-qemu-action@v3
+              with:
+                  platforms: arm64
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
             - name: Build, tag, and push identity service Docker image
               env:
                   ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
