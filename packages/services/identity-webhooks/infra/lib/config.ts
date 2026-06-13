@@ -3,11 +3,14 @@ export const SECRET_PATHS = {
     sandbox: 'kitchensink/sandbox/auth/keys',
 } as const;
 
-export const SSM_BASE_PATHS = {
-    jwksUrl: '/kitchensink/clerk/jwks-url',
-    issuer: '/kitchensink/clerk/issuer',
-    audience: '/kitchensink/clerk/audience',
-} as const;
+/**
+ * Org-standard stage-first SSM layout — `/kitchensink/{stage}/{service}/{key}` — matching Secrets
+ * Manager (`kitchensink/{stage}/auth/keys`). Covers both the clerk JWT-validation params and the
+ * sentry DSNs.
+ */
+export function ssmParamPath(stage: string, service: 'clerk' | 'sentry', key: string): string {
+    return `/kitchensink/${stage}/${service}/${key}`;
+}
 
 export function getAuthSecretName(stage: string): string {
     return stage === 'prod' ? SECRET_PATHS.prod : SECRET_PATHS.sandbox;

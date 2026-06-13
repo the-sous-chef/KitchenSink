@@ -1,0 +1,17 @@
+name: CI — PR (sandbox)
+
+# Pull requests run the shared CI pipeline against the SANDBOX stage (sandbox secrets).
+on:
+    pull_request:
+        branches: [main]
+
+concurrency:
+    group: ci-pr-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    ci:
+        uses: ./.github/workflows/_ci.yml
+        with:
+            stage: sandbox
+        secrets: inherit

@@ -5,3 +5,5 @@ coverage
 package-lock.json
 bun.lock
 .turbo
+cdk.out
+cdk.context.json

@@ -1,32 +1,107 @@
-import { Logger } from '@aws-lambda-powertools/logger';
 import * as Sentry from '@sentry/aws-serverless';
 import type { Handler } from 'aws-lambda';
 
-/** @implements REQ-IF-006 NFR-012 NFR-013 NFR-014 NFR-016 NFR-017 ARCH-027 ARCH-028 ARCH-029 MOD-027 MOD-028 MOD-029 */
-export const logger = new Logger({
-    serviceName: 'identity-webhooks',
-});
+import { scrubEvent, scrubLog } from './sentry-scrubbers.js';
 
-/** @implements REQ-IF-006 NFR-012 NFR-013 NFR-014 NFR-016 NFR-017 ARCH-027 ARCH-028 ARCH-029 MOD-027 MOD-028 MOD-029 */
-const sentryDsn = process.env.SENTRY_DSN;
+/**
+ * Observability for the identity-webhooks Lambdas.
+ *
+ * Two paths (see docs/brainstorms/2026-06-11-observability-sentry-integration-requirements.md):
+ * purposeful logs + errors go to the per-service Sentry project via the SDK; AWS/CloudWatch infra
+ * logs drain separately. Powertools `Logger` is dropped for purposeful logging (Sentry Logs replace
+ * it); EMF custom metrics are kept but emitted straight to stdout so they still reach CloudWatch
+ * without being re-routed into Sentry (KTD5).
+ */
 
-/** @implements REQ-IF-006 NFR-012 NFR-013 NFR-014 NFR-016 NFR-017 ARCH-027 ARCH-028 ARCH-029 MOD-027 MOD-028 MOD-029 */
+const sentryDsn = process.env['SENTRY_DSN'];
+
 if (sentryDsn) {
     Sentry.init({
         dsn: sentryDsn,
-        environment: process.env.STAGE ?? 'dev',
-        tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? '0'),
+        environment: process.env['STAGE'] ?? 'dev',
+        release: process.env['SENTRY_RELEASE'],
+        tracesSampleRate: Number(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? '0'),
+        enableLogs: true,
+        sendDefaultPii: false,
+        beforeSend: (event) => {
+            const scrubbed = scrubEvent(event);
+
+            // Routine API Gateway authorizer denials throw a bare `Unauthorized` and would otherwise
+            // create an Issue per rejected request (bots, expired/missing tokens). Drop them — the
+            // authorizer captures genuine unexpected failures under a distinct message (U3).
+            const firstException = scrubbed.exception?.values?.[0];
+
+            if (firstException?.value === 'Unauthorized') {
+                return null;
+            }
+
+            return scrubbed;
+        },
+        beforeSendLog: scrubLog,
     });
 }
 
-/** @implements REQ-IF-006 NFR-012 NFR-013 NFR-014 NFR-016 NFR-017 ARCH-027 ARCH-028 ARCH-029 MOD-027 MOD-028 MOD-029 */
-export const withObservability = <TEvent, TResult>(handler: Handler<TEvent, TResult>): Handler<TEvent, TResult> =>
-    Sentry.wrapHandler(handler);
+type LogAttributes = Record<string, unknown>;
 
-/** @implements REQ-IF-006 NFR-012 NFR-013 NFR-014 NFR-016 NFR-017 ARCH-027 ARCH-028 ARCH-029 MOD-027 MOD-028 MOD-029 */
+/**
+ * Purposeful-logging facade backed by Sentry Logs, sent to the per-service project alongside
+ * errors and traces. Keeps the `logger.info/warn/error(message, attributes)` shape the handlers
+ * already use. Inert (no stdout) when Sentry is not initialized.
+ *
+ * @sideEffect emits a log entry to Sentry.
+ */
+export const logger = {
+    info: (message: string, attributes?: LogAttributes): void => {
+        Sentry.logger.info(message, attributes);
+    },
+    warn: (message: string, attributes?: LogAttributes): void => {
+        Sentry.logger.warn(message, attributes);
+    },
+    error: (message: string, attributes?: LogAttributes): void => {
+        Sentry.logger.error(message, attributes);
+    },
+};
+
+let isColdStart = true;
+
+/**
+ * Wrap a Lambda handler with Sentry error capture and attach per-invocation context to the
+ * isolation scope, so the AWS request id, cold-start flag, function name/version, and service name
+ * appear on both error events and log entries (KTD4 / context parity).
+ *
+ * @sideEffect installs Sentry instrumentation around the handler.
+ */
+export const withObservability = <TEvent, TResult>(handler: Handler<TEvent, TResult>): Handler<TEvent, TResult> => {
+    const instrumented: Handler<TEvent, TResult> = (event, context, callback) => {
+        const coldStart = isColdStart;
+        isColdStart = false;
+
+        Sentry.getIsolationScope().setAttributes({
+            aws_request_id: context.awsRequestId,
+            cold_start: coldStart,
+            function_name: context.functionName,
+            function_version: context.functionVersion,
+            serviceName: 'identity-webhooks',
+        });
+
+        return handler(event, context, callback);
+    };
+
+    return Sentry.wrapHandler(instrumented);
+};
+
+/**
+ * Emit a CloudWatch EMF custom metric. Written straight to stdout (not through the Sentry log
+ * facade) so the metric reaches CloudWatch and is excluded from the log drain by the `_aws`
+ * subscription-filter term (KTD5).
+ *
+ * @sideEffect writes an EMF line to stdout.
+ */
 export const emitMetric = (metricName: string, value: number, dimensions: Record<string, string> = {}): void => {
     const dimensionsJson = JSON.stringify(dimensions);
-    logger.info('metric', {
+    const payload = {
+        level: 'INFO',
+        message: 'metric',
         metricName,
         metricValue: value,
         metricUnit: 'Count',
@@ -44,5 +119,7 @@ export const emitMetric = (metricName: string, value: number, dimensions: Record
         service: 'identity-webhooks',
         metric: metricName,
         dimensionsJson,
-    });
+    };
+
+    process.stdout.write(`${JSON.stringify(payload)}\n`);
 };

@@ -32,7 +32,9 @@ new WebhooksStack(app, `IdentityWebhooks-${stage}`, {
     stackName: `kitchensink-identity-webhooks-${stage}`,
     stage,
     vpcId,
-    domainName: (isProd ? 'registration.identity' : isSandbox ? 'registration.identity.sandbox' : 'registration.identity.dev') + `.${domainName}`,
+    domainName:
+        (isProd ? 'registration.identity' : isSandbox ? 'registration.identity.sandbox' : 'registration.identity.dev') +
+        `.${domainName}`,
     lambdaSecurityGroupId: Fn.importValue(`kitchensink-identity-network-${stage}:IdentityLambdaSecurityGroupId`),
     databaseSecurityGroupId: Fn.importValue(`kitchensink-identity-network-${stage}:IdentityDatabaseSecurityGroupId`),
     dbSecretArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseSecretArn`),

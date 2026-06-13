@@ -99,8 +99,8 @@ afterEach(() => {
 });
 
 beforeEach(() => {
-    process.env.CLERK_JWKS_URL = JWKS_URL;
-    process.env.CLERK_ISSUER = ISSUER;
+    process.env.IDP_JWKS_URL = JWKS_URL;
+    process.env.IDP_ISSUER = ISSUER;
     process.env.AUTH_SECRET_ARN = 'sk_test_dummy';
     process.env.IDP_WEBHOOK_SECRET = 'whsec_dummy';
     process.env.DB_SECRET_ARN = 'arn:aws:secretsmanager:us-east-1:000:secret:db';

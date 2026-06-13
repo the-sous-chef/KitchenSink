@@ -1,0 +1,17 @@
+name: CI — main (prod)
+
+# Pushes to main run the shared CI pipeline against the PROD stage (prod secrets).
+on:
+    push:
+        branches: [main]
+
+concurrency:
+    group: ci-main-${{ github.ref }}
+    cancel-in-progress: false
+
+jobs:
+    ci:
+        uses: ./.github/workflows/_ci.yml
+        with:
+            stage: prod
+        secrets: inherit

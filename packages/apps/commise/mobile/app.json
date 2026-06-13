@@ -35,7 +35,16 @@
             "bundler": "metro",
             "favicon": "./src/assets/favicon.png"
         },
-        "plugins": [],
+        "plugins": [
+            [
+                "@sentry/react-native/expo",
+                {
+                    "organization": "radicle-co",
+                    "project": "commise-mobile",
+                    "url": "https://sentry.io/"
+                }
+            ]
+        ],
         "experiments": {
             "typedRoutes": true
         }

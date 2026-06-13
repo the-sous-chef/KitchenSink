@@ -18,6 +18,7 @@ import {
     aws_s3 as s3,
     aws_secretsmanager as secretsmanager,
     aws_sqs as sqs,
+    aws_ssm as ssm,
 } from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
 
@@ -56,33 +57,29 @@ export class IdentityServiceStack extends Stack {
             Fn.importValue(`kitchensink-identity-network-${stage}:IdentityServiceSecurityGroupId`),
         );
 
-        const dbCredentialsSecret = secretsmanager.Secret.fromSecretAttributes(
-            this,
-            'ImportedDbSecret',
-            { secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseSecretArn`) },
-        );
+        const dbCredentialsSecret = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedDbSecret', {
+            secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseSecretArn`),
+        });
 
-        const authSecretKey = secretsmanager.Secret.fromSecretAttributes(
-            this,
-            'ImportedAuthSecret',
-            { secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentitySecretArn`) },
-        );
+        const authSecretKey = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedAuthSecret', {
+            secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentitySecretArn`),
+        });
 
-        const migrationPlanSecret = secretsmanager.Secret.fromSecretAttributes(
-            this,
-            'ImportedMigrationSecret',
-            { secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityMigrationPlanSecretArn`) },
-        );
+        const migrationPlanSecret = secretsmanager.Secret.fromSecretAttributes(this, 'ImportedMigrationSecret', {
+            secretCompleteArn: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityMigrationPlanSecretArn`),
+        });
 
         const database = rds.DatabaseInstance.fromDatabaseInstanceAttributes(this, 'ImportedDatabase', {
             instanceIdentifier: `kitchensink-identity-${stage}`,
             instanceEndpointAddress: Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabaseEndpoint`),
             port: Number(Fn.importValue(`kitchensink-identity-data-${stage}:IdentityDatabasePort`)),
-            securityGroups: [ec2.SecurityGroup.fromSecurityGroupId(
-                this,
-                'ImportedDbSg',
-                Fn.importValue(`kitchensink-identity-network-${stage}:IdentityDatabaseSecurityGroupId`),
-            )],
+            securityGroups: [
+                ec2.SecurityGroup.fromSecurityGroupId(
+                    this,
+                    'ImportedDbSg',
+                    Fn.importValue(`kitchensink-identity-network-${stage}:IdentityDatabaseSecurityGroupId`),
+                ),
+            ],
         });
 
         const deletionQueue = sqs.Queue.fromQueueArn(
@@ -117,10 +114,12 @@ export class IdentityServiceStack extends Stack {
             ],
         });
 
-        taskExecutionRole.addToPolicy(new iam.PolicyStatement({
-            actions: ['secretsmanager:GetSecretValue'],
-            resources: ['*'],
-        }));
+        taskExecutionRole.addToPolicy(
+            new iam.PolicyStatement({
+                actions: ['secretsmanager:GetSecretValue'],
+                resources: ['*'],
+            }),
+        );
 
         const taskRole = new iam.Role(this, 'IdentityTaskRole', {
             assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
@@ -165,6 +164,18 @@ export class IdentityServiceStack extends Stack {
                 MEDIA_BUCKET_NAME: mediaBucket.bucketName,
                 ARCHIVE_BUCKET_NAME: archiveBucket.bucketName,
                 AUTH_SECRET_ARN: authSecretKey.secretArn,
+                // Sentry config (U8). DSN value resolved from SSM at deploy (KTD6); STAGE drives the
+                // Sentry environment; SENTRY_RELEASE = the image tag (commit SHA) so source maps
+                // resolve against the same release the build uploaded (KTD7 / U11).
+                STAGE: stage,
+                // Stage-first SSM layout — `kitchensink/{stage}/{service}/{key}` — matching Secrets
+                // Manager (`kitchensink/{stage}/auth/keys`).
+                SENTRY_DSN: ssm.StringParameter.valueForStringParameter(
+                    this,
+                    `/kitchensink/${stage === 'prod' ? 'prod' : 'sandbox'}/sentry/identity-service-dsn`,
+                ),
+                SENTRY_TRACES_SAMPLE_RATE: stage === 'prod' ? '0.1' : '1.0',
+                SENTRY_RELEASE: imageTag,
             },
             secrets: {
                 DB_USERNAME: ecs.Secret.fromSecretsManager(dbCredentialsSecret, 'username'),

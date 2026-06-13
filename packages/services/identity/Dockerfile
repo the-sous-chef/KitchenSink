@@ -10,4 +10,6 @@ COPY packages/services/identity/prod.package.json ./packages/services/identity/p
 COPY packages/services/identity/dist ./packages/services/identity/dist
 
 EXPOSE 3000
-CMD ["node", "packages/services/identity/dist/src/main.js"]
+# Preload Sentry instrumentation before app modules (native ESM — a top-level import is not a
+# reliable ordering guarantee for auto-instrumentation; KTD3 / U6).
+CMD ["node", "--import", "./packages/services/identity/dist/src/instrument.js", "packages/services/identity/dist/src/main.js"]

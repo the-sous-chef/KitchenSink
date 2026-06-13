@@ -1,0 +1,72 @@
+name: Load stage-scoped secrets
+description: >-
+    Configure AWS credentials and load the Clerk/auth keys for a given stage (sandbox|prod) from AWS
+    Secrets Manager into $GITHUB_ENV. Single source of truth for CI secret loading so PR pipelines use
+    sandbox secrets and main pipelines use prod secrets.
+
+inputs:
+    stage:
+        description: Deployment stage — 'sandbox' (PR pipelines) or 'prod' (main pipeline)
+        required: true
+    aws-access-key-id:
+        description: AWS access key id (passed from the reusable workflow's inherited secrets)
+        required: true
+    aws-secret-access-key:
+        description: AWS secret access key
+        required: true
+    aws-region:
+        description: AWS region
+        required: true
+
+runs:
+    using: composite
+    steps:
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+              aws-access-key-id: ${{ inputs.aws-access-key-id }}
+              aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+              aws-region: ${{ inputs.aws-region }}
+
+        - name: Load auth keys for stage
+          shell: bash
+          env:
+              STAGE: ${{ inputs.stage }}
+          run: |
+              set -euo pipefail
+              if [ "$STAGE" != "sandbox" ] && [ "$STAGE" != "prod" ]; then
+                  echo "::error::Invalid stage '$STAGE' — expected 'sandbox' or 'prod'"
+                  exit 1
+              fi
+
+              SECRET=$(aws secretsmanager get-secret-value \
+                  --secret-id "kitchensink/${STAGE}/auth/keys" \
+                  --query SecretString --output text)
+
+              PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.PUBLISHABLE_KEY')
+              SECRET_KEY=$(echo "$SECRET" | jq -r '.SECRET_KEY')
+              WEBHOOK_SECRET=$(echo "$SECRET" | jq -r '.WEBHOOK_SIGNING_SECRET')
+
+              if [ -z "$PUBLISHABLE_KEY" ] || [ "$PUBLISHABLE_KEY" = "null" ]; then
+                  echo "::error::PUBLISHABLE_KEY missing from kitchensink/${STAGE}/auth/keys"
+                  exit 1
+              fi
+
+              # Mask the non-public values before they touch the environment/logs.
+              echo "::add-mask::$SECRET_KEY"
+              echo "::add-mask::$WEBHOOK_SECRET"
+
+              # Publishable key is public (shipped to clients); the rest are masked above.
+              # Export every alias the apps + tests read so one secret serves all consumers.
+              {
+                  echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+                  echo "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+                  echo "EXPO_PUBLIC_IDP_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+                  echo "IDP_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+                  echo "CLERK_SECRET_KEY=$SECRET_KEY"
+                  echo "IDP_SECRET_KEY=$SECRET_KEY"
+                  echo "CLERK_WEBHOOK_SECRET=$WEBHOOK_SECRET"
+                  echo "IDP_WEBHOOK_SECRET=$WEBHOOK_SECRET"
+              } >> "$GITHUB_ENV"
+
+              echo "Loaded auth keys for stage '$STAGE'."

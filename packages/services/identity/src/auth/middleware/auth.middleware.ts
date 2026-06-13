@@ -13,8 +13,10 @@ function getPath(req: Request): string {
 export class AuthMiddleware implements NestMiddleware {
     public use(req: Request & { user?: AuthorizerContext }, _res: Response, next: NextFunction): void {
         const path = getPath(req);
+
         if (PUBLIC_PATHS.has(path) || PUBLIC_PATHS.has(req.path)) {
             next();
+
             return;
         }
 

@@ -28,6 +28,8 @@ env:
     CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
     STAGE: prod
     DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
+    # Source-map upload (U11). The upload step no-ops until this secret is set.
+    SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
 jobs:
     deploy:
@@ -55,6 +57,18 @@ jobs:
 
             - name: Build webhooks package
               run: npm run build --workspace=packages/services/identity-webhooks
+
+            # Upload the tsc-emitted .js.map files so Lambda stack traces symbolicate against the
+            # commit-SHA release (U11). Guarded on the token + project so it no-ops until configured.
+            - name: Upload webhooks Lambda source maps to Sentry
+              if: ${{ env.SENTRY_AUTH_TOKEN != '' && vars.SENTRY_WEBHOOKS_PROJECT != '' }}
+              continue-on-error: true
+              env:
+                  SENTRY_ORG: radicle-co
+                  SENTRY_PROJECT: ${{ vars.SENTRY_WEBHOOKS_PROJECT }}
+              run: |
+                  npx @sentry/cli@latest sourcemaps inject packages/services/identity-webhooks/dist
+                  npx @sentry/cli@latest sourcemaps upload --release "${{ github.sha }}" packages/services/identity-webhooks/dist
 
             - name: Build global infra
               run: npm run build --workspace=packages/infra/global
@@ -115,4 +129,4 @@ jobs:
                   STAGE=${{ env.STAGE }} IDENTITY_IMAGE_TAG=${{ github.sha }} IDENTITY_VPC_ID=${{ steps.identity-vpc.outputs.vpc_id }} npx cdk deploy --app "node packages/services/identity/infra/dist/bin/app.js" --all --require-approval never
 
             - name: CDK Deploy (identity-webhooks)
-              run: STAGE=${{ env.STAGE }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never
+              run: STAGE=${{ env.STAGE }} SENTRY_RELEASE=${{ github.sha }} npx cdk deploy --app "node packages/services/identity-webhooks/infra/dist/bin/app.js" --all --require-approval never

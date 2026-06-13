@@ -1,13 +1,14 @@
-import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, ilike } from 'drizzle-orm';
 
 import { users, DrizzleProvider } from '../database/index.js';
 import type { AuthorizerContext } from '../auth/decorators/current-user.decorator.js';
+import { createServiceLogger } from '../observability/sentry-logging.js';
 
 @Injectable()
 export class AdminService {
-    private readonly logger = new Logger(AdminService.name);
+    private readonly logger = createServiceLogger(AdminService.name);
 
     constructor(@Inject(DrizzleProvider) private readonly db: NodePgDatabase) {}
 
