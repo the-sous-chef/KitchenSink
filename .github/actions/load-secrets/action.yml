@@ -40,7 +40,7 @@ runs:
               fi
 
               SECRET=$(aws secretsmanager get-secret-value \
-                  --secret-id "kitchensink/${STAGE}/auth/keys" \
+                  --secret-id "kitchensink/${STAGE}/identity/keys" \
                   --query SecretString --output text)
 
               PUBLISHABLE_KEY=$(echo "$SECRET" | jq -r '.PUBLISHABLE_KEY')
@@ -48,7 +48,7 @@ runs:
               WEBHOOK_SECRET=$(echo "$SECRET" | jq -r '.WEBHOOK_SIGNING_SECRET')
 
               if [ -z "$PUBLISHABLE_KEY" ] || [ "$PUBLISHABLE_KEY" = "null" ]; then
-                  echo "::error::PUBLISHABLE_KEY missing from kitchensink/${STAGE}/auth/keys"
+                  echo "::error::PUBLISHABLE_KEY missing from kitchensink/${STAGE}/identity/keys"
                   exit 1
               fi
 

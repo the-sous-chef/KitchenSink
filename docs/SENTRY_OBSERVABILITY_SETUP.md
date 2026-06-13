@@ -20,7 +20,7 @@ The CDK reads these at deploy via `valueForStringParameter`, so create all of th
 and would not work here, since `valueForStringParameter` cannot resolve a `SecureString`.
 
 Stage-scoped params use the org-standard **stage-first** layout `/kitchensink/{stage}/{service}/{key}`,
-matching Secrets Manager (`kitchensink/{stage}/auth/keys`). For the per-service Sentry DSNs the same
+matching Secrets Manager (`kitchensink/{stage}/identity/keys`). For the per-service Sentry DSNs the same
 DSN serves both stages; the `STAGE`-driven Sentry `environment` tag separates sandbox from prod events.
 The clerk issuer/JWKS values are instance-specific (they must match each stage's live Clerk Frontend
 API, **not** a brand domain): prod is the custom domain `clerk.commise.app`, sandbox is the Clerk dev
